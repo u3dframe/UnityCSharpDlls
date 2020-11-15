@@ -1,16 +1,15 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using UnityEngine;
 using UnityEngine.Networking;
+using Core;
 
 public class Launcher : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
     {
-        Core.GameFile.CurrDirRes();
+        GameFile.CurrDirRes();
         InitPars();
         StartCoroutine(InitData(Entry));
     }
@@ -56,8 +55,9 @@ public class Launcher : MonoBehaviour
     }
 
     void Entry(){
+        GameMgr.instance.Init();
+        AssetBundleManager.instance.Init(GameFile.instance);
         InputMgr.instance.Init();
-        GameMgr.instance.InitAll();
         LuaManager.instance.Init();
     }
 }

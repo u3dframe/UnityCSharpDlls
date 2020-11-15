@@ -55,7 +55,8 @@ public class GameMgr : GobjLifeListener {
         this.csAlias = "GMgr";
         GameLanguage.Init();
         UGUIEventSystem.instance.Init(false);
-	}
+        Localization.language = GameLanguage.strCurLanguage;
+    }
 
 	void Update() {
 		_Exc_Up(Time.deltaTime,Time.unscaledDeltaTime);

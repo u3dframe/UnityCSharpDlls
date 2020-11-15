@@ -127,7 +127,7 @@ public class SceneInfoEx : MonoBehaviour
 
 		string _fname = ReFname(this.m_infoName);
 		string _vc = jdRoot.ToJson();
-		GameFile.WriteText(_fname,_vc);
+		GameFile.instance.WriteText(_fname,_vc);
 
 		string fp = string.Format("{0}{1}{2}.prefab",GameFile.m_appAssetPath,"Scene/Builds/prefabs/maps/",this.m_fabName);
 		GameFile.CreateFolder(fp);
@@ -212,7 +212,7 @@ public class SceneInfoEx : MonoBehaviour
 		this._ReSetLightmap();
 
 		string _fname = ReFname(this.m_infoName);
-		string _vc = GameFile.GetText(_fname);
+		string _vc = GameFile.instance.GetText(_fname);
 		if(string.IsNullOrEmpty(_vc))
 			return;
 		JsonData jdRoot = null;
