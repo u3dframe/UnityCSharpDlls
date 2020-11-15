@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Core;
+using Core.Kernel;
 
 
 /// <summary>
@@ -53,26 +53,26 @@ static public class Localization
 		string fn = null;
 		if (isCsv) fn = string.Format("lanuage/{0}.csv",language);
 		else  fn = string.Format("lanuage/{0}.properties",language);
-		string val = GameFile.GetText(fn).Trim();
+		string val = UGameFile.curInstance.GetText(fn).Trim();
 		return ReLoad(language,val,isCsv);
 	}
 	
 	static public bool ReLoad (string language,string val,bool isCsv)
 	{
 		if (string.IsNullOrEmpty(val)) return false;
-		string[] _rows = GameFile.SplitRow(val);
-		if (GameFile.IsNullOrEmpty(_rows)) return false;
+		string[] _rows = UGameFile.SplitRow(val);
+		if (UGameFile.IsNullOrEmpty(_rows)) return false;
 		mCTemp = GetCurrDict(language);
 		if(mCTemp == null)
 			mCTemp = new Dictionary<string, string>();
 		mCTemp.Clear();
 		
 		int lens = _rows.Length;
-		char[] spt = isCsv ? GameFile.m_cSpComma : GameFile.m_cSpEqual;
+		char[] spt = isCsv ? UGameFile.m_cSpComma : UGameFile.m_cSpEqual;
 		string[] _cols;
 		string _k,_v;
 		for(int i = 0; i < lens; i++){
-			_cols = GameFile.Split(_rows[i],spt,true);
+			_cols = UGameFile.Split(_rows[i],spt,true);
 			if(_cols == null || _cols.Length < 1)
 				continue;
 			_k = _cols[0];

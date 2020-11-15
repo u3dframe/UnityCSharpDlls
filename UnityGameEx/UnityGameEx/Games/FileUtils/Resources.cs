@@ -13,7 +13,7 @@ namespace Core.Kernel
     /// 日期 : 2017-03-07 09:29
     /// 功能 : 
     /// </summary>
-    public partial class Resources : UGameRes
+    public partial class Resources : UGameFile
     {
 #if UNITY_EDITOR
         static public string Path2AssetsStart(string fp)

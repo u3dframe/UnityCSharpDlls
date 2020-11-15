@@ -185,6 +185,11 @@ namespace Core.Kernel
             }
         }
 
+        static public string GetStreamingFilePath(string fn)
+        {
+            return string.Concat(m_appContentPath, fn);
+        }
+
         static public string m_dirRes
         {
             get

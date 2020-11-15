@@ -11,9 +11,9 @@ namespace Core.Kernel
     /// 类名 : 读取 Resources 文件夹下面的资源
     /// 作者 : Canyon / 龚阳辉
     /// 日期 : 2017-03-07 09:29
-    /// 功能 : 
+    /// 功能 : partial
     /// </summary>
-    public partial class UGameRes : ReadWriteHelper
+    public class UGameRes : ReadWriteHelper
     {
         static public readonly System.Type tpGobj = typeof(GameObject);
         static public readonly System.Type tpTex2D = typeof(Texture2D);

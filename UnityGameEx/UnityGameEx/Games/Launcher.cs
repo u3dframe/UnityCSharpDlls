@@ -10,6 +10,7 @@ public class Launcher : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Core.GameFile.CurrDirRes();
         InitPars();
         StartCoroutine(InitData(Entry));
     }
