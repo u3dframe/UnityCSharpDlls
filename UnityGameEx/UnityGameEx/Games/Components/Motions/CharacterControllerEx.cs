@@ -57,7 +57,8 @@ public class CharacterControllerEx : AnimatorEx
     }
 
 	override protected void OnCall4Awake(){
-		base.OnCall4Awake();
+        ReBindNodes();
+        base.OnCall4Awake();
 		this.csAlias = "CCtrler_Ex";
 		if(this.m_c_ctrler == null){
 			this.m_c_ctrler = this.m_gobj.GetComponentInChildren<CharacterController>(true);
