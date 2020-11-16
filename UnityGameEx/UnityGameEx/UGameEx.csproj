@@ -41,7 +41,6 @@
     <Compile Remove="Games\Toolkits\StaticEx.cs" />
     <Compile Remove="Games\UGUI\FlexibleGridLayoutGroup.cs" />
     <Compile Remove="Games\UGUI\UGUIAutoRotat.cs" />
-    <Compile Remove="Games\UGUI\UGUIGray.cs" />
     <Compile Remove="Games\UGUI\UGUILocalize.cs" />
   </ItemGroup>
 
