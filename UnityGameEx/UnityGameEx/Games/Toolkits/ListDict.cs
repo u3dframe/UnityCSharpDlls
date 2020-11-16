@@ -54,6 +54,11 @@ public class ListDict<T> {
         return true;
     }
 
+    public bool ContainsKey(string key)
+    {
+        return m_dic.ContainsKey(key);
+    }
+
     public void Clear(){
         m_dic.Clear();
 

@@ -32,6 +32,7 @@ namespace Core.Kernel
         static public readonly char[] m_cSpRow = "\r\n\t".ToCharArray();
         static public readonly char[] m_cSpComma = ",".ToCharArray();
         static public readonly char[] m_cSpEqual = "=".ToCharArray();
+        static public readonly char[] m_cSpEmicolon = ";".ToCharArray();
 
         // 平台
         static public readonly string platformAndroid = "Android";
@@ -108,6 +109,14 @@ namespace Core.Kernel
             get
             {
                 return m_emFpType == ET_FPType.UNITY_IOS || m_emFpType == ET_FPType.UNITY_EDITOR_IOS;
+            }
+        }
+
+        static public bool m_isAndroid
+        {
+            get
+            {
+                return m_emFpType == ET_FPType.UNITY_ANDROID || m_emFpType == ET_FPType.UNITY_EDITOR_ANDROID;
             }
         }
 
@@ -209,12 +218,7 @@ namespace Core.Kernel
 
         static public string ReUrlEnd(string url)
         {
-            int _index = url.LastIndexOf("/");
-            if (_index == url.Length - 1)
-            {
-                return url;
-            }
-            return string.Concat(url, "/");
+            return ReFnPath(url,true);
         }
 
         static public string ReUrlTime(string url)
@@ -238,6 +242,9 @@ namespace Core.Kernel
             return ReUrlTime(url, fn);
         }
 
+        /// <summary>
+		/// 字符串分割
+		/// </summary>
         static public string[] Split(string val, char[] spt, bool isRmEmpty)
         {
             if (string.IsNullOrEmpty(val) || spt == null || spt.Length <= 0)
@@ -247,14 +254,28 @@ namespace Core.Kernel
             return val.Split(spt, _sp);
         }
 
+        /// <summary>
+		/// 行分割 \r\n\t
+		/// </summary>
         static public string[] SplitRow(string val)
         {
             return Split(val, m_cSpRow, true);
         }
 
+        /// <summary>
+		/// 常用分割 - 英文 逗号 ,
+		/// </summary>
         static public string[] SplitComma(string val)
         {
             return Split(val, m_cSpComma, false);
+        }
+
+        /// <summary>
+		/// 常用分割 - 英文 分号 ;
+		/// </summary>
+        static public string[] SplitDivision(string val,bool isRmEmpty)
+        {
+            return Split(val, m_cSpEmicolon,isRmEmpty);
         }
 
         static public bool IsNullOrEmpty(string[] arrs)

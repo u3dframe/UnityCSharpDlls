@@ -19,7 +19,44 @@ public static class LJsonHelper {
 		return jd;
 	}
 
-	static public JsonData ToJData(JsonData jdRoot,string key){
+    static public T ToObject<T>(string json)
+    {
+        T _ret = default(T);
+        if (string.IsNullOrEmpty(json))
+            return _ret;
+
+        try
+        {
+            _ret = JsonMapper.ToObject<T>(json);
+        }
+        catch (System.Exception ex)
+        {
+            UnityEngine.Debug.LogErrorFormat("====== obj error = [{0}] = [{1}]", ex, json);
+        }
+        return _ret;
+    }
+
+    static public string ToJson(object obj)
+    {
+        if (obj == null)
+            return null;
+        return JsonMapper.ToJson(obj);
+    }
+
+    static public JsonData ToJData(string json) {
+        if (string.IsNullOrEmpty(json))
+            return null;
+
+        JsonData _ret = null;
+        try {
+            _ret = JsonMapper.ToObject(json);
+        } catch(System.Exception ex){
+            UnityEngine.Debug.LogErrorFormat("====== json error = [{0}] = [{1}]", ex, json);
+        }
+        return _ret;
+    }
+
+    static public JsonData ToJData(JsonData jdRoot,string key){
 		if(jdRoot == null || string.IsNullOrEmpty(key))
 			return null;
 		

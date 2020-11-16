@@ -81,7 +81,21 @@ public class UtilityHelper : GHelper {
         return (float) ToDecimal(org,acc,true);
     }
 
-	static public void SetMaxFrame(int maxFrame){
+    static public int Str2Int(string str)
+    {
+        int ret = 0;
+        int.TryParse(str, out ret);
+        return ret;
+    }
+
+    static public float Str2Float(string str)
+    {
+        float ret = 0;
+        float.TryParse(str, out ret);
+        return ret;
+    }
+
+    static public void SetMaxFrame(int maxFrame){
 		Application.targetFrameRate = maxFrame;
 	}
 
