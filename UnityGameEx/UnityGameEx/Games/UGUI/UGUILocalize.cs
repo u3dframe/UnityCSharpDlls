@@ -8,7 +8,7 @@ using UnityEngine.UI;
 /// 日期 : 2020-06-27 16:37
 /// 功能 : UGUI的文本本地化
 /// </summary>
-[ExecuteInEditMode]
+// [ExecuteInEditMode]
 [RequireComponent(typeof(Text))]
 [AddComponentMenu("UI/UGUILocalize")]
 public class UGUILocalize : GobjLifeListener {
