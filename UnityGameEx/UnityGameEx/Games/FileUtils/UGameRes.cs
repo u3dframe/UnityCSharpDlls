@@ -140,5 +140,12 @@ namespace Core.Kernel
                 return false;
             return abName.EndsWith(m_strTex2D) || abName.EndsWith(m_strCube);
         }
+
+        static public bool IsAudioClipAB(string abName)
+        {
+            if (string.IsNullOrEmpty(abName))
+                return false;
+            return abName.EndsWith(m_strAdoClip);
+        }
     }
 }

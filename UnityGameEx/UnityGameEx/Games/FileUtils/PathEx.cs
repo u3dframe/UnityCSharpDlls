@@ -75,5 +75,15 @@ namespace Core.Kernel
 		{
 			return Path.GetFullPath (fn);
 		}
-	}
+
+        static public bool IsHasPoint(string src)
+        {
+            return src.LastIndexOf(".") >= 0;
+        }
+
+        static public bool IsHasSuffix(string src)
+        {
+            return IsHasPoint(src);
+        }
+    }
 }

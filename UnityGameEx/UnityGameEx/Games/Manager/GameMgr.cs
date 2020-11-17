@@ -12,7 +12,6 @@ using Core;
 /// 功能 : 所有需要Update函数，统一从这里调用
 /// </summary>
 public class GameMgr : GobjLifeListener {
-
 	static GameObject _mgrGobj;
 	static public GameObject mgrGobj{
 		get{
@@ -23,7 +22,20 @@ public class GameMgr : GobjLifeListener {
 		}
 	}
 
-	static GameMgr _instance;
+    static GameObject _mgrGobj2;
+    static public GameObject mgrGobj2
+    {
+        get
+        {
+            if (IsNull(_mgrGobj2))
+            {
+                _mgrGobj2 = GetGobj("Manager");
+            }
+            return _mgrGobj2;
+        }
+    }
+
+    static GameMgr _instance;
 	static public GameMgr instance{
 		get{
 			if (IsNull(_instance)) {

@@ -23,15 +23,18 @@ public class UGUIMatData
     public UGUIMatData Init(MaskableGraphic graphic,bool isNewMat){
         this.m_graphic = graphic;
         this.m_mat = this.m_graphic.material;
-        if(isNewMat){
+
+        GobjLifeListener glife = GobjLifeListener.Get(graphic.gameObject);
+        glife.AddOnlyOnceDCall(this.OnNotifyDestry);
+        glife.m_obj1 = this;
+
+        if (isNewMat){
             if(this.m_mat != null){
                 this.m_newMat = new Material(this.m_mat);
                 this.m_graphic.material = this.m_newMat;
             }
         }
-        GobjLifeListener glife = GobjLifeListener.Get(graphic.gameObject);
-        glife.AddOnlyOnceDCall(this.OnNotifyDestry);
-        glife.m_obj1 = this;
+       
         return this;
     }
 
