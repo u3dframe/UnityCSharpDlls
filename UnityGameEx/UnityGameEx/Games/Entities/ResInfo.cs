@@ -47,7 +47,7 @@ namespace Core.Kernel
 			}
 		}
 
-        public string curName { get { if (string.IsNullOrEmpty(this.m_realName)) return this.m_resName; return this.m_realName; } }
+        public string m_curName { get; private set; }
         public bool isManifest { get; private set; }
         public bool m_isMustFile { get; private set; } // 是否是包体必要文件
 
@@ -86,8 +86,13 @@ namespace Core.Kernel
 			this.m_size = size;
 			this.m_realName = realName;
 
-            this.isManifest = this.curName.Equals(UGameFile.m_curPlatform);
-            this.m_isMustFile = this.isManifest || curName.EndsWith(".lua") || curName.EndsWith(".txt");
+            if (string.IsNullOrEmpty(realName))
+                this.m_curName = resName;
+            else
+                this.m_curName = realName;
+
+            this.isManifest = this.m_curName.Equals(UGameFile.m_curPlatform);
+            this.m_isMustFile = this.isManifest || this.m_curName.EndsWith(".lua") || this.m_curName.EndsWith(".txt");
         }
         
 		public bool IsSame(ResInfo other){
@@ -115,5 +120,38 @@ namespace Core.Kernel
         {
             return string.Format("{0},{1},{2},{3},{4}", m_resName, m_compareCode, m_size, m_resPackage, m_realName);
         }
+
+        // ============== 下载相关的
+        // 下载地址
+        private string _m_url = "";
+        private string[] _arrsUrls = null;
+        private int _indexUrl = -1;
+        public string m_url
+        {
+            get { return _m_url; }
+            set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    _arrsUrls = null;
+                }
+                else if (!value.Equals(_m_url))
+                {
+                    _arrsUrls = value.Split(";".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries);
+                    _indexUrl = -1;
+                }
+                _m_url = value;
+            }
+        }
+
+        public string urlCurr
+        {
+            get
+            {
+                return UGameFile.GetUrl(_arrsUrls, m_url, ref _indexUrl);
+            }
+        }
+
+
     }
 }

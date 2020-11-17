@@ -242,6 +242,32 @@ namespace Core.Kernel
             return ReUrlTime(url, fn);
         }
 
+        static System.Random sysRnd = new System.Random(System.Guid.NewGuid().GetHashCode());
+        static public string GetUrl(string[] arrs, string defUrl, ref int index)
+        {
+            string _ret = defUrl;
+            if (arrs != null && arrs.Length > 0)
+            {
+                int _lens = arrs.Length;
+
+                if (index < 0)
+                {
+                    if (_lens > 1)
+                    {
+                        index = sysRnd.Next(_lens);
+                    }
+                    else
+                    {
+                        index = 0;
+                    }
+                }
+                index %= _lens;
+                _ret = arrs[index];
+                index++;
+            }
+            return _ret;
+        }
+
         /// <summary>
 		/// 字符串分割
 		/// </summary>

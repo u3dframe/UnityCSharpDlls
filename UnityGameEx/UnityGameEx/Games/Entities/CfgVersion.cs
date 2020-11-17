@@ -86,7 +86,7 @@ namespace Core.Kernel
 		// 服务器列表
 		public string urlSvlist{
 			get{
-				return GetUrl(_arrsSvs, m_urlSv, ref _indSvs);
+				return UGameFile.GetUrl(_arrsSvs, m_urlSv, ref _indSvs);
 			}
 		}
 
@@ -334,24 +334,6 @@ namespace Core.Kernel
 			m_lApkIpa.Add (one);
 		}
 	
-		static System.Random sysRnd = new System.Random(System.Guid.NewGuid().GetHashCode());
-		static public string GetUrl(string[] arrs,string defUrl,ref int index){
-			string _tmpUrl = defUrl;
-			if (arrs != null && arrs.Length > 0) {
-				if (index < 0) {
-					if (arrs.Length > 1) {
-						index = sysRnd.Next (arrs.Length);
-					} else {
-						index = 0;
-					}
-				}
-				index %= arrs.Length;
-				_tmpUrl = arrs [index];
-				index++;
-			}
-			return _tmpUrl;
-		}
-
         static public CfgVersion Builder()
         {
             return new CfgVersion();
