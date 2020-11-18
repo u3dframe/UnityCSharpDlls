@@ -29,7 +29,7 @@ public class GameMgr : GobjLifeListener {
         {
             if (IsNull(_mgrGobj2))
             {
-                _mgrGobj2 = GetGobj("Manager");
+                _mgrGobj2 = GetGobj("GManager");
             }
             return _mgrGobj2;
         }
