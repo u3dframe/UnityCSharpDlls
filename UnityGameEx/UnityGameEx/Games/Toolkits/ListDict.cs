@@ -59,6 +59,11 @@ public class ListDict<T> {
         return m_dic.ContainsKey(key);
     }
 
+    public int Count()
+    {
+        return m_dic.Count;
+    }
+
     public void Clear(){
         m_dic.Clear();
 

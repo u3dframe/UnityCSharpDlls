@@ -88,6 +88,18 @@ namespace Core.Kernel
             return this.m_data.Get(key);
         }
 
+        public int GetDataCount()
+        {
+            return this.m_data.Count();
+        }
+
+        public List<ResInfo> GetList(bool isNew)
+        {
+            if (isNew)
+                return new List<ResInfo>(this.m_data.m_list);
+            return this.m_data.m_list;
+        }
+
         public bool Remove(ResInfo info){
 			if (info == null)
 				return false;
@@ -119,10 +131,11 @@ namespace Core.Kernel
 		}
 
 		public void ToContent(){
-            List<ResInfo> m_lFiles = this.m_data.m_list;
+            List<ResInfo> m_lFiles = this.GetList(true);
             if (m_lFiles.Count > 0) {
-				System.Text.StringBuilder _build = new System.Text.StringBuilder ();
-				for (int i = 0; i < this.m_data.m_list.Count; i++) {
+                int _count = m_lFiles.Count;
+                System.Text.StringBuilder _build = new System.Text.StringBuilder ();
+				for (int i = 0; i < _count; i++) {
 					_build.Append (m_lFiles [i].ToString ()).Append ("\n");
 				}
 				this.m_content = _build.ToString ();
@@ -137,7 +150,7 @@ namespace Core.Kernel
 				if (string.IsNullOrEmpty (this.m_filePath)) {
 					this.m_filePath = UGameFile.curInstance.GetFilePath (m_defFileName);
 				}
-                List<ResInfo> m_lFiles = this.m_data.m_list;
+                List<ResInfo> m_lFiles = this.GetList(true);
                 if (string.IsNullOrEmpty (this.m_content) && m_lFiles.Count <= 0){
 					// UGameFile.curInstance.DeleteFile(this.m_filePath,true);
 					return false;
@@ -187,7 +200,7 @@ namespace Core.Kernel
 			this.m_content = other.m_content;
 
 			ResInfo _info;
-            List<ResInfo> m_lFiles = other.m_data.m_list;
+            List<ResInfo> m_lFiles = other.GetList(true);
             for (int i = 0; i < m_lFiles.Count; i++) {
 				_info = m_lFiles[i];
 				this.Add (_info);
@@ -222,7 +235,7 @@ namespace Core.Kernel
 				return;
 			
 			_downing.Clear ();
-            List<ResInfo> m_lFiles = instanceNeedDown.m_data.m_list;
+            List<ResInfo> m_lFiles = instanceNeedDown.GetList(true);
             int lens = m_lFiles.Count;
 			ResInfo _info = null, _info2 = null;
 			for (int i = 0; i < lens; i++) {
@@ -239,9 +252,10 @@ namespace Core.Kernel
 		}
 
 		// 用linq和lb表达式取得size最大的几个对象
-		public List<ResInfo> getList4MaxSize(int limit){
+		public List<ResInfo> GetList4MaxSize(int limit){
 			limit = Mathf.Max (1, limit);
-			List<ResInfo> list = this.m_data.m_list.OrderByDescending (s=>s.m_size).ToList ();
+            var _slist = this.GetList(true);
+			List<ResInfo> list = _slist.OrderByDescending (s=>s.m_size).ToList ();
 			limit  = Mathf.Min (list.Count, limit);
 			return list.GetRange(0,limit);
 		}

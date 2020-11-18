@@ -185,6 +185,30 @@ namespace Core.Kernel
         public event DF_LDownFile m_callFunc = null; // 加载,下载的成功失败状态回调
         public bool m_isEnd { get { return isError || isCompleted; } }
 
+        public ResInfo(string url, string proj, string fn, DF_LDownFile callFunc, EM_Asset aType)
+        {
+            ReInit(url, proj, fn, callFunc, aType);
+        }
+
+        public ResInfo ReInit(string url, string proj, string fn, DF_LDownFile callFunc, EM_Asset aType)
+        {
+            this.m_url = url;
+            this.m_resPackage = proj;
+            this.m_resName = fn;
+            this.m_assetType = aType;
+
+            this.AddOnlyOnceCall(callFunc);
+            return this;
+        }
+
+        public void AddOnlyOnceCall(DF_LDownFile call)
+        {
+            if (call == null)
+                return;
+            this.m_callFunc -= call;
+            this.m_callFunc += call;
+        }
+
         public void Clone4Down(ResInfo df) {
             this.m_assetType = df.m_assetType;
             this.m_url = df.m_url;
@@ -299,25 +323,28 @@ namespace Core.Kernel
                 }
             }
 
-            if (isError)
+            if (this.m_isEnd)
             {
                 this.m_uwr = null;
 
-                if (this.m_nLogError == 1 || this.m_numLimitTry <= this.m_numCountTry)
+                if (this.isError)
                 {
-                    this.m_strError = string.Format("== Down Load Error : url = [{0}] , Error = [{1}]", this.m_realUrl, this.m_strError);
-                    if (m_nLogError != 0)
-                        Debug.LogError(this.m_strError);
-                }
+                    if (this.m_nLogError == 1 || this.m_numLimitTry <= this.m_numCountTry)
+                    {
+                        this.m_strError = string.Format("== Down Load Error : url = [{0}] , Error = [{1}]", this.m_realUrl, this.m_strError);
+                        if (m_nLogError != 0)
+                            Debug.LogError(this.m_strError);
+                    }
 
-                if (this.m_numLimitTry > this.m_numCountTry)
-                {
-                    this.m_numCountTry++;
-                    this.m_downState = EM_DownLoad.Init;
-                }
-                else
-                {
-                    _ExcuteCallFunc(EM_SucOrFails.Fails);
+                    if (this.m_numLimitTry > this.m_numCountTry)
+                    {
+                        this.m_numCountTry++;
+                        this.m_downState = EM_DownLoad.Init;
+                    }
+                    else
+                    {
+                        _ExcuteCallFunc(EM_SucOrFails.Fails);
+                    }
                 }
             }
         }
@@ -333,9 +360,6 @@ namespace Core.Kernel
                 {
                     case EM_Asset.Text:
                         this.m_objTarget = _down_.text;
-                        break;
-                    case EM_Asset.Bytes:
-                        this.m_objTarget = _down_.data;
                         break;
                     case EM_Asset.Texture:
                         this.m_objTarget = DownloadHandlerTexture.GetContent(this.m_uwr);
@@ -371,6 +395,7 @@ namespace Core.Kernel
                 }
             }
             bool isHas = this.m_callFunc != null;
+            this.m_callFunc = null;
             if (isHas)
             {
                 this.m_callFunc((int)emState,this);
@@ -395,14 +420,9 @@ namespace Core.Kernel
 
         public ResInfo DownReady(string url, string proj, DF_LDownFile callFunc = null, EM_Asset aType = EM_Asset.Bytes,int nWrite = 0,int nLog = 0)
         {
-            this.m_callFunc -= callFunc;
-            this.m_callFunc += callFunc;
-            this.m_url = url;
-            this.m_resPackage = proj;
-            this.m_assetType = aType;
+            this.ReInit(url, proj, this.m_resName, callFunc, aType);
             this.m_nWrite = nWrite;
             this.m_nLogError = nLog;
-
             this.m_numCountTry = 1;
             this.m_isOnUpdate = false;
             this.m_objTarget = null;
@@ -425,6 +445,11 @@ namespace Core.Kernel
             {
                 GameMgr.RegisterUpdate(this);
             }
+        }
+
+        public ResInfo ReDownReady(DF_LDownFile callFunc = null)
+        {
+            return this.DownReady(this.m_url, this.m_resPackage, callFunc, this.m_assetType, this.m_nWrite, this.m_nLogError);
         }
     }
 }
