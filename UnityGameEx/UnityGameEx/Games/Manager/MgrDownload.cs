@@ -187,7 +187,7 @@ namespace Core.Kernel{
             this.isRunning = isRun;
 		}
         
-        public bool AddPreLoad(ResInfo ret,bool isRunning)
+        public bool AddPreLoad(ResInfo ret,bool isRunning,DF_LDownFile callBack)
         {
             if (ret == null || this.m_preLoads.Contains(ret))
                 return false;
@@ -196,33 +196,34 @@ namespace Core.Kernel{
             {
                 this.m_needLoads.Remove(ret);
             }
+            ret.AddOnlyOnceCall(callBack);
             this.m_preLoads.Enqueue(ret);
             this.isRunning = isRunning;
             return true;
         }
 
-        public bool AddPreLoad(ResInfo dlFile)
+        public bool AddPreLoad(ResInfo dlFile,DF_LDownFile callBack)
         {
             bool isRun = this.isRunning;
-            bool _ret = this.AddPreLoad(dlFile, false);
+            bool _ret = this.AddPreLoad(dlFile, false, callBack);
             this.isRunning = isRun;
             return _ret;
         }
 
-        public bool AddPreLoad(string resName,bool isRunning)
+        public bool AddPreLoad(string resName,bool isRunning,DF_LDownFile callBack)
         {
             ResInfo ret = CfgFileList.instanceDown.GetInfo(resName);
             if (ret == null)
             {
                 ret = CfgFileList.instance.GetInfo(resName);
             }
-            return AddPreLoad(ret, isRunning);
+            return AddPreLoad(ret, isRunning, callBack);
         }
 
-        public bool AddPreLoad(string resName)
+        public bool AddPreLoad(string resName,DF_LDownFile callBack)
         {
             bool isRun = this.isRunning;
-            bool _ret = this.AddPreLoad(resName, false);
+            bool _ret = this.AddPreLoad(resName, false, callBack);
             this.isRunning = isRun;
             return _ret;
         }

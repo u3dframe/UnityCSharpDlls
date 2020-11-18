@@ -207,17 +207,17 @@ namespace Core.Kernel
 			}
 		}
 
-		public bool isHas(string  resName){
-			if (string.IsNullOrEmpty (resName))
+		public bool IsHas(string  realName){
+			if (string.IsNullOrEmpty (realName))
 				return true;
 
-			return this.m_data.ContainsKey( resName );
+			return this.m_data.ContainsKey(realName);
 		}
 
-		public bool isHas(ResInfo info){
+		public bool IsHas(ResInfo info){
 			if (info == null)
 				return true;
-			return isHas (info.m_realName);
+			return IsHas(info.m_realName);
 		}
 
 		/// <summary>
