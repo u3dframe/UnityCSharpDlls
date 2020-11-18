@@ -1,15 +1,25 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Core.Kernel
 {
-	/// <summary>
-	/// 类名 : 资源信息对象
-	/// 作者 : Canyon / 龚阳辉
-	/// 日期 : 2017-12-07 14:35
-	/// 功能 : 
-	/// </summary>
-	public class ResInfo : CustomYieldInstruction {
-        // 资源名 = m_compareCode
+    /// <summary>
+    /// 类名 : 委托 - 资源下载状态回调
+    /// 作者 : Canyon / 龚阳辉
+    /// 日期 : 2018-01-30 14:35
+    /// 功能 : 
+    /// 描述 : state=EM_SucOrFails枚举int值
+    /// </summary>
+    public delegate void DF_LDownFile(int state,ResInfo dlFile);
+
+    /// <summary>
+    /// 类名 : 资源信息对象
+    /// 作者 : Canyon / 龚阳辉
+    /// 日期 : 2017-12-07 14:35
+    /// 功能 : 
+    /// </summary>
+    public class ResInfo : CustomYieldInstruction,IUpdate {
+        // 资源名 = m_compareCode + 后缀名
         public string m_resName = "";
 
         // 真实资源名 - 用于打包时候的判断 (一般是相对路径 xxx/xx/xx.ab,xx.lua,)
@@ -102,18 +112,24 @@ namespace Core.Kernel
 			return v == 0;
 		}
 
-		public virtual void CloneFromOther(ResInfo other){
+		public void CloneFromOther(ResInfo other){
 			this.m_resName = other.m_resName;
 			this.m_compareCode = other.m_compareCode;
 			this.m_resPackage = other.m_resPackage;
 			this.m_size = other.m_size;
 			this.m_realName = other.m_realName;
-		}
+
+            this.Clone4Down(other);
+        }
 
 		public override bool keepWaiting {
 			get {
-				return false;
-			}
+                if(this.m_downState == EM_DownLoad.None)
+				    return false;
+
+                OnUpdate();
+                return !m_isEnd;
+            }
 		}
 
         public override string ToString()
@@ -122,6 +138,12 @@ namespace Core.Kernel
         }
 
         // ============== 下载相关的
+        public bool m_isOnUpdate = false;
+        public bool IsOnUpdate() { return this.m_isOnUpdate; }
+
+        int m_numLimitTry = 3; // 限定失败后下载次数
+        int m_numCountTry = 1; // 当前下载次数
+
         // 下载地址
         private string _m_url = "";
         private string[] _arrsUrls = null;
@@ -131,27 +153,278 @@ namespace Core.Kernel
             get { return _m_url; }
             set
             {
+                this.m_numLimitTry = 1;
                 if (string.IsNullOrEmpty(value))
                 {
                     _arrsUrls = null;
                 }
                 else if (!value.Equals(_m_url))
                 {
-                    _arrsUrls = value.Split(";".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries);
+                    _arrsUrls = UGameFile.SplitDivision(value, true);
                     _indexUrl = -1;
+                    this.m_numLimitTry = UGameFile.LensArrs(_arrsUrls);
                 }
                 _m_url = value;
             }
         }
 
-        public string urlCurr
+        public EM_DownLoad m_downState = EM_DownLoad.None;
+        public int m_iDownState { get { return (int)this.m_downState; } }
+        public bool isError { get { return this.m_iDownState >= (int)EM_DownLoad.Error; } }
+        public bool isCompleted { get { return this.m_downState == EM_DownLoad.Completed; } }
+        UnityWebRequest m_uwr = null;
+        string m_realUrl = "";
+        public string m_strError { get; private set; }
+        float m_wwwProgress = 0; // 下载进度
+        float m_timeout = 5;
+        float m_curtime = 0;
+        public int m_nLogError { get; set; } // 0-不打印,1-每次错误打印,2-只打印最后一次
+        public object m_objTarget { get; private set; } // 下载得到的目标对象
+        EM_Asset m_assetType = EM_Asset.Text; // 默认资源类型为:文本内容
+        public int m_nWrite { get; set; } // 下载完毕后写文件,0-不写,1-要写
+        public event DF_LDownFile m_callFunc = null; // 加载,下载的成功失败状态回调
+        public bool m_isEnd { get { return isError || isCompleted; } }
+
+        public void Clone4Down(ResInfo df) {
+            this.m_assetType = df.m_assetType;
+            this.m_url = df.m_url;
+            this.m_callFunc = df.m_callFunc;
+        }
+
+        public void OnUpdate()
         {
-            get
+            this.OnUpdate(Time.deltaTime, Time.unscaledDeltaTime);
+        }
+
+        public void OnUpdate(float dt, float unscaledDt) {
+            switch (this.m_downState)
             {
-                return UGameFile.GetUrl(_arrsUrls, m_url, ref _indexUrl);
+                case EM_DownLoad.Init:
+                    _ST_Init();
+                    break;
+                case EM_DownLoad.DownLoading:
+                    _ST_DownLoad();
+                    break;
             }
         }
 
+        void _ST_Init()
+        {
+            if (m_uwr == null)
+            {
+                this.m_strError = "";
+                if (string.IsNullOrEmpty(m_url))
+                {
+                    this.m_strError = "Url Error : url is null";
+                    this.m_downState = EM_DownLoad.Error_EmptyUrl;
+                    return;
+                }
 
+                string _url = UGameFile.GetUrl(_arrsUrls, m_url, ref _indexUrl);
+                _url = UGameFile.ReUrlEnd(_url);
+                this.m_realUrl = string.Format("{0}{1}", _url, this.m_filePath);
+                m_uwr = new UnityWebRequest(this.m_realUrl);
+                m_uwr.timeout = 30;
+
+                DownloadHandler _down = null;
+                switch (this.m_assetType)
+                {
+                    case EM_Asset.Texture:
+                        _down = new DownloadHandlerTexture();
+                        break;
+                    case EM_Asset.AssetBundle:
+                        _down = new DownloadHandlerAssetBundle(this.m_realUrl, 0);
+                        break;
+                }
+
+                if(_down != null)
+                {
+                    m_uwr.downloadHandler = _down;
+                }
+
+                m_uwr.SendWebRequest();
+                m_curtime = 0;
+                m_wwwProgress = 0;                
+            }
+            this.m_downState = EM_DownLoad.DownLoading;
+        }
+
+        void _ST_DownLoad()
+        {
+            if (this.m_uwr == null)
+            {
+                if (this.m_downState == EM_DownLoad.DownLoading)
+                    this.m_downState = EM_DownLoad.Init;
+
+                return;
+            }
+
+            if (this.m_uwr.isDone)
+            {
+                if (this.m_uwr.isHttpError || this.m_uwr.isNetworkError)
+                {
+                    this.m_downState = EM_DownLoad.Error_LoadDown;
+                    this.m_strError = this.m_uwr.error;
+                }
+                else
+                {
+                    this._DoWWWDone();
+                }
+                this.m_uwr.Dispose();
+            }
+            else
+            {
+                if (this.m_uwr.downloadProgress == this.m_wwwProgress)
+                {
+                    this.m_curtime += Time.unscaledDeltaTime;
+                }
+                else
+                {
+                    this.m_curtime = 0;                    
+                    this.m_wwwProgress = this.m_uwr.downloadProgress;
+                }
+
+                if (this.m_timeout <= this.m_curtime)
+                {
+                    this.m_downState = EM_DownLoad.Error_TimeOut;
+                    this.m_strError = "time out";
+                    try
+                    {
+                        this.m_uwr.Abort();
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogErrorFormat("=== abort uwr error = [{0}]", ex);
+                    }
+                }
+            }
+
+            if (isError)
+            {
+                this.m_uwr = null;
+
+                if (this.m_nLogError == 1 || this.m_numLimitTry <= this.m_numCountTry)
+                {
+                    this.m_strError = string.Format("== Down Load Error : url = [{0}] , Error = [{1}]", this.m_realUrl, this.m_strError);
+                    if (m_nLogError != 0)
+                        Debug.LogError(this.m_strError);
+                }
+
+                if (this.m_numLimitTry > this.m_numCountTry)
+                {
+                    this.m_numCountTry++;
+                    this.m_downState = EM_DownLoad.Init;
+                }
+                else
+                {
+                    _ExcuteCallFunc(EM_SucOrFails.Fails);
+                }
+            }
+        }
+
+        void _DoWWWDone()
+        {
+            this.m_downState = EM_DownLoad.WaitCommand;
+            this.m_objTarget = null;
+            var _down_ = this.m_uwr.downloadHandler;
+            try
+            {
+                switch (this.m_assetType)
+                {
+                    case EM_Asset.Text:
+                        this.m_objTarget = _down_.text;
+                        break;
+                    case EM_Asset.Bytes:
+                        this.m_objTarget = _down_.data;
+                        break;
+                    case EM_Asset.Texture:
+                        this.m_objTarget = DownloadHandlerTexture.GetContent(this.m_uwr);
+                        break;
+                    case EM_Asset.AssetBundle:
+                        this.m_objTarget = DownloadHandlerAssetBundle.GetContent(this.m_uwr);
+                        break;
+                    default:
+                        this.m_objTarget = _down_.data;
+                        break;
+                }
+
+                _ExcuteCallFunc(EM_SucOrFails.Success);
+            }
+            catch (System.Exception ex)
+            {
+                this.m_downState = EM_DownLoad.Error_ExcuteCall;
+                this.m_strError = ex.Message;
+            }
+        }
+
+        void _ExcuteCallFunc(EM_SucOrFails emState)
+        {
+            if (emState == EM_SucOrFails.Success)
+            {
+                if (m_nWrite == 1)
+                {
+                    _WriteFile();
+                }
+                else
+                {
+                    this.m_downState = EM_DownLoad.Completed;
+                }
+            }
+            bool isHas = this.m_callFunc != null;
+            if (isHas)
+            {
+                this.m_callFunc((int)emState,this);
+            }
+        }
+
+        void _WriteFile()
+        {
+            this.m_downState = EM_DownLoad.WaitCommand;
+            try
+            {
+                string _fp = UGameFile.curInstance.GetFilePath(this.m_resName);
+                UGameFile.WriteFile(_fp,m_uwr.downloadHandler.data);
+                this.m_downState = EM_DownLoad.Completed;
+            }
+            catch (System.Exception ex)
+            {
+                this.m_downState = EM_DownLoad.Error_NotEnoughMemory;
+                m_strError = ex.Message;
+            }
+        }
+
+        public ResInfo DownReady(string url, string proj, DF_LDownFile callFunc = null, EM_Asset aType = EM_Asset.Bytes,int nWrite = 0,int nLog = 0)
+        {
+            this.m_callFunc -= callFunc;
+            this.m_callFunc += callFunc;
+            this.m_url = url;
+            this.m_resPackage = proj;
+            this.m_assetType = aType;
+            this.m_nWrite = nWrite;
+            this.m_nLogError = nLog;
+
+            this.m_numCountTry = 1;
+            this.m_isOnUpdate = false;
+            this.m_objTarget = null;
+            this.m_downState = EM_DownLoad.Init;
+            return this;
+        }
+
+        public ResInfo DownStart()
+        {
+            if (!this.m_isOnUpdate)
+                RegUpdate(true);
+            return this;
+        }
+
+        public void RegUpdate(bool isUp)
+        {
+            this.m_isOnUpdate = isUp;
+            GameMgr.DiscardUpdate(this);
+            if (isUp)
+            {
+                GameMgr.RegisterUpdate(this);
+            }
+        }
     }
 }

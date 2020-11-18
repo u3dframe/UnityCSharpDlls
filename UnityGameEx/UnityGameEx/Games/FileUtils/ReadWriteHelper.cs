@@ -304,11 +304,17 @@ namespace Core.Kernel
             return Split(val, m_cSpEmicolon,isRmEmpty);
         }
 
-        static public bool IsNullOrEmpty(string[] arrs)
+        static public int LensArrs(object[] arrs)
         {
-            if (arrs == null || arrs.Length <= 0)
-                return true;
-            return false;
+            if (arrs == null)
+                return 0;
+            return arrs.Length;
+        }
+
+        static public bool IsNullOrEmpty(object[] arrs)
+        {
+            int lens = LensArrs(arrs);
+            return lens <= 0;
         }
     }
 }

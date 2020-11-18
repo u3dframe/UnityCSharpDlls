@@ -65,7 +65,7 @@ namespace Core.Kernel
 		}
 
 		// 创建文件
-		static public bool CreateText (string fn, byte[] buffs)
+		static public bool CreateFile (string fn, byte[] buffs)
 		{
 			CreateFolder(fn);
 			File.WriteAllBytes (fn, buffs);
@@ -79,8 +79,21 @@ namespace Core.Kernel
 			return true;
 		}
 
-		// 取得文件字节
-		static public byte[] GetBytes4File (string fp)
+        static public void WriteFile(string fp, byte[] buffs)
+        {
+            DelFile(fp);
+            CreateFolder(fp);
+            using (FileStream stream = new FileStream(fp, FileMode.OpenOrCreate))
+            {
+                using (BinaryWriter writer = new BinaryWriter(stream))
+                {
+                    writer.Write(buffs);
+                }
+            }
+        }
+
+        // 取得文件字节
+        static public byte[] GetBytes4File (string fp)
 		{
 			if (IsFile (fp)) {
 				return File.ReadAllBytes (fp);
