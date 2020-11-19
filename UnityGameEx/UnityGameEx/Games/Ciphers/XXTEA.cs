@@ -18,7 +18,7 @@ namespace Core.Kernel.Cipher
             {
                 if (_defaultKey == null)
                 {
-                    _defaultKey = Encoding.UTF8.GetBytes(_strDefaultKey.PadRight(MIN_LENGTH, SPECIAL_CHAR)).ToLongArray();
+                    _defaultKey = _ToLongs(_strDefaultKey);
                 }
                 return _defaultKey;
             }
@@ -35,7 +35,25 @@ namespace Core.Kernel.Cipher
             if (key.Equals(_strCKey))
                 return;
             _strCKey = key;
-            customKey = Encoding.UTF8.GetBytes(key.PadRight(MIN_LENGTH, SPECIAL_CHAR)).ToLongArray();
+            customKey = _ToLongs(key);
+        }
+
+        private static byte[] _ToBytes(string val)
+        {
+            if (string.IsNullOrEmpty(val))
+                return null;
+
+            string _v = val.PadRight(MIN_LENGTH, SPECIAL_CHAR);
+            return Encoding.UTF8.GetBytes(_v);
+        }
+
+        private static long[] _ToLongs(string val)
+        {
+            byte[] _bts = _ToBytes(val);
+            if (_bts == null)
+                return null;
+
+            return _bts.ToLongArray();
         }
 
         private static long[] GetKey()
@@ -47,16 +65,17 @@ namespace Core.Kernel.Cipher
             return defaultKey;
         }
 
-		static public string custKey{ get { return _strCKey; } }
+        static public string custKey { get { return _strCKey; } }
 
         public static string Encrypt(byte[] data)
         {
-            return TEAEncrypt(data.ToLongArray(),GetKey()).ToHexString();
+            return TEAEncrypt(data.ToLongArray(), GetKey()).ToHexString();
         }
 
         public static string Encrypt(this string data)
         {
-            return Encrypt(Encoding.UTF8.GetBytes(data.PadRight(MIN_LENGTH, SPECIAL_CHAR)));
+            byte[] _bts = _ToBytes(data);
+            return Encrypt(_bts);
         }
 
         public static string Encrypt(this string data, string key)
@@ -64,7 +83,7 @@ namespace Core.Kernel.Cipher
             SetCustKey(key);
             return Encrypt(data);
         }
-        
+
         public static string Decrypt(this string data)
         {
             if (string.IsNullOrEmpty(data)) { return data; }
@@ -143,7 +162,7 @@ namespace Core.Kernel.Cipher
 
             return result;
         }
-		
+
         private static byte[] ToByteArray(this long[] data)
         {
             List<byte> result = new List<byte>(data.Length * 8);
