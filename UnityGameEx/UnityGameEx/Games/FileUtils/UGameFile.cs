@@ -32,10 +32,7 @@ namespace Core.Kernel
         {
             string _fp = GetFilePath(fn);
             if (IsFile(_fp))
-            {
                 return _fp;
-            }
-
             return GetStreamingFilePath(fn);
         }
 

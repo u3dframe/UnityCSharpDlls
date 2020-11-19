@@ -68,8 +68,8 @@ namespace Core.Kernel
 			Init (row);
 		}
 
-		public ResInfo(string resRealName, string compareCode,string resPackage,int size){
-			Init (compareCode, compareCode,resPackage,size,resRealName);
+		public ResInfo(string resName, string compareCode, string resPackage, int size, string realName) {
+			Init (resName, compareCode,resPackage,size,realName);
 		}
 
 		public void Init(string row){
