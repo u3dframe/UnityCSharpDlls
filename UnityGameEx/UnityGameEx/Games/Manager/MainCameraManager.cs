@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 /// <summary>
 /// 类名 : 主摄像机管理脚本

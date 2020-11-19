@@ -1,6 +1,6 @@
 using UnityEngine;
 using System;
-using System.Globalization;
+// using System.Globalization;
 
 /// <summary>
 /// 类名 : Game Language

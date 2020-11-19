@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections;
 
 /// <summary>
 /// 类名 : GameObject对象 生命周期 监听

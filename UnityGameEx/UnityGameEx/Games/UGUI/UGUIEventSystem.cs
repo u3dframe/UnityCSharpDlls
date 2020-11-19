@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.EventSystems;
 /// <summary>
 /// 类名 : UGUI EventSystem 单例对象

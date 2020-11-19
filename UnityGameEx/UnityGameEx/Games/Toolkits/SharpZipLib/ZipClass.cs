@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.IO;
 using System.Threading;
-using System.Collections;
 using System.Collections.Generic;
 using ICSharpCode.SharpZipLib.Zip;
 using ICSharpCode.SharpZipLib.Zip.Compression;

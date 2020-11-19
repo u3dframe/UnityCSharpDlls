@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 /// <summary>
 /// 类名 : 粒子系统

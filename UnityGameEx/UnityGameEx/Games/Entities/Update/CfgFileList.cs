@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,8 +23,7 @@ namespace Core.Kernel
         // 文件路径
         protected string m_filePath = "";
 		public string m_content{ get; private set; }
-
-
+        
 		private CfgFileList(){
 		}
         
@@ -273,6 +271,11 @@ namespace Core.Kernel
         static public CfgFileList BuilderFp(string fpath)
         {
             return new CfgFileList().LoadFP(fpath);
+        }
+
+        static public CfgFileList BuilderDefault()
+        {
+            return Builder(m_defFileName);
         }
 
         static CfgFileList _instance;

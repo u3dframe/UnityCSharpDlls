@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
 
 public delegate void DF_UGUIPos(GameObject gameObject,Vector2 pos);
 public delegate void DF_UGUI2V2(GameObject gameObject,Vector2 pos,Vector2 delta);

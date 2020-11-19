@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace Core.Kernel {
+﻿namespace Core.Kernel {
     /// <summary>
     /// 类名 : 消息 常用常量
     /// 作者 : canyon / 龚阳辉

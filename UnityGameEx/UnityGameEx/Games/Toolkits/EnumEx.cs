@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 /// <summary>
 /// 类名 : 枚举工具
 /// 作者 : Canyon / 龚阳辉

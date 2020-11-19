@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using System.Collections;
 using System.Collections.Generic;
 
 public delegate void DF_InpKeyState(string key, int state);

@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using Core;
-using Core.Kernel;
 
 /// <summary>
 /// 类名 : CharacterController 扩展脚本

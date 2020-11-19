@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Rendering;
 
 /// <summary>
 /// 类名 : 场景的光照贴图数据

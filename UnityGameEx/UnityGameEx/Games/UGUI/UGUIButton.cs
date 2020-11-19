@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.UI;
 
 /// <summary>
 /// 类名 : UGUIButton
