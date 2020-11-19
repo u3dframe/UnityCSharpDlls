@@ -139,12 +139,16 @@ namespace Core.Kernel
 				fn = "";
 			}
 			fn = ReplaceSeparator(fn);
-			int lastIndex = fn.LastIndexOf ("/");
-			int lens = fn.Length;
-			bool isEndSeparator = lens == (lastIndex + 1);
-			if (isFolder && !isEndSeparator && lens > 0) {
-				fn += "/";
-			}
+
+            if (isFolder)
+            {
+			    int lens = fn.Length;
+			    int lastIndex = fn.LastIndexOf ("/");
+			    bool isEndSeparator = lens == (lastIndex + 1);
+			    if (!isEndSeparator && lens > 0) {
+				    fn += "/";
+			    }
+            }
 			return fn;
 		}
 

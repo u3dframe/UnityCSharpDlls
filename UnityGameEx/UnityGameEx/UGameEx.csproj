@@ -38,6 +38,7 @@
     <Compile Remove="Games\Manager\InputMgr.cs" />
     <Compile Remove="Games\Manager\ResourceManager.cs" />
     <Compile Remove="Games\Toolkits\AppConst.cs" />
+    <Compile Remove="Games\Toolkits\SharpZipLib\Zipper.cs" />
     <Compile Remove="Games\Toolkits\StaticEx.cs" />
     <Compile Remove="Games\UGUI\FlexibleGridLayoutGroup.cs" />
     <Compile Remove="Games\UGUI\UGUIAutoRotat.cs" />
