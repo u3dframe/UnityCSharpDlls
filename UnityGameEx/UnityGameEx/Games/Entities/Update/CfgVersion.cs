@@ -122,17 +122,23 @@ namespace Core.Kernel
 			Init (UGameFile.curInstance.GetText (fn));
 		}
 
+        public CfgVersion InitVerByPkg() {
+            this.m_urlVersion = CfgPackage.instance.m_urlVersion; // 从包体里面获取
+            this.m_pkgVersion = CfgPackage.instance.m_uprojVer; // 从包体里面获取
+            return this;
+        }
+
 		public void Init(string content){
-			if(string.IsNullOrEmpty(content)){
+            this.InitVerByPkg();
+            if (string.IsNullOrEmpty(content)){
 				return;
 			}
-
 			this.m_content = content;
 			_OnInit (this.m_content);
 		}
 
 		protected virtual void _OnInit(string content){
-			this.m_jsonData = LJsonHelper.ToJData(content);
+            this.m_jsonData = LJsonHelper.ToJData(content);
 			JsonData _jsonData = this.m_jsonData;
 			if (_jsonData == null)
 				return;
@@ -152,7 +158,7 @@ namespace Core.Kernel
 
 			this.m_pkgFiles = LJsonHelper.ToStrDef(_jsonData,_kPkgFiles,"files");
 			this.m_keyLua = LJsonHelper.ToStr(_jsonData,_kLua);
-		}
+        }
 		
 		void _ToList4ApkIpaChn(JsonData jsonData){
 			this.m_lApkIpa.Clear();

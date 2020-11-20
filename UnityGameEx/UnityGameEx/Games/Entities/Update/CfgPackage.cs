@@ -29,11 +29,11 @@ namespace Core.Kernel
 
 		public string m_content{ get; private set; }
 
-		const string m_kPlatformName = "platform";
-		const string m_kPlatformID = "platformID";
-		const string m_kLanguage = "language";
-		const string m_kUrlVersion = "url_ver";
-		const string m_kUprojVer = "uproj_ver";
+		string _kPlatformName = "platform";
+		string _kPlatformID = "platformID";
+		string _kLanguage = "language";
+		string _kUrlVersion = "url_ver";
+		string _kUprojVer = "uproj_ver";
 
 		public bool m_isInit{ get; private set; }
 
@@ -54,11 +54,11 @@ namespace Core.Kernel
 			if (_jsonData == null)
 				return;
 			
-			this.m_platformName = LJsonHelper.ToStr(_jsonData,m_kPlatformName);
-			this.m_platformID = LJsonHelper.ToStr(_jsonData,m_kPlatformID);
-			this.m_language = LJsonHelper.ToStr(_jsonData,m_kLanguage);
-			this.m_urlVersion = LJsonHelper.ToStr(_jsonData,m_kUrlVersion);
-			this.m_uprojVer = LJsonHelper.ToStr(_jsonData,m_kUprojVer);
+			this.m_platformName = LJsonHelper.ToStr(_jsonData,_kPlatformName);
+			this.m_platformID = LJsonHelper.ToStr(_jsonData,_kPlatformID);
+			this.m_language = LJsonHelper.ToStr(_jsonData,_kLanguage);
+			this.m_urlVersion = LJsonHelper.ToStr(_jsonData,_kUrlVersion);
+			this.m_uprojVer = LJsonHelper.ToStr(_jsonData,_kUprojVer);
 		}
 
 		public void CloneFromOther(CfgPackage other){
@@ -70,6 +70,17 @@ namespace Core.Kernel
 			this.m_content = other.m_content;
 			this.m_isInit = other.m_isInit;
 		}
+
+        public string ToJson()
+        {
+            JsonData jd = LJsonHelper.NewJObj();
+            jd[_kPlatformName] = this.m_platformName;
+            jd[_kPlatformID] = this.m_platformID;
+            jd[_kLanguage] = this.m_language;
+            jd[_kUrlVersion] = this.m_urlVersion;
+            jd[_kUprojVer] = this.m_uprojVer;
+            return jd.ToJson();
+        }
 
         static CfgPackage _instance;
         static public CfgPackage instance
@@ -94,26 +105,42 @@ namespace Core.Kernel
             return new CfgPackage().Init(content);
         }
 
-        static public CfgPackage InitPackage()
+        static public string EditorFPath()
+        {
+            if (UGameFile.m_isIOS)
+                return string.Format("{0}/Plugins/iOS/assets/{1}", Application.dataPath, m_defFn);
+
+            return string.Format("{0}/Plugins/Android/assets/{1}", Application.dataPath, m_defFn);
+        }
+
+        static public CfgPackage InitPackage(System.Action callBack)
         {
             if (UGameFile.m_isEditor)
             {
-                string path = string.Format("{0}/Plugins/Android/assets/{1}", Application.dataPath, m_defFn);
-                string _data = null;
-                if (UGameFile.m_isIOS)
-                {
-                    path = string.Format("{0}/Plugins/iOS/{1}", Application.dataPath, m_defFn);
-                }
-                _data = UGameFile.GetText4File(path);
+                string path = EditorFPath();
+                string _data = UGameFile.GetText4File(path);
                 instance.Init(_data);
+                if (callBack != null)
+                    callBack();
             }
             else
             {
                 EU_Bridge.SendAndCall("{\"cmd\":\"getPackageInfo\",\"filename\":\"" + m_defFn + "\"}",(strData)=> {
                     instance.Init(strData);
+                    if (callBack != null)
+                        callBack();
                 });
             }
             return instance;
+        }
+
+        static public void SaveEditor(string path)
+        {
+            if(string.IsNullOrEmpty(path))
+                path = EditorFPath();
+
+            string _cont = instance.ToJson();
+            UGameFile.CreateText(path, _cont);
         }
 	}
 }

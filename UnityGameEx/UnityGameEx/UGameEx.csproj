@@ -46,6 +46,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Games\Entities\Update\cfg_game_package.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\..\UnityDlls\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>false</Private>
