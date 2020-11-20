@@ -174,7 +174,7 @@ public class EL_Patcher
         EG_Helper.FEG_BeginH(0,EG_Helper.h20);
         EditorGUILayout.LabelField("game_ver:",EG_Helper.ToOptionW(100));
         m_cfgVer.m_gameVerCode = EditorGUILayout.TextField (m_cfgVer.m_gameVerCode,EG_Helper.ToOptions(0,20));
-        EditorGUILayout.LabelField("展示在登录界面，用于检验资源是否更新下去了");
+        EditorGUILayout.LabelField("展示在登录界面，用于检验资源是否更新了!!",styleYellow);
         EG_Helper.FEG_EndH();
         _ret += EG_Helper.h20 + 11 * 2;
         EG_Helper.FEG_EndV();
