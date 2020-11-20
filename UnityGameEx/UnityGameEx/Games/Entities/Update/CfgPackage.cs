@@ -12,32 +12,24 @@ namespace Core.Kernel
 	public class CfgPackage {
         static public readonly string m_defFn = "cfg_game_package.json";
 
-        // 平台标识 - 字符串
-        public string m_platformName = "";
+        public string m_platformName = ""; // 平台标识 - 字符串
+        public string m_platformID = ""; // 平台标识 - ID
+        public string m_language = ""; // 基础语言类型
+        public string m_urlVersion = ""; // 版本地址
+        public string m_uprojVer = ""; // url proj -> uproj (可为空)
+        public bool m_isSync2CfgVer = false; // 是否同步 CfgVerstion
 
-		// 平台标识 - ID
-		public string m_platformID = "";
-
-		// 基础语言类型
-		public string m_language = "";
-
-		// 版本地址
-		public string m_urlVersion = "";
-
-		// url proj -> uproj (可为空)
-		public string m_uprojVer = "";
-
-		public string m_content{ get; private set; }
-
-		string _kPlatformName = "platform";
+        string _kPlatformName = "platform";
 		string _kPlatformID = "platformID";
 		string _kLanguage = "language";
 		string _kUrlVersion = "url_ver";
 		string _kUprojVer = "uproj_ver";
+        string _kIsSync2CfgVer = "isSync2CfgVer";
 
-		public bool m_isInit{ get; private set; }
+        public bool m_isInit{ get; private set; }
+        public string m_content { get; private set; }
 
-		private CfgPackage(){
+        private CfgPackage(){
 		}
 
 		public CfgPackage Init(string content){
@@ -59,7 +51,8 @@ namespace Core.Kernel
 			this.m_language = LJsonHelper.ToStr(_jsonData,_kLanguage);
 			this.m_urlVersion = LJsonHelper.ToStr(_jsonData,_kUrlVersion);
 			this.m_uprojVer = LJsonHelper.ToStr(_jsonData,_kUprojVer);
-		}
+            this.m_isSync2CfgVer = LJsonHelper.ToBool(_jsonData, _kIsSync2CfgVer);
+        }
 
 		public void CloneFromOther(CfgPackage other){
 			this.m_platformName = other.m_platformName;
@@ -79,6 +72,7 @@ namespace Core.Kernel
             jd[_kLanguage] = this.m_language;
             jd[_kUrlVersion] = this.m_urlVersion;
             jd[_kUprojVer] = this.m_uprojVer;
+            jd[_kIsSync2CfgVer] = this.m_isSync2CfgVer;
             return jd.ToJson();
         }
 

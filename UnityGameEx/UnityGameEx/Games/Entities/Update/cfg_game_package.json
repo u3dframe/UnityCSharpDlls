@@ -4,4 +4,5 @@
   "language":"App 默认语言 Chinese",
   "url_ver":"版本地址",
   "uproj_ver":"版本目录",
+  "isSync2CfgVer":"同步 (地址，版本目录) 到 CfgVersion的json中",
 }

@@ -105,4 +105,32 @@ public static class LJsonHelper {
 	static public string ToStr(JsonData jdRoot,int index){
 		return ToStrDef(jdRoot,index,"");
 	}
+
+    static public bool ToBool(JsonData jdRoot, string key)
+    {
+        JsonData jd = ToJData(jdRoot, key);
+        if (jd != null && jd.IsBoolean)
+            return (bool)jd;
+        return false;
+    }
+
+    static public bool ToBool(JsonData jdRoot, int index)
+    {
+        JsonData jd = ToJData(jdRoot, index);
+        if (jd != null && jd.IsBoolean)
+            return (bool)jd;
+        return false;
+    }
+
+    static public int ToInt(JsonData jdRoot, string key)
+    {
+        string v = ToStrDef(jdRoot, key, "0");
+        return UtilityHelper.Str2Int(v);
+    }
+
+    static public int ToInt(JsonData jdRoot, int index)
+    {
+        string v = ToStrDef(jdRoot, index, "0");
+        return UtilityHelper.Str2Int(v);
+    }
 }

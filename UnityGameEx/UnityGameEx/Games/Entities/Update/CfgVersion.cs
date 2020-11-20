@@ -26,7 +26,7 @@ namespace Core.Kernel
 	/// 功能 : 1.多个version管理自身更新地址,2.只有一个version(多版本地址)
 	/// 默认是多版本，各管各的信息
 	/// </summary>
-	public class CfgVersion  {
+	public class CfgVersion  {        
 		static public readonly string m_defFileName = "version.txt";
 
 		protected static string URL_HEAD = "http://";
@@ -130,12 +130,21 @@ namespace Core.Kernel
 
 		public void Init(string content){
             this.InitVerByPkg();
-            if (string.IsNullOrEmpty(content)){
-				return;
-			}
-			this.m_content = content;
-			_OnInit (this.m_content);
-		}
+            if (!string.IsNullOrEmpty(content)){
+                this.m_content = content;
+                _OnInit(this.m_content);
+            }
+
+            bool _isSync = CfgPackage.instance.m_isSync2CfgVer;
+            if (_isSync || string.IsNullOrEmpty(this.m_urlFilelist))
+                this.m_urlFilelist = this.m_urlVersion;
+
+            if (_isSync || string.IsNullOrEmpty(this.m_pkgFilelist))
+            {
+                this.m_pkgFilelist = this.m_pkgVersion;
+                this.m_pkgFiles = string.Format("{0}files", UGameFile.ReUrlEnd(this.m_pkgFilelist));
+            }
+        }
 
 		protected virtual void _OnInit(string content){
             this.m_jsonData = LJsonHelper.ToJData(content);
