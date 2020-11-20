@@ -122,28 +122,13 @@ namespace Core.Kernel
 			Init (UGameFile.curInstance.GetText (fn));
 		}
 
-        public CfgVersion InitVerByPkg() {
-            this.m_urlVersion = CfgPackage.instance.m_urlVersion; // 从包体里面获取
-            this.m_pkgVersion = CfgPackage.instance.m_uprojVer; // 从包体里面获取
-            return this;
-        }
-
 		public void Init(string content){
-            this.InitVerByPkg();
             if (!string.IsNullOrEmpty(content)){
                 this.m_content = content;
                 _OnInit(this.m_content);
             }
 
-            bool _isSync = CfgPackage.instance.m_isSync2CfgVer;
-            if (_isSync || string.IsNullOrEmpty(this.m_urlFilelist))
-                this.m_urlFilelist = this.m_urlVersion;
-
-            if (_isSync || string.IsNullOrEmpty(this.m_pkgFilelist))
-            {
-                this.m_pkgFilelist = this.m_pkgVersion;
-                this.m_pkgFiles = string.Format("{0}files", UGameFile.ReUrlEnd(this.m_pkgFilelist));
-            }
+            this.SyncByCfgPkg();
         }
 
 		protected virtual void _OnInit(string content){
@@ -191,6 +176,9 @@ namespace Core.Kernel
 		/// 刷新资源版本号
 		/// </summary>
 		public void RefreshResVerCode(){
+            if (string.IsNullOrEmpty(this.m_bigVerCode))
+                this.RefreshBigVerCode();
+
 			this.m_resVerCode = NowYMDHms();
 		}
 
@@ -350,13 +338,27 @@ namespace Core.Kernel
 			
 			m_lApkIpa.Add (one);
 		}
+
+        public void SyncByCfgPkg()
+        {
+            this.m_urlVersion = CfgPackage.instance.m_urlVersion; // 从包体里面获取
+            this.m_pkgVersion = CfgPackage.instance.m_uprojVer; // 从包体里面获取
+            bool _isSync = CfgPackage.instance.m_isSync2CfgVer;
+            if (_isSync || string.IsNullOrEmpty(this.m_urlFilelist))
+                this.m_urlFilelist = this.m_urlVersion;
+
+            if (_isSync || string.IsNullOrEmpty(this.m_pkgFilelist))
+            {
+                this.m_pkgFilelist = this.m_pkgVersion;
+                this.m_pkgFiles = string.Format("{0}files", UGameFile.ReUrlEnd(this.m_pkgFilelist));
+            }
+        }
 	
         static public CfgVersion Builder()
         {
             return new CfgVersion();
         }
-
-
+        
         static CfgVersion _instance;
 		static public CfgVersion instance{
 			get{ 
