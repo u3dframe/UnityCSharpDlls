@@ -38,14 +38,6 @@ namespace Core.Kernel
 		public bool m_isInit{ get; private set; }
 
 		private CfgPackage(){
-            if (UGameFile.m_isEditor)
-            {
-                if (UGameFile.m_isAndroid)
-                {
-                    string path = string.Format("{0}/Plugins/Android/assets/{1}", Application.dataPath, m_defFn);
-                    Init(UGameFile.GetText4File(path));
-                }
-            }
 		}
 
 		public CfgPackage Init(string content){
@@ -79,6 +71,19 @@ namespace Core.Kernel
 			this.m_isInit = other.m_isInit;
 		}
 
+        static CfgPackage _instance;
+        static public CfgPackage instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = Builder();
+                }
+                return _instance;
+            }
+        }
+
         static public CfgPackage Builder()
         {
             return new CfgPackage();
@@ -89,14 +94,26 @@ namespace Core.Kernel
             return new CfgPackage().Init(content);
         }
 
-        static CfgPackage _instance;
-		static public CfgPackage instance{
-			get{ 
-				if (_instance == null) {
-					_instance = Builder();
-				}
-				return _instance;
-			}
-		}
+        static public CfgPackage InitPackage()
+        {
+            if (UGameFile.m_isEditor)
+            {
+                string path = string.Format("{0}/Plugins/Android/assets/{1}", Application.dataPath, m_defFn);
+                string _data = null;
+                if (UGameFile.m_isIOS)
+                {
+                    path = string.Format("{0}/Plugins/iOS/{1}", Application.dataPath, m_defFn);
+                }
+                _data = UGameFile.GetText4File(path);
+                instance.Init(_data);
+            }
+            else
+            {
+                EU_Bridge.SendAndCall("{\"cmd\":\"getPackageInfo\",\"filename\":\"" + m_defFn + "\"}",(strData)=> {
+                    instance.Init(strData);
+                });
+            }
+            return instance;
+        }
 	}
 }

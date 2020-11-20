@@ -186,17 +186,19 @@ namespace Core.Kernel
 		/// <summary>
 		/// 加载默认的资源
 		/// </summary>
-		public void LoadDefault(){
+		public CfgVersion LoadDefault(){
 			Load (m_defFileName);
+            return this;
 		}
 
 		/// <summary>
 		/// 加载默认的资源 4 Editor
 		/// </summary>
-		public void LoadDefault4EDT(){
+		public CfgVersion LoadDefault4EDT(){
 			LoadDefault ();
 			m_lastResVerCode = m_resVerCode;
 			RefreshResVerCode ();
+            return this;
 		}
 		
 		public bool Save(){
