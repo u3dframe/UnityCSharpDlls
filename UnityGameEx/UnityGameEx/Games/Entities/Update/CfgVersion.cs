@@ -103,10 +103,10 @@ namespace Core.Kernel
 		private string _kUrlNewApkIpa4Chn = "url_newdown_chn";
 
 		private string _kUrlFilelist = "fl_url";
-		private string _kPkgFilelist = "fl_pgk";
+		private string _kPkgFilelist = "fl_pkg";
 		private string _kCodeFilelist = "fl_code";
 
-		private string _kPkgFiles = "fls_pgk";
+		private string _kPkgFiles = "fls_pkg";
 		private string _kLua = "key_lua";
 
 		
