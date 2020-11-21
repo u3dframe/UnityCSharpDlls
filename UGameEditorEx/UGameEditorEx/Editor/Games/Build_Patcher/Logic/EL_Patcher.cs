@@ -249,8 +249,8 @@ public class EL_Patcher
 			_ClearCache();
 		}
         if (m_isSaveVer){
-            EditorGUILayout.LabelField("Zip模式:",EG_Helper.ToOptions(40));
-            m_pztype = (PZipType)EditorGUILayout.EnumPopup(m_pztype,EG_Helper.ToOptions(80));
+            EditorGUILayout.LabelField("Zip模式:",EG_Helper.ToOptionW(60));
+            m_pztype = (PZipType)EditorGUILayout.EnumPopup(m_pztype,EG_Helper.ToOptionW(120));
             switch(m_pztype){
                 case PZipType.Main:
                 if (GUILayout.Button("Zip (主包)")) {
