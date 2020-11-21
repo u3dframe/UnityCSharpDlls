@@ -26,7 +26,8 @@ public class BuildTBasic : Core.EditorGameFile
 
     static public void SaveAssets(UObject obj,bool isSave = true)
     {
-        EditorUtility.SetDirty(obj); //这一行一定要加！！！
+        if(obj != null)
+            EditorUtility.SetDirty(obj); //这一行一定要加！！！
         if(isSave)
             AssetDatabase.SaveAssets(); //以及最后记得要保存资源的修改
     }
