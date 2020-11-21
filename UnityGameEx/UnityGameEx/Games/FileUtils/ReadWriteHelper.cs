@@ -51,7 +51,7 @@ namespace Core.Kernel
         static public bool m_isEdtiorLoadAsset = true;
 
         // 资源目录的根目录 (流文件夹和解压可读写文件夹下面的根路径)
-        static public readonly string m_resFdRoot = "_resRoot";
+        static public string m_resFdRoot = "_resRoot";
 
         // 开发模式下，资源放的路径地址
         static public readonly string m_edtAssetPath = "_Develop";
@@ -135,7 +135,16 @@ namespace Core.Kernel
         }
 
         // 资源相对路径
-        static public readonly string m_assetRelativePath = string.Format("{0}/{1}/", m_resFdRoot, m_curPlatform);
+        static string _m_rPath = "";
+        static public string m_assetRelativePath {
+            get {
+                if (string.IsNullOrEmpty(_m_rPath))
+                {
+                    _m_rPath = ReplaceSeparator(string.Format("{0}/{1}/", m_resFdRoot, m_curPlatform));
+                }
+                return _m_rPath;
+            }
+        }
 
         // 编辑模式下资源根目录
         static string _m_appAssetPath = "";
@@ -176,14 +185,12 @@ namespace Core.Kernel
                     string _dir = m_dirPersistent;
                     if (m_isEditor)
                     {
-                        _dir = ReplaceSeparator(Application.dataPath);
-                        int i = _dir.LastIndexOf('/');
-                        {
-                            // 将文件放到工程外部，与工程同级目录下面
-                            _dir = _dir.Substring(0, i);
-                            i = _dir.LastIndexOf('/');
-                        }
-                        _dir = _dir.Substring(0, i + 1);
+                        _dir = ReplaceSeparator(m_dirDataNoAssets);
+                        // 将文件放到工程外部，与工程同级目录下面
+                        // _dir = _dir.Substring(0, _dir.Length - 1);
+                        // int i = _dir.LastIndexOf('/');
+                        // _dir = _dir.Substring(0, i + 1);
+                        _dir += "_AppBuilds/";
                     }
                     _m_appUnCompressPath = string.Format("{0}{1}", _dir,m_assetRelativePath);
                     _m_appUnCompressPath = ReplaceSeparator(_m_appUnCompressPath);
