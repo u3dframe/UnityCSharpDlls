@@ -19,158 +19,16 @@ using System.Threading.Tasks;
 /// </summary>
 public class BuildTBasic : Core.EditorGameFile
 {
-    const string _fnSharder = "shaders.ab_shader";
-
-    public static void ClearBuild()
+    static public T[] GetSelectObject<T>()
     {
-        MgrABDataDependence.ClearDeps();
+        return Selection.GetFiltered<T>(SelectionMode.DeepAssets);
     }
 
-    // 分析文件夹 - 得到所有文件的依赖关系
-    public static void AnalyseDir4Deps(UObject obj)
+    static public void SaveAssets(UObject obj,bool isSave = true)
     {
-        if (obj == null)
-            return;
-
-        string strObjPath = GetPath(obj);
-#if Shader2OneAB
-		if (IsShader(strObjPath)) {
-			SetABInfo(strObjPath,_fnSharder);
-			return;
-		}
-#endif
-        EL_Path.Init(strObjPath);
-        float count = EL_Path.files.Count;
-        int curr = 0;
-        string _tmp = "";
-        EditorUtility.DisplayProgressBar("Analysis Dependence Init", strObjPath, 0.00f);
-
-        foreach (var item in EL_Path.files)
-        {
-            _tmp = Path2AssetsStart(item);
-            AnalyseFile4Deps(Load4Develop(_tmp));
-            curr++;
-            EditorUtility.DisplayProgressBar(string.Format("{0} - ({1}/{2})", strObjPath, curr, count), _tmp, (curr / count));
-        }
-        EditorUtility.ClearProgressBar();
-    }
-
-    // 分析文件的依赖关系
-    public static void AnalyseFile4Deps(UObject obj)
-    {
-        string strObjPath = GetPath(obj);
-        bool isMust = false;
-        if (!IsInBuild(strObjPath, ref isMust))
-            return;
-
-        MgrABDataDependence.Init(obj, isMust);
-    }
-
-    static public void ClearObjABName(string abname)
-    {
-        string[] _arrs = AssetDatabase.GetAssetPathsFromAssetBundle(abname);
-        if(_arrs == null || _arrs.Length <= 0)
-            return;
-        
-        foreach (string assetPath in _arrs){
-            SetABInfo(assetPath);
-        }
-    }
-
-    static int _CheckABName()
-    {
-        EditorUtility.DisplayProgressBar("DoBuild", "CheckABName ...", 0.0f);
-        AssetDatabase.RemoveUnusedAssetBundleNames();
-        string[] strABNames = AssetDatabase.GetAllAssetBundleNames();
-        float count = strABNames.Length;
-        int curr = 0;
-        foreach (string abName in strABNames)
-        {
-            curr++;
-            EditorUtility.DisplayProgressBar(string.Format("CheckABName - ({0}/{1})", curr, count), abName, (curr / count));
-            if (abName.EndsWith("error"))
-            {
-                ClearObjABName(abName);
-                AssetDatabase.RemoveAssetBundleName(abName, true);
-                Debug.LogFormat("=Error ABName = [{0}]", abName);
-            }
-        }
-        AssetDatabase.RemoveUnusedAssetBundleNames();
-        EditorUtility.DisplayProgressBar("DoBuild", "RemoveUnusedAssetBundleNames ...", 0.1f);
-        strABNames = AssetDatabase.GetAllAssetBundleNames();
-        return strABNames.Length;
-    }
-
-    static public void ClearAllABNames(bool isClearBuild = true)
-    {
-        EditorUtility.DisplayProgressBar("Clear", "ClearABName ...", 0.0f);
-        AssetDatabase.RemoveUnusedAssetBundleNames();
-        string[] arrs = AssetDatabase.GetAllAssetBundleNames();
-        float count = arrs.Length;
-        int curr = 0;
-        foreach (string abName in arrs)
-        {
-            ClearObjABName(abName);
-            AssetDatabase.RemoveAssetBundleName(abName, true);
-            curr++;
-            EditorUtility.DisplayProgressBar(string.Format("ClearABName - ({0}/{1})", curr, count), abName, (curr / count));
-        }
-        AssetDatabase.RemoveUnusedAssetBundleNames();
-        AssetDatabase.Refresh();
-        EditorUtility.ClearProgressBar();
-
-        if(isClearBuild){
-            DelABFolders();
-            ClearBuild();
-        }
-    }
-
-    static void _ReBindABName(string objAssetPath)
-    {
-        UObject obj = Load4Develop(objAssetPath);
-        if (obj == null)
-            return;
-        _ReBindABName(obj);
-    }
-
-    static void _HandlerEmpty(UObject obj)
-    {
-        if (obj is GameObject)
-        {
-            GameObject gobj = obj as GameObject;
-            bool isNoEmpty = gobj.name.StartsWith("tl_");
-            if(!isNoEmpty){
-                string fp = GetPath(gobj);
-                isNoEmpty = fp.Contains("/timeline/");
-            }
-
-            if (isNoEmpty)
-                return;
-            
-            Animator[] arrsAnit = gobj.GetComponentsInChildren<Animator>(true);
-            foreach (var item in arrsAnit)
-            {
-                if (item != null && item.runtimeAnimatorController == null)
-                {
-                    GameObject.DestroyImmediate(item, true);
-                }
-            }
-
-            Animation[] arrsAnim = gobj.GetComponentsInChildren<Animation>(true);
-            foreach (var item in arrsAnim)
-            {
-                if (item != null && item.GetClipCount() <= 0)
-                {
-                    GameObject.DestroyImmediate(item, true);
-                }
-            }
-            CleanupMissingScripts(gobj);
-
-            // 加上这句，才会保存修改后的prefab
-            if(IsPrefabInstance(gobj,false)){
-                PrefabUtility.SavePrefabAsset(gobj);
-            }
-        }
+        EditorUtility.SetDirty(obj); //这一行一定要加！！！
+        if(isSave)
+            AssetDatabase.SaveAssets(); //以及最后记得要保存资源的修改
     }
 
     /// <summary>
@@ -236,7 +94,7 @@ public class BuildTBasic : Core.EditorGameFile
         }
     }
 
-    static void CleanupMissingScripts(GameObject gObj)
+    static public void CleanupMissingScripts(GameObject gObj,bool isSave = true)
     {
         // We must use the GetComponents array to actually detect missing components
         var components = gObj.GetComponents<Component>();
@@ -263,8 +121,165 @@ public class BuildTBasic : Core.EditorGameFile
 
         // Apply our changes to the game UObject
         serializedObject.ApplyModifiedProperties();
-        //这一行一定要加！！！
-        EditorUtility.SetDirty(gObj);
+        SaveAssets(gObj,isSave);
+    }
+
+    const string _fnSharder = "shaders.ab_shader";
+
+    public static void ClearBuild()
+    {
+        MgrABDataDependence.ClearDeps();
+    }
+
+    // 分析文件夹 - 得到所有文件的依赖关系
+    public static void AnalyseDir4Deps(UObject obj)
+    {
+        if (obj == null)
+            return;
+
+        string strObjPath = GetPath(obj);
+#if Shader2OneAB
+		if (IsShader(strObjPath)) {
+			SetABInfo(strObjPath,_fnSharder);
+			return;
+		}
+#endif
+        EL_Path.Init(strObjPath);
+        float count = EL_Path.files.Count;
+        int curr = 0;
+        string _tmp = "";
+        EditorUtility.DisplayProgressBar("Analysis Dependence Init", strObjPath, 0.00f);
+
+        foreach (var item in EL_Path.files)
+        {
+            _tmp = Path2AssetsStart(item);
+            AnalyseFile4Deps(Load4Develop(_tmp));
+            curr++;
+            EditorUtility.DisplayProgressBar(string.Format("{0} - ({1}/{2})", strObjPath, curr, count), _tmp, (curr / count));
+        }
+        EditorUtility.ClearProgressBar();
+    }
+
+    // 分析文件的依赖关系
+    public static void AnalyseFile4Deps(UObject obj)
+    {
+        string strObjPath = GetPath(obj);
+        bool isMust = false;
+        if (!IsInBuild(strObjPath, ref isMust))
+            return;
+
+        MgrABDataDependence.Init(obj, isMust);
+    }
+
+    static public void ClearObjABName(string abname)
+    {
+        string[] _arrs = AssetDatabase.GetAssetPathsFromAssetBundle(abname);
+        if (_arrs == null || _arrs.Length <= 0)
+            return;
+
+        foreach (string assetPath in _arrs)
+        {
+            SetABInfo(assetPath);
+        }
+    }
+
+    static int _CheckABName()
+    {
+        EditorUtility.DisplayProgressBar("DoBuild", "CheckABName ...", 0.0f);
+        AssetDatabase.RemoveUnusedAssetBundleNames();
+        string[] strABNames = AssetDatabase.GetAllAssetBundleNames();
+        float count = strABNames.Length;
+        int curr = 0;
+        foreach (string abName in strABNames)
+        {
+            curr++;
+            EditorUtility.DisplayProgressBar(string.Format("CheckABName - ({0}/{1})", curr, count), abName, (curr / count));
+            if (abName.EndsWith("error"))
+            {
+                ClearObjABName(abName);
+                AssetDatabase.RemoveAssetBundleName(abName, true);
+                Debug.LogFormat("=Error ABName = [{0}]", abName);
+            }
+        }
+        AssetDatabase.RemoveUnusedAssetBundleNames();
+        EditorUtility.DisplayProgressBar("DoBuild", "RemoveUnusedAssetBundleNames ...", 0.1f);
+        strABNames = AssetDatabase.GetAllAssetBundleNames();
+        return strABNames.Length;
+    }
+
+    static public void ClearAllABNames(bool isClearBuild = true)
+    {
+        EditorUtility.DisplayProgressBar("Clear", "ClearABName ...", 0.0f);
+        AssetDatabase.RemoveUnusedAssetBundleNames();
+        string[] arrs = AssetDatabase.GetAllAssetBundleNames();
+        float count = arrs.Length;
+        int curr = 0;
+        foreach (string abName in arrs)
+        {
+            ClearObjABName(abName);
+            AssetDatabase.RemoveAssetBundleName(abName, true);
+            curr++;
+            EditorUtility.DisplayProgressBar(string.Format("ClearABName - ({0}/{1})", curr, count), abName, (curr / count));
+        }
+        AssetDatabase.RemoveUnusedAssetBundleNames();
+        AssetDatabase.Refresh();
+        EditorUtility.ClearProgressBar();
+
+        if (isClearBuild)
+        {
+            DelABFolders();
+            ClearBuild();
+        }
+    }
+
+    static void _ReBindABName(string objAssetPath)
+    {
+        UObject obj = Load4Develop(objAssetPath);
+        if (obj == null)
+            return;
+        _ReBindABName(obj);
+    }
+
+    static void _HandlerEmpty(UObject obj)
+    {
+        if (obj is GameObject)
+        {
+            GameObject gobj = obj as GameObject;
+            bool isNoEmpty = gobj.name.StartsWith("tl_");
+            if (!isNoEmpty)
+            {
+                string fp = GetPath(gobj);
+                isNoEmpty = fp.Contains("/timeline/");
+            }
+
+            if (isNoEmpty)
+                return;
+
+            Animator[] arrsAnit = gobj.GetComponentsInChildren<Animator>(true);
+            foreach (var item in arrsAnit)
+            {
+                if (item != null && item.runtimeAnimatorController == null)
+                {
+                    GameObject.DestroyImmediate(item, true);
+                }
+            }
+
+            Animation[] arrsAnim = gobj.GetComponentsInChildren<Animation>(true);
+            foreach (var item in arrsAnim)
+            {
+                if (item != null && item.GetClipCount() <= 0)
+                {
+                    GameObject.DestroyImmediate(item, true);
+                }
+            }
+            CleanupMissingScripts(gobj);
+
+            // 加上这句，才会保存修改后的prefab
+            if (IsPrefabInstance(gobj, false))
+            {
+                PrefabUtility.SavePrefabAsset(gobj);
+            }
+        }
     }
 
     static void _ReBindABName(UObject obj)
@@ -288,7 +303,7 @@ public class BuildTBasic : Core.EditorGameFile
         _abEn.ReAB(_abName, _abSuffix);
     }
 
-    public static void BuildNow(bool isBuildAB = true,bool isTip = true)
+    public static void BuildNow(bool isBuildAB = true, bool isTip = true)
     {
         EditorUtility.DisplayProgressBar("BuildNow", "Start BuildNow ...", 0.05f);
         float count = MgrABDataDependence.instance.m_dic.Count;
@@ -306,7 +321,7 @@ public class BuildTBasic : Core.EditorGameFile
         AssetDatabase.RemoveUnusedAssetBundleNames();
 
         if (isBuildAB)
-            DoBuild(true,isTip);
+            DoBuild(true, isTip);
 
         AssetDatabase.Refresh();
         EditorUtility.ClearProgressBar();
@@ -321,20 +336,21 @@ public class BuildTBasic : Core.EditorGameFile
     }
 
     static void BuildAssetBundles()
-	{
-        string _dirRes_ = CurrDirRes();
-		EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.2f);
-		CreateFolder(_dirRes_);
-		BuildPipeline.BuildAssetBundles(_dirRes_, BuildAssetBundleOptions.ChunkBasedCompression, GetBuildTarget());
-		EditorUtility.DisplayProgressBar("DoBuild", "ClearBuild ...", 0.3f);
-		EditorUtility.ClearProgressBar();
-		MgrABDataDependence.SaveDeps();
-	}
-
-    static public void DoBuild(bool isCheckABSpace,bool isTip = true)
     {
-        if(isCheckABSpace && IsHasSpace()){
-            EditorUtility.ClearProgressBar();            
+        string _dirRes_ = CurrDirRes();
+        EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.2f);
+        CreateFolder(_dirRes_);
+        BuildPipeline.BuildAssetBundles(_dirRes_, BuildAssetBundleOptions.ChunkBasedCompression, GetBuildTarget());
+        EditorUtility.DisplayProgressBar("DoBuild", "ClearBuild ...", 0.3f);
+        EditorUtility.ClearProgressBar();
+        MgrABDataDependence.SaveDeps();
+    }
+
+    static public void DoBuild(bool isCheckABSpace, bool isTip = true)
+    {
+        if (isCheckABSpace && IsHasSpace())
+        {
+            EditorUtility.ClearProgressBar();
             EditorUtility.DisplayDialog("提示", "[原始资源]名有空格，请查看输出打印!!!", "确定");
             return;
         }
@@ -347,13 +363,13 @@ public class BuildTBasic : Core.EditorGameFile
         if (_isMakeAB)
         {
             BuildAssetBundles();
-            if(isTip)
+            if (isTip)
                 EditorUtility.DisplayDialog("提示", "[ab资源] - 打包完成!!!", "确定");
         }
         else
         {
             EditorUtility.ClearProgressBar();
-            if(isTip)
+            if (isTip)
                 EditorUtility.DisplayDialog("提示", "没有[原始资源]设置了AssetBundleName , 即资源的abname都为None!!!", "确定");
         }
     }
@@ -404,9 +420,9 @@ public class BuildTBasic : Core.EditorGameFile
 
     static bool _IsContains(string[] src, string cur)
     {
-        if(src == null || src.Length <= 0)
+        if (src == null || src.Length <= 0)
             return false;
-        
+
         foreach (var item in src)
         {
             if (cur.Contains(item))
@@ -441,7 +457,7 @@ public class BuildTBasic : Core.EditorGameFile
             DelFolder(_fd);
         }
 
-        _ep = EL_Path.builder.DoInit(_dirRes_,true);
+        _ep = EL_Path.builder.DoInit(_dirRes_, true);
         curr = 0;
         count = _ep.m_files.Count;
         foreach (string _fn in _ep.m_files)
@@ -465,7 +481,7 @@ public class BuildTBasic : Core.EditorGameFile
         Dictionary<string, string> dicMaterial = new Dictionary<string, string>();
         MeshRenderer[] _arrs = UnityEngine.Resources.FindObjectsOfTypeAll<MeshRenderer>();
         string rootPath = Directory.GetCurrentDirectory();
-        int _lens = _arrs.Length,_lens2 = 0;
+        int _lens = _arrs.Length, _lens2 = 0;
         for (int i = 0; i < _lens; i++)
         {
             MeshRenderer meshRender = _arrs[i];
@@ -481,7 +497,7 @@ public class BuildTBasic : Core.EditorGameFile
                     Debug.Log("fullPath = " + fullPath);
                     string text = File.ReadAllText(fullPath).Replace(" m_Name: " + m.name, "");
                     string change;
-                     Debug.Log("text = " + text);
+                    Debug.Log("text = " + text);
                     if (!dicMaterial.TryGetValue(text, out change))
                     {
                         dicMaterial[text] = mPath;
@@ -496,23 +512,27 @@ public class BuildTBasic : Core.EditorGameFile
     }
 
     // [MenuItem("Tools/Check Has Space ABName")]
-    static public bool IsHasSpace(){
+    static public bool IsHasSpace()
+    {
         AssetDatabase.RemoveUnusedAssetBundleNames();
         string[] arrs = AssetDatabase.GetAllAssetBundleNames();
         int count = arrs.Length;
         string strName = null;
         bool _isRet = false;
-        for(int i = 0; i < count; i++){
+        for (int i = 0; i < count; i++)
+        {
             strName = arrs[i];
-            if(strName.Contains(" ")){
+            if (strName.Contains(" "))
+            {
                 _isRet = true;
-                Debug.LogErrorFormat("====== this has space,ab name = [{0}]",strName);
+                Debug.LogErrorFormat("====== this has space,ab name = [{0}]", strName);
             }
         }
         return _isRet;
     }
 
-    static public void ReLoadFolders(ref List<UObject> list,bool isTip = true){
+    static public void ReLoadFolders(ref List<UObject> list, bool isTip = true)
+    {
         string[] _dirs = GetFns4Folders(m_appAssetPath);
         if (_dirs == null)
         {
@@ -521,9 +541,9 @@ public class BuildTBasic : Core.EditorGameFile
             return;
         }
 
-        if(list == null)
+        if (list == null)
             list = new List<UObject>();
-        
+
         if (isTip)
             EditorUtility.DisplayProgressBar("ReLoad", "Reload folders for develops ...", 0.0f);
         UObject _one = null;
@@ -555,23 +575,27 @@ public class BuildTBasic : Core.EditorGameFile
         int _curr_ = 0;
 
         EditorUtility.DisplayProgressBar("CheckHasSpace", "Start ...", 0.0f);
-        foreach(UObject _obj_ in _arrs){
+        foreach (UObject _obj_ in _arrs)
+        {
             _fp = GetPath(_obj_);
             _curr_++;
             EditorUtility.DisplayProgressBar(string.Format("CheckHasSpace - ({0}/{1})", _curr_, _lens_), _fp, (_curr_ / _lens_));
-            if(_fp.Contains(" ")){
-                Debug.LogErrorFormat("====== has space,fp = [{0}]",_fp);
+            if (_fp.Contains(" "))
+            {
+                Debug.LogErrorFormat("====== has space,fp = [{0}]", _fp);
             }
         }
         EditorUtility.ClearProgressBar();
     }
 
-    static public void BuildAllResource(){ // async
+    static public void BuildAllResource()
+    { // async
         ClearAllABNames(true);
         AssetDatabase.Refresh();
         List<UObject> list = null;
-        ReLoadFolders(ref list,false);
-        if(list == null || list.Count <= 0){
+        ReLoadFolders(ref list, false);
+        if (list == null || list.Count <= 0)
+        {
             throw new System.Exception("没有资源");
         }
         System.Type typeFolder = typeof(UnityEditor.DefaultAsset);
@@ -581,7 +605,8 @@ public class BuildTBasic : Core.EditorGameFile
         {
             one = list[i];
             typeOrg = one.GetType();
-            if (typeOrg == typeFolder){
+            if (typeOrg == typeFolder)
+            {
                 AnalyseDir4Deps(one);
             }
         }

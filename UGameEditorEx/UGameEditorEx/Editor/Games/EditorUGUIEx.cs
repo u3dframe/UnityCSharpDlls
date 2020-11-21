@@ -2,11 +2,10 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
-using System.Collections;
 
 public class EditorUGUIEx
 {
-	static string _fpInAsset4Font = "Assets/_Develop/Builds/fnts/font.ttf";
+    static string _fpInAsset4Font = "Assets/_Develop/Builds/fnts/font.ttf";
     static string _fpInAsset4Item = "Assets/_Develop/Builds/prefabs/ui/commons/ui_item.prefab";
     static Font font;
     static int layerUI = LayerMask.NameToLayer("UI");
@@ -39,21 +38,22 @@ public class EditorUGUIEx
     //         }			
     //     }
     // }
-	
-	static Component CreateUIObject(Type type, string name, bool raycastTarget = false) {
+
+    static Component CreateUIObject(Type type, string name, bool raycastTarget = false)
+    {
         Component com = null;
-		Transform _active = Selection.activeTransform;
+        Transform _active = Selection.activeTransform;
         bool _isBl = (!needInCanvas) || (_active != null && _active.GetComponentInParent<Canvas>() != null);
         if (_isBl)
         {
-            GameObject go = new GameObject(name,type);
+            GameObject go = new GameObject(name, type);
             go.GetComponent<MaskableGraphic>().raycastTarget = raycastTarget;
-            go.transform.SetParent(_active,false);
+            go.transform.SetParent(_active, false);
             go.layer = layerUI;
             Selection.activeGameObject = go;
             com = go.GetComponent(type);
 
-            if(_active)
+            if (_active)
                 EditorUtility.SetDirty(_active);
         }
         else
@@ -62,7 +62,7 @@ public class EditorUGUIEx
         }
         return com;
     }
-	
+
     [MenuItem("GameObject/UGUI2/Image", priority = 0)]
     static void NewImage()
     {
@@ -72,13 +72,13 @@ public class EditorUGUIEx
     [MenuItem("GameObject/UGUI2/Text")]
     static Text NewText()
     {
-		if (font == null)
+        if (font == null)
         {
             font = AssetDatabase.LoadAssetAtPath(_fpInAsset4Font, typeof(Font)) as Font;
         }
         Text text = CreateUIObject(typeof(Text), "text") as Text;
-		GameObject _gobj = text.gameObject;
-		
+        GameObject _gobj = text.gameObject;
+
         text.font = font;
         text.fontSize = 28;
         text.alignment = TextAnchor.MiddleCenter;
@@ -90,14 +90,65 @@ public class EditorUGUIEx
         text.horizontalOverflow = HorizontalWrapMode.Wrap;
         text.verticalOverflow = VerticalWrapMode.Truncate;
         _gobj.AddComponent<Outline>(); // 不加描边会模糊
-		_gobj.AddComponent<UGUILocalize>();
+        _gobj.AddComponent<UGUILocalize>();
         return text;
+    }
+
+    [MenuItem("Assets/Tools/Re-Bind UGUILocalize")]
+    static void ReBindUGUILocaliz()
+    {
+        GameObject[] _arrs = BuildPatcher.GetSelectObject<GameObject>();
+        if (_arrs == null || _arrs.Length <= 0)
+        {
+            EditorUtility.DisplayDialog("提示", "[ReBindUGUILocaliz] - 没有选中任何资源!!!", "确定");
+            return;
+        }
+        EditorUtility.DisplayProgressBar("ReBindUGUILocaliz", "Begin ...", 0.0f);
+        GameObject gobj, gobClone;
+        string assetPath;
+        int lens = _arrs.Length;
+        bool isEnd = false,isSuccess = false;
+        try
+        {
+            for (int i = 0; i < lens; i++)
+            {
+                gobj = _arrs[i];
+                assetPath = BuildPatcher.GetPath(gobj);
+                Debug.LogFormat("==== [{0}] begin", assetPath);
+                EditorUtility.DisplayProgressBar(string.Format("ReBindUGUILocaliz ing - ({0}/{1})", i + 1, lens), assetPath, (i + 1 / (float)lens));
+
+                BuildPatcher.CleanupMissingScripts(gobj, false);
+
+                // gobClone = PrefabUtility.InstantiateAttachedAsset (gobj) as GameObject;
+                gobClone = PrefabUtility.InstantiatePrefab(gobj) as GameObject;
+                var txts = gobj.GetComponentsInChildren<Text>(true);
+                for (int j = 0; j < txts.Length; j++)
+                {
+                    txts[j].gameObject.AddComponent<UGUILocalize>();
+                }
+                Debug.LogFormat("==== [{0}] end", assetPath);
+                // PrefabUtility.ApplyPrefabInstance(gobj, InteractionMode.UserAction);
+                // PrefabUtility.SaveAsPrefabAssetAndConnect(gobClone, assetPath, InteractionMode.UserAction);
+                PrefabUtility.SaveAsPrefabAsset(gobClone, assetPath, out isSuccess);
+                if (isSuccess)
+                {
+                    GameObject.DestroyImmediate(gobClone);
+                }
+            }
+            isEnd = true;
+            AssetDatabase.SaveAssets();
+        }
+        finally
+        {
+            EditorUtility.ClearProgressBar();
+            EditorUtility.DisplayDialog("提示", "[ReBindUGUILocaliz] - 结束,状态 = [" + isEnd + "]!!!", "确定");
+        }
     }
 
     [MenuItem("GameObject/UGUI2/Button")]
     static void NewButton()
     {
-        Image btn = CreateUIObject(typeof(Image),"button",true) as Image;
+        Image btn = CreateUIObject(typeof(Image), "button", true) as Image;
         // btn.AddComponent<UGUIButton>();
         btn.rectTransform.sizeDelta = new Vector2(100, 50);
         NewText();
@@ -108,38 +159,38 @@ public class EditorUGUIEx
     static void LoadUIItem()
     {
         Transform _active = Selection.activeTransform;
-        if(_active == null) return;
+        if (_active == null) return;
 
-		GameObject _obj = AssetDatabase.LoadAssetAtPath(_fpInAsset4Item, typeof(GameObject)) as GameObject;
-		if(_obj == null) return;
-		GameObject go = PrefabUtility.InstantiatePrefab(_obj) as GameObject;
+        GameObject _obj = AssetDatabase.LoadAssetAtPath(_fpInAsset4Item, typeof(GameObject)) as GameObject;
+        if (_obj == null) return;
+        GameObject go = PrefabUtility.InstantiatePrefab(_obj) as GameObject;
         go.name = "ui_item";
-        go.transform.SetParent(_active,false);
-		go.SetActive(true);
+        go.transform.SetParent(_active, false);
+        go.SetActive(true);
     }
 
     [MenuItem("GameObject/UGUI2/ItemNew")]
     static void NewUIItem()
     {
         Transform _active = Selection.activeTransform;
-        if(_active == null) return;
-        
-		GameObject _obj = AssetDatabase.LoadAssetAtPath(_fpInAsset4Item, typeof(GameObject)) as GameObject;
-		if(_obj == null) return;
-		
-        GameObject gobj = GameObject.Instantiate(_obj,_active,false) as GameObject;
-		if(gobj == null) return;
-		gobj.name = "ui_item";
+        if (_active == null) return;
+
+        GameObject _obj = AssetDatabase.LoadAssetAtPath(_fpInAsset4Item, typeof(GameObject)) as GameObject;
+        if (_obj == null) return;
+
+        GameObject gobj = GameObject.Instantiate(_obj, _active, false) as GameObject;
+        if (gobj == null) return;
+        gobj.name = "ui_item";
         gobj.layer = layerUI;
-		gobj.SetActive(true);
+        gobj.SetActive(true);
     }
 
     [MenuItem("GameObject/UGUI2/InputField")]
     static void NewInputField()
     {
-        Image img = CreateUIObject(typeof(Image),"inputfield",true) as Image;
+        Image img = CreateUIObject(typeof(Image), "inputfield", true) as Image;
         img.rectTransform.sizeDelta = new Vector2(140, 50);
-        InputField inp = img.gameObject.AddComponent<InputField>();;
+        InputField inp = img.gameObject.AddComponent<InputField>(); ;
         Text _t1 = NewText();
         _t1.name = "placeholder";
         inp.placeholder = _t1;
