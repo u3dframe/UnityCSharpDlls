@@ -61,7 +61,7 @@ public class EL_Patcher
         float _ret = EG_Helper.h28 * 2;
         EG_Helper.FEG_BeginVArea();
 
-        EG_Helper.FEG_HeadTitMid("Patcher", Color.red);
+        EG_Helper.FEG_HeadTitMid("Patcher Zip(整包,大小包,OBB包,全资源,补丁 - 压缩)", Color.red);
         EG_Helper.FEG_Head("包体数据");
         _ret += EG_Helper.h28;
         EG_Helper.FEG_BeginH(0,20);
