@@ -363,7 +363,7 @@ public class EL_Patcher
 			EditorUtility.DisplayDialog ("Tip", "有资源名带空格!!!!", "Okey");
 			return;
 		}
-		BuildPatcher.ZipBuild (true);
+		BuildPatcher.ZipMain();
 	}
 
 	void _ZipMainObb(){
@@ -371,8 +371,8 @@ public class EL_Patcher
 			EditorUtility.DisplayDialog ("Tip", "有资源名带空格!!!!", "Okey");
 			return;
 		}
-		if(EditorUtility.DisplayDialog("tip","是否确定出一个很小包，其他资源压入obb.zip里面?","Sure_Okey","Cancel"))
-			BuildPatcher.ZipBuild (true,false,false,true);
+        if (EditorUtility.DisplayDialog("tip", "是否确定出一个很小包，其他资源压入obb.zip里面?", "Sure_Okey", "Cancel"))
+            BuildPatcher.ZipMainObb();
 	}
 
 	void _ZipMainChild(){
@@ -384,7 +384,7 @@ public class EL_Patcher
 			EditorUtility.DisplayDialog ("Tip", "还未记录主包资源!!!!", "Okey");
 			return;
 		}
-		BuildPatcher.ZipBuild (true,true);
+        BuildPatcher.ZipMainChild();
 	}
 
 	void _ZipPatche(){
