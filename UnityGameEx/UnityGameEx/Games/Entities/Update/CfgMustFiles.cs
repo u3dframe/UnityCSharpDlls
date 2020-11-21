@@ -98,18 +98,55 @@ namespace Core.Kernel
 				if (resName.Equals (_str)) {
 					return true;
 				}
-			}
+                if (resName.EndsWith(_str))
+                {
+                    return true;
+                }
+            }
 			return false;
 		}
+
+        public bool IsHas(string resName) {
+            return IsMust(resName);
+        }
 
 		static CfgMustFiles _instance;
 		static public CfgMustFiles instance{
 			get{ 
 				if (_instance == null) {
-					_instance = new CfgMustFiles ();
+					_instance = Builder();
 				}
 				return _instance;
 			}
 		}
-	}
+
+        static public CfgMustFiles Builder()
+        {
+            return new CfgMustFiles();
+        }
+        
+        static public CfgMustFiles Builder(string fn)
+        {
+            CfgMustFiles ret = Builder();
+            if (!string.IsNullOrEmpty(fn))
+            {
+                string _cont = UGameFile.curInstance.GetText(fn);
+                ret.Init(_cont);
+
+            }
+            return ret;
+        }
+
+        static public CfgMustFiles BuilderFp(string fp)
+        {
+            CfgMustFiles ret = Builder();
+            if (!string.IsNullOrEmpty(fp))
+            {
+                string _cont = UGameFile.GetText4File(fp);
+                ret.Init(_cont);
+
+            }
+            return ret;
+        }
+    }
 }

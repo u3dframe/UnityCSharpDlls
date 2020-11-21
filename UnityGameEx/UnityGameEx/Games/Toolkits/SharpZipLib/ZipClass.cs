@@ -8,7 +8,6 @@ using ICSharpCode.SharpZipLib.Zip.Compression;
 public class ZipClass : Core.Kernel.UGameFile
 {
     FileStream m_targetFile = null;
-    ZipOutputStream m_outStream = null;    
     ZipFile m_zipFile = null;
 
     List<string> m_listWaitAddFile = new List<string>();
@@ -21,22 +20,14 @@ public class ZipClass : Core.Kernel.UGameFile
     public bool m_bFinished { get; private set; }
     public System.Exception error { get; private set; }
 
-    public ZipClass(string strTargetPath, int zipLevel)
+    public ZipClass(string strTargetPath)
     {
         DelFile(strTargetPath);
         CreateFolder(strTargetPath);
 
         m_targetFile = File.Create(strTargetPath);
-        m_outStream = new ZipOutputStream(m_targetFile);
-        if (zipLevel >= Deflater.NO_COMPRESSION && zipLevel <= Deflater.BEST_COMPRESSION)
-            m_outStream.SetLevel(zipLevel);
-
-        m_zipFile = ZipFile.Create(m_outStream);
+        m_zipFile = ZipFile.Create(m_targetFile);
 		m_zipFile.UseZip64 = UseZip64.Off;
-    }
-
-    public ZipClass(string strTargetPath):this(strTargetPath, Deflater.BEST_COMPRESSION)
-    {
     }
 
     ~ZipClass()
@@ -53,7 +44,6 @@ public class ZipClass : Core.Kernel.UGameFile
         m_listEntryName.Clear();
         m_listWaitAddFile.Clear();
         m_zipFile.Close();
-        m_outStream.Close();
         m_targetFile.Close();
     }
 
@@ -63,7 +53,7 @@ public class ZipClass : Core.Kernel.UGameFile
 
         if (!IsFolder(strDirPath))
         {
-            Debug.LogError("添加失败，文件夹不存在 (" + strDirPath + ")");
+            Debug.LogError("添加失败，文件夹不存在 [" + strDirPath + "]");
             return;
         }
 
@@ -91,7 +81,7 @@ public class ZipClass : Core.Kernel.UGameFile
         strFilePath = ReplaceSeparator(strFilePath);
         if (!IsFile(strFilePath))
         {
-            Debug.LogError("添加失败，文件不存在 (" + strFilePath + ")");
+            Debug.LogError("添加失败，文件不存在 [" + strFilePath + "]");
             return false;
         }
 
