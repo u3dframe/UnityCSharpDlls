@@ -51,7 +51,19 @@ namespace Core.Kernel
         static public bool m_isEdtiorLoadAsset = true;
 
         // 资源目录的根目录 (流文件夹和解压可读写文件夹下面的根路径)
-        static public string m_resFdRoot = "_resRoot";
+        static string _resFdRoot = "_resRoot";
+        static public string m_resFdRoot {
+            get { return _resFdRoot; }
+            set
+            {
+                if (string.Equals(_resFdRoot,value))
+                    return;
+                _resFdRoot = value;
+                _m_rPath = null;
+                _m_appContentPath = null;
+                _m_appUnCompressPath = null;
+            }
+        }
 
         // 开发模式下，资源放的路径地址
         static public readonly string m_edtAssetPath = "_Develop";
@@ -135,12 +147,15 @@ namespace Core.Kernel
         }
 
         // 资源相对路径
-        static string _m_rPath = "";
+        static string _m_rPath = null;
         static public string m_assetRelativePath {
             get {
                 if (string.IsNullOrEmpty(_m_rPath))
                 {
-                    _m_rPath = ReplaceSeparator(string.Format("{0}/{1}/", m_resFdRoot, m_curPlatform));
+                    if(string.IsNullOrEmpty(m_resFdRoot))
+                        _m_rPath = ReplaceSeparator(string.Format("{0}/",m_curPlatform));
+                    else
+                        _m_rPath = ReplaceSeparator(string.Format("{0}/{1}/", m_resFdRoot, m_curPlatform));
                 }
                 return _m_rPath;
             }
@@ -161,7 +176,7 @@ namespace Core.Kernel
         }
 
         // 游戏包内资源目录 - 流文件目录
-        static string _m_appContentPath = "";
+        static string _m_appContentPath = null;
         static public string m_appContentPath
         {
             get
@@ -175,7 +190,7 @@ namespace Core.Kernel
         }
 
         // 解压的资源目录
-        static string _m_appUnCompressPath = "";
+        static string _m_appUnCompressPath = null;
         static public string m_appUnCompressPath
         {
             get
