@@ -123,13 +123,13 @@ namespace Core.Kernel
             return _ret;
         }
 
-        static public string GetDecryptText(string fn)
+        static public string GetText4Decrypt(string fn)
         {
             string val = GetText(fn);
             return Decrypt(val);
         }
 
-        static public byte[] GetTextBytes(string fn)
+        static public byte[] GetTextBytes4Decrypt(string fn)
         {
             string val = GetText(fn);
             string v64 = Decrypt(val);
@@ -155,7 +155,7 @@ namespace Core.Kernel
         }
 
         // 取得文件流
-        static public byte[] GetFileBytes(string fn)
+        static public byte[] GetTextBytes(string fn)
         {
             string _fp = curInstance.GetPath(fn);
             if (File.Exists(_fp))
@@ -203,9 +203,14 @@ namespace Core.Kernel
             return false;
         }
 
-        virtual public string GetTextDecrypt(string fn)
+        virtual public string GetDecryptText(string fn)
         {
-            return GetDecryptText(fn);
+            return GetText4Decrypt(fn);
+        }
+
+        virtual public byte[] GetDecryptTextBytes(string fn)
+        {
+            return GetTextBytes4Decrypt(fn);
         }
     }
 }

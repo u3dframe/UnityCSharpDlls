@@ -267,7 +267,7 @@ namespace Core.Kernel
             {
                 if (this.unzip == null)
                 {
-                    byte[] bts = UGameFile.GetBytes4File(this.m_obbPath);
+                    byte[] bts = UGameFile.GetFileBytes(this.m_obbPath);
                     if (bts != null && bts.Length > 0)
                     {
                         this.unzip = new UnZipClass(bts,UGameFile.m_dirRes);

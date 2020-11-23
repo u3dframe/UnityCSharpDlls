@@ -53,7 +53,7 @@ static public class Localization
 		string fn = null;
 		if (isCsv) fn = string.Format("lanuage/{0}.csv",language);
 		else  fn = string.Format("lanuage/{0}.properties",language);
-		string val = UGameFile.curInstance.GetTextDecrypt(fn).Trim();
+		string val = UGameFile.curInstance.GetDecryptText(fn).Trim();
 		return ReLoad(language,val,isCsv);
 	}
 	

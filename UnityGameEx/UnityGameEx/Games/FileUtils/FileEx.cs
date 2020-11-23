@@ -93,7 +93,7 @@ namespace Core.Kernel
         }
 
         // 取得文件字节
-        static public byte[] GetBytes4File (string fp)
+        static public byte[] GetFileBytes (string fp)
 		{
 			if (IsFile (fp)) {
 				return File.ReadAllBytes (fp);
