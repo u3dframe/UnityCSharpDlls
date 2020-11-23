@@ -43,9 +43,23 @@ public class ZipClass : Core.Kernel.UGameFile
         m_bClosed = true;
         m_listEntryName.Clear();
         m_listWaitAddFile.Clear();
-        m_targetFile.Dispose();
-        m_targetFile.Close();
-        m_zipFile.Close();
+
+        FileStream _fs = m_targetFile;
+        this.m_targetFile = null;
+        if(_fs != null)
+        {
+            _fs.Flush();
+            _fs.Dispose();
+            // _fs.Close();
+        }
+
+        ZipFile _zf = this.m_zipFile;
+        this.m_zipFile = null;
+        if (_zf != null)
+        {
+            // _zf.AbortUpdate();
+            _zf.Close();
+        }
     }
 
     public void AddDir(string strDirPath)
@@ -129,17 +143,18 @@ public class ZipClass : Core.Kernel.UGameFile
                 m_listWaitAddFile.RemoveAt(0);
                 m_listEntryName.RemoveAt(0);
 
+                zipState.m_strCurFilePath = strFilePath;
+                zipState.m_strCurFileName = strEntryName;
+                zipState.m_nZipedFileCount++;
+
                 m_zipFile.BeginUpdate();
                 m_zipFile.Add(strFilePath, strEntryName);
                 m_zipFile.CommitUpdate();
-
-                zipState.m_strCurFileName = strEntryName;
-                zipState.m_nZipedFileCount++;
             }
             catch (System.Exception e)
             {
-                error = e;
                 m_bFinished = true;
+                error = e;
             }
         }
     }

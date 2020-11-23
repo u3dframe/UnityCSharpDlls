@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using LitJson;
 
 namespace Core.Kernel
@@ -232,8 +231,9 @@ namespace Core.Kernel
 
 				this.m_jsonData[_kPkgFiles] = this.m_pkgFiles;
 				this.m_jsonData[_kLua] = this.m_keyLua;
-				
-				File.WriteAllText (this.m_filePath, this.m_jsonData.ToJson());
+
+                string _cval = this.m_jsonData.ToJson();
+                UGameFile.WriteFile(this.m_filePath, _cval);
 				return true;
 			} catch{
 			}

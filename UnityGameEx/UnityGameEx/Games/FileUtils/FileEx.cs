@@ -92,6 +92,19 @@ namespace Core.Kernel
             }
         }
 
+        static public void WriteFile(string fp, string content)
+        {
+            DelFile(fp);
+            CreateFolder(fp);
+            using (FileStream stream = new FileStream(fp, FileMode.OpenOrCreate))
+            {
+                using (StreamWriter writer = new StreamWriter(stream))
+                {
+                    writer.Write(content);
+                }
+            }
+        }
+
         // 取得文件字节
         static public byte[] GetFileBytes (string fp)
 		{
