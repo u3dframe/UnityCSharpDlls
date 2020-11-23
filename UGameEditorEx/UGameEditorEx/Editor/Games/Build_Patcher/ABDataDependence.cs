@@ -288,7 +288,7 @@ namespace Core.Kernel
         {
             string _fp = string.Format("{0}_deps.json", BuildPatcher.m_dirDataNoAssets);
             string _v = JsonMapper.ToJson(instance.m_dic);
-            BuildPatcher.curInstance.WriteText(_fp,_v,true);
+            BuildPatcher.WriteText(_fp,_v,true);
             AssetDatabase.Refresh();
         }
 
@@ -351,7 +351,7 @@ namespace Core.Kernel
             }
             string _v = builder.ToString();
             string _fp = string.Format("{0}_deps.json", BuildPatcher.m_dirDataNoAssets);
-            BuildPatcher.curInstance.WriteText(_fp, _v,true);
+            BuildPatcher.WriteText(_fp, _v,true);
         }
     }
 }
