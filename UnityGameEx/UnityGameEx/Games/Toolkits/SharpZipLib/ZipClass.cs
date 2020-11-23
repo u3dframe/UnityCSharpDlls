@@ -7,7 +7,7 @@ using ICSharpCode.SharpZipLib.Zip.Compression;
 
 public class ZipClass : Core.Kernel.UGameFile
 {
-    FileStream m_targetFile = null;
+    // FileStream m_targetFile = null;
     ZipFile m_zipFile = null;
 
     List<string> m_listWaitAddFile = new List<string>();
@@ -25,7 +25,7 @@ public class ZipClass : Core.Kernel.UGameFile
         DelFile(strTargetPath);
         CreateFolder(strTargetPath);
 
-        m_targetFile = File.Create(strTargetPath);
+        FileStream m_targetFile = File.Create(strTargetPath);
         m_zipFile = ZipFile.Create(m_targetFile);
 		m_zipFile.UseZip64 = UseZip64.Off;
     }
@@ -43,8 +43,8 @@ public class ZipClass : Core.Kernel.UGameFile
         m_bClosed = true;
         m_listEntryName.Clear();
         m_listWaitAddFile.Clear();
+        // m_targetFile.Close();
         m_zipFile.Close();
-        m_targetFile.Close();
     }
 
     public void AddDir(string strDirPath)
