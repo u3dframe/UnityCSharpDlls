@@ -88,6 +88,13 @@ public class UtilityHelper : GHelper {
         return ret;
     }
 
+    static public long Str2Long(string str)
+    {
+        long ret = 0;
+        long.TryParse(str, out ret);
+        return ret;
+    }
+
     static public float Str2Float(string str)
     {
         float ret = 0;

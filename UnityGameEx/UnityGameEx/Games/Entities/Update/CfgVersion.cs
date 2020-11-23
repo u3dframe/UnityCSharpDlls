@@ -117,18 +117,20 @@ namespace Core.Kernel
             // this.RefreshBigVerCode ();
         }
 
-        public void Load(string fn){
+        public CfgVersion Load(string fn){
 			this.m_filePath = UGameFile.curInstance.GetFilePath (fn);
 			Init (UGameFile.GetText (fn));
+            return this;
 		}
 
-		public void Init(string content){
+		public CfgVersion Init(string content){
             if (!string.IsNullOrEmpty(content)){
                 this.m_content = content;
                 _OnInit(this.m_content);
             }
 
             this.SyncByCfgPkg();
+            return this;
         }
 
 		protected virtual void _OnInit(string content){
@@ -368,5 +370,17 @@ namespace Core.Kernel
 				return _instance;
 			}
 		}
-	}
+
+        static public CfgVersion BuilderBy(string conent)
+        {
+            return Builder().Init(conent);
+        }
+
+        static public CfgVersion Builder(string fn)
+        {
+            if (string.IsNullOrEmpty(fn))
+                fn = m_defFileName;
+            return Builder().Load(fn);
+        }
+    }
 }
