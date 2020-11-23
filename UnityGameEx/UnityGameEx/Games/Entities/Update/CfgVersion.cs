@@ -119,7 +119,7 @@ namespace Core.Kernel
 
         public void Load(string fn){
 			this.m_filePath = UGameFile.curInstance.GetFilePath (fn);
-			Init (UGameFile.curInstance.GetText (fn));
+			Init (UGameFile.GetText (fn));
 		}
 
 		public void Init(string content){

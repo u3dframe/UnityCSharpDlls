@@ -63,7 +63,7 @@ namespace Core.Kernel
 		}
 
 		public void Load(string fn){
-			Init (UGameFile.curInstance.GetText (fn));
+			Init (UGameFile.GetText (fn));
 		}
 
 		/// <summary>
@@ -130,7 +130,7 @@ namespace Core.Kernel
             CfgMustFiles ret = Builder();
             if (!string.IsNullOrEmpty(fn))
             {
-                string _cont = UGameFile.curInstance.GetText(fn);
+                string _cont = UGameFile.GetText(fn);
                 ret.Init(_cont);
 
             }

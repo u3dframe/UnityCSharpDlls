@@ -29,7 +29,7 @@ namespace Core.Kernel
         
         public CfgFileList Load(string fn){
 			this.m_filePath = UGameFile.curInstance.GetFilePath (fn);
-			Init (UGameFile.curInstance.GetText (fn));
+			Init (UGameFile.GetText (fn));
 			return this;
 		}
 
@@ -257,6 +257,11 @@ namespace Core.Kernel
 			limit  = Mathf.Min (list.Count, limit);
 			return list.GetRange(0,limit);
 		}
+
+        public CfgFileList LoadDefault()
+        {
+            return this.Load(m_defFileName);
+        }
 
         static public CfgFileList Builder()
         {

@@ -236,7 +236,7 @@ namespace Core.Kernel
 					m_key = m_lKeys [i];
 					info = m_deletes [m_key];
 					m_deletes.Remove (m_key);
-					UGameFile.curInstance.DeleteFile (info.m_resName);
+					UGameFile.DeleteFile (info.m_resName);
 				}
 			}
 		}

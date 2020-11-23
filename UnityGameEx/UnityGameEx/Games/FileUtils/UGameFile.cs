@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.IO;
+using Core.Kernel.Cipher;
 
 namespace Core.Kernel
 {
@@ -20,6 +21,44 @@ namespace Core.Kernel
                 if (value != null)
                     _curInstance = value;
             }
+        }
+
+        static public EM_EnCode EncodeWordFile = EM_EnCode.BASE64; // 编码文本文件
+        
+        // 加密
+        static public string Encrypt(string val)
+        {
+            if (!string.IsNullOrEmpty(val))
+            {
+                switch (EncodeWordFile)
+                {
+                    case EM_EnCode.XXTEA:
+                        val = XXTEA.Encrypt(val);
+                        break;
+                    case EM_EnCode.BASE64:
+                        val = Base64Ex.Encode(val);
+                        break;
+                }
+            }
+            return val;
+        }
+
+        // 解密
+        static public string Decrypt(string val)
+        {
+            if (!string.IsNullOrEmpty(val))
+            {
+                switch (EncodeWordFile)
+                {
+                    case EM_EnCode.XXTEA:
+                        val = XXTEA.Decrypt(val);
+                        break;
+                    case EM_EnCode.BASE64:
+                        val = Base64Ex.Decode(val);
+                        break;
+                }
+            }
+            return val;
         }
 
         // 
@@ -49,35 +88,21 @@ namespace Core.Kernel
             return src;
         }
 
-        // 对象函数
-        virtual public string GetFilePath(string fn)
+        static public void DeleteFile(string fn, bool isFilePath)
         {
-            return string.Concat(m_dirRes, fn);
-        }
-
-        virtual public string GetPath(string fn)
-        {
-            string _fp = GetFilePath(fn);
-            if (IsFile(_fp))
-                return _fp;
-            return GetStreamingFilePath(fn);
-        }
-
-        public void DeleteFile(string fn, bool isFilePath)
-        {
-            string _fp = isFilePath ? fn : GetFilePath(fn);
+            string _fp = isFilePath ? fn : curInstance.GetFilePath(fn);
             DelFile(_fp);
         }
 
-        public void DeleteFile(string fn)
+        static public void DeleteFile(string fn)
         {
             DeleteFile(fn, false);
         }
 
         // 取得文本内容
-        public string GetText(string fn)
+        static public string GetText(string fn)
         {
-            string _fp = GetPath(fn);
+            string _fp = curInstance.GetPath(fn);
             if (File.Exists(_fp))
             {
                 return File.ReadAllText(_fp);
@@ -96,28 +121,41 @@ namespace Core.Kernel
             return _ret;
         }
 
-        public void WriteText(string fn, string content, bool isFilePath)
+        static public string GetDecryptText(string fn)
         {
-            string _fp = isFilePath ? fn : GetFilePath(fn);
+            string val = GetText(fn);
+            return Decrypt(val);
+        }
+
+        static public byte[] GetTextBytes(string fn)
+        {
+            string val = GetText(fn);
+            string v64 = Decrypt(val);
+            return System.Text.Encoding.UTF8.GetBytes(v64);
+        }
+
+        static public void WriteText(string fn, string content, bool isFilePath)
+        {
+            string _fp = isFilePath ? fn : curInstance.GetFilePath(fn);
             CreateText(_fp, content);
         }
 
-        public void WriteText(string fn, string content)
+        static public void WriteText(string fn, string content)
         {
             WriteText(fn, content, false);
         }
 
         // 文件是否存在可读写文件里
-        public bool IsExistsFile(string fn, bool isFilePath)
+        static public bool IsExistsFile(string fn, bool isFilePath)
         {
-            string _fp = isFilePath ? fn : GetFilePath(fn);
+            string _fp = isFilePath ? fn : curInstance.GetFilePath(fn);
             return File.Exists(_fp);
         }
 
         // 取得文件流
-        public byte[] GetFileBytes(string fn)
+        static public byte[] GetFileBytes(string fn)
         {
-            string _fp = GetPath(fn);
+            string _fp = curInstance.GetPath(fn);
             if (File.Exists(_fp))
             {
                 return File.ReadAllBytes(_fp);
@@ -136,17 +174,36 @@ namespace Core.Kernel
             return _bts;
         }
 
-        public string m_fpABManifest
+        static public string m_fpABManifest
         {
             get
             {
-                return GetPath(m_curPlatform);
+                return curInstance.GetPath(m_curPlatform);
             }
         }
 
+        // 对象函数
+        virtual public string GetFilePath(string fn)
+        {
+            return string.Concat(m_dirRes, fn);
+        }
+
+        virtual public string GetPath(string fn)
+        {
+            string _fp = GetFilePath(fn);
+            if (IsFile(_fp))
+                return _fp;
+            return GetStreamingFilePath(fn);
+        }
+        
         virtual public bool IsLoadOrg4Editor()
         {
             return false;
+        }
+
+        virtual public string GetTextDecrypt(string fn)
+        {
+            return GetDecryptText(fn);
         }
     }
 }
