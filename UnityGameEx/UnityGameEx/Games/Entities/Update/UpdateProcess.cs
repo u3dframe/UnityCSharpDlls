@@ -125,7 +125,7 @@ namespace Core.Kernel
 
             this._SetStatePre(EM_Process.WaitCommand);
             _vPath = UGameFile.ReWwwUrl(UGameFile.m_fpZipList);
-            WWWMgr.instance.StartUWR(_vPath, _CFLoadZipList);
+            WWWMgr.instance.StartUWR(_vPath, _CFLoadZipList, _vPath);
         }
 
         void _CFLoadZipList(bool isSuccess, UnityWebRequest uwr, object pars)
@@ -150,7 +150,7 @@ namespace Core.Kernel
             else
             {
                 this._SetState(EM_Process.Error_LoadZipList);
-                Debug.LogErrorFormat("=== load ziplist error = [{0}]", uwr.error);
+                Debug.LogErrorFormat("=== load ziplist error ,path =[{0}], err = [{1}]", pars,uwr.error);
             }
         }
 
@@ -187,7 +187,7 @@ namespace Core.Kernel
                     this._SetStatePre(EM_Process.WaitCommand);
                     string _vPath = string.Format(UGameFile.m_fmtZip, nmZipIndex);
                     _vPath = UGameFile.ReWwwUrl(_vPath);
-                    WWWMgr.instance.StartUWR(_vPath, _CFLoadZipOne);
+                    WWWMgr.instance.StartUWR(_vPath, _CFLoadZipOne,_vPath);
                 }
                 else
                 {
@@ -251,7 +251,7 @@ namespace Core.Kernel
             else
             {
                 this._SetState(EM_Process.Error_LoadZipOne);
-                Debug.LogErrorFormat("=== load one zip error = [{0}]", uwr.error);
+                Debug.LogErrorFormat("=== load one zip error,path = [{0}],err = [{1}]", pars, uwr.error);
             }
         }
 
@@ -334,7 +334,7 @@ namespace Core.Kernel
             else
             {
                 this._SetState(EM_Process.Error_LoadStreamVer);
-                Debug.LogErrorFormat("=== load StreamVersion,pars=[{0}], error = [{1}]", pars, uwr.error);
+                Debug.LogErrorFormat("=== load StreamVersion error ,pars=[{0}], err = [{1}]", pars, uwr.error);
             }
         }
 
