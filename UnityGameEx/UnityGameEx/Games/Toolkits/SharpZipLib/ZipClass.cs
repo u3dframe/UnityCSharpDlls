@@ -7,7 +7,7 @@ using ICSharpCode.SharpZipLib.Zip.Compression;
 
 public class ZipClass : Core.Kernel.UGameFile
 {
-    // FileStream m_targetFile = null;
+    FileStream m_targetFile = null;
     ZipFile m_zipFile = null;
 
     List<string> m_listWaitAddFile = new List<string>();
@@ -25,7 +25,7 @@ public class ZipClass : Core.Kernel.UGameFile
         DelFile(strTargetPath);
         CreateFolder(strTargetPath);
 
-        FileStream m_targetFile = File.Create(strTargetPath);
+        m_targetFile = File.Create(strTargetPath);
         m_zipFile = ZipFile.Create(m_targetFile);
 		m_zipFile.UseZip64 = UseZip64.Off;
     }
@@ -43,7 +43,8 @@ public class ZipClass : Core.Kernel.UGameFile
         m_bClosed = true;
         m_listEntryName.Clear();
         m_listWaitAddFile.Clear();
-        // m_targetFile.Close();
+        m_targetFile.Dispose();
+        m_targetFile.Close();
         m_zipFile.Close();
     }
 
@@ -71,12 +72,12 @@ public class ZipClass : Core.Kernel.UGameFile
         {
             foreach (string _str in files)
             {
-                AddFile(_str, _str);
+                AddFile(_str);
             }
         }
     }
 
-    public bool AddFile(string strFilePath, string strEnptyName = "")
+    public bool AddFile(string strFilePath, string strEnptyName = null,bool isNeedFName = true)
     {
         strFilePath = ReplaceSeparator(strFilePath);
         if (!IsFile(strFilePath))
@@ -89,7 +90,13 @@ public class ZipClass : Core.Kernel.UGameFile
         {
             m_listWaitAddFile.Add(strFilePath);
 
-            if(!string.IsNullOrEmpty(strEnptyName))
+            if (string.IsNullOrEmpty(strEnptyName))
+            {
+                strEnptyName = GetFileName(strFilePath);
+                isNeedFName = false;
+            }
+
+            if(isNeedFName)
                 strEnptyName = GetFileName(strEnptyName);
 
             m_listEntryName.Add(strEnptyName);
