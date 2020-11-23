@@ -77,7 +77,7 @@ public class ZipClass : Core.Kernel.UGameFile
         }
     }
 
-    public bool AddFile(string strFilePath, string strEnptyName = null,bool isNeedFName = true)
+    public bool AddFile(string strFilePath, string strEnptyName = null,bool isReFName = false)
     {
         strFilePath = ReplaceSeparator(strFilePath);
         if (!IsFile(strFilePath))
@@ -93,10 +93,10 @@ public class ZipClass : Core.Kernel.UGameFile
             if (string.IsNullOrEmpty(strEnptyName))
             {
                 strEnptyName = GetFileName(strFilePath);
-                isNeedFName = false;
+                isReFName = false;
             }
 
-            if(isNeedFName)
+            if(isReFName)
                 strEnptyName = GetFileName(strEnptyName);
 
             m_listEntryName.Add(strEnptyName);
