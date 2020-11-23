@@ -134,7 +134,7 @@ namespace Core.Kernel
                 path = EditorFPath();
 
             string _cont = instance.ToJson();
-            UGameFile.CreateText(path, _cont);
+            UGameFile.WriteFile(path, _cont);
         }
 	}
 }

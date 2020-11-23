@@ -139,7 +139,7 @@ namespace Core.Kernel
         static public void WriteText(string fn, string content, bool isFilePath)
         {
             string _fp = isFilePath ? fn : curInstance.GetFilePath(fn);
-            CreateText(_fp, content);
+            WriteFile(_fp, content);
         }
 
         static public void WriteText(string fn, string content)
