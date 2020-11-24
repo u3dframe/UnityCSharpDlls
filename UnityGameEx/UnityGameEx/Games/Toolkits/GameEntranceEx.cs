@@ -13,6 +13,12 @@ public static class GameEntranceEx{
 
     static public void Entrance( DF_OnError callError )
     {
+        if (!Application.isPlaying)
+        {
+            Application.logMessageReceivedThreaded -= _HandleLog;
+            return;
+        }
+
         cfuncError = callError;
         _InitAppPars();
         _InitMgrsPreUpload();
