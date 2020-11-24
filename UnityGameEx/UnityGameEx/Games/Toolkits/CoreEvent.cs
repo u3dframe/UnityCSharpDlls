@@ -10,13 +10,20 @@ using System;
 namespace Core
 {
     public delegate void DF_LoadedFab(GameObject gobj);
+
     public delegate void DF_LoadedTex2D(Texture2D tex);
+    public delegate void DF_ToLoadTex2D(string abName, string assetName, DF_LoadedTex2D clip);
+
     public delegate void DF_LoadedTex2DExt(Texture2D tex,object ext1,object ext2);
-	public delegate void DF_LoadedSprite(Sprite sprite);
+    public delegate void DF_ToLoadTex2DExt(string abName, string assetName, DF_LoadedTex2DExt clip, object ext1, object ext2);
+
+    public delegate void DF_LoadedSprite(Sprite sprite);
     public delegate void DF_LoadedAnimator(Animator ator);
     public delegate void DF_LoadedAnimationClip(AnimationClip clip);
+
     public delegate void DF_LoadedAudioClip(AudioClip clip);
     public delegate void DF_ToLoadAdo(string abName, string assetName, DF_LoadedAudioClip clip);
+
     public delegate void DF_LoadedTimelineAsset(TimelineAsset pa);
     public delegate void DF_OnBool(bool isBl);
     public delegate void DF_OnUpdate(float dt,float unscaledDt);
