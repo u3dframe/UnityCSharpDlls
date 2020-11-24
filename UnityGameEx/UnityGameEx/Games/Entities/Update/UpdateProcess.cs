@@ -366,6 +366,7 @@ namespace Core.Kernel
             var cfg = CfgVersion.instance.LoadDefault();
             XXTEA.SetCustKey(cfg.m_keyLua);
 
+            GameMgr.instance.InitAfterUpload();
             // 完成回调
             this._ExcCompleted();
         }

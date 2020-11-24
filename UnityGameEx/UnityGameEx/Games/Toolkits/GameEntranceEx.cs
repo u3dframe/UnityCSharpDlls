@@ -52,6 +52,5 @@ public static class GameEntranceEx{
     static void _InitMgrsPreUpload()
     {
         GameMgr.instance.Init();
-        AssetBundleManager.instance.Init();
     }
 }

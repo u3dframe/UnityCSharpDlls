@@ -56,16 +56,29 @@ public class GameMgr : GobjLifeListener {
 	ILateUpdate upLateItem = null;
 	[SerializeField] int upLens = 0;
 	[SerializeField] int lateLens = 0;
-	
-	/// <summary>
-	/// 初始化
-	/// </summary>
-	public void Init()
+    bool m_isInitAfterUpload = false;
+
+    /// <summary>
+    /// 初始化
+    /// </summary>
+    public void Init()
 	{
         this.csAlias = "GMgr";
-        GameLanguage.Init();
+    }
+
+    /// <summary>
+	/// 初始化 - 在更新之后的
+	/// </summary>
+    public void InitAfterUpload()
+    {
+        if (this.m_isInitAfterUpload)
+            return;
+        this.m_isInitAfterUpload = true;
+
         UGUIEventSystem.instance.Init(false);
+        GameLanguage.Init();
         Localization.language = GameLanguage.strCurLanguage;
+        AssetBundleManager.instance.Init();
     }
 
 	void Update() {
