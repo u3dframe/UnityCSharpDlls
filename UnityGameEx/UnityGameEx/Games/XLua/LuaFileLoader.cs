@@ -21,10 +21,10 @@ public class LuaFileLoader {
         }
 #if UNITY_EDITOR
         fileName = string.Format("{0}{1}",GameFile.m_dirData,fn);
-        return GameFile.GetBytes4File(fileName);
+        return GameFile.GetFileBytes(fileName);
 #else
-        fileName = GameFile.GetPath(fn);
-        return GameFile.GetFileBytes(fn);;
+        fileName = GameFile.curInstance.GetPath(fn);
+        return GameFile.curInstance.GetDecryptTextBytes(fn);
 #endif
     }
 

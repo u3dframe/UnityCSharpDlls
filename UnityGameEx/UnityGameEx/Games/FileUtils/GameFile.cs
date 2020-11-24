@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.IO;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 namespace Core
 {
+	using Core.Kernel;
+
 	/// <summary>
 	/// 类名 : 游戏 路径
 	/// 作者 : Canyon / 龚阳辉
@@ -15,18 +15,14 @@ namespace Core
 	/// </summary>
 	public class GameFile : Kernel.Resources
 	{
-        static public readonly GameFile instance = new GameFile();
+        static private readonly GameFile instance = new GameFile();
+		static private bool m_init = false;
+		static public string crcDataPath { get{	return CRCClass.GetCRCContent (m_dirDataNoAssets); } }
+		static public string m_bk_url = null;
 
-        // zip 压缩文件列表(将文件分包体大小来压缩,减小解压时所需内存)
-        static public readonly string m_fpZipList = string.Concat (m_appContentPath,"ziplist.txt");
-		static public readonly string m_fmtZip = string.Concat (m_appContentPath,"resource{0}.zip");
-		
-		static public string crcDataPath {
-			get{
-				return CRCClass.GetCRCContent (m_dirDataNoAssets);
-			}
-		}
-
+#if UNITY_EDITOR
+		static public readonly string m_url_editor = "http://192.168.1.30:8006/dykj";
+#endif
 		// 编辑模式
 		static public bool isEditor{
 			get{
@@ -60,8 +56,12 @@ namespace Core
 			#endif
 		}
 
-        static public void InitFpType()
+        static void InitGameFile()
         {
+			if(m_init)
+				return;
+			m_init = true;
+
 #if UNITY_EDITOR && UNITY_ANDROID
             m_emFpType = Kernel.ET_FPType.UNITY_EDITOR_ANDROID;
 #elif UNITY_EDITOR && UNITY_IOS
@@ -73,18 +73,53 @@ namespace Core
 #else
             m_emFpType = Kernel.ET_FPType.UNITY_EDITOR;
 #endif
-
             curInstance = instance;
+			InitFdRoot(m_resFdRoot);
+			GameEntranceEx.Entrance(_OnCFError);
+			// EncodeWordFile = EM_EnCode.None;
+#if UNITY_EDITOR
+			CfgPackage.InitPackage(()=>{
+				m_bk_url = CfgPackage.instance.m_urlVersion;
+				Debug.LogError(CfgPackage.instance.ToJson());
+			});
+#endif
         }
+
+		static void InitFdRoot(string fdRoot){
+			m_resFdRoot = fdRoot;
+			m_fpZipList = string.Concat (m_appContentPath,"ziplist.txt");
+			m_fmtZip = string.Concat (m_appContentPath,"resource{0}.zip");
+		}
+
+		static public void InitFirst()
+        {
+            InitGameFile();
+#if UNITY_EDITOR
+			CfgVersion.instance.m_urlVersion = m_url_editor;
+#endif
+        }
+
+		static void _OnCFError(string errMsg){
+#if UNITY_EDITOR
+			AppPause();
+#endif
+		}
 
         static public string CurrDirRes()
         {
-            InitFpType();
+            InitGameFile();
+			if(!string.IsNullOrEmpty(m_bk_url))
+				CfgVersion.instance.m_urlVersion = m_bk_url;
             return m_dirRes;
         }
 
-        static private bool IsTextInCT(string fn){
+        static public bool IsTextInCT(string fn){
 			return fn.EndsWith(".csv") || fn.EndsWith(".minfo") || fn.IndexOf("protos/") != -1;
+		}
+
+		static public bool IsUpdateUIRes (string resName)
+		{
+			return resName.EndsWith ("updateui.ui") || resName.EndsWith ("uiupdate.atlas") || resName.EndsWith ("update_bg.tex");
 		}
 		
 		// 取得路径
@@ -92,6 +127,11 @@ namespace Core
 #if UNITY_EDITOR
 			if(IsTextInCT(fn)){
 				return string.Format("{0}CsvTxts/{1}",m_appAssetPath,fn);
+			}
+#else
+			ResInfo _rinfo = CfgFileList.instance.GetInfo(fn);
+			if(_rinfo != null){
+				fn = _rinfo.m_resName;
 			}
 #endif
             return base.GetFilePath(fn);
@@ -113,6 +153,27 @@ namespace Core
 				return bLoadOrg4Editor;
 #else
             return false;
+#endif
+        }
+
+        override public string GetPath(string fn)
+        {
+#if !UNITY_EDITOR
+			ResInfo _info = CfgFileList.instance.GetInfo(fn);
+			if(_info == null)
+				Debug.LogErrorFormat("=== resinfo null,nm = [{0}]",fn);
+			else
+				fn = _info.m_resName;
+#endif
+            return base.GetPath(fn);
+        }
+
+        override public string GetDecryptText(string fn)
+        {
+#if UNITY_EDITOR
+			return GetText(fn);
+#else
+            return base.GetDecryptText(fn);
 #endif
         }
     }

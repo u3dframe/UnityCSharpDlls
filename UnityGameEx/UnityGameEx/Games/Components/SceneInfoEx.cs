@@ -68,6 +68,7 @@ public class SceneInfoEx : MonoBehaviour
 
 	[ContextMenu("Save Infos")]
     void _SaveInfos(){
+		UtilityHelper.Is_App_Quit = false;
 		Scene scene = EditorSceneManager.GetActiveScene();
 		string sname = scene.name;
 		this.m_infoName = "sinfo_" + sname;
@@ -127,7 +128,7 @@ public class SceneInfoEx : MonoBehaviour
 
 		string _fname = ReFname(this.m_infoName);
 		string _vc = jdRoot.ToJson();
-		GameFile.instance.WriteText(_fname,_vc);
+		GameFile.WriteText(_fname,_vc);
 
 		string fp = string.Format("{0}{1}{2}.prefab",GameFile.m_appAssetPath,"Scene/Builds/prefabs/maps/",this.m_fabName);
 		GameFile.CreateFolder(fp);
@@ -202,6 +203,32 @@ public class SceneInfoEx : MonoBehaviour
 			
 			jdRLm[_rname] = _jd;
 		}
+
+		var _arrs1 = GetComponentsInChildren<Terrain>(true);
+		Terrain _terrain;
+		_nTemp = _arrs1.Length;
+		for (int i = 0; i < _nTemp; i++) {
+			_terrain = _arrs1[i];
+
+			if( null == _terrain)
+				continue;
+			_gobj = _terrain.gameObject;
+			if(!_gobj.isStatic || _terrain.lightmapIndex < 0 || nLmData <= _terrain.lightmapIndex)
+				continue;
+			
+			JsonData _jd = NewJObj();
+			_jd["lightmapIndex"] = _terrain.lightmapIndex;
+			_vec4 = _terrain.lightmapScaleOffset;
+			_jd["lmso_x"] = _vec4.x.ToString();
+			_jd["lmso_y"] = _vec4.y.ToString();
+			_jd["lmso_z"] = _vec4.z.ToString();
+			_jd["lmso_w"] = _vec4.w.ToString();
+
+			_rrname = UtilityHelper.RelativeName(_gobj);
+			_rname = StrRight(_rrname,this.m_rootRelative);
+			
+			jdRLm[_rname] = _jd;
+		}
 		return jdRLm;
 	}
 #endif
@@ -212,15 +239,10 @@ public class SceneInfoEx : MonoBehaviour
 		this._ReSetLightmap();
 
 		string _fname = ReFname(this.m_infoName);
-		string _vc = GameFile.instance.GetText(_fname);
+		string _vc = GameFile.curInstance.GetDecryptText(_fname);
 		if(string.IsNullOrEmpty(_vc))
 			return;
-		JsonData jdRoot = null;
-		try{
-			jdRoot = JsonMapper.ToObject<JsonData>(_vc);
-		} catch {
-		}
-
+		JsonData jdRoot = LJsonHelper.ToJData(_vc);
 		if(jdRoot == null)
 			return;
 		
@@ -239,36 +261,15 @@ public class SceneInfoEx : MonoBehaviour
 		int mode = (int)jdFog["fogMode"];
 		RenderSettings.fogMode = (FogMode) mode;
 		
-		float _fv = 0f;
 		Color fColor = Color.white;
-		if(!float.TryParse(jdFog["fc_r"].ToString(),out _fv))
-			_fv = 0.0f;
-		fColor.r = _fv;
-
-		if(!float.TryParse(jdFog["fc_g"].ToString(),out _fv))
-			_fv = 0.0f;
-		fColor.g = _fv;
-
-		if(!float.TryParse(jdFog["fc_b"].ToString(),out _fv))
-			_fv = 0.0f;
-		fColor.b = _fv;
-
-		if(!float.TryParse(jdFog["fc_a"].ToString(),out _fv))
-			_fv = 0.0f;
-		fColor.a = _fv;
+		fColor.r = UtilityHelper.Str2Float(jdFog["fc_r"].ToString());
+		fColor.g = UtilityHelper.Str2Float(jdFog["fc_g"].ToString());
+		fColor.b = UtilityHelper.Str2Float(jdFog["fc_b"].ToString());
+		fColor.a = UtilityHelper.Str2Float(jdFog["fc_a"].ToString());
 		RenderSettings.fogColor = fColor;
-		
-		if(!float.TryParse(jdFog["fogDensity"].ToString(),out _fv))
-			_fv = 0.0f;
-		RenderSettings.fogDensity = _fv;
-
-		if(!float.TryParse(jdFog["fogStartDistance"].ToString(),out _fv))
-			_fv = 0.0f;
-		RenderSettings.fogStartDistance = _fv;
-
-		if(!float.TryParse(jdFog["fogEndDistance"].ToString(),out _fv))
-			_fv = 0.0f;
-		RenderSettings.fogEndDistance = _fv;
+		RenderSettings.fogDensity = UtilityHelper.Str2Float(jdFog["fogDensity"].ToString());
+		RenderSettings.fogStartDistance = UtilityHelper.Str2Float(jdFog["fogStartDistance"].ToString());
+		RenderSettings.fogEndDistance = UtilityHelper.Str2Float(jdFog["fogEndDistance"].ToString());
 
 		if(m_isDebug){
 			Debug.LogErrorFormat("====== fog = [{0}] = [{1}] = [{2}] = [{3}] = [{4}] = [{5}]",
@@ -410,7 +411,6 @@ public class SceneInfoEx : MonoBehaviour
 		Vector4 _vec4 = Vector4.zero;
 		JsonData _jd;
 		int mode;
-		float _fv = 0f;
 		for (int i = 0; i < _nTemp; i++) {
 			_render = _arrs[i];
 
@@ -430,28 +430,46 @@ public class SceneInfoEx : MonoBehaviour
 			mode = (int)_jd["lightProbeUsage"];
 			_render.lightProbeUsage = (LightProbeUsage) mode;
 
-			if(!float.TryParse(_jd["lmso_x"].ToString(),out _fv))
-				_fv = 0.0f;
-			_vec4.x = _fv;
-
-			if(!float.TryParse(_jd["lmso_y"].ToString(),out _fv))
-				_fv = 0.0f;
-			_vec4.y = _fv;
-			
-			if(!float.TryParse(_jd["lmso_z"].ToString(),out _fv))
-				_fv = 0.0f;
-			_vec4.z = _fv;
-
-			if(!float.TryParse(_jd["lmso_w"].ToString(),out _fv))
-				_fv = 0.0f;
-			_vec4.w = _fv;
-	
+			_vec4.x = UtilityHelper.Str2Float(_jd["lmso_x"].ToString());
+			_vec4.y = UtilityHelper.Str2Float(_jd["lmso_y"].ToString());
+			_vec4.z = UtilityHelper.Str2Float(_jd["lmso_z"].ToString());
+			_vec4.w = UtilityHelper.Str2Float(_jd["lmso_w"].ToString());
 			_render.lightmapScaleOffset = _vec4;
-
 			// _gobj.isStatic = true;
 			if(m_isDebugRLmap){
 				Debug.LogErrorFormat("====== r lightmap = [{0}] = [{1}] = [{2}]",
 					_jd.ToJson(),_render.lightmapIndex,_render.lightmapScaleOffset
+				);
+			}
+		}
+
+		var _arrs1 = GetComponentsInChildren<Terrain>(true);
+		_nTemp = _arrs1.Length;
+		Terrain _terrain; 
+		for (int i = 0; i < _nTemp; i++) {
+			_terrain = _arrs1[i];
+			if( null == _terrain)
+				continue;
+			_gobj = _terrain.gameObject;
+			
+			_rrname = UtilityHelper.RelativeName(_gobj);
+			_rname = StrRight(_rrname,this.m_rootRelative);
+			_jd = LJsonHelper.ToJData(jdRLm,_rname);
+
+			if(_jd == null)
+				continue;
+			_gobj.isStatic = true;
+
+			_terrain.lightmapIndex = (int)_jd["lightmapIndex"];
+			_vec4.x = UtilityHelper.Str2Float(_jd["lmso_x"].ToString());
+			_vec4.y = UtilityHelper.Str2Float(_jd["lmso_y"].ToString());
+			_vec4.z = UtilityHelper.Str2Float(_jd["lmso_z"].ToString());
+			_vec4.w = UtilityHelper.Str2Float(_jd["lmso_w"].ToString());
+			_terrain.lightmapScaleOffset = _vec4;
+			// _gobj.isStatic = true;
+			if(m_isDebugRLmap){
+				Debug.LogErrorFormat("====== r terrain = [{0}] = [{1}] = [{2}]",
+					_jd.ToJson(),_terrain.lightmapIndex,_terrain.lightmapScaleOffset
 				);
 			}
 		}
