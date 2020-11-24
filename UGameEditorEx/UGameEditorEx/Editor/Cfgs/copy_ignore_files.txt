@@ -1,0 +1,9 @@
+version.txt
+filelist.txt
+filelist2.txt
+must_files.txt
+.manifest
+.meta
+.svn
+.DS_Store
+Lua/games/cfg/svr/
