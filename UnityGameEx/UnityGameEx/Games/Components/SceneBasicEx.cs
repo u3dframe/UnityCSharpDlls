@@ -468,6 +468,12 @@ public class SceneBasicEx : GobjLifeListener
 		}
 	}
 
+    protected override void OnCall4Destroy()
+    {
+        base.OnCall4Destroy();
+        this._ReSetLightmap();
+    }
+
     protected override void OnCall4Start()
     {
         base.OnCall4Start();
