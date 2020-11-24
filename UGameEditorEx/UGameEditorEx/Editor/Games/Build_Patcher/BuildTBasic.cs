@@ -84,17 +84,7 @@ public class BuildTBasic : Core.EditorGameFile
         }
         return true;
     }
-
-    // [MenuItem("Tools/Cleanup Missing Scripts")]
-    // [MenuItem("Assets/Tools/Cleanup Missing Scripts")]
-    static void CleanupMissingScripts()
-    {
-        for (int i = 0; i < Selection.gameObjects.Length; i++)
-        {
-            CleanupMissingScripts(Selection.gameObjects[i]);
-        }
-    }
-
+    
     static public void CleanupMissingScripts(GameObject gObj,bool isSave = true)
     {
         // We must use the GetComponents array to actually detect missing components
