@@ -116,10 +116,10 @@ public class UGUIEventListener : EventTrigger {
 		if(m_isSyncScroll && _sclParent != null){
 			_sclParent.OnBeginDrag(eventData);
 		}
-        PropagationFirst(eventData, ExecuteEvents.pointerDownHandler);
         if (onPress != null) {
 			onPress (gameObject, _isPressed, eventData.position);
 		}
+        PropagationFirst(eventData, ExecuteEvents.pointerDownHandler);
 	}
 
 	// 抬起
@@ -133,10 +133,10 @@ public class UGUIEventListener : EventTrigger {
 		if(m_isSyncScroll && _sclParent != null){
 			_sclParent.OnEndDrag(eventData);
 		}
-        PropagationFirst(eventData, ExecuteEvents.pointerUpHandler);
         if (onPress != null) {
 			onPress (gameObject, _isPressed, eventData.position);
 		}
+        PropagationFirst(eventData, ExecuteEvents.pointerUpHandler);
 	}
 
 	// 单击
@@ -155,11 +155,11 @@ public class UGUIEventListener : EventTrigger {
 		v2Start = eventData.position;
 		diff_time = 0;
 		if (!_isCanClick) return;
-        PropagationFirst(eventData, ExecuteEvents.submitHandler);
-        PropagationFirst(eventData, ExecuteEvents.pointerClickHandler);
         if (onClick != null) {
 			onClick (gameObject, eventData.position);
 		}
+        PropagationFirst(eventData, ExecuteEvents.submitHandler);
+        PropagationFirst(eventData, ExecuteEvents.pointerClickHandler);
 	}
 	
     // 开始拖拽
@@ -223,7 +223,7 @@ public class UGUIEventListener : EventTrigger {
             {
 				do
 				{
-					isDo = ExecuteEvents.Execute(gobj, data, function);
+					isDo = ExecuteEvents.Execute(gobj, data, function); // 执行脚本事件,如果没脚本，只有 Raycast 永远是 False
                     if (isDo)
                         break;
 
@@ -232,8 +232,7 @@ public class UGUIEventListener : EventTrigger {
 					gobj = gobj.transform.parent.gameObject;
 				} while (!isDo);
 
-				if(isDo)
-                	break;
+                break; //只转发给第一个响应
             }
         }
     }
