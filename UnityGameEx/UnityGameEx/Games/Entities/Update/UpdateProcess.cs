@@ -159,23 +159,18 @@ namespace Core.Kernel
             if (m_zipIndexs.Count <= 0)
             {
                 this._SetState(EM_Process.UnGpOBB);
+                return;
             }
-            else
+            string _ind = m_zipIndexs.Peek();
+            if (string.IsNullOrEmpty(_ind))
             {
-                string _ind = m_zipIndexs.Peek();
-                if (string.IsNullOrEmpty(_ind))
-                {
-                    this.unzip = null;
-                    this.m_zipIndexs.Dequeue();
-                    return;
-                }
-
-                if (_UnZipOne(_ind))
-                {
-                    this.unzip = null;
-                    m_zipIndexs.Dequeue();
-                }
+                this.unzip = null;
+                this.m_zipIndexs.Dequeue();
+                return;
             }
+
+            if (_UnZipOne(_ind))
+                m_zipIndexs.Dequeue();
         }
 
         bool _UnZipOne(string nmZipIndex)
@@ -192,6 +187,8 @@ namespace Core.Kernel
                 else
                 {
                     this._UnZip_();
+                    if (this.unzip == null)
+                        return true;
                 }
             }
             catch (Exception ex)
@@ -310,7 +307,7 @@ namespace Core.Kernel
             }
 
             this._SetStatePre(EM_Process.WaitCommand);
-            string _vPath = string.Concat(UGameFile.m_dirStreaming,CfgVersion.m_defFileName);
+            string _vPath = string.Concat(UGameFile.m_appContentPath,CfgVersion.m_defFileName);
             _vPath = UGameFile.ReWwwUrl(_vPath);
             WWWMgr.instance.StartUWR(_vPath, _CFLoadStreamVersion,_vPath);
         }
