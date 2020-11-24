@@ -48,45 +48,6 @@ public class BuildTools : BuildPatcher
         return paths.ToArray();
     }
 
-    static public void CopyTextFiles(string source, string dist)
-    {
-        FileUtil.DeleteFileOrDirectory(dist);
-        FileUtil.CopyFileOrDirectory(source, dist);
-        void RemoveMeta(DirectoryInfo _dir)
-        {
-            foreach (var file in _dir.GetFiles())
-            {
-
-                if (file.Extension == ".meta")
-                {
-                    file.Delete();
-                }
-            }
-            foreach (var file in _dir.GetDirectories())
-            {
-                RemoveMeta(file);
-            }
-        }
-        RemoveMeta(new DirectoryInfo(dist));
-    }
-
-    static void CopyTextFiles()
-    {
-        EditorUtility.DisplayProgressBar("CopyTextFiles", "Copy text files ...", 0.4f);
-        var txtDir = new DirectoryInfo(Path.Combine(m_dirData, m_edtAssetPath, "CsvTxts"));
-        foreach (var dir in txtDir.GetDirectories())
-        {
-            CopyTextFiles(dir.ToString(), Path.Combine(m_dirRes, dir.Name));
-        }
-
-        EditorUtility.DisplayProgressBar("CopyTextFiles", "Copy lua files ...", 0.5f);
-        CopyTextFiles(Path.Combine(m_dirData, "Lua"), Path.Combine(m_dirRes, "Lua"));
-        FileUtil.DeleteFileOrDirectory(Path.Combine(m_dirRes, "Lua/games/cfg/svr"));
-        FileUtil.DeleteFileOrDirectory(Path.Combine(m_dirRes, "Lua/games/cfg/.git"));
-
-        EditorUtility.ClearProgressBar();
-    }
-
     static void InnerBuildAll(string []scenes, string outpath, BuildTargetGroup targetgroup, BuildTarget target, BuildOptions option)
     {
         EditorUtility.DisplayProgressBar("BuidPlayer", "Switch Targe Group", 0.1f);
@@ -94,24 +55,17 @@ public class BuildTools : BuildPatcher
         option |= BuildOptions.CompressWithLz4;
         AssetDatabase.Refresh();
 
-        // BuildAssetBundles();
-
-        EditorUtility.DisplayProgressBar("BuidPlayer", "Generate Resource", 0.3f);
-        CopyTextFiles();
-        AssetDatabase.Refresh();
-
         FileUtil.DeleteFileOrDirectory(m_dirStreaming);
-        Directory.CreateDirectory(m_dirStreaming);
-
+        AssetDatabase.Refresh();
+        
         EditorUtility.DisplayProgressBar("BuidPlayer", "Compress Resource", 0.4f);
-        SharpZipLib.Zipper.Compress(Path.Combine(Application.dataPath,"../..", m_resFdRoot), Path.Combine(m_dirStreaming, "base.zip"));
+        Zip_Main();
         AssetDatabase.Refresh();
 
         EditorUtility.DisplayProgressBar("BuidPlayer", "Build Runtime", 0.5f);
         UnityEditor.Build.Reporting.BuildReport ret = BuildPipeline.BuildPlayer(scenes, outpath, target, option);
 
         EditorUtility.DisplayProgressBar("BuidPlayer", "Clean tmp files", 0.9f);
-        FileUtil.DeleteFileOrDirectory(m_dirStreaming);
         AssetDatabase.Refresh();
         EditorUtility.ClearProgressBar();
 
@@ -139,6 +93,7 @@ public class BuildTools : BuildPatcher
         return args.TryGetValue(key, out o) ? o : def; 
     }
 
+    [MenuItem("Tools/CMD BuildAndroid")]
     static public void BuildAndroid()
     {
         string CommandLine = Environment.CommandLine;
@@ -198,34 +153,34 @@ public class BuildTools : BuildPatcher
         BuildAllResource();
     }
 
-    static void CMD_BuildApk(bool isThread){
-        string _fp = CSObjectWrapEditor.GeneratorConfig.common_path;
-        System.DateTime _ldtime = System.DateTime.UtcNow;
-        if(!IsFolder(_fp)){
-            CMD_ClearWrap();
-            
-            if(!isThread){
-                System.Threading.Thread.Sleep(8000);
-                Debug.LogError("====== please re build apk");
-                return;
-            }
-            
-            System.TimeSpan diffSpan;
-            do{
-                System.DateTime _ntime = System.DateTime.UtcNow;
-                diffSpan = _ntime - _ldtime;
-                System.Threading.Thread.Sleep(1000);
-            }while(diffSpan.TotalSeconds < 50);
-            // Debug.LogErrorFormat("======= [{0}] = [{1}] = [{2}]",diffSpan.TotalMinutes,diffSpan.TotalSeconds,diffSpan.TotalMilliseconds);
-        }
-        
-        CMD_BuildResource();
-
-        BuildAndroid();
+    static public void SaveDefaultCfgVersion(){
+        CfgVersion.instance.LoadDefault4EDT();
+        CfgVersion.instance.SaveDefault();
     }
 
-    [MenuItem("Tools/CMD BuildApk")]
-    static void CMD_BuildApk(){
-        CMD_BuildApk(false);
+    [MenuItem("Tools/ZipMain")]
+    static public void Zip_Main(){
+        SaveDefaultCfgVersion();
+        BuildPatcher.ZipMain();
+        // BuildPatcher2.ZipMain();
+        // BuildPatcher.CopyTest();
+    }
+
+    [MenuItem("Tools/ZipMainChild")]
+    static public void Zip_MainChild(){
+        SaveDefaultCfgVersion();
+        BuildPatcher.ZipMainChild();
+    }
+
+    [MenuItem("Tools/ZipMainObb")]
+    static public void Zip_MainObb(){
+        SaveDefaultCfgVersion();
+        BuildPatcher.ZipMainObb();
+    }
+
+    [MenuItem("Tools/ZipPatche")]
+    static public void Zip_Patche(){
+        SaveDefaultCfgVersion();
+        BuildPatcher.ZipPatche();
     }
 }

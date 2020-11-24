@@ -1,0 +1,10 @@
+fbxs/
+fnts/
+groudbox/
+lightmaps/
+materials/
+prefabs/
+shaders/
+skyboxs/
+textures/
+timeline/

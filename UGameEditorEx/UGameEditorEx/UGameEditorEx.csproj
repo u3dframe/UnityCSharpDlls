@@ -9,7 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Editor\Cfgs\**" />
+    <Compile Remove="Editor\Games\GboxChild\**" />
+    <EmbeddedResource Remove="Editor\Cfgs\**" />
+    <EmbeddedResource Remove="Editor\Games\GboxChild\**" />
+    <None Remove="Editor\Cfgs\**" />
+    <None Remove="Editor\Games\GboxChild\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Editor\Games\Build_Patcher\BuildTools.cs" />
+    <Compile Remove="Editor\Games\MCheat.cs" />
   </ItemGroup>
 
   <ItemGroup>
