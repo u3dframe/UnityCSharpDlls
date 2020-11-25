@@ -5,7 +5,7 @@ using Core;
 /// 类名 : 游戏入口扩展
 /// 作者 : Canyon / 龚阳辉
 /// 日期 : 2020-06-26 09:33
-/// 功能 : 
+/// 功能 : Screen , Application , SystemInfo
 /// </summary>
 public static class GameEntranceEx{
 
@@ -30,7 +30,7 @@ public static class GameEntranceEx{
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
         Application.targetFrameRate = 60;
         Application.runInBackground = true;
-
+        
         Application.logMessageReceivedThreaded -= _HandleLog;
         Application.logMessageReceivedThreaded += _HandleLog;
     }
