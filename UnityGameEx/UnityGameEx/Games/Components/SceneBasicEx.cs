@@ -86,7 +86,7 @@ public class SceneBasicEx : GobjLifeListener
     protected DF_ToLoadTex2D m_cfLoad = null;
     List<SLInfo> m_l_infos = new List<SLInfo>();
     JsonData jdRoot = null;
-    protected float m_delayCheckLoad = 0.04f,m_delayRMap = 0.2f;
+    protected float m_delayCheckLoad = 0.03f,m_delayRMap = 0.06f;
     private DelayExcute m_objDelay = null;
 
     string StrRight(string src,string rev){
