@@ -88,6 +88,8 @@ public class SceneBasicEx : GobjLifeListener
     bool _isRunning = false;
     bool _isDoneAllLoad = false;
     JsonData _jsonRenderMaps = null;
+    protected float m_delayRMap = 0.15f;
+    private float _curDelay = 0f;
 
     string StrRight(string src,string rev){
 		return UGameFile.RightLast(src,rev,false);
@@ -205,8 +207,6 @@ public class SceneBasicEx : GobjLifeListener
 	}
 
 	void _LoadRenderLightmap(JsonData jdRLm) {
-		this._ReSetLightmap();
-
 		if(jdRLm == null)
 			return;
 		
@@ -307,6 +307,13 @@ public class SceneBasicEx : GobjLifeListener
     {
         if (this._isDoneAllLoad)
         {
+            if(this.m_delayRMap > 0)
+            {
+                this._curDelay += Time.deltaTime;
+                if (this._curDelay < this.m_delayRMap)
+                    return;
+            }
+
             this._isRunning = false;
             this._LoadRenderLightmap(_jsonRenderMaps);
             return;
@@ -325,6 +332,8 @@ public class SceneBasicEx : GobjLifeListener
         
         if(_count >= lens)
         {
+            this._ReSetLightmap();
+            this._curDelay = 0;
             this._isDoneAllLoad = true;
         }
     }
