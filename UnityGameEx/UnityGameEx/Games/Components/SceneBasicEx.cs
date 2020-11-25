@@ -85,11 +85,9 @@ public class SceneBasicEx : GobjLifeListener
 	int m_lightmapsMode = 0;
     protected DF_ToLoadTex2D m_cfLoad = null;
     List<SLInfo> m_l_infos = new List<SLInfo>();
-    bool _isRunning = false;
-    bool _isDoneAllLoad = false;
-    JsonData _jsonRenderMaps = null;
-    protected float m_delayRMap = 0.15f;
-    private float _curDelay = 0f;
+    JsonData jdRoot = null;
+    protected float m_delayCheckLoad = 0.04f,m_delayRMap = 0.2f;
+    private DelayExcute m_objDelay = null;
 
     string StrRight(string src,string rev){
 		return UGameFile.RightLast(src,rev,false);
@@ -104,13 +102,10 @@ public class SceneBasicEx : GobjLifeListener
 		string _vc = UGameFile.curInstance.GetDecryptText(_fname);
 		if(string.IsNullOrEmpty(_vc))
 			return;
-		JsonData jdRoot = LJsonHelper.ToJData(_vc);
+		jdRoot = LJsonHelper.ToJData(_vc);
 		if(jdRoot == null)
 			return;
 		
-		// fog
-		_LoadFog(LJsonHelper.ToJData(jdRoot,"info_fog"));
-
 		// light map
 		_LoadLightmap(LJsonHelper.ToJData(jdRoot,"info_lms"));
 	}
@@ -153,9 +148,7 @@ public class SceneBasicEx : GobjLifeListener
         {
             return;
         }
-
-        _jsonRenderMaps = LJsonHelper.ToJData(jdLm,"rlmDatas");
-
+        
 		int _nLens = jdLmds.Count;        
 		JsonData _jd;
 		string _asset_;
@@ -186,7 +179,9 @@ public class SceneBasicEx : GobjLifeListener
                 this.m_l_infos.Add(_loadData_);
 			}
 		}
-        this._isRunning = true;
+
+        this.m_objDelay = new DelayExcute(m_delayCheckLoad, _CheckLoadLmap);
+        this.m_objDelay.Start();
     }
     
     [ContextMenu("Clear Lightmap")]
@@ -283,6 +278,9 @@ public class SceneBasicEx : GobjLifeListener
             m_l_infos[i].Clear();
         }
         m_l_infos.Clear();
+
+        if(this.m_objDelay != null)
+            this.m_objDelay.Stop(true);
     }
 
     protected override void OnCall4Start()
@@ -294,31 +292,11 @@ public class SceneBasicEx : GobjLifeListener
     protected override void OnClear()
     {
         base.OnClear();
-        this._jsonRenderMaps = null;
-    }
-
-    void Update() {
-        if (!_isRunning)
-            return;
-        _CheckLoadLmap();
+        this.jdRoot = null;
     }
 
     void _CheckLoadLmap()
     {
-        if (this._isDoneAllLoad)
-        {
-            if(this.m_delayRMap > 0)
-            {
-                this._curDelay += Time.deltaTime;
-                if (this._curDelay < this.m_delayRMap)
-                    return;
-            }
-
-            this._isRunning = false;
-            this._LoadRenderLightmap(_jsonRenderMaps);
-            return;
-        }
-
         int lens = this.m_l_infos.Count;
         int _count = 0;
         if(lens > 0)
@@ -329,15 +307,28 @@ public class SceneBasicEx : GobjLifeListener
                     _count++;
             }
         }
-        
+
         if(_count >= lens)
         {
             this._ReSetLightmap();
-            this._curDelay = 0;
-            this._isDoneAllLoad = true;
+            this.m_objDelay.Init(m_delayRMap, _DelaySetRMap);
         }
+        else
+        {
+            this.m_objDelay.Init(m_delayCheckLoad, _CheckLoadLmap);
+        }
+        this.m_objDelay.Start();
     }
-    
+
+    void _DelaySetRMap()
+    {
+        // fog
+        JsonData _jd = LJsonHelper.ToJData(jdRoot, "info_fog");
+        this._LoadFog(_jd);
+        _jd = LJsonHelper.ToJData(jdRoot, "info_lms", "rlmDatas");
+        this._LoadRenderLightmap(_jd);
+    }
+
 #if UNITY_EDITOR
 	string m_fabName = "";
 	string _fpInAsset4Gbox = "Assets/_Develop/Builds/groudbox/Excludes/gbox.prefab";

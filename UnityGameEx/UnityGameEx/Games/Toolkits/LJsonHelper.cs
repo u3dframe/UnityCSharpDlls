@@ -66,7 +66,13 @@ public static class LJsonHelper {
 		return jdRoot[key];
 	}
 
-	static public JsonData ToJData(JsonData jdRoot,int index){
+    static public JsonData ToJData(JsonData jdRoot, string key,string key_child)
+    {
+        JsonData jd = ToJData(jdRoot, key);
+        return ToJData(jd, key_child);
+    }
+
+    static public JsonData ToJData(JsonData jdRoot,int index){
 		if(jdRoot == null || index < 0)
 			return null;
 		
