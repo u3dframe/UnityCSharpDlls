@@ -41,12 +41,12 @@ public class DelayExcute : IUpdate
 	
 	public DelayExcute RegUpdate(bool isUp)
 	{
-		this.m_isOnUpdate = isUp;
+		this.m_isOnUpdate = false;
 		GameMgr.DiscardUpdate(this);
 		if (isUp)
 			GameMgr.RegisterUpdate(this);
-		
-		return this;
+        this.m_isOnUpdate = isUp;
+        return this;
 	}
 	
 	public DelayExcute Start()

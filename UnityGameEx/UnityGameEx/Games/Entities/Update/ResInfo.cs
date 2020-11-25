@@ -439,12 +439,11 @@ namespace Core.Kernel
 
         public void RegUpdate(bool isUp)
         {
-            this.m_isOnUpdate = isUp;
+            this.m_isOnUpdate = false;
             GameMgr.DiscardUpdate(this);
             if (isUp)
-            {
                 GameMgr.RegisterUpdate(this);
-            }
+            this.m_isOnUpdate = isUp;
         }
 
         public ResInfo ReDownReady(DF_LDownFile callFunc = null)
