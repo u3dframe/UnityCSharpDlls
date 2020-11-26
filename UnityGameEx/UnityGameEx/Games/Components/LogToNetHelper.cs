@@ -70,9 +70,15 @@ public class LogToNetHelper:MonoBehaviour
         }
         using (UnityWebRequest request = UnityWebRequest.Post(_cur_url, _wf))
         {
-            request.SetRequestHeader("content-type", "application/x-www-form-urlencoded;charset=utf-8");
+            request.SetRequestHeader("charset", "utf-8");
+            request.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            // request.SetRequestHeader("Content-Type", "application/json");
             request.timeout = 59;
             yield return request.SendWebRequest();
+            if (request.isHttpError || request.isNetworkError)
+            {
+                Debug.LogError("=== LogToNet error = " + request.error);
+            }
         }
 	}
 
