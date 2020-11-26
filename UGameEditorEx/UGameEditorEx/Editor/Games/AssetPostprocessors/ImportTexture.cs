@@ -18,6 +18,7 @@ using UnityEngine.U2D;
 public class ImportTexture : AssetPostprocessor
 {
     static int m_nReset = 0;
+    static public int m_maxTextureSize = 2048; // 1024 , 2048
 
     void OnPreprocessTexture()
     {
@@ -38,7 +39,7 @@ public class ImportTexture : AssetPostprocessor
                 TextureImporterPlatformSettings settings;
                 settings = importer.GetPlatformTextureSettings("iPhone");
                 settings.overridden = true;
-                settings.maxTextureSize = 1024;
+                settings.maxTextureSize = m_maxTextureSize;
                 settings.format = curFmt;
                 importer.SetPlatformTextureSettings(settings);
 
@@ -47,7 +48,7 @@ public class ImportTexture : AssetPostprocessor
                 settings.androidETC2FallbackOverride = AndroidETC2FallbackOverride.Quality32Bit;
                 settings.overridden = true;
                 settings.allowsAlphaSplitting = false;
-                settings.maxTextureSize = 1024;
+                settings.maxTextureSize = m_maxTextureSize;
                 settings.format = curFmt;
                 importer.SetPlatformTextureSettings(settings);
                 

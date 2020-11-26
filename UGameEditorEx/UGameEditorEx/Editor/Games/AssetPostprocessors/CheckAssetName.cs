@@ -16,6 +16,8 @@ public class CheckAssetName : AssetPostprocessor
         if(nLens > 0) {
             string _fn = null, _fnTower = null;
             foreach (string str in importedAssets) {
+                if (!str.Contains(BuildPatcher.m_rootRelative))
+                    continue;
                 _fn = Path.GetFileName(str);
                 _fnTower = _fn.ToLower();
                 if (str.Contains(" ")) {
