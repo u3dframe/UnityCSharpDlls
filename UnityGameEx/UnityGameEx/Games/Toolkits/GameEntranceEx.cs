@@ -37,13 +37,14 @@ public static class GameEntranceEx{
 
     static void _HandleLog(string logString, string stackTrace, LogType type)
     {
-        if (type == LogType.Exception)
+        bool isException = type == LogType.Exception;
+        if (isException || type == LogType.Error)
         {
             string _error = string.Format("=== [{0}] = [{1}]", logString, stackTrace);
             try
             {
                 if (cfuncError != null)
-                    cfuncError(_error);
+                    cfuncError(isException,_error);
             } catch {
             }
         }
