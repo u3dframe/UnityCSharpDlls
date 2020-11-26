@@ -31,16 +31,11 @@ public class LogToNetHelper:MonoBehaviour
     string _proj = "log";
     public string m_proj { get { return _proj; } set { _proj = value; } }
 
-    string _title = "name";
-    public string k_title { get { return _title; } set { _title = value; } }
+    string k_title = "name";
+    string k_step = "step";
+    string k_msg = "val";
 
-    string _step = "step";
-    public string k_step { get { return _step; } set { _step = value; } }
-
-    string _msg = "val";
-    public string k_msg { get { return _msg; } set { _msg = value; } }
-
-    void Send2Net(string subject,string body,int step = 99999)
+    public void Send(string subject,string body,int step)
 	{
         if (string.IsNullOrEmpty(subject))
             return;
@@ -55,7 +50,13 @@ public class LogToNetHelper:MonoBehaviour
 		}
 	}
 
-	IEnumerator EntCorNet(string subject, string body,int step){
+    public void Send(string subject, string body)
+    {
+        Send(subject, body, 99999);
+    }
+
+
+    IEnumerator EntCorNet(string subject, string body,int step){
 		WWWForm _wf = new WWWForm();
         _wf.AddField(k_title, subject);
 		_wf.AddField(k_step, step);
@@ -69,18 +70,26 @@ public class LogToNetHelper:MonoBehaviour
         }
         using (UnityWebRequest request = UnityWebRequest.Post(_cur_url, _wf))
         {
+            request.SetRequestHeader("content-type", "application/x-www-form-urlencoded;charset=utf-8");
             request.timeout = 59;
             yield return request.SendWebRequest();
         }
 	}
 
-    public static void Send(string subject, string body)
+    public LogToNetHelper Init(string url,string proj)
+    {
+        this.m_url = url;
+        this.m_proj = proj;
+        return this;
+    }
+
+    public static void Send2Net(string subject, string body)
 	{
-		shareInstance.Send2Net (subject, body);
+		shareInstance.Send (subject, body);
 	}
 
-	public static void SendStep(string subject, string body,int step)
+	public static void Send2Net(string subject, string body,int step)
 	{
-		shareInstance.Send2Net (subject, body,step);
+		shareInstance.Send (subject, body,step);
 	}
 }
