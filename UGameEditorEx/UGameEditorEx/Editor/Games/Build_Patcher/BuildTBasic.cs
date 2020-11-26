@@ -603,4 +603,51 @@ public class BuildTBasic : Core.EditorGameFile
         }
         BuildNow(true, false);
     }
+
+    static protected void LandscapePlatformSetting(BuildTarget buildTarget,string applicationIdentifier,string bundleVersion,string bundleVersionCode)
+    {
+        if(!string.IsNullOrEmpty(applicationIdentifier))
+            PlayerSettings.applicationIdentifier = applicationIdentifier;
+        // PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, applicationIdentifier);
+        if (!string.IsNullOrEmpty(bundleVersion))
+            PlayerSettings.bundleVersion = bundleVersion;
+
+        int cur = -1,pre = 0;
+        if(!string.IsNullOrEmpty(bundleVersionCode))
+            int.TryParse(bundleVersionCode, out cur);
+
+        PlayerSettings.allowedAutorotateToLandscapeLeft = true;
+        PlayerSettings.allowedAutorotateToLandscapeRight = true;
+        PlayerSettings.allowedAutorotateToPortrait = false;
+        PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
+
+        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+        // EditorUserBuildSettings.activeBuildTarget
+        switch (buildTarget)
+        {
+            case BuildTarget.Android:
+                PlayerSettings.Android.preferredInstallLocation = AndroidPreferredInstallLocation.Auto;
+                PlayerSettings.Android.forceInternetPermission = true;
+                PlayerSettings.Android.forceSDCardPermission = true;
+                PlayerSettings.Android.targetArchitectures = AndroidArchitecture.All;
+                PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel19;
+                PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
+                PlayerSettings.legacyClampBlendShapeWeights = true;
+                PlayerSettings.SetApiCompatibilityLevel(BuildTargetGroup.Android,ApiCompatibilityLevel.NET_Standard_2_0);
+                PlayerSettings.Android.androidTVCompatibility = true;
+                PlayerSettings.Android.androidIsGame = true;
+                pre = PlayerSettings.Android.bundleVersionCode;
+                if (cur <= pre)
+                    cur = pre + 1;
+                PlayerSettings.Android.bundleVersionCode = cur;
+                // PlayerSettings.allowFullscreenSwitch = true;
+                break;
+            case BuildTarget.iOS:
+                int.TryParse(PlayerSettings.iOS.buildNumber, out pre);
+                if (cur <= pre)
+                    cur = pre + 1;
+                PlayerSettings.iOS.buildNumber = cur.ToString();
+                break;
+        }
+    }
 }
