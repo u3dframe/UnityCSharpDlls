@@ -21,7 +21,7 @@ public class BuildTBasic : Core.EditorGameFile
 {
     static public T[] GetSelectObject<T>()
     {
-        return Selection.GetFiltered<T>(SelectionMode.DeepAssets);
+        return Selection.GetFiltered<T>(SelectionMode.Assets | SelectionMode.DeepAssets);
     }
 
     static public void SaveAssets(UObject obj,bool isSave = true)
