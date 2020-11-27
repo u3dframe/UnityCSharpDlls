@@ -604,12 +604,14 @@ public class BuildTBasic : Core.EditorGameFile
         BuildNow(true, false);
     }
 
-    static protected void LandscapePlatformSetting(BuildTarget buildTarget,string applicationIdentifier,string bundleVersion,string bundleVersionCode)
+    static protected void LandscapePlatformSetting(BuildTarget buildTarget,string applicationIdentifier,string bundleVersion,string bundleVersionCode,bool isAddBVer = true)
     {
         if(!string.IsNullOrEmpty(applicationIdentifier))
             PlayerSettings.applicationIdentifier = applicationIdentifier;
         // PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android, applicationIdentifier);
-        if (!string.IsNullOrEmpty(bundleVersion))
+        string _pre_ver = PlayerSettings.bundleVersion;
+        bool _is_ver = !string.IsNullOrEmpty(bundleVersion);
+        if (_is_ver)
             PlayerSettings.bundleVersion = bundleVersion;
 
         int cur = -1,pre = 0;
@@ -639,6 +641,8 @@ public class BuildTBasic : Core.EditorGameFile
                 pre = PlayerSettings.Android.bundleVersionCode;
                 if (cur <= pre)
                     cur = pre + 1;
+               // if (isAddBVer && _is_ver && !_pre_ver.StartsWith(bundleVersion))
+               //     cur = 1;
                 PlayerSettings.Android.bundleVersionCode = cur;
                 // PlayerSettings.allowFullscreenSwitch = true;
                 break;
@@ -646,8 +650,23 @@ public class BuildTBasic : Core.EditorGameFile
                 int.TryParse(PlayerSettings.iOS.buildNumber, out pre);
                 if (cur <= pre)
                     cur = pre + 1;
+                // if (isAddBVer && _is_ver && !_pre_ver.StartsWith(bundleVersion))
+                //     cur = 1;
                 PlayerSettings.iOS.buildNumber = cur.ToString();
                 break;
+        }
+
+        if (isAddBVer)
+        {
+            if (_is_ver)
+            {
+                PlayerSettings.bundleVersion = bundleVersion + "." + cur;
+            }
+            else
+            {
+                string _ver = LeftLast(_pre_ver, ".", true) + cur;
+                PlayerSettings.bundleVersion = _ver;
+            }
         }
     }
 }
