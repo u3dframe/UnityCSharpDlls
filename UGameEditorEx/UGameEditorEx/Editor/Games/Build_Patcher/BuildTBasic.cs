@@ -623,11 +623,14 @@ public class BuildTBasic : Core.EditorGameFile
         PlayerSettings.allowedAutorotateToPortrait = false;
         PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
 
-        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
+        ScriptingImplementation scripting = ScriptingImplementation.IL2CPP;
         // EditorUserBuildSettings.activeBuildTarget
         switch (buildTarget)
         {
             case BuildTarget.Android:
+                scripting = PlayerSettings.GetScriptingBackend(BuildTargetGroup.Android);
+                if (scripting != ScriptingImplementation.IL2CPP)
+                    PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
                 PlayerSettings.Android.preferredInstallLocation = AndroidPreferredInstallLocation.Auto;
                 PlayerSettings.Android.forceInternetPermission = true;
                 PlayerSettings.Android.forceSDCardPermission = true;
@@ -647,6 +650,10 @@ public class BuildTBasic : Core.EditorGameFile
                 // PlayerSettings.allowFullscreenSwitch = true;
                 break;
             case BuildTarget.iOS:
+                scripting = PlayerSettings.GetScriptingBackend(BuildTargetGroup.iOS);
+                if(scripting != ScriptingImplementation.IL2CPP)
+                    PlayerSettings.SetScriptingBackend(BuildTargetGroup.iOS, ScriptingImplementation.IL2CPP);
+
                 int.TryParse(PlayerSettings.iOS.buildNumber, out pre);
                 if (cur <= pre)
                     cur = pre + 1;
