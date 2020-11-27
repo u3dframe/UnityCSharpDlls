@@ -62,7 +62,7 @@ public class CharacterControllerEx : AnimatorEx
 		if(this.m_c_ctrler == null){
 			this.m_c_ctrler = this.m_gobj.GetComponentInChildren<CharacterController>(true);
 		}
-		
+
 		ReRHeight();
 	}
 
@@ -111,48 +111,17 @@ public class CharacterControllerEx : AnimatorEx
 		SetRadiusAndHeight(radius,height);
 	}
 
-	[ContextMenu("Re Bind Nodes (重新绑定所需节点)")]
-	void ReBindNodes(){
-		UtilityHelper.Is_App_Quit = false;
-		List<GameObject> list = new List<GameObject> ();
-		GameObject _gobj = null;
-		int lens = m_gobjs.Length;
-		for (int i = 0;i < lens;++i)
-		{
-			_gobj = m_gobjs [i];
-			if(null == _gobj) continue;
-			if (!list.Contains (_gobj)) {
-				list.Add (_gobj);
-			}
-		}
-		
-		lens = this.m_trsf.childCount;
-		for(int i = 0;i < lens;i++) {
-			_gobj = this.m_trsf.GetChild(i).gameObject;
-			if (!list.Contains (_gobj)) {
-				list.Add (_gobj);
-			}
-		}
+    protected override void ReBindNodes()
+    {
+        _arrs_nodes = new string[]{
+            "heads","shadows","foot",
+            "f_head","f_l_hand","f_r_hand","f_mid",
+            "f_back","f_l_foot","f_r_foot","f_l_weapon","f_r_weapon"
+        };
+        base.ReBindNodes();
+    }
 
-		string[] _arrs = {
-			"heads","shadows","foot",
-			"f_head","f_l_hand","f_r_hand","f_mid",
-			"f_back","f_l_foot","f_r_foot","f_l_weapon","f_r_weapon"
-		};
-
-		lens = _arrs.Length;
-		for(int i = 0;i < lens;i++) {
-			_gobj = UtilityHelper.ChildRecursion(this.m_gobj,_arrs[i]);
-			if(null == _gobj) continue;
-			if (!list.Contains (_gobj)) {
-				list.Add (_gobj);
-			}
-		}
-		this.m_gobjs = list.ToArray ();
-		list.Clear ();
-	}
-
-	public CharacterControllerEx InitCCEx(DF_OnUpdate on_up,DF_ASM_MotionLife on_a_enter,DF_ASM_MotionLife on_a_up,DF_ASM_MotionLife on_a_exit){
+    public CharacterControllerEx InitCCEx(DF_OnUpdate on_up,DF_ASM_MotionLife on_a_enter,DF_ASM_MotionLife on_a_up,DF_ASM_MotionLife on_a_exit){
 		this.m_cf_OnUpdate += on_up;
 		this.m_evt_smEnter += on_a_enter;
 		this.m_evt_smUpdate += on_a_up;

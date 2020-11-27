@@ -23,8 +23,8 @@ public class PrefabBasic : GobjLifeListener {
 	/// <summary>
 	/// 操作的对象
 	/// </summary>
-	[SerializeField]
-	protected GameObject[] m_gobjs = new GameObject[0];
+	[SerializeField] protected GameObject[] m_gobjs = new GameObject[0];
+    protected string[] _arrs_nodes = null;
 
     /// <summary>
     /// key = name or Relative name (相对应自身对象);
@@ -122,6 +122,11 @@ public class PrefabBasic : GobjLifeListener {
 		}
 		return null;
 	}
+
+    public Transform GetTrsfElement(string elName) {
+        GameObject gobj = GetGobjElement(elName);
+        return gobj?.transform;
+    }
 	
 	/// <summary>
 	/// 取得子对象的组件
@@ -187,6 +192,51 @@ public class PrefabBasic : GobjLifeListener {
     public void SetChildGobjs(GameObject[] gobjs)
     {
         this.m_gobjs = gobjs;
+    }
+
+    [ContextMenu("Re Bind Nodes (重新绑定所需节点)")]
+    virtual protected void ReBindNodes()
+    {
+        UtilityHelper.Is_App_Quit = false;
+        List<GameObject> list = new List<GameObject>();
+        GameObject _gobj = null;
+        int lens = m_gobjs.Length;
+        for (int i = 0; i < lens; ++i)
+        {
+            _gobj = m_gobjs[i];
+            if (null == _gobj) continue;
+            if (!list.Contains(_gobj))
+            {
+                list.Add(_gobj);
+            }
+        }
+
+        lens = this.m_trsf.childCount;
+        for (int i = 0; i < lens; i++)
+        {
+            _gobj = this.m_trsf.GetChild(i).gameObject;
+            if (!list.Contains(_gobj))
+            {
+                list.Add(_gobj);
+            }
+        }
+
+        if(_arrs_nodes != null && _arrs_nodes.Length > 0)
+        {
+            lens = _arrs_nodes.Length;
+            for (int i = 0; i < lens; i++)
+            {
+                _gobj = UtilityHelper.ChildRecursion(this.m_gobj, _arrs_nodes[i]);
+                if (null == _gobj) continue;
+                if (!list.Contains(_gobj))
+                {
+                    list.Add(_gobj);
+                }
+            }
+        }
+
+        this.m_gobjs = list.ToArray();
+        list.Clear();
     }
 
     [ContextMenu("Re-Rmv Empty")]
