@@ -23,7 +23,7 @@ public class CheckAssetName : AssetPostprocessor
                 if (str.Contains(" ")) {
                     UnityEngine.Debug.LogErrorFormat("=== filename has space(空格), fp = [{0}],fn = [{1}]", str, _fn);
                 }
-                else if (!_fn.Equals(_fnTower))
+                else if (!_fnTower.EndsWith(".fbx") && !_fn.Equals(_fnTower))
                 {
                     UnityEngine.Debug.LogErrorFormat("=== filename has Upper(大写), fp = [{0}],fn = [{1}]", str, _fn);
                 }
