@@ -11,7 +11,7 @@ public class CheckAssetName : AssetPostprocessor
 {
     static bool IsExcludes(string strTower)
     {
-        return strTower.EndsWith(".fbx") || strTower.Contains("lightmap");
+        return strTower.EndsWith(".fbx") || strTower.EndsWith(".rendertexture") || strTower.Contains("lightmap");
     }
 
     static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
