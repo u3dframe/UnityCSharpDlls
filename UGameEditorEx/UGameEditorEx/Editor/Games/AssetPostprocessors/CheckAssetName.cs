@@ -9,6 +9,11 @@ using System.IO;
 /// </summary>
 public class CheckAssetName : AssetPostprocessor
 {
+    static bool IsExcludes(string strTower)
+    {
+        return strTower.EndsWith(".fbx") || strTower.Contains("lightmap");
+    }
+
     static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
     {
         int nLens = 0;
@@ -23,7 +28,7 @@ public class CheckAssetName : AssetPostprocessor
                 if (str.Contains(" ")) {
                     UnityEngine.Debug.LogErrorFormat("=== filename has space(空格), fp = [{0}],fn = [{1}]", str, _fn);
                 }
-                else if (!_fnTower.EndsWith(".fbx") && !_fn.Equals(_fnTower))
+                else if (!IsExcludes(_fnTower) && !_fn.Equals(_fnTower))
                 {
                     UnityEngine.Debug.LogErrorFormat("=== filename has Upper(大写), fp = [{0}],fn = [{1}]", str, _fn);
                 }
