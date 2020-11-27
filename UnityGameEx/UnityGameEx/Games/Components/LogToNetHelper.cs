@@ -43,18 +43,35 @@ public class LogToNetHelper:MonoBehaviour
                 this.m_kvs.Add(kvs[i], _v);
             }
 
-            if (!this.m_kvs.ContainsKey("deviceName"))
-                this.m_kvs.Add("deviceName", SystemInfo.deviceName);
-            if (!this.m_kvs.ContainsKey("deviceModel"))
-                this.m_kvs.Add("deviceModel", SystemInfo.deviceModel);
-            if (!this.m_kvs.ContainsKey("deviceUniqueIdentifier"))
-                this.m_kvs.Add("deviceUniqueIdentifier", SystemInfo.deviceUniqueIdentifier);
+            if (!this.m_kvs.ContainsKey("p_deviceName"))
+                this.m_kvs.Add("p_deviceName", SystemInfo.deviceName);
 
-            this.m_kvs.Add("identifier", Application.identifier);
-            this.m_kvs.Add("systemLanguage", Application.systemLanguage.ToString());
-            this.m_kvs.Add("safeArea", Screen.safeArea.ToString());
-            this.m_kvs.Add("dpi", Screen.dpi.ToString());
-            this.m_kvs.Add("create_local_time", DateTime.Now.ToString("yyMMddHHmmss"));
+            if (!this.m_kvs.ContainsKey("p_deviceModel"))
+                this.m_kvs.Add("p_deviceModel", SystemInfo.deviceModel);
+
+            if (!this.m_kvs.ContainsKey("p_deviceUniqueIdentifier"))
+                this.m_kvs.Add("p_deviceUniqueIdentifier", SystemInfo.deviceUniqueIdentifier);
+
+            if (!this.m_kvs.ContainsKey("p_graphicsShaderLevel"))
+                this.m_kvs.Add("p_graphicsShaderLevel", SystemInfo.graphicsShaderLevel.ToString());
+
+            if (!this.m_kvs.ContainsKey("p_identifier"))
+                this.m_kvs.Add("p_identifier", Application.identifier);
+
+            if (!this.m_kvs.ContainsKey("p_systemLanguage"))
+                this.m_kvs.Add("p_systemLanguage", Application.systemLanguage.ToString());
+
+            if (!this.m_kvs.ContainsKey("p_platform"))
+                this.m_kvs.Add("p_platform", Application.platform.ToString());
+
+            if (!this.m_kvs.ContainsKey("p_safeArea"))
+                this.m_kvs.Add("p_safeArea", Screen.safeArea.ToString());
+
+            if (!this.m_kvs.ContainsKey("p_dpi"))
+                this.m_kvs.Add("p_dpi", Screen.dpi.ToString());
+
+            if (!this.m_kvs.ContainsKey("p_create_local_time"))
+                this.m_kvs.Add("p_create_local_time", DateTime.Now.ToString("yyMMddHHmmss"));
         }
 
         public void Clear()
@@ -80,9 +97,9 @@ public class LogToNetHelper:MonoBehaviour
     
     string m_url = "http://127.0.0.1:8080";
     string m_proj = "log";
-    string k_subject = "name";
-    string k_step = "step";
-    string k_msg = "val";
+    string k_subject = "p_name";
+    string k_step = "p_step";
+    string k_msg = "p_val";
 
     Queue<LogNetData> m_ques = new Queue<LogNetData>();
     Queue<LogNetData> m_cache = new Queue<LogNetData>();
