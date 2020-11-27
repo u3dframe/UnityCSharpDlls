@@ -148,11 +148,10 @@ namespace Core.Kernel
 		// 取得文件如果是文件夹，则返回文件夹路径
 		static public string ReFnPath (string fn, bool isFolder = true)
 		{
-			if (string.IsNullOrEmpty (fn)) {
-				fn = "";
-			}
-			fn = ReplaceSeparator(fn);
+			if (string.IsNullOrEmpty (fn))
+				return "";
 
+			fn = ReplaceSeparator(fn);
             if (isFolder)
             {
 			    int lens = fn.Length;
