@@ -30,6 +30,8 @@ public class UGUIModel : PrefabBasic {
     [SerializeField][Range(1, 16)] int m_rtAntiAliasing = 1;
     RawImage _imgRaw = null;
     public RawImage m_imgRaw { get; private set; }
+    public float m_rawWidth { get; private set; }
+    public float m_rawHeight { get; private set; }
     [SerializeField] Material _rawMat = null;
     public Material m_rawMat { get { return _rawMat; } } // EnableKeyword
     public string m_layerModel = "ModelUI";
@@ -59,12 +61,10 @@ public class UGUIModel : PrefabBasic {
         if (this.m_camera)
         {
             this.m_sfwer = SmoothFollower.Get(this.m_camera.gameObject);
-            this.m_sfwer.height = 1.5f;
-            this.m_sfwer.distance = 4;
-            this.m_sfwer.lookAtHeight = 1.1f;
             this.m_sfwer.target = this.m_wrap;
             this.m_sfwer.isUpByLate = true;
             this.m_sfwer.isRunning = true;
+            this.ReSfwer(3.7f);
         }
         this._ReRtex(this.m_rtWidth, this.m_rtHeight);
         this.ReRawImg(_imgRaw);
@@ -156,17 +156,12 @@ public class UGUIModel : PrefabBasic {
         {
             this.m_imgRaw.texture = this.m_rtTarget;
             this.m_imgRaw.enabled = this.m_isUseRT;
-
-            RectTransform _rtrsf = this.m_imgRaw.rectTransform;
-            Vector2 _size = _rtrsf.sizeDelta;
-            _size.x = this.m_rtWidth;
-            _size.y = this.m_rtHeight;
-            _rtrsf.sizeDelta = _size;
             this.m_imgRaw.material = m_rawMat;
+            this.ReRawWH(this.m_rawWidth, this.m_rawHeight);
         }
     }
 
-    public void ReSet(int rtWidth,int rtHeight,bool isUseRt)
+    public void ReSet(int rtWidth,int rtHeight,bool isUseRt = true)
     {
         this.m_isUseRT = isUseRt;
         if (!isUseRt)
@@ -186,23 +181,42 @@ public class UGUIModel : PrefabBasic {
                 this.m_rawMat.mainTexture = this.m_rtTarget;
         }
     }
-
-    public void SetCamColor(float r,float g,float b,float a)
-    {
-        if (!this.m_camera)
-            return;
-        Color _c = this.m_camera.backgroundColor;
-        _c.r = r <= 1 ? r : r / 255;
-        _c.g = g <= 1 ? g : g / 255;
-        _c.b = b <= 1 ? b : b / 255;
-        _c.a = a <= 1 ? a : a / 255;
-        this.m_camera.backgroundColor = _c;
-    }
-
+    
     public void ReSetModelLayer(string modelLayer)
     {
         if (!string.IsNullOrEmpty(modelLayer))
             this.m_layerModel = modelLayer;
         UtilityHelper.SetLayerAll(this.m_node, this.m_layerModel);
+    }
+
+    public void ReSfwer(float distance,float height = 1.5f,float lookAtHeight = 0.7f)
+    {
+        if (!this.m_sfwer)
+            return;
+        this.m_sfwer.height = height;
+        this.m_sfwer.lookAtHeight = lookAtHeight;
+        if(this.m_sfwer.distance != distance)
+        {
+            this.m_sfwer.distance = distance;
+            if (this.m_camera)
+                this.m_camera.farClipPlane = distance + 5;
+        }
+    }
+
+    public void ReRawWH(float w,float h)
+    {
+        w = (w <= 0) ? this.m_rtWidth : w;
+        h = (h <= 0) ? this.m_rtHeight : h;
+        this.m_rawWidth = w;
+        this.m_rawHeight = h;
+
+        if (!this.m_imgRaw)
+            return;
+
+        RectTransform _rtrsf = this.m_imgRaw.rectTransform;
+        Vector2 _size = _rtrsf.sizeDelta;
+        _size.x = w;
+        _size.y = h;
+        _rtrsf.sizeDelta = _size;
     }
 }
