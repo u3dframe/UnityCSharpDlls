@@ -20,16 +20,19 @@ public class UGUIModel : PrefabBasic {
     public Transform m_wrap { get; private set; }
     public GameObject m_node { get; private set; }
     public Camera m_camera { get; private set; }
-    [SerializeField] RenderTexture m_rtTarget;
+    [SerializeField] RenderTexture _rtTarget;
+    public RenderTexture m_rtTarget { get { return _rtTarget; } }
     [SerializeField] bool m_isUseRT = true;
     [SerializeField] bool m_isUseRTFmt = false;
     [SerializeField] int m_rtWidth = 1024;
     [SerializeField] int m_rtHeight = 1024;
-    [SerializeField][Range(0, 256)] int m_rtdepth = 0;
-    [SerializeField][Range(1, 16)] int m_rtAntiAliasing = 2;
+    [SerializeField][Range(0, 8)] int m_rtdepth = 1;
+    [SerializeField][Range(1, 16)] int m_rtAntiAliasing = 1;
     RawImage _imgRaw = null;
     public RawImage m_imgRaw { get; private set; }
-    [SerializeField] Material m_rawMat = null;
+    [SerializeField] Material _rawMat = null;
+    public Material m_rawMat { get { return _rawMat; } } // EnableKeyword
+    public string m_layerModel = "ModelUI";
 
     protected override void OnCall4Awake()
     {
@@ -71,8 +74,8 @@ public class UGUIModel : PrefabBasic {
     {
         base.OnCall4Destroy();
         this._DestroyRt();
-        Material _mat = this.m_rawMat;
-        this.m_rawMat = null;
+        Material _mat = this._rawMat;
+        this._rawMat = null;
         if (_mat)
             GameObject.DestroyImmediate(_mat);
     }
@@ -101,22 +104,20 @@ public class UGUIModel : PrefabBasic {
                     rtFmt = RenderTextureFormat.ARGBHalf;
                 else if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RG16))
                     rtFmt = RenderTextureFormat.RG16;
-                this.m_rtTarget = new RenderTexture(this.m_rtWidth, this.m_rtHeight,this.m_rtdepth, rtFmt);
+                this._rtTarget = new RenderTexture(this.m_rtWidth, this.m_rtHeight,this.m_rtdepth, rtFmt);
             }
             else
             {
-                this.m_rtTarget = new RenderTexture(this.m_rtWidth, this.m_rtHeight, this.m_rtdepth);
+                this._rtTarget = new RenderTexture(this.m_rtWidth, this.m_rtHeight, this.m_rtdepth);
             }
-            
             this.m_rtTarget.antiAliasing = m_rtAntiAliasing;
+            // this.ReMatMainTexture();
         }
 
         if (this.m_camera)
         {
             this.m_camera.targetTexture = this.m_rtTarget;
-
-            if(this.m_camera.clearFlags == CameraClearFlags.Depth)
-                this.m_camera.clearFlags = CameraClearFlags.Depth;
+            // this.m_camera.clearFlags = CameraClearFlags.Depth;
         }
     }
 
@@ -137,7 +138,7 @@ public class UGUIModel : PrefabBasic {
 
         if (isDestroy && _cur)
         {
-            this.m_rtTarget = null;
+            this._rtTarget = null;
             GameObject.DestroyImmediate(_cur);
         }
     }
@@ -175,11 +176,33 @@ public class UGUIModel : PrefabBasic {
         this.ReRawImg(this.m_imgRaw);
     }
 
-    public void EnableKeyword(string key)
+    public void ReMatMainTexture()
     {
         if (this.m_rawMat)
         {
-            this.m_rawMat.EnableKeyword(key);
+            if (this.m_rawMat.HasProperty("_MainTex"))
+                this.m_rawMat.SetTexture("_MainTex", this.m_rtTarget);
+            else
+                this.m_rawMat.mainTexture = this.m_rtTarget;
         }
+    }
+
+    public void SetCamColor(float r,float g,float b,float a)
+    {
+        if (!this.m_camera)
+            return;
+        Color _c = this.m_camera.backgroundColor;
+        _c.r = r <= 1 ? r : r / 255;
+        _c.g = g <= 1 ? g : g / 255;
+        _c.b = b <= 1 ? b : b / 255;
+        _c.a = a <= 1 ? a : a / 255;
+        this.m_camera.backgroundColor = _c;
+    }
+
+    public void ReSetModelLayer(string modelLayer)
+    {
+        if (!string.IsNullOrEmpty(modelLayer))
+            this.m_layerModel = modelLayer;
+        UtilityHelper.SetLayerAll(this.m_node, this.m_layerModel);
     }
 }
