@@ -201,13 +201,14 @@ public class LogToNetHelper:MonoBehaviour
     IEnumerator EntCorNetJson(LogNetData data)
     {
         string _jd = JsonMapper.ToJson(data.m_kvs);
-
         string _cur_url = data.d_url;
         if (string.IsNullOrEmpty(_cur_url))
             _cur_url = _def_url();
 
-        using (UnityWebRequest request = UnityWebRequest.Post(_cur_url, _jd))
+        using (UnityWebRequest request = new UnityWebRequest(_cur_url, UnityWebRequest.kHttpVerbPOST))
         {
+            request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(_jd));
+            request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json;charset=utf-8");
             yield return EntCorHander(request, data);
         }
