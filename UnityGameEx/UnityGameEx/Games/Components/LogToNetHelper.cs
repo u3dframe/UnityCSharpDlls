@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Networking;
 using Core.Kernel;
+using LitJson;
 
 /// <summary>
 /// 类名 : 日志提交外网
@@ -105,11 +106,13 @@ public class LogToNetHelper:MonoBehaviour
     Queue<LogNetData> m_cache = new Queue<LogNetData>();
     bool m_isRunning = false;
     [Range(1,20)] public int m_everyMax = 5;
+    public bool m_isSendJson = true;
     
-    public LogToNetHelper Init(string url,string proj)
+    public LogToNetHelper Init(string url,string proj,bool isSendJson = true)
     {
         this.m_url = url;
         this.m_proj = proj;
+        this.m_isSendJson = isSendJson;
         return this;
     }
 
@@ -146,12 +149,33 @@ public class LogToNetHelper:MonoBehaviour
         try
         {
             LogNetData _data = m_ques.Dequeue();
-            StartCoroutine(EntCorNet(_data));
+            if(this.m_isSendJson)
+                StartCoroutine(EntCorNetJson(_data));
+            else
+                StartCoroutine(EntCorNet(_data));
         }
         catch (Exception ex)
         {
             Debug.LogError("=== LogToNet error = " + ex);
         }
+    }
+
+    IEnumerator EntCorHander(UnityWebRequest request, LogNetData data)
+    {
+        request.timeout = 59;
+        yield return request.SendWebRequest();
+        data.sendCount++;
+        if (request.isHttpError || request.isNetworkError)
+        {
+            if (data.sendCount < 3)
+            {
+                _AddQueue(data);
+                yield break;
+            }
+            Debug.LogErrorFormat("=== LogToNet error,n = [{0}],{1}", data.sendCount, request.error);
+        }
+        data.Clear();
+        this.m_cache.Enqueue(data);
     }
 
     IEnumerator EntCorNet(LogNetData data)
@@ -170,21 +194,22 @@ public class LogToNetHelper:MonoBehaviour
         {
             request.SetRequestHeader("charset", "utf-8");
             request.SetRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            // request.SetRequestHeader("Content-Type", "application/json");
-            request.timeout = 59;
-            yield return request.SendWebRequest();
-            data.sendCount++;
-            if (request.isHttpError || request.isNetworkError)
-            {
-                if(data.sendCount < 3)
-                {
-                    _AddQueue(data);
-                    yield break;
-                }
-                Debug.LogErrorFormat("=== LogToNet error,n = [{0}],{1}" , data.sendCount , request.error);
-            }
-            data.Clear();
-            this.m_cache.Enqueue(data);
+            yield return EntCorHander(request,data);
+        }
+    }
+
+    IEnumerator EntCorNetJson(LogNetData data)
+    {
+        string _jd = JsonMapper.ToJson(data.m_kvs);
+
+        string _cur_url = data.d_url;
+        if (string.IsNullOrEmpty(_cur_url))
+            _cur_url = _def_url();
+
+        using (UnityWebRequest request = UnityWebRequest.Post(_cur_url, _jd))
+        {
+            request.SetRequestHeader("Content-Type", "application/json;charset=utf-8");
+            yield return EntCorHander(request, data);
         }
     }
 
