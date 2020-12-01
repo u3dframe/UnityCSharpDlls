@@ -89,6 +89,11 @@ namespace Core.Kernel
             Init (_arrs [0], _arrs [1],resPackage, _tmp, resReal);
 		}
 
+        bool IsMustFileByCurName() {
+            string fn = this.m_curName;
+            return fn.EndsWith(".lua") || fn.EndsWith(".txt") || fn.EndsWith(".csv") || fn.EndsWith(".minfo") || fn.IndexOf("protos/") != -1;
+        }
+
 		public void Init(string resName,string compareCode,string resPackage,int size,string realName){
 			this.m_resName = resName;
 			this.m_compareCode = compareCode;
@@ -102,7 +107,7 @@ namespace Core.Kernel
                 this.m_curName = realName;
 
             this.isManifest = this.m_curName.Equals(UGameFile.m_curPlatform);
-            this.m_isMustFile = this.isManifest || this.m_curName.EndsWith(".lua") || this.m_curName.EndsWith(".txt");
+            this.m_isMustFile = this.isManifest || this.IsMustFileByCurName();
         }
         
 		public bool IsSame(ResInfo other){
@@ -184,6 +189,7 @@ namespace Core.Kernel
         public int m_nWrite { get; set; } // 下载完毕后写文件,0-不写,1-要写
         public event DF_LDownFile m_callFunc = null; // 加载,下载的成功失败状态回调
         public bool m_isEnd { get { return isError || isCompleted; } }
+        public bool m_isCheckCompareCode { get; set; }
 
         public ResInfo(string url, string proj, string fn, DF_LDownFile callFunc, EM_Asset aType)
         {
@@ -292,7 +298,22 @@ namespace Core.Kernel
                 }
                 else
                 {
-                    this._DoWWWDone();
+                    bool _isValid = true;
+                    if (this.m_isCheckCompareCode && !string.IsNullOrEmpty(this.m_compareCode))
+                    {
+                        string _code = CRCClass.GetCRC(this.m_uwr.downloadHandler.data);
+                        _isValid = this.m_compareCode.Equals(_code);
+                        if (!_isValid)
+                        {
+                            this.m_strError = string.Format("CRC not match,old = [{0}],new = [{1}]",this.m_compareCode, _code);
+                            this.m_downState = EM_DownLoad.Error_NotMatchCode;
+                        }
+                    }
+
+                    if (_isValid)
+                    {
+                        this._DoWWWDone();
+                    }
                 }
                 this.m_uwr.Dispose();
             }

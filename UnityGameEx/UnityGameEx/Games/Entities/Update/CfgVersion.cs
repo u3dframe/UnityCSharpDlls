@@ -107,9 +107,9 @@ namespace Core.Kernel
 
 		private string _kPkgFiles = "fls_pkg";
 		private string _kLua = "key_lua";
-
-		
+        
 		private JsonData m_jsonData = null;
+        public string m_strError { get; private set; }
 
 		private CfgVersion(){
             this.RefreshResVerCode();
@@ -235,8 +235,9 @@ namespace Core.Kernel
                 string _cval = this.m_jsonData.ToJson();
                 UGameFile.WriteFile(this.m_filePath, _cval);
 				return true;
-			} catch{
-			}
+			} catch(System.Exception ex){
+                this.m_strError = ex.Message;
+            }
 			return false;
 		}
 		

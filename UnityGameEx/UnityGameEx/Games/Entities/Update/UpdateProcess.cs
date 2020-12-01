@@ -23,6 +23,8 @@ namespace Core.Kernel
         bool m_isBegZip = false;
         long nCurr = 0, m_nSize = 0, nZipCurr = 0;
         string m_obbPath = null;
+        CompareFiles m_compare = null;
+        int n_appfull_down = 0;
 
         public bool m_isOnUpdate = false;
         public bool IsOnUpdate() { return this.m_isOnUpdate; }
@@ -44,8 +46,29 @@ namespace Core.Kernel
                 case EM_Process.CheckNet:
                     _ST_CheckNet();
                     break;
+                case EM_Process.CheckAppFull:
+                    _ST_CheckAppFull();
+                    break;
                 case EM_Process.Completed:
                     _ST_Completed();
+                    break;
+                case EM_Process.CheckVersion:
+                    _ST_CheckVersion();
+                    break;
+                case EM_Process.CheckFileList:
+                    _ST_CheckFileList();
+                    break;
+                case EM_Process.InitMustFiles:
+                    _ST_InitMustFiles();
+                    break;
+                case EM_Process.CompareFileList:
+                    _ST_CompareFileList();
+                    break;
+                case EM_Process.SaveFileList:
+                    _ST_SaveFileList();
+                    break;
+                case EM_Process.SaveVersion:
+                    _ST_SaveVersion();
                     break;
             }
         }
@@ -62,7 +85,7 @@ namespace Core.Kernel
         void _SetState(EM_Process state,bool isCall = true) {
             this.m_state = state;
             if (isCall && this.m_cfChgState != null)
-                this.m_cfChgState((int)this.m_state);
+                this.m_cfChgState((int)this.m_state,(int)this.m_preState);
         }
 
         void _SetStatePre(EM_Process state, bool isCall = false) {
@@ -316,7 +339,7 @@ namespace Core.Kernel
             if (isSuccess)
             {
                 CfgVersion _verStream = CfgVersion.BuilderBy(uwr.downloadHandler.text);
-                CfgVersion _verCurr = CfgVersion.Builder(null);
+                CfgVersion _verCurr = CfgVersion.instance.LoadDefault();
                 if (_verCurr.IsUpdate4Other(_verStream))
                 {
                     UGameFile.DelFolder(UGameFile.m_dirRes);
@@ -352,7 +375,62 @@ namespace Core.Kernel
             }
             else
             {
+                this._SetState(EM_Process.CheckAppFull);
+            }
+        }
+
+        void _ST_CheckAppFull()
+        {
+            CfgVersion _cfgVer = CfgVersion.instance.LoadDefault();
+            CfgFileList _cfgFlDef = CfgFileList.instance.LoadDefault();
+
+            if (UGameFile.m_isEditor)
+            {
                 this._SetState(EM_Process.Completed);
+                return;
+            }
+
+            this.n_appfull_down = 0;
+
+            string url = _cfgVer.m_urlFilelist;
+            string proj = _cfgVer.m_pkgFiles;
+            List<ResInfo> _list = new List<ResInfo>(_cfgFlDef.m_data.m_list);
+            int lens = _list.Count;
+            ResInfo _info;
+            bool _isNdDown = false;
+            for (int i = 0; i < lens; i++) {
+                _info = _list[i];
+                if (!_info.m_isMustFile)
+                    continue;
+
+                _isNdDown = CfgFileList.instanceDowned.IsHas(_info) && !UGameFile.IsExistsFile(_info.m_curName, false);
+                if(!_isNdDown)
+                    continue;
+
+                this.n_appfull_down++;
+                _info.DownReady(url, proj, _CFNetAppFull, EM_Asset.Bytes, 1).DownStart();
+            }
+
+            if (this.n_appfull_down <= 0)
+                this._SetState(EM_Process.Completed);
+            else
+                this._SetStatePre(EM_Process.WaitCommand);
+        }
+
+        void _CFNetAppFull(int state, ResInfo dlFile)
+        {
+            bool isSuccess = state == (int)EM_SucOrFails.Success;
+            if (isSuccess)
+            {
+                this.n_appfull_down--;
+                if (this.n_appfull_down <= 0)
+                    this._SetState(EM_Process.Completed);
+            }
+            else
+            {
+                dlFile.ReDownReady(_CFNetAppFull).DownStart();
+                this._SetState(EM_Process.Error_AppFull);
+                Debug.LogErrorFormat("=== AppFull Down error = [{1}]", dlFile.m_strError);
             }
         }
 
@@ -361,13 +439,215 @@ namespace Core.Kernel
             this.RegUpdate(false);
             _OnGC(true);
 
-            CfgFileList.instance.LoadDefault();
-            var cfg = CfgVersion.instance.LoadDefault();
+            var cfg = CfgVersion.instance;
             XXTEA.SetCustKey(cfg.m_keyLua);
 
             GameMgr.instance.InitAfterUpload();
             // 完成回调
             this._ExcCompleted();
+        }
+
+        void _ST_CheckVersion()
+        {
+            this._SetStatePre(EM_Process.WaitCommand);
+            // 下载
+            string url = CfgPackage.instance.m_urlVersion;
+            string proj = CfgPackage.instance.m_uprojVer;
+            string fn = CfgVersion.m_defFileName;
+            ResInfo _info = new ResInfo(url, proj,fn, _CFNetVersion, EM_Asset.Text);
+            _info.DownStart();
+        }
+
+        void _CFNetVersion(int state, ResInfo dlFile)
+        {
+            bool isSuccess = state == (int)EM_SucOrFails.Success;
+            if (isSuccess)
+            {
+                string _vtxt = (string)dlFile.m_objTarget;
+                CfgVersion _verNet = CfgVersion.BuilderBy(_vtxt);
+                CfgVersion _verCurr = CfgVersion.instance.LoadDefault();
+                if (_verCurr.IsNewDown(_verNet))
+                {
+                    this._SetState(EM_Process.Error_NeedDownApkIpa);
+                    return;
+                }
+
+                if (_verCurr.IsUpdate4Other(_verNet))
+                {
+                    CfgVersion.instance.CloneFromOther(_verNet);
+                    this._SetState(EM_Process.CheckFileList);
+                }
+                else
+                {
+                    this._SetState(EM_Process.CheckAppFull);
+                }
+            }
+            else
+            {
+                this._SetState(EM_Process.Error_DownVer);
+                Debug.LogErrorFormat("=== Down Version error = [{1}]", dlFile.m_strError);
+            }
+        }
+
+        void _ST_CheckFileList()
+        {
+            this._SetStatePre(EM_Process.WaitCommand);
+            // 下载
+            CfgVersion cfg = CfgVersion.instance;
+            string url = cfg.m_urlFilelist;
+            string proj = cfg.m_pkgFilelist;
+            string fn = CfgFileList.m_defFileName;
+
+            ResInfo _info = new ResInfo(url, proj, fn, _CFNetFileList, EM_Asset.Text);
+            _info.m_isCheckCompareCode = true;
+            _info.DownStart();
+        }
+
+        void _CFNetFileList(int state, ResInfo dlFile)
+        {
+            bool isSuccess = state == (int)EM_SucOrFails.Success;
+            if (isSuccess)
+            {
+                CfgVersion cfg = CfgVersion.instance;
+                string _vtxt = (string)dlFile.m_objTarget;
+                m_compare = new CompareFiles();
+                m_compare.Init(_vtxt, dlFile.m_url, cfg.m_pkgFiles);
+                this._SetState(EM_Process.InitMustFiles);
+            }
+            else
+            {
+                this._SetState(EM_Process.Error_DownFileList);
+                Debug.LogErrorFormat("=== Down Filelist error = [{1}]", dlFile.m_strError);
+            }
+        }
+
+        void _ST_InitMustFiles()
+        {
+            this._SetStatePre(EM_Process.WaitCommand);
+
+            CfgVersion cfg = CfgVersion.instance;
+            string url = cfg.m_urlFilelist;
+            string proj = cfg.m_pkgFilelist;
+            string fn = CfgMustFiles.m_defFn;
+            ResInfo _info = new ResInfo(url, proj, fn, _CFNetMustFiles, EM_Asset.Text);
+            _info.DownStart();
+        }
+
+        void _CFNetMustFiles(int state, ResInfo dlFile)
+        {
+            bool isSuccess = state == (int)EM_SucOrFails.Success;
+            if (isSuccess)
+            {
+                string _vtxt = (string)dlFile.m_objTarget;
+                CfgMustFiles.instance.Init(_vtxt);
+            }
+            else
+            {
+                CfgMustFiles.instance.LoadDefault();
+            }
+            this._SetState(EM_Process.CompareFileList);
+        }
+
+        void _ST_CompareFileList()
+        {
+            if(this.m_compare == null)
+            {
+                this._SetState(EM_Process.Error_NullCompareFiles);
+                Debug.LogError("=== CompareFiles is Null ");
+                return;
+            }
+
+            this.m_compare.OnUpdate();
+
+            if (this.m_compare.isFinished)
+            {
+                this._SetState(EM_Process.SaveFileList);
+            }
+            else if (this.m_compare.isError)
+            {
+                EM_Process _c = (EM_Process)this.m_compare.m_iState;
+                this._SetStatePre(_c, true);
+                Debug.LogErrorFormat("=== CompareFiles Down Filelist error = [{1}]", this.m_compare.m_strError);
+            }
+        }
+
+        void _ST_SaveFileList()
+        {
+            if (this.m_compare.SaveFileList())
+            {
+                this._SetState(EM_Process.SaveVersion);
+                this.m_compare.ClearAll();
+                this.m_compare = null;
+            }
+            else
+            {
+                this._SetStatePre(EM_Process.Error_SaveFList,true);
+                Debug.LogErrorFormat("=== Save Filelist error = [{1}]", this.m_compare.m_strError);
+            }
+        }
+
+        void _ST_SaveVersion()
+        {
+            CfgVersion cfg = CfgVersion.instance;
+            if (cfg.SaveDefault())
+            {
+                this._SetState(EM_Process.CheckAppFull);
+            }
+            else
+            {
+                this._SetStatePre(EM_Process.Error_SaveVer,true);
+                Debug.LogErrorFormat("=== Save Version error = [{1}]",cfg.m_strError);
+            }
+        }
+
+        public void ReGoOn()
+        {
+            switch (this.m_state)
+            {
+                case EM_Process.Error_NoNet:
+                    this._SetState(EM_Process.CheckNet);
+                    break;
+                case EM_Process.Error_NotEnoughMemory:
+                case EM_Process.Error_DF_EmptyUrl:
+                case EM_Process.Error_DF_TimeOut:
+                case EM_Process.Error_DF_LoadDown:
+                case EM_Process.Error_DF_NotMatchCode:
+                case EM_Process.Error_DF_ExcuteCall:
+                    this._SetState(EM_Process.CompareFileList);
+                    break;
+                case EM_Process.Error_LoadZipList:
+                    this._SetState(EM_Process.PreUnZipRes);
+                    break;
+                case EM_Process.Error_LoadZipOne:
+                case EM_Process.Error_UnZipOne:
+                    this._SetState(EM_Process.UnZipRes);
+                    break;
+                case EM_Process.Error_UnZipOBB:
+                    this._SetState(EM_Process.UnGpOBB);
+                    break;
+                case EM_Process.Error_LoadStreamVer:
+                    this._SetState(EM_Process.CheckAppCover);
+                    break;
+                case EM_Process.Error_DownVer:
+                    this._SetState(EM_Process.CheckVersion);
+                    break;
+                case EM_Process.Error_DownFileList:
+                case EM_Process.Error_NullCompareFiles:
+                    this._SetState(EM_Process.CheckFileList);
+                    break;
+                case EM_Process.Error_SaveFList:
+                    this._SetState(EM_Process.SaveFileList);
+                    break;
+                case EM_Process.Error_SaveVer:
+                    this._SetState(EM_Process.SaveVersion);
+                    break;
+                case EM_Process.Error_AppFull:
+                    break;
+                case EM_Process.Error_NeedDownApkIpa:
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

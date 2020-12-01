@@ -18,14 +18,14 @@ namespace Core.Kernel
 		static public readonly string m_defFileName3 = "filelist3.txt"; // 已下载的
         
 		public ResInfo m_manifest { get; private set;} // 当前的主要资源关系文件
-        public ListDict<ResInfo> m_data = new ListDict<ResInfo>(true);
-
+        public ListDict<ResInfo> m_data { get; private set; }
         // 文件路径
         protected string m_filePath = "";
 		public string m_content{ get; private set; }
         
 		private CfgFileList(){
-		}
+            this.m_data = new ListDict<ResInfo>(true);
+        }
         
         public CfgFileList Load(string fn){
 			this.m_filePath = UGameFile.curInstance.GetFilePath (fn);
@@ -62,7 +62,7 @@ namespace Core.Kernel
 			if (info.m_size == 0)
 				return;
 
-            bool isOkey = this.m_data.Add(info.m_realName, info);
+            bool isOkey = this.m_data.Add(info.m_curName, info);
             if (isOkey)
             {
                 if (info.isManifest)
@@ -72,12 +72,12 @@ namespace Core.Kernel
             }
             else if(info.m_size > 0 && !string.IsNullOrEmpty(info.m_compareCode))
             {
-                ResInfo _old = this.GetInfo(info.m_realName);
+                ResInfo _old = this.GetInfo(info.m_curName);
                 _old.CloneFromOther(info);             
             }
             else
             {
-                Debug.LogErrorFormat("========== Filelist Add error has [{0}],[{1}],[{2}]", info.m_realName, info.m_size, info.m_compareCode);
+                Debug.LogErrorFormat("========== Filelist Add error has [{0}],[{1}],[{2}]", info.m_curName, info.m_size, info.m_compareCode);
             }
         }
 
@@ -102,7 +102,7 @@ namespace Core.Kernel
 			if (info == null)
 				return false;
 
-			return Remove (info.m_realName);
+			return Remove (info.m_curName);
 		}
 
 		public bool Remove(string key){
@@ -113,7 +113,7 @@ namespace Core.Kernel
 			if (info == null)
 				return;
 
-            this.m_data.Remove(info.m_realName);
+            this.m_data.Remove(info.m_curName);
 			this.Add (info);
 		}
 
@@ -215,7 +215,7 @@ namespace Core.Kernel
 		public bool IsHas(ResInfo info){
 			if (info == null)
 				return true;
-			return IsHas(info.m_realName);
+			return IsHas(info.m_curName);
 		}
 
 		/// <summary>
@@ -241,7 +241,7 @@ namespace Core.Kernel
                 if (_info == null)
                     continue;
 
-                _info2 = instanceDowned.GetInfo(_info.m_realName);
+                _info2 = instanceDowned.GetInfo(_info.m_curName);
 
                 if (_info2 == null || !_info.m_compareCode.Equals(_info2.m_compareCode)) {
 					_downing.Add (_info);

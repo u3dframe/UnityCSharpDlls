@@ -28,7 +28,7 @@ namespace Core
     public delegate void DF_OnBool(bool isBl);
     public delegate void DF_OnUpdate(float dt,float unscaledDt);
     public delegate void DF_CurrMax(double curr,double max);
-    public delegate void DF_OnState(int state);
+    public delegate void DF_OnState(int state,int preState);
     public delegate void DF_OnError(bool isException, string errMsg);
     public delegate void DF_OnSceneChange(int level);
     public delegate void DF_OnNotifyDestry(GobjLifeListener obj);
