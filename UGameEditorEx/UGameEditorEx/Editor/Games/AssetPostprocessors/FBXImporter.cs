@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
+using System.Collections.Generic;
 
 /// <summary>
 /// 类名 : FBX 导入设置
@@ -28,13 +29,18 @@ public class FBXImporter : AssetPostprocessor
 
     void OnPostprocessModel(GameObject gobj)
     {
-        // ProcessMaterial(gobj); // 导致很多问题
+        // BindModelCollider(gobj);
+        // EmptyModelMaterial(gobj); // 导致很多问题,美术控制
+        EmptyModelAnimation(gobj);
+    }
 
+    void BindModelCollider(GameObject gobj)
+    {
         GameObject box = FindRecursively(gobj, "bbox");
-        BindT <BoxCollider>(box);
+        BindT<BoxCollider>(box);
 
         box = FindRecursively(gobj, "mbox");
-        BindT <MeshCollider>(box);
+        BindT<MeshCollider>(box);
         // if (box != null)
         // {
         // Renderer renderer = box.GetComponent(typeof(Renderer)) as Renderer;
@@ -43,7 +49,10 @@ public class FBXImporter : AssetPostprocessor
         //     UnityEngine.Object.DestroyImmediate(renderer, true);
         // }
         // }
+    }
 
+    void EmptyModelAnimation(GameObject gobj)
+    {
         ModelImporter importer = assetImporter as ModelImporter;
         if (importer != null)
         {
@@ -88,7 +97,7 @@ public class FBXImporter : AssetPostprocessor
         }
     }
 
-    void ProcessMaterial(GameObject gobj)
+    void EmptyModelMaterial(GameObject gobj)
     {
         Renderer[] _arrs = gobj.GetComponentsInChildren<Renderer>(true);
         if (_arrs == null || _arrs.Length <= 0)
@@ -133,9 +142,9 @@ public class FBXImporter : AssetPostprocessor
             gobj.AddComponent<T>();
         }
     }
-
+    
     // [MenuItem("Assets/Tools/Re - Import All Fbx")]
-	static void ReImportAllFbx()
+    static void ReImportAllFbx()
 	{
 		string _fd = Application.dataPath;
 		string[] _arrs = Directory.GetFiles(_fd,"*.fbx",SearchOption.AllDirectories);
