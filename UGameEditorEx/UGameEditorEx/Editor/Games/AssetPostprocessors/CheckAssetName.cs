@@ -11,21 +11,29 @@ public class CheckAssetName : AssetPostprocessor
 {
     static bool IsExcludes(string strTower)
     {
-        return strTower.EndsWith(".fbx") || strTower.EndsWith(".rendertexture") || strTower.Contains("lightmap");
+        return strTower.EndsWith(".shader") || strTower.EndsWith(".tga") || strTower.EndsWith(".fbx") || strTower.EndsWith(".rendertexture") || strTower.Contains("lightmap");
     }
 
     static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
     {
+        CheckAllAssets(importedAssets);
+    }
+
+    static void CheckAllAssets(string[] importedAssets)
+    {
         int nLens = 0;
-        if(importedAssets != null) nLens = importedAssets.Length;
-        if(nLens > 0) {
+        if (importedAssets != null) nLens = importedAssets.Length;
+        if (nLens > 0)
+        {
             string _fn = null, _fnTower = null;
-            foreach (string str in importedAssets) {
+            foreach (string str in importedAssets)
+            {
                 if (!str.Contains(BuildPatcher.m_rootRelative))
                     continue;
                 _fn = Path.GetFileName(str);
                 _fnTower = _fn.ToLower();
-                if (str.Contains(" ")) {
+                if (str.Contains(" "))
+                {
                     UnityEngine.Debug.LogErrorFormat("=== filename has space(空格), fp = [{0}],fn = [{1}]", str, _fn);
                 }
                 else if (!IsExcludes(_fnTower) && !_fn.Equals(_fnTower))
@@ -33,6 +41,15 @@ public class CheckAssetName : AssetPostprocessor
                     UnityEngine.Debug.LogErrorFormat("=== filename has Upper(大写), fp = [{0}],fn = [{1}]", str, _fn);
                 }
             }
-        } 
+        }
+    }
+
+    [MenuItem("Assets/Tools/Check AllRes Format(检查所有资源的命名)")]
+    [MenuItem("Tools/Check AllRes Format(检查所有资源的命名)")]
+    static void ReCheckAll()
+    {
+        string _fd = BuildPatcher.m_appAssetPath;
+        string[] files = Directory.GetFiles(_fd, "*.*", SearchOption.AllDirectories);
+        CheckAllAssets(files);
     }
 }

@@ -17,55 +17,62 @@ using UnityEngine.U2D;
 /// </summary>
 public class ImportTexture : AssetPostprocessor
 {
-    static int m_nReset = 0;
     static public int m_maxTextureSize = 2048; // 1024 , 2048
 
     void OnPreprocessTexture()
     {
-        TextureImporter importer = assetImporter as TextureImporter;
-        if (importer != null)
-        {
-            if(!BuildPatcher.IsInDevelop(importer.assetPath) || !BuildPatcher.IsTexture(importer.assetPath))
-                return;
+        _ProcessTexture(assetImporter);
+    }
 
-            int width = 0, height = 0;
-            if (IsFirstImport(importer, ref width, ref height) || m_nReset > 0)
-            {
-                m_nReset--;
+    static bool _ProcessTexture(AssetImporter aImporter, bool isForce = false)
+    {
+        TextureImporter importer = aImporter as TextureImporter;
+        if (importer == null)
+            return false;
 
-                TextureImporterFormat curFmt;
-                curFmt = TextureImporterFormat.ASTC_6x6;
+        if (!BuildPatcher.IsInDevelop(importer.assetPath) || !BuildPatcher.IsTexture(importer.assetPath))
+            return false;
 
-                TextureImporterPlatformSettings settings;
-                settings = importer.GetPlatformTextureSettings("iPhone");
-                settings.overridden = true;
-                settings.maxTextureSize = m_maxTextureSize;
-                settings.format = curFmt;
-                importer.SetPlatformTextureSettings(settings);
+        int width = 0, height = 0;
+        bool isFirst = IsFirstImport(importer, ref width, ref height);
+        isForce = isForce || isFirst;
 
-                settings = importer.GetPlatformTextureSettings("Android");
-                curFmt = TextureImporterFormat.ETC2_RGBA8;
-                settings.androidETC2FallbackOverride = AndroidETC2FallbackOverride.Quality32Bit;
-                settings.overridden = true;
-                settings.allowsAlphaSplitting = false;
-                settings.maxTextureSize = m_maxTextureSize;
-                settings.format = curFmt;
-                importer.SetPlatformTextureSettings(settings);
-                
-                importer.sRGBTexture = true;
-                // importer.mipmapEnabled = false;
-                // importer.alphaIsTransparency = false;
-                importer.textureCompression = TextureImporterCompression.Compressed;
-                importer.crunchedCompression = true;
-                importer.compressionQuality = 60;
-                importer.npotScale = TextureImporterNPOTScale.None;
-                // importer.wrapMode = TextureWrapMode.Clamp;
-                
-                ReTextureInfo(importer);
-                // importer.SaveAndReimport();
-                // AssetDatabase.Refresh();
-            }
-        }
+        if (!isForce)
+            return false;
+
+        TextureImporterFormat curFmt;
+        curFmt = TextureImporterFormat.ASTC_6x6;
+
+        TextureImporterPlatformSettings settings;
+        settings = importer.GetPlatformTextureSettings("iPhone");
+        settings.overridden = true;
+        settings.maxTextureSize = m_maxTextureSize;
+        settings.format = curFmt;
+        importer.SetPlatformTextureSettings(settings);
+
+        settings = importer.GetPlatformTextureSettings("Android");
+        curFmt = TextureImporterFormat.ETC2_RGBA8;
+        settings.androidETC2FallbackOverride = AndroidETC2FallbackOverride.Quality32Bit;
+        settings.overridden = true;
+        settings.allowsAlphaSplitting = false;
+        settings.maxTextureSize = m_maxTextureSize;
+        settings.format = curFmt;
+        importer.SetPlatformTextureSettings(settings);
+
+        importer.sRGBTexture = true;
+        // importer.mipmapEnabled = false;
+        // importer.alphaIsTransparency = false;
+        importer.textureCompression = TextureImporterCompression.Compressed;
+        importer.crunchedCompression = true;
+        importer.compressionQuality = 60;
+        importer.npotScale = TextureImporterNPOTScale.None;
+        // importer.wrapMode = TextureWrapMode.Clamp;
+
+        // ReTextureInfo(importer);
+        // importer.SaveAndReimport();
+        // AssetDatabase.Refresh();
+        // AssetDatabase.SaveAssets();
+        return true;
     }
 
     // [MenuItem("Assets/Tools/重置所有图片的AB")]
@@ -135,9 +142,9 @@ public class ImportTexture : AssetPostprocessor
     }
 
     //贴图不存在、meta文件不存在、图片尺寸发生修改需要重新导入
-    bool IsFirstImport(TextureImporter importer, ref int width, ref int height)
+    static bool IsFirstImport(TextureImporter importer, ref int width, ref int height)
     {
-        string fp = assetPath;
+        string fp = importer.assetPath;
         string _assetMt = AssetDatabase.GetTextMetaFilePathFromAssetPath(fp);
         bool hasMeta = BuildPatcher.IsExistsInAssets(_assetMt);
         bool _isChg = !hasMeta;
@@ -173,7 +180,7 @@ public class ImportTexture : AssetPostprocessor
     }
 
     //获取导入图片的宽高
-    (int, int) GetTextureImporterSize(TextureImporter importer)
+    static (int, int) GetTextureImporterSize(TextureImporter importer)
     {
         if (importer != null)
         {
@@ -188,17 +195,20 @@ public class ImportTexture : AssetPostprocessor
     [MenuItem("Assets/Tools/Re-ImportTexture")]
     static void ReTexutes()
     {
-        Object[] _arrs = Selection.GetFiltered(typeof(Texture2D), SelectionMode.DeepAssets);
+        Object[] _arrs = Selection.GetFiltered(typeof(Texture2D), SelectionMode.Assets | SelectionMode.DeepAssets);
         Object _one = null;
         string _assetPath = null;
-        m_nReset = _arrs.Length;
+        TextureImporter importer = null;
         for (int i = 0; i < _arrs.Length; ++i)
         {
             _one = _arrs[i];
             if (_one is Texture2D)
             {
                 _assetPath = BuildPatcher.GetPath(_one);
-                AssetDatabase.ImportAsset(_assetPath);
+                importer = AssetImporter.GetAtPath(_assetPath) as TextureImporter;
+                if (_ProcessTexture(importer, true))
+                    ReTextureInfo(importer);
+                // AssetDatabase.ImportAsset(_assetPath);
             }
         }
     }
@@ -210,6 +220,7 @@ public class ImportTexture : AssetPostprocessor
         string[] _arrs = Directory.GetFiles(_fd, "*.png", SearchOption.AllDirectories);
         Object obj = null;
         string fpAsset = "";
+        TextureImporter importer = null;
         for (int i = 0; i < _arrs.Length; i++)
         {
             fpAsset = _arrs[i];
@@ -217,7 +228,10 @@ public class ImportTexture : AssetPostprocessor
             if (obj == null)
                 continue;
             fpAsset = BuildPatcher.GetPath(obj);
-            AssetDatabase.ImportAsset(fpAsset);
+            importer = AssetImporter.GetAtPath(fpAsset) as TextureImporter;
+            if (_ProcessTexture(importer, true))
+                ReTextureInfo(importer);
+            // AssetDatabase.ImportAsset(fpAsset);
         }
     }
 
