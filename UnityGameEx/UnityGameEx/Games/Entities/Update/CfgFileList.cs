@@ -327,5 +327,11 @@ namespace Core.Kernel
 			}
 		}
 
+        static public bool IsCfgFile(string fn)
+        {
+            if (string.IsNullOrEmpty(fn))
+                return false;
+            return fn.EndsWith(m_defFileName) || fn.EndsWith(m_defFileName2) || fn.EndsWith(m_defFileName3);
+        }
 	}
 }

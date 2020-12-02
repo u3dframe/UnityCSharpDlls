@@ -383,5 +383,12 @@ namespace Core.Kernel
                 fn = m_defFileName;
             return Builder().Load(fn);
         }
+
+        static public bool IsCfgFile(string fn)
+        {
+            if (string.IsNullOrEmpty(fn))
+                return false;
+            return fn.EndsWith(m_defFileName);
+        }
     }
 }
