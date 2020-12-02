@@ -35,6 +35,7 @@ public class UGUIModel : PrefabBasic {
     [SerializeField] Material _rawMat = null;
     public Material m_rawMat { get { return _rawMat; } } // EnableKeyword
     public string m_layerModel = "ModelUI";
+    float sfwerD = 3.9f, sfwerH = 1.5f, sfwerL = 0.7f;
 
     protected override void OnCall4Awake()
     {
@@ -64,7 +65,7 @@ public class UGUIModel : PrefabBasic {
             this.m_sfwer.target = this.m_wrap;
             this.m_sfwer.isUpByLate = true;
             this.m_sfwer.isRunning = true;
-            this.ReSfwer(3.7f);
+            this.ReSfwer(this.sfwerD,this.sfwerH,this.sfwerL);
         }
         this._ReRtex(this.m_rtWidth, this.m_rtHeight);
         this.ReRawImg(_imgRaw);
@@ -191,16 +192,17 @@ public class UGUIModel : PrefabBasic {
 
     public void ReSfwer(float distance,float height = 1.5f,float lookAtHeight = 0.7f)
     {
+        this.sfwerD = distance;
+        this.sfwerH = height;
+        this.sfwerL = lookAtHeight;
         if (!this.m_sfwer)
             return;
+
+        this.m_sfwer.distance = distance;
+        if (this.m_camera)
+            this.m_camera.farClipPlane = distance + 5;
         this.m_sfwer.height = height;
         this.m_sfwer.lookAtHeight = lookAtHeight;
-        if(this.m_sfwer.distance != distance)
-        {
-            this.m_sfwer.distance = distance;
-            if (this.m_camera)
-                this.m_camera.farClipPlane = distance + 5;
-        }
     }
 
     public void ReRawWH(float w,float h)
