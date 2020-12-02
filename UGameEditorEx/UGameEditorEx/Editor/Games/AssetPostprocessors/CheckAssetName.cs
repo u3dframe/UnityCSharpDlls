@@ -49,7 +49,6 @@ public class CheckAssetName : AssetPostprocessor
     }
 
     [MenuItem("Assets/Tools/Check AllRes Format(检查所有资源的命名)")]
-    [MenuItem("Tools/Check AllRes Format(检查所有资源的命名)")]
     static void ReCheckAll()
     {
         string _fd = BuildPatcher.m_appAssetPath;
