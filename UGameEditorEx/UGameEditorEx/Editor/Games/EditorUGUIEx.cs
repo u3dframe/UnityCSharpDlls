@@ -94,8 +94,8 @@ public class EditorUGUIEx
         return text;
     }
 
-    [MenuItem("Assets/Tools/Re-Bind UGUILocalize")]
-    static void ReBindUGUILocaliz()
+    // [MenuItem("Assets/Tools/Re-Bind UGUILocalize")]
+    static public void ReBindUGUILocaliz()
     {
         GameObject[] _arrs = BuildPatcher.GetSelectObject<GameObject>();
         if (_arrs == null || _arrs.Length <= 0)
