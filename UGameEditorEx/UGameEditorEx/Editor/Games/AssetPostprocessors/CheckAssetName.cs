@@ -9,9 +9,12 @@ using System.IO;
 /// </summary>
 public class CheckAssetName : AssetPostprocessor
 {
-    static bool IsExcludes(string strTower)
+    static bool IsExcludes(string str)
     {
-        return strTower.EndsWith(".cs") || strTower.EndsWith(".meta") || strTower.EndsWith(".shader") || strTower.EndsWith(".tga") || strTower.EndsWith(".fbx") || strTower.EndsWith(".rendertexture") || strTower.Contains("/lightmaps/");
+        str = str.ToLower();
+        bool _isExc = !str.EndsWith(".prefab");
+        bool _isExc2 = str.EndsWith(".cs") || str.EndsWith(".meta") || str.EndsWith(".shader") || str.EndsWith(".tga") || str.EndsWith(".fbx") || str.EndsWith(".rendertexture") || str.Contains("/lightmaps/") || (str.Contains("/skyboxs/") && !str.EndsWith(".mat"));
+        return _isExc && _isExc2;
     }
 
     static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
