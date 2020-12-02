@@ -11,7 +11,7 @@ public class CheckAssetName : AssetPostprocessor
 {
     static bool IsExcludes(string strTower)
     {
-        return strTower.EndsWith(".shader") || strTower.EndsWith(".tga") || strTower.EndsWith(".fbx") || strTower.EndsWith(".rendertexture") || strTower.Contains("lightmap");
+        return strTower.EndsWith(".cs") || strTower.EndsWith(".meta") || strTower.EndsWith(".shader") || strTower.EndsWith(".tga") || strTower.EndsWith(".fbx") || strTower.EndsWith(".rendertexture") || strTower.Contains("lightmap");
     }
 
     static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
@@ -30,6 +30,10 @@ public class CheckAssetName : AssetPostprocessor
             {
                 if (!str.Contains(BuildPatcher.m_rootRelative))
                     continue;
+
+                if (BuildPatcher.IsFolder(_fn))
+                    continue;
+
                 _fn = Path.GetFileName(str);
                 _fnTower = _fn.ToLower();
                 if (str.Contains(" "))

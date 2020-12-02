@@ -465,8 +465,8 @@ public class BuildTBasic : Core.EditorGameFile
             EditorUtility.DisplayDialog("提示", "已删除指定文件夹ABFolders!", "确定");
     }
 
-    [MenuItem("Tools/Delete Same Material")]
-    static void DeleteSameMaterial()
+    // [MenuItem("Tools/Delete Same Material")]
+    static public void DeleteSameMaterial()
     {
         // 这个是遍历当前场景的对象(不是全部资源对象)有思路，未实现
         Dictionary<string, string> dicMaterial = new Dictionary<string, string>();
