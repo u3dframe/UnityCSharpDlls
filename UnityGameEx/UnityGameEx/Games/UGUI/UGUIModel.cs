@@ -208,7 +208,7 @@ public class UGUIModel : PrefabBasic {
         float _abs = Mathf.Abs(distance);
         float scale = _abs * 0.8f;
         if (this.m_camera)
-            this.m_camera.farClipPlane = _abs + scale + 2;
+            this.m_camera.farClipPlane =  Mathf.Ceil(_abs + scale * 0.5f + 1.5f);
         if (this.m_wrap)
             this.m_wrap.localScale = new Vector3(scale, scale, scale);
     }
