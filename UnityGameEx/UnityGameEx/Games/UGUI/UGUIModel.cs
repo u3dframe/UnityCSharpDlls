@@ -192,6 +192,9 @@ public class UGUIModel : PrefabBasic {
 
     public void ReSfwer(float distance,float height = 1.5f,float lookAtHeight = 0.7f)
     {
+        if (distance == 0)
+            return;
+
         this.sfwerD = distance;
         this.sfwerH = height;
         this.sfwerL = lookAtHeight;
@@ -199,10 +202,15 @@ public class UGUIModel : PrefabBasic {
             return;
 
         this.m_sfwer.distance = distance;
-        if (this.m_camera)
-            this.m_camera.farClipPlane = distance + 5;
         this.m_sfwer.height = height;
         this.m_sfwer.lookAtHeight = lookAtHeight;
+
+        float _abs = Mathf.Abs(distance);
+        float scale = _abs * 0.8f;
+        if (this.m_camera)
+            this.m_camera.farClipPlane = _abs + scale + 2;
+        if (this.m_wrap)
+            this.m_wrap.localScale = new Vector3(scale, scale, scale);
     }
 
     public void ReRawWH(float w,float h)
