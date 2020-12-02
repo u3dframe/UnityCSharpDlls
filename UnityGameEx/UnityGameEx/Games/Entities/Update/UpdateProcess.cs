@@ -21,9 +21,11 @@ namespace Core.Kernel
         EM_Process m_preState = EM_Process.None;
         UnZipClass unzip = null;
         bool m_isBegZip = false;
-        long nCurr = 0, m_nSize = 0, nZipCurr = 0;
+        int nZipCurr = 0;
+        public int nCurr { get; private set; }
+        public int m_nSize { get; private set; }
         string m_obbPath = null;
-        CompareFiles m_compare = null;
+        public CompareFiles m_compare { get; private set; }
         int n_appfull_down = 0;
 
         public bool m_isOnUpdate = false;
@@ -159,7 +161,7 @@ namespace Core.Kernel
                 {
                     if (i == arrs.Length - 1)
                     {
-                        this.m_nSize = UtilityHelper.Str2Long(arrs[i]);
+                        this.m_nSize = UtilityHelper.Str2Int(arrs[i]);
                     }
                     else
                     {
@@ -510,8 +512,8 @@ namespace Core.Kernel
             {
                 CfgVersion cfg = CfgVersion.instance;
                 string _vtxt = (string)dlFile.m_objTarget;
-                m_compare = new CompareFiles();
-                m_compare.Init(_vtxt, dlFile.m_url, cfg.m_pkgFiles);
+                this.m_compare = new CompareFiles();
+                this.m_compare.Init(_vtxt, dlFile.m_url, cfg.m_pkgFiles);
                 this._SetState(EM_Process.InitMustFiles);
             }
             else

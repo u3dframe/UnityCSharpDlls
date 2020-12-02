@@ -26,8 +26,8 @@ namespace Core.Kernel
         List<ResInfo> m_lDownError = new List<ResInfo>();
         List<ResInfo> m_lDowning = new List<ResInfo>();
         List<string> m_keys = new List<string>();
-        
-        EM_CompFiles m_state = EM_CompFiles.Init;
+
+        public EM_CompFiles m_state { get; private set; }
         public DF_LDownFile m_callDownFile; // 下载文件的状态通知 参数:值(当前文件对象)
         public bool m_isDownAll { get; set; } // 是否下载全部文件
         public int m_maxDown = 5; // 最大下载个数
@@ -45,6 +45,7 @@ namespace Core.Kernel
             m_cfgNew = CfgFileList.Builder();
             m_deletes = new Dictionary<string, ResInfo>();
             m_updates = new Dictionary<string, ResInfo>();
+            m_state = EM_CompFiles.Init;
         }
 
         public void ClearAll()
