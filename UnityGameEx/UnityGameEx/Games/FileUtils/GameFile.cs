@@ -56,10 +56,13 @@ namespace Core
 			#endif
 		}
 
-        static void InitGameFile()
+        static void InitGameFile(System.Action callFunc = null)
         {
-			if(m_init)
+			if(m_init){
+				if(callFunc != null)
+					callFunc();
 				return;
+			}
 			m_init = true;
 
 #if UNITY_EDITOR && UNITY_ANDROID
@@ -75,14 +78,16 @@ namespace Core
 #endif
             curInstance = instance;
 			InitFdRoot(m_resFdRoot);
-			GameEntranceEx.Entrance(_OnCFError);
-			// EncodeWordFile = EM_EnCode.None;
-#if UNITY_EDITOR
+			if(Application.isPlaying){
+				GameEntranceEx.Entrance(_OnCFError);
+				LogToNetHelper.shareInstance.Init("http://push.dianyue.com/","client_log");
+			}
+
 			CfgPackage.InitPackage(()=>{
 				m_bk_url = CfgPackage.instance.m_urlVersion;
-				Debug.LogError(CfgPackage.instance.ToJson());
+				if(callFunc != null)
+					callFunc();
 			});
-#endif
         }
 
 		static void InitFdRoot(string fdRoot){
@@ -91,17 +96,21 @@ namespace Core
 			m_fmtZip = string.Concat (m_appContentPath,"resource{0}.zip");
 		}
 
-		static public void InitFirst()
+		static public void InitFirst(System.Action callFunc = null)
         {
-            InitGameFile();
+			m_init = false;
+            InitGameFile(callFunc);
 #if UNITY_EDITOR
 			CfgVersion.instance.m_urlVersion = m_url_editor;
 #endif
         }
 
-		static void _OnCFError(string errMsg){
+		static void _OnCFError(bool isException,string errMsg){
 #if UNITY_EDITOR
-			AppPause();
+			if(isException)
+				AppPause();
+#else
+			LogToNetHelper.shareInstance.SendDefault(isException ? "Exception" : "Error",errMsg);
 #endif
 		}
 
@@ -159,11 +168,14 @@ namespace Core
         override public string GetPath(string fn)
         {
 #if !UNITY_EDITOR
-			ResInfo _info = CfgFileList.instance.GetInfo(fn);
-			if(_info == null)
-				Debug.LogErrorFormat("=== resinfo null,nm = [{0}]",fn);
-			else
-				fn = _info.m_resName;
+			bool isBl = CfgVersion.IsCfgFile(fn) || CfgFileList.IsCfgFile(fn) || CfgMustFiles.IsCfgFile(fn);
+			if(!isBl){
+				ResInfo _info = CfgFileList.instance.GetInfo(fn);
+				if(_info == null)
+					Debug.LogErrorFormat("=== resinfo null,nm = [{0}]",fn);
+				else
+					fn = _info.m_resName;
+			}
 #endif
             return base.GetPath(fn);
         }

@@ -102,6 +102,20 @@ public class UtilityHelper : GHelper {
         return ret;
     }
 
+    static public Material NewMat(Material org)
+    {
+        if (IsNull(org))
+            return null;
+        return new Material(org);
+    }
+
+    static public Material NewMat(Shader org)
+    {
+        if (IsNull(org))
+            return null;
+        return new Material(org);
+    }
+
     static public void SetMaxFrame(int maxFrame){
 		Application.targetFrameRate = maxFrame;
 	}

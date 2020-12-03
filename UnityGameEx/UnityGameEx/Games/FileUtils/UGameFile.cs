@@ -212,5 +212,25 @@ namespace Core.Kernel
         {
             return GetTextBytes4Decrypt(fn);
         }
+
+        virtual public Material GetMat(Renderer render)
+        {
+            if (null == render) return null;
+#if UNITY_EDITOR
+            return render.material;
+#else
+            return render.sharedMaterial;
+#endif
+        }
+
+        virtual public Material[] GetMats(Renderer render)
+        {
+            if (null == render) return null;
+#if UNITY_EDITOR
+            return render.materials;
+#else
+            return render.sharedMaterials;
+#endif
+        }
     }
 }

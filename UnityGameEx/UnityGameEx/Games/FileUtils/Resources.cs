@@ -54,17 +54,17 @@ namespace Core.Kernel
                 return null;
             string _fp = m_appAssetPath;
             bool _isFab = false , _isLmap =  false;
-            if(abName.Contains("/c_")){
+            if(abName.Contains("/effects/") || abName.Contains("/ef_")){
+                _fp  += "Effects/Builds/";
+            }else if(abName.Contains("/c_")){
                 _fp  += "Characters/Builds/";
             }else if(abName.Contains("timeline/")){
                 _fp  += "Characters/Builds/";
-           }else if(abName.Contains("/maps/") || abName.Contains("/explores/")){
+            }else if(abName.Contains("/maps/") || abName.Contains("/explores/")){
                 _fp  += "Scene/Builds/";
             }else if(abName.Contains("lightmaps/")){
                 _fp  += "Scene/Builds/";
                 _isLmap = true;
-            }else if(abName.Contains("/effects/") || abName.Contains("/ef_")){
-                _fp  += "Effects/Builds/";
             }else{
                 _fp += "Builds/";
             }

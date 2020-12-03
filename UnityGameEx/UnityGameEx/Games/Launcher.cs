@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.IO;
-using UnityEngine;
-using UnityEngine.Networking;
+﻿using UnityEngine;
 using Core;
 using Core.Kernel;
 
@@ -10,8 +7,7 @@ public class Launcher : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GameFile.InitFirst();
-        _StartUpdateProcess();
+        GameFile.InitFirst(_StartUpdateProcess);
     }
 
     void _StartUpdateProcess()
@@ -19,20 +15,23 @@ public class Launcher : MonoBehaviour
         bool isUnZip = !GameFile.isEditor;
         bool isValidVer = !GameFile.isEditor;
         isValidVer = false;
-        UpdateProcess updateProcess = new UpdateProcess().Init(Entry, _OnCallState, null,isUnZip, isValidVer);
+        string obbPath = null;
+        UpdateProcess updateProcess = new UpdateProcess().Init(Entry, _OnCallState,obbPath,isUnZip, isValidVer);
         updateProcess.Start();
     }
 
     void Entry()
     {
+        Debug.Log("=== Entry = ");
         InputMgr.instance.Init();
         AssetBundleManager.instance.isDebug = true;
         LuaManager.instance.Init();
     }
 
-    void _OnCallState(int state)
+    void _OnCallState(int state,int preState)
     {
         EM_Process emp = (EM_Process)state;
-        Debug.LogFormat("=== state = [{0}] , [{1}] ", state, emp);
+        EM_Process empPre = (EM_Process)preState;
+        Debug.LogFormat("=== state = [{0} , {1}] , pre_state = [{2} , {3}] ", state, emp, preState, empPre);
     }
 }

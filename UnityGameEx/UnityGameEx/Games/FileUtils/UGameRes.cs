@@ -109,7 +109,7 @@ namespace Core.Kernel
 			
 			if(isDestroy || obj.GetType() == tpGobj)
 			{
-				GameObject.DestroyImmediate(obj,true); // Destroy
+				GameObject.DestroyImmediate(obj); // Destroy
 			}
 			else
 			{
