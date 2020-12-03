@@ -24,6 +24,7 @@ public class BuildTBasic : Core.EditorGameFile
         return Selection.GetFiltered<T>(SelectionMode.Assets | SelectionMode.DeepAssets);
     }
 
+    // Resources.FindObjectsOfTypeAll 取得的是 指向 Library 目录下面的资源
     static public T[] FindObjectsOfTypeAll<T>() where T : UObject
     {
         return UnityEngine.Resources.FindObjectsOfTypeAll<T>();
@@ -39,6 +40,11 @@ public class BuildTBasic : Core.EditorGameFile
     static public string[] GetDependencies(string objAsset, bool recursive)
     {
         return AssetDatabase.GetDependencies(objAsset, recursive);
+    }
+
+    static public string[] GetFiles(string fpdir)
+    {
+        return Directory.GetFiles(fpdir, "*.*", SearchOption.AllDirectories);
     }
 
     static public void SaveAssets(UObject obj,bool isSave = true)
