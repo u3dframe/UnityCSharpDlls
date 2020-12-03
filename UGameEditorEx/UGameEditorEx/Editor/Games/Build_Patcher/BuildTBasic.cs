@@ -24,6 +24,23 @@ public class BuildTBasic : Core.EditorGameFile
         return Selection.GetFiltered<T>(SelectionMode.Assets | SelectionMode.DeepAssets);
     }
 
+    static public T[] FindObjectsOfTypeAll<T>() where T : UObject
+    {
+        return UnityEngine.Resources.FindObjectsOfTypeAll<T>();
+    }
+
+    // EditorUtility 取得的是 指向 Library 目录下面
+    static public UObject[] CollectDependencies(UObject obj)
+    {
+        UObject[] roots = new UObject[] { obj };
+        return EditorUtility.CollectDependencies(roots);
+    }
+
+    static public string[] GetDependencies(string objAsset, bool recursive)
+    {
+        return AssetDatabase.GetDependencies(objAsset, recursive);
+    }
+
     static public void SaveAssets(UObject obj,bool isSave = true)
     {
         if(obj != null)
