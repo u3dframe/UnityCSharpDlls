@@ -20,6 +20,8 @@ public class FBXImporter : AssetPostprocessor
             importer.meshCompression = ModelImporterMeshCompression.Off;
             // importer.isReadable = false;
 #if UNITY_2019
+            // importer.meshOptimizationFlags = MeshOptimizationFlags.Everything;
+            importer.animationCompression = ModelImporterAnimationCompression.Optimal;
             importer.materialImportMode = ModelImporterMaterialImportMode.None;
 #else
             importer.importMaterials = false;
@@ -142,7 +144,50 @@ public class FBXImporter : AssetPostprocessor
             gobj.AddComponent<T>();
         }
     }
-    
+
+    void ModelAnimationClip(GameObject gobj)
+    {
+        List<AnimationClip> animationClipList = new List<AnimationClip>(AnimationUtility.GetAnimationClips(gobj));
+        if (animationClipList.Count == 0)
+        {
+            AnimationClip[] objectList = UnityEngine.Resources.FindObjectsOfTypeAll<AnimationClip>();
+            animationClipList.AddRange(objectList);
+        }
+
+        foreach (AnimationClip theAnimation in animationClipList)
+        {
+            try
+            {
+                //去除scale曲线
+                foreach (EditorCurveBinding theCurveBinding in AnimationUtility.GetCurveBindings(theAnimation))
+                {
+                    string name = theCurveBinding.propertyName.ToLower();
+                    if (name.Contains("scale"))
+                    {
+                        AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, null);
+                        continue;
+                    }
+
+                    // 浮点数精度压缩到 - f3
+                    AnimationCurve curve = AnimationUtility.GetEditorCurve(theAnimation,theCurveBinding);
+                    Keyframe key;
+                    for (int ii = 0; ii < curve.length; ++ii)
+                    {
+                        key = curve[ii];
+                        key.value = float.Parse(key.value.ToString("f3"));
+                        key.inTangent = float.Parse(key.inTangent.ToString("f3"));
+                        key.outTangent = float.Parse(key.outTangent.ToString("f3"));
+                    }
+                    AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, curve);
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogErrorFormat("CompressAnimationClip Failed !!! animationPath : {0} error: {1}", assetPath, e);
+            }
+        }
+    }
+
     // [MenuItem("Assets/Tools/Re - Import All Fbx")]
     static void ReImportAllFbx()
 	{
