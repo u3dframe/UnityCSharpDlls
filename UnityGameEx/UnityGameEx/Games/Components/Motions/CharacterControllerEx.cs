@@ -34,8 +34,10 @@ public class CharacterControllerEx : AnimatorEx
 		}
 	}
 	private Vector3 m_v3Scale = Vector3.one;
+    public SkinnedMeshRenderer m_skinRer { get; private set; }
+    public RendererMatData m_skinData { get; private set; }
 
-	override protected void Update (){
+    override protected void Update (){
 		base.Update();
 
 		if(this.m_cf_OnUpdate != null){
@@ -56,24 +58,30 @@ public class CharacterControllerEx : AnimatorEx
     }
 
 	override protected void OnCall4Awake(){
-        ReBindNodes();
+        this.ReBindNodes();
         base.OnCall4Awake();
 		this.csAlias = "CCtrler_Ex";
-		if(this.m_c_ctrler == null){
+		if(this.m_c_ctrler == null)
 			this.m_c_ctrler = this.m_gobj.GetComponentInChildren<CharacterController>(true);
-		}
-
-		ReRHeight();
-	}
+        this.ReRHeight();
+        this.ReSkinRer();
+    }
 
 	override protected void OnCall4Show(){
 		base.OnCall4Show();
 		_ReCalcSetOffset();
 	}
 
-	override protected void OnClear(){
+    override protected void OnCall4Destroy() {
+        base.OnCall4Destroy();
+        if (this.m_skinData != null)
+            this.m_skinData.ClearAll();
+        this.m_skinData = null;
+    }
+
+    override protected void OnClear(){
 		base.OnClear();
-		this.m_c_ctrler = null;
+        this.m_c_ctrler = null;
 		this.m_cf_OnUpdate = null;
 	}
 
@@ -114,7 +122,7 @@ public class CharacterControllerEx : AnimatorEx
     protected override void ReBindNodes()
     {
         _arrs_nodes = new string[]{
-            "heads","shadows","foot",
+            "heads","shadows","foot","skin",
             "f_head","f_l_hand","f_r_hand","f_mid",
             "f_back","f_l_foot","f_r_foot","f_l_weapon","f_r_weapon"
         };
@@ -126,8 +134,18 @@ public class CharacterControllerEx : AnimatorEx
 		this.m_evt_smEnter += on_a_enter;
 		this.m_evt_smUpdate += on_a_up;
 		this.m_evt_smExit += on_a_exit;
-		return this;
+        return this.ReSkinRer();
 	}
+
+    public CharacterControllerEx ReSkinRer()
+    {
+        if (this.m_skinRer == null)
+        {
+            this.m_skinRer = this.m_gobj.GetComponentInChildren<SkinnedMeshRenderer>(true);
+            this.m_skinData = RendererMatData.BuilderNew(this.m_skinRer);
+        }
+        return this;
+    }
 
 	private Vector3 ToV3(float x,float y,float z){
 		return new Vector3(x,y,z);
