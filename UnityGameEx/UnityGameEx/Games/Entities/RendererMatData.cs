@@ -14,12 +14,15 @@ public class RendererMatData
     Renderer m_currRer = null;
     bool m_isNewMat = false;
     bool m_isEditor = false;
-    List<Material> m_allMats = new List<Material>();
-    List<Material> m_mats = new List<Material>();
+    public List<Material> m_allMats { get; private set; }
+    public List<Material> m_mats { get; private set; }
 
-    public RendererMatData(){}
+    public RendererMatData(){
+        m_allMats = new List<Material>();
+        m_mats = new List<Material>();
+    }
 
-    public RendererMatData(Renderer rer, bool isNewMat)
+    public RendererMatData(Renderer rer, bool isNewMat):this()
     {
         Init(rer, isNewMat);
     }
