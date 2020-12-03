@@ -53,7 +53,7 @@ namespace Core.Art
             }
         }
 
-        [MenuItem("Assets/Tools/Art/Check AllRes Format(检查所有资源的命名)")]
+        [MenuItem("Assets/Tools_Art/Check AllRes Format(检查所有资源的命名)")]
         static public void ReCheckAll()
         {
             string _fd = UnityEngine.Application.dataPath;
