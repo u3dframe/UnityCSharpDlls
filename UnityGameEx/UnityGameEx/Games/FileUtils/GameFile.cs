@@ -21,7 +21,7 @@ namespace Core
 		static public string m_bk_url = null;
 
 #if UNITY_EDITOR
-		static public readonly string m_url_editor = "http://192.168.1.30:8006/dykj";
+		static private readonly string m_url_editor = "http://192.168.1.30:8006/dykj";
 #endif
 		// 编辑模式
 		static public bool isEditor{
@@ -186,6 +186,26 @@ namespace Core
 			return GetText(fn);
 #else
             return base.GetDecryptText(fn);
+#endif
+        }
+
+		override public Material GetMat(Renderer render)
+        {
+            if (null == render) return null;
+#if UNITY_EDITOR
+            return render.material;
+#else
+            return render.sharedMaterial;
+#endif
+        }
+
+        override public Material[] GetMats(Renderer render)
+        {
+            if (null == render) return null;
+#if UNITY_EDITOR
+            return render.materials;
+#else
+            return render.sharedMaterials;
 #endif
         }
     }

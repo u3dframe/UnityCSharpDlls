@@ -11,27 +11,37 @@ using Core.Kernel;
 [System.Serializable]
 public class RendererMatData
 {
+    private int m_rerID = -1;
     Renderer m_currRer = null;
     bool m_isNewMat = false;
     bool m_isEditor = false;
     public List<Material> m_allMats { get; private set; }
     public List<Material> m_mats { get; private set; }
 
-    public RendererMatData(){
+    private RendererMatData()
+    {
         m_allMats = new List<Material>();
         m_mats = new List<Material>();
     }
 
-    public RendererMatData(Renderer rer, bool isNewMat):this()
+    private RendererMatData(Renderer rer, bool isNewMat) : this()
     {
         Init(rer, isNewMat);
     }
 
-    public RendererMatData Init(Renderer rer,bool isNewMat){
+    public RendererMatData Init(Renderer rer, bool isNewMat)
+    {
+        bool isHasMat = IsMatInRenderer(rer);
+        if (!isHasMat)
+            return this;
+
+        CacheAll.Remove(this.m_rerID);
+
         this.m_isEditor = UGameFile.m_isEditor;
         this.ClearMat();
         this.m_currRer = rer;
         this.m_isNewMat = isNewMat;
+        this.m_rerID = this.m_currRer.GetInstanceID();
 
         Material _mat_ = StaticEx.GetMat(rer);
         if (isNewMat && !m_isEditor)
@@ -41,31 +51,41 @@ public class RendererMatData
                 rer.material = _mat_;
         }
 
-        if(_mat_ != null)
+        if (_mat_ != null)
             this.m_allMats.Add(_mat_);
 
         Material[] _mats_ = StaticEx.GetMats(rer);
-        if (_mats_ != null && _mats_.Length > 0) {
+        if (_mats_ != null && _mats_.Length > 0)
+        {
             int _len = _mats_.Length;
-            for (int j = 0; j < _len; j++) {
+            for (int j = 0; j < _len; j++)
+            {
                 _mat_ = _mats_[j];
-                if(isNewMat && !m_isEditor){
+                if (isNewMat && !m_isEditor)
+                {
                     _mat_ = UtilityHelper.NewMat(_mat_);
                     if (_mat_ != null)
                         this.m_mats.Add(_mat_);
                 }
-                if(_mat_ != null)
+                if (_mat_ != null)
                     this.m_allMats.Add(_mat_);
             }
 
-            if(isNewMat && this.m_mats.Count > 0){
+            if (isNewMat && this.m_mats.Count > 0)
+            {
                 rer.materials = this.m_mats.ToArray();
             }
         }
+
+        CacheAll.Add(this.m_rerID, this);
+
         return this;
     }
 
-    public void ClearAll() {
+    public void ClearAll()
+    {
+        CacheAll.Remove(this.m_rerID);
+        this.m_rerID = -1;
         this.m_currRer = null;
         this.ClearMat();
     }
@@ -74,7 +94,8 @@ public class RendererMatData
     {
         bool isNew = this.m_isNewMat || this.m_isEditor;
         List<Material> _list = null;
-        if(isNew){
+        if (isNew)
+        {
             _list = new List<Material>();
             _list.AddRange(this.m_allMats);
         }
@@ -83,16 +104,19 @@ public class RendererMatData
 
         if (_list == null || _list.Count <= 0)
             return;
-        
+
         int _len_ = _list.Count;
         for (int i = 0; i < _len_; i++)
         {
-            UGameFile.UnLoadOne(_list[i],true);
+            UGameFile.UnLoadOne(_list[i], true);
         }
     }
-    
-    public void ChangeMat(Material newMat,int nType)
+
+    public void ChangeMat(Material newMat, int nType)
     {
+        if (!this.m_isNewMat && nType != 1)
+            return;
+
         this.m_allMats.Remove(newMat);
         this.m_mats.Remove(newMat);
         switch (nType)
@@ -103,8 +127,11 @@ public class RendererMatData
                 break;
             default:
                 // 1 = replace, other = add
-                if(nType == 1)
+                if (nType == 1)
+                {
                     this.ClearMat();
+                    this.m_isNewMat = true;
+                }
 
                 this.m_allMats.Add(newMat);
                 this.m_mats.Add(newMat);
@@ -114,17 +141,23 @@ public class RendererMatData
         this.m_currRer.materials = this.m_mats.ToArray();
     }
 
-    static public bool IsMatInRenderer(Renderer rer){
-        if(rer == null)
+    static Dictionary<int, RendererMatData> CacheAll = new Dictionary<int, RendererMatData>();
+
+    static public bool IsMatInRenderer(Renderer rer)
+    {
+        if (rer == null)
             return false;
         bool isHas = (rer.sharedMaterial != null);
-        if(!isHas){
+        if (!isHas)
+        {
             Material[] _mats_ = rer.sharedMaterials;
-            if (_mats_ != null && _mats_.Length > 0) {
+            if (_mats_ != null && _mats_.Length > 0)
+            {
                 int _len = _mats_.Length;
                 for (int i = 0; i < _len; i++)
                 {
-                    if(_mats_[i] != null){
+                    if (_mats_[i] != null)
+                    {
                         isHas = true;
                         break;
                     }
@@ -134,15 +167,19 @@ public class RendererMatData
         return isHas;
     }
 
-    static public RendererMatData Builder(Renderer rer,bool isNewMat){
+    static public RendererMatData Builder(Renderer rer, bool isNewMat)
+    {
         bool isHasMat = IsMatInRenderer(rer);
-        if(!isHasMat)
+        if (!isHasMat)
             return null;
-        
-        return new RendererMatData(rer,isNewMat);
+        RendererMatData _it = null;
+        if (!CacheAll.TryGetValue(rer.GetInstanceID(), out _it))
+            _it = new RendererMatData(rer, isNewMat);
+        return _it;
     }
 
-    static public RendererMatData BuilderNew(Renderer rer){
-        return Builder(rer,true);
+    static public RendererMatData BuilderNew(Renderer rer)
+    {
+        return Builder(rer, true);
     }
 }

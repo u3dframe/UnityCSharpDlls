@@ -28,7 +28,6 @@
     <Compile Remove="Games\Components\CurveEx.cs" />
     <Compile Remove="Games\Components\Motions\StateMachines\ClipStateMachineAlpha.cs" />
     <Compile Remove="Games\Components\PrefabElement.cs" />
-    <Compile Remove="Games\Components\RendererSortOrder.cs" />
     <Compile Remove="Games\Components\SceneInfoEx.cs" />
     <Compile Remove="Games\FileUtils\GameFile.cs" />
     <Compile Remove="Games\FileUtils\Resources.cs" />
