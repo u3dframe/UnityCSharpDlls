@@ -26,6 +26,7 @@ namespace Core
 
     public delegate void DF_LoadedTimelineAsset(TimelineAsset pa);
     public delegate void DF_OnBool(bool isBl);
+    public delegate void DF_OnStr(string msg);
     public delegate void DF_OnUpdate(float dt,float unscaledDt);
     public delegate void DF_CurrMax(double curr,double max);
     public delegate void DF_OnState(int state,int preState);
