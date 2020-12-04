@@ -4,7 +4,7 @@ using System.Text;
 /// <summary>
 /// XXTEA 加密工具
 /// Ancher : Canyon / 龚阳辉
-/// Create : 2020-02-29 11:28
+/// Create : 2019-02-29 11:28
 /// </summary>
 namespace Core.Kernel.Cipher
 {

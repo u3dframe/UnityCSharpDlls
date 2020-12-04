@@ -2,12 +2,12 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-///<summary>
-///模块编号：Text文字渐变
-///作者：郭嘉
-///编写日期：2017-08-21
-///</summary>
-///SerializeField
+/// <summary>
+/// 类名 : Text文字渐变
+/// 作者 : Canyon / 龚阳辉
+/// 日期 : 2017-08-04 00:10
+/// 功能 : 
+/// </summary>
 [AddComponentMenu("UI/Effects/Gradual3")]
 public class UGUIGradual3 : UGUIGradual
 {

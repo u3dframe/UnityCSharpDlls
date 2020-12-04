@@ -3,7 +3,7 @@
 /// <summary>
 /// 类名 : 屏幕坐标射线对象
 /// 作者 : Canyon / 龚阳辉
-/// 日期 : 2020-07-13 21:29
+/// 日期 : 2019-07-13 21:29
 /// 功能 : m_cursor = 游标
 /// </summary>
 public class RayScreenPointInfo{

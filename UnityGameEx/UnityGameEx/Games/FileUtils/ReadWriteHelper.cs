@@ -4,7 +4,7 @@ namespace Core.Kernel
 {
     /// <summary>
     /// 类名 : 路径 枚举
-    /// 作者 : Canyon
+    /// 作者 : Canyon / 龚阳辉
     /// 日期 : 2017-03-07 09:29
     /// 功能 : 包路径，流文件夹路径，可读写路径
     /// </summary>
@@ -20,7 +20,7 @@ namespace Core.Kernel
 
     /// <summary>
     /// 类名 : 读写帮助脚本
-    /// 作者 : Canyon
+    /// 作者 : Canyon / 龚阳辉
     /// 日期 : 2017-03-07 09:29
     /// 功能 : 包路径，流文件夹路径，可读写路径
     /// </summary>

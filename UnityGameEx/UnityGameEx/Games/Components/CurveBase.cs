@@ -12,7 +12,7 @@ public enum CurveExEnum
 /// <summary>
 /// 类名 : 曲线 Curve 扩展脚本
 /// 作者 : Canyon / 龚阳辉
-/// 日期 : 2020-08-22 22:17
+/// 日期 : 2019-08-22 22:17
 /// 功能 : 
 /// </summary>
 public class CurveBase : MonoBehaviour

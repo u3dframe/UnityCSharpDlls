@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// 类名 : 主摄像机管理脚本
 /// 作者 : Canyon / 龚阳辉
-/// 日期 : 2020-07-12 20:29
+/// 日期 : 2018-07-12 20:29
 /// 功能 : 
 /// </summary>
 public class MainCameraManager : MonoBehaviour

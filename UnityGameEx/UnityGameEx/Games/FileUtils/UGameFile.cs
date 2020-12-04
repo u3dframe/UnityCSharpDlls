@@ -7,7 +7,7 @@ namespace Core.Kernel
     /// <summary>
     /// 类名 : 文件路径对象父类
     /// 作者 : Canyon / 龚阳辉
-    /// 日期 : 2020-11-15 14:29
+    /// 日期 : 2019-11-15 14:29
     /// 功能 : 
     /// </summary>
     public class UGameFile : UGameRes

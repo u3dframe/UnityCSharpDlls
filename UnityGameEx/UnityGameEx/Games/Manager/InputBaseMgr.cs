@@ -10,7 +10,7 @@ public delegate void DF_InpRayHit(Transform hitTrsf);
 /// <summary>
 /// 类名 : Input 管理脚本
 /// 作者 : Canyon / 龚阳辉
-/// 日期 : 2020-07-13 21:29
+/// 日期 : 2018-07-13 21:29
 /// 功能 : 
 /// </summary>
 public class InputBaseMgr : GobjLifeListener {

@@ -6,7 +6,7 @@ using Core.Kernel;
 /// <summary>
 /// 类名 : 静态类工具
 /// 作者 : Canyon / 龚阳辉
-/// 日期 : 2020-08-16 17:03
+/// 日期 : 2020-06-16 17:03
 /// 功能 : Extension method must be defined in a non-generic static class
 /// </summary>
 public static class StaticEx {

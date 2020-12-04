@@ -6,7 +6,7 @@ using Core;
 /// <summary>
 /// 类名 : Update 管理
 /// 作者 : Canyon
-/// 日期 : 2020-06-27 20:37
+/// 日期 : 2019-06-27 20:37
 /// 功能 : 所有需要Update函数，统一从这里调用
 /// </summary>
 public class GameMgr : GobjLifeListener {

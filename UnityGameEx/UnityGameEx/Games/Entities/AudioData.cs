@@ -5,7 +5,7 @@ using Core.Kernel;
 /// <summary>
 /// 类名 : AudioSource 数据
 /// 作者 : Canyon / 龚阳辉
-/// 日期 : 2020-11-17 09:53
+/// 日期 : 2019-11-17 09:53
 /// 功能 : 
 /// </summary>
 [System.Serializable]

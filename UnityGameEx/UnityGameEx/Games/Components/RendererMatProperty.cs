@@ -3,7 +3,7 @@
 /// <summary>
 /// 类名 : Render 渲染 材质 Mat的属性
 /// 作者 : Canyon / 龚阳辉
-/// 日期 : 2020-09-20 09:53
+/// 日期 : 2019-09-20 09:53
 /// 功能 : 
 /// </summary>
 public class RendererMatProperty : GobjLifeListener

@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// 类名 : Render 渲染 排序控制
 /// 作者 : Canyon / 龚阳辉
-/// 日期 : 2020-09-10 19:33
+/// 日期 : 2019-09-10 19:33
 /// 功能 : 
 /// </summary>
 public class RendererSortOrder : GobjLifeListener
