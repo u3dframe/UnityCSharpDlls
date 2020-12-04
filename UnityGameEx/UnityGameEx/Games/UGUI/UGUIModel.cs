@@ -19,8 +19,8 @@ public class UGUIModel : PrefabBasic {
     public SmoothFollower m_sfwer { get; private set; }
     public Transform m_wrap { get; private set; }
     public GameObject m_node { get; private set; }
-    public bool m_isAutoModelScale = true; // 是否对象自动缩放
-    public float m_node1Scale { get; private set; }
+    public bool m_isAutoScale = true; // 是否对象自动缩放
+    public float m_childScaleTo1 { get; private set; }
     public Camera m_camera { get; private set; }
     [SerializeField] RenderTexture _rtTarget;
     public RenderTexture m_rtTarget { get { return _rtTarget; } }
@@ -58,10 +58,10 @@ public class UGUIModel : PrefabBasic {
         base.OnCall4Start();
         this.m_node = GetGobjElement("ModelNode");
         this.m_wrap = GetTrsfElement("ModelWrap");
-        if(this.m_node)
-            this.m_node1Scale = 1 / this.m_node.transform.lossyScale.x;
-        if (this.m_node1Scale <= 0)
-            this.m_node1Scale = 1;
+        float _nodeScale = 1;
+        if (this.m_node)
+            _nodeScale = this.m_node.transform.lossyScale.x;
+        this.m_childScaleTo1 = 1 / _nodeScale;
         this._imgRaw = this.m_trsf.GetComponentInChildren<RawImage>(true);
         this.m_camera = this.m_trsf.GetComponentInChildren<Camera>(true);
 
@@ -196,7 +196,7 @@ public class UGUIModel : PrefabBasic {
         UtilityHelper.SetLayerAll(this.m_node, this.m_layerModel);
     }
 
-    public void ReSfwer(float distance,float height = 1.5f,float lookAtHeight = 0.7f)
+    public void ReSfwer(float distance,float height = 1.78f,float lookAtHeight = 0.86f)
     {
         if (distance == 0)
             return;
@@ -212,15 +212,33 @@ public class UGUIModel : PrefabBasic {
         this.m_sfwer.lookAtHeight = lookAtHeight;
 
         float _abs = Mathf.Abs(distance);
-        float scale = _abs * 0.8f;
-        if (this.m_camera)
-            this.m_camera.farClipPlane =  Mathf.Ceil(_abs + scale * 0.5f + 1.5f);
-
-        if (this.m_isAutoModelScale && this.m_wrap != null)
+        float scale = 1;
+        if (this.m_wrap != null)
         {
-            scale *= this.m_node1Scale;
-            this.m_wrap.localScale = new Vector3(scale, scale, scale);
+           scale = this.m_wrap.lossyScale.x;
+            if (this.m_isAutoScale)
+            {
+                float angle = this.m_camera.fieldOfView * 0.5f;
+                float radian = Mathf.Deg2Rad * angle;
+                scale = Mathf.Tan(radian) * distance;
+            }
         }
+
+        if (this.m_camera)
+            this.m_camera.farClipPlane =  Mathf.Ceil(_abs + scale * 0.5f + 0.5f);
+
+        if (this.m_isAutoScale)
+        {
+            scale = Mathf.Floor(scale * this.m_childScaleTo1 * 0.78f);
+            this.ReModelLocalScale(scale);
+        }
+    }
+
+    public void ReModelLocalScale(float locScale)
+    {
+        if (!this.m_wrap || locScale <= 0)
+            return;
+        this.m_wrap.localScale = new Vector3(locScale, locScale, locScale);
     }
 
     public void ReRawWH(float w,float h)
