@@ -21,6 +21,7 @@ public class UGUIModel : PrefabBasic {
     public GameObject m_node { get; private set; }
     public bool m_isAutoScale = true; // 是否对象自动缩放
     public float m_childScaleTo1 { get; private set; }
+    public float m_wrapLocalScale { get; private set; }
     public Camera m_camera { get; private set; }
     [SerializeField] RenderTexture _rtTarget;
     public RenderTexture m_rtTarget { get { return _rtTarget; } }
@@ -37,7 +38,7 @@ public class UGUIModel : PrefabBasic {
     [SerializeField] Material _rawMat = null;
     public Material m_rawMat { get { return _rawMat; } } // EnableKeyword
     public string m_layerModel = "ModelUI";
-    float sfwerD = 3.9f, sfwerH = 1.5f, sfwerL = 0.7f;
+    float sfwerD = 3.9f, sfwerH = 1.78f, sfwerL = 0.86f;
 
     protected override void OnCall4Awake()
     {
@@ -75,6 +76,7 @@ public class UGUIModel : PrefabBasic {
         }
         this._ReRtex(this.m_rtWidth, this.m_rtHeight);
         this.ReRawImg(_imgRaw);
+        this.SetModelLocalScale(this.m_wrapLocalScale);
     }
 
     protected override void OnCall4Destroy()
@@ -230,17 +232,10 @@ public class UGUIModel : PrefabBasic {
         if (this.m_isAutoScale)
         {
             scale = Mathf.Floor(scale * this.m_childScaleTo1 * 0.78f);
-            this.ReModelLocalScale(scale);
+            this.SetModelLocalScale(scale);
         }
     }
-
-    public void ReModelLocalScale(float locScale)
-    {
-        if (!this.m_wrap || locScale <= 0)
-            return;
-        this.m_wrap.localScale = new Vector3(locScale, locScale, locScale);
-    }
-
+    
     public void ReRawWH(float w,float h)
     {
         w = (w <= 0) ? this.m_rtWidth : w;
@@ -256,5 +251,20 @@ public class UGUIModel : PrefabBasic {
         _size.x = w;
         _size.y = h;
         _rtrsf.sizeDelta = _size;
+    }
+
+    void SetModelLocalScale(float locScale)
+    {
+        if (!this.m_wrap || locScale <= 0)
+            return;
+        this.m_wrapLocalScale = locScale;
+        this.m_wrap.localScale = new Vector3(locScale, locScale, locScale);
+    }
+
+    public void ReModelLocalScale(float locScale)
+    {
+        this.m_isAutoScale = false;
+        this.m_wrapLocalScale = locScale;
+        this.SetModelLocalScale(locScale);
     }
 }
