@@ -26,17 +26,13 @@
 
   <ItemGroup>
     <Compile Remove="Games\Components\CurveEx.cs" />
-    <Compile Remove="Games\Components\Motions\StateMachines\ClipStateMachineAlpha.cs" />
     <Compile Remove="Games\Components\PrefabElement.cs" />
     <Compile Remove="Games\Components\SceneInfoEx.cs" />
-    <Compile Remove="Games\FileUtils\GameFile.cs" />
-    <Compile Remove="Games\FileUtils\Resources.cs" />
     <Compile Remove="Games\Launcher.cs" />
     <Compile Remove="Games\Manager\CsWithLua.cs" />
     <Compile Remove="Games\Manager\InputMgr.cs" />
     <Compile Remove="Games\Manager\ResourceManager.cs" />
     <Compile Remove="Games\Toolkits\AppConst.cs" />
-    <Compile Remove="Games\Toolkits\SharpZipLib\Zipper.cs" />
     <Compile Remove="Games\UGUI\FlexibleGridLayoutGroup.cs" />
     <Compile Remove="Games\UGUI\UGUIAutoRotat.cs" />
     <Compile Remove="Games\UGUI\UGUILocalize.cs" />
@@ -47,6 +43,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="CToolEx">
+      <HintPath>..\..\UnityDlls\UGEx\CToolEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\..\UnityDlls\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>false</Private>

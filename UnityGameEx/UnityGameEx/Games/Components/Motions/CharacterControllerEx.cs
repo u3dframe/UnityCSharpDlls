@@ -146,42 +146,7 @@ public class CharacterControllerEx : AnimatorEx
         }
         return this;
     }
-
-	private Vector3 ToV3(float x,float y,float z){
-		return new Vector3(x,y,z);
-	}
-
-	public void LookAtV3(Vector3 v3Target){
-		this.m_trsf.LookAt(v3Target);
-	}
-
-	public void LookAtTrsf(Transform trsf){
-		this.m_trsf.LookAt(trsf);
-	}
-
-	public void LookAt(float x,float y,float z){
-		Vector3 _v3 = ToV3(x,y,z);
-		this.m_trsf.LookAt(_v3);
-	}
-
-	public void LookAtDirction(float x,float y,float z){
-		Vector3 _pos = this.m_trsf.position;
-		Vector3 _v3 = ToV3(x,y,z);
-		LookAtV3(_pos + _v3);
-	}
-	
-	public void SetPos(float x,float y,float z){
-		Vector3 _v3 = ToV3(x,y,z);
-		this.m_trsf.position = _v3;
-	}
-
-	public void SetPosByAdd(float x,float y,float z){
-		// Vector3 v3 = this.m_trsf.position;
-		// Vector3 _v3 = ToV3(x,y,z);
-		// this.m_trsf.position = _v3 + v3;
-		this.m_trsf.Translate(x,y,z,Space.World);
-	}
-
+    
 	protected void CMove(Vector3 v3Add){
 		if(this.m_c_ctrler == null) return;
 		this.m_c_ctrler.Move(v3Add);
@@ -189,7 +154,7 @@ public class CharacterControllerEx : AnimatorEx
 
 	public void CMove(float x,float y,float z){
 		if(this.m_c_ctrler == null) return;
-		Vector3 _v3 = ToV3(x,y,z);
+		Vector3 _v3 = ToVec3(x,y,z);
 		// Debug.LogErrorFormat("======= CMove [{0}] = x =[{1}] , y =[{2}] , z =[{3}] , xx =[{4}] , yy =[{5}] , z =[{6}]",this.name,x,y,z,_v3.x,_v3.y,_v3.z);
 		this.CMove(_v3);
 	}
@@ -201,7 +166,7 @@ public class CharacterControllerEx : AnimatorEx
 
 	public void CSimpleMove(float x,float y,float z){
 		if(this.m_c_ctrler == null) return;
-		Vector3 _v3 = ToV3(x,y,z);
+		Vector3 _v3 = ToVec3(x,y,z);
 		this.CSimpleMove(_v3);
 	}
 
@@ -224,7 +189,7 @@ public class CharacterControllerEx : AnimatorEx
 	}
 	
 	public void SetCurrPos(float x,float y,float z){
-		Vector3 _v3 = ToV3(x,y,z);
+		Vector3 _v3 = ToVec3(x,y,z);
 		if(this.m_isUsePhysics){
 			Vector3 _pos = this.m_trsf.position;
 			this.CMove(_v3 - _pos);
