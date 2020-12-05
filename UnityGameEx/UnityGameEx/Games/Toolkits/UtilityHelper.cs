@@ -9,128 +9,42 @@ using UnityEngine.Playables;
 /// 功能 : 
 /// </summary>
 public class UtilityHelper : GHelper {
-	/// <summary>
-	/// 网络可用
-	/// </summary>
-	static public bool NetAvailable {
-		get {
-			return Application.internetReachability != NetworkReachability.NotReachable;
-		}
-	}
-
-	/// <summary>
-	/// 是否是无线
-	/// </summary>
-	static public bool IsWifi {
-		get {
-			return Application.internetReachability == NetworkReachability.ReachableViaLocalAreaNetwork;
-		}
-	}
-	
-	static public void Log(string str) {
-		Debug.Log(str);
-	}
-
-	static public void LogWarning(string str) {
-		Debug.LogWarning(str);
-	}
-
-	static public void LogError(string str) {
-		Debug.LogError(str);
-	}
-
-	static public int NMaxMore(params int[] vals){
-		if(vals == null || vals.Length <= 0) return 0;
-		int max = vals[0];
-		for (int i = 1; i < vals.Length; i++)
-		{
-			if(max < vals[i]){
-				max = vals[i];
-			}
-		}
-		return max;
-	}
-	static public int NMax(int v1,int v2,int v3){
-		return NMaxMore(v1,v2,v3);
-	}
-
-	static public int NMax(int v1,int v2,int v3,int v4){
-		return NMaxMore(v1,v2,v3,v4);
-	}
-
-	static public double ToDecimal(double org,int acc,bool isRound)
+    static public Vector2 ScreenPointToLocalPointInRectangleBy(GameObject parent, Camera uiCamera, Vector2 screenPoint)
     {
-        double pow = 1;
-        for (int i = 0; i < acc; i++) {
-            pow *= 10;
-        }
-
-		double temp = org * pow;
-		if(isRound){
-			temp += 0.5;
-		}
-
-        return ((int)temp) / pow;
+        Vector2 _v2 = Vector2.zero;
+        if (IsNull(parent)) return _v2;
+        RectTransform _rect = ToRectTransform(parent);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(_rect, screenPoint, uiCamera, out _v2);
+        return _v2;
     }
 
-	static public float Round(double org, int acc) {
-        return (float) ToDecimal(org,acc,true);
-    }
-
-	static public float Round(float org, int acc) {
-        return (float) ToDecimal(org,acc,true);
-    }
-
-    static public int Str2Int(string str)
+    static public void ScreenPointToLocalPointInRectangle(GameObject parent, Camera uiCamera, ref float pX, ref float pY)
     {
-        int ret = 0;
-        int.TryParse(str, out ret);
-        return ret;
+        Vector2 _screenPoint = new Vector2(pX, pY);
+        Vector2 _v2 = ScreenPointToLocalPointInRectangleBy(parent, uiCamera, _screenPoint);
+        pX = _v2.x;
+        pY = _v2.y;
     }
 
-    static public long Str2Long(string str)
+    static public Vector3 ScreenPointToWorldPointInRectangleBy(GameObject parent, Camera uiCamera, Vector2 screenPoint)
     {
-        long ret = 0;
-        long.TryParse(str, out ret);
-        return ret;
+        Vector3 _v3 = Vector3.zero;
+        if (IsNull(parent)) return _v3;
+        RectTransform _rect = ToRectTransform(parent);
+        RectTransformUtility.ScreenPointToWorldPointInRectangle(_rect, screenPoint, uiCamera, out _v3);
+        return _v3;
     }
 
-    static public float Str2Float(string str)
+    static public void ScreenPointToWorldPointInRectangle(GameObject parent, Camera uiCamera, ref float pX, ref float pY, ref float pZ)
     {
-        float ret = 0;
-        float.TryParse(str, out ret);
-        return ret;
+        Vector2 _screenPoint = new Vector2(pX, pX);
+        Vector3 _v3 = ScreenPointToWorldPointInRectangleBy(parent, uiCamera, _screenPoint);
+        pX = _v3.x;
+        pY = _v3.y;
+        pZ = _v3.z;
     }
 
-    static public Material NewMat(Material org)
-    {
-        if (IsNull(org))
-            return null;
-        return new Material(org);
-    }
-
-    static public Material NewMat(Shader org)
-    {
-        if (IsNull(org))
-            return null;
-        return new Material(org);
-    }
-
-    static public void SetMaxFrame(int maxFrame){
-		Application.targetFrameRate = maxFrame;
-	}
-
-	static public bool IsGLife(object obj) {
-		if(IsNull(obj))	return false;
-		return obj is GobjLifeListener;
-	}
-
-	static public bool IsElement(object obj) {
-		if(IsNull(obj))	return false;
-		return obj is PrefabBasic;
-	}
-
-	static public Camera GetOrAddCamera(GameObject gobj){
+    static public Camera GetOrAddCamera(GameObject gobj){
 		return Get<Camera>(gobj,true);
 	}
 
