@@ -13,7 +13,7 @@ public delegate void DF_ElementForeach(int index,GameObject gobj);
 [System.Serializable]
 public class PrefabBasic : GobjLifeListener {
 	static public new PrefabBasic Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<PrefabBasic>(gobj,true);
+		return GHelper.Get<PrefabBasic>(gobj,true);
 	}
 
 	static public new PrefabBasic Get(GameObject gobj){
@@ -80,7 +80,7 @@ public class PrefabBasic : GobjLifeListener {
 			return;
 		}
 		
-		UtilityHelper.RecursionName(trsf,ref refName);
+		GHelper.RecursionName(trsf,ref refName);
 	}
 	
 	/// <summary>
@@ -197,7 +197,7 @@ public class PrefabBasic : GobjLifeListener {
     [ContextMenu("Re Bind Nodes (重新绑定所需节点)")]
     virtual protected void ReBindNodes()
     {
-        UtilityHelper.Is_App_Quit = false;
+        GHelper.Is_App_Quit = false;
         List<GameObject> list = new List<GameObject>();
         GameObject _gobj = null;
         int lens = m_gobjs.Length;
@@ -226,7 +226,7 @@ public class PrefabBasic : GobjLifeListener {
             lens = _arrs_nodes.Length;
             for (int i = 0; i < lens; i++)
             {
-                _gobj = UtilityHelper.ChildRecursion(this.m_gobj, _arrs_nodes[i]);
+                _gobj = GHelper.ChildRecursion(this.m_gobj, _arrs_nodes[i]);
                 if (null == _gobj) continue;
                 if (!list.Contains(_gobj))
                 {
@@ -242,7 +242,7 @@ public class PrefabBasic : GobjLifeListener {
     [ContextMenu("Re-Rmv Empty")]
     void ReSizeList()
     {
-        UtilityHelper.Is_App_Quit = false;
+        GHelper.Is_App_Quit = false;
         List<GameObject> list = new List<GameObject>();
         GameObject _gobj = null;
         for (int i = 0; i < m_gobjs.Length; ++i)
@@ -261,7 +261,7 @@ public class PrefabBasic : GobjLifeListener {
     [ContextMenu("Re-Rmv Empty(This and Childs)")]
     void ReSizeListAll()
     {
-        UtilityHelper.Is_App_Quit = false;
+        GHelper.Is_App_Quit = false;
         PrefabBasic[] arrs = this.m_gobj.GetComponentsInChildren<PrefabBasic>(true);
         foreach (var item in arrs)
         {
@@ -272,7 +272,7 @@ public class PrefabBasic : GobjLifeListener {
     [ContextMenu("Re-Bind Transform's First Childs")]
     void ReBindAllFirstChilds()
     {
-        UtilityHelper.Is_App_Quit = false;
+        GHelper.Is_App_Quit = false;
         int lens = this.m_trsf.childCount;
         m_gobjs = new GameObject[lens];
         for (int i = 0; i < lens; i++)

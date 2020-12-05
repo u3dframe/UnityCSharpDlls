@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using Core.Kernel;
 
 /// <summary>
 /// 类名 : UGUIGray 置灰
@@ -12,7 +13,7 @@ using UnityEngine.UI;
 public class UGUIGray : GobjLifeListener {
 	// 取得对象
 	static public new UGUIGray Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<UGUIGray>(gobj,isAdd);
+		return GHelper.Get<UGUIGray>(gobj,isAdd);
 	}
 
 	static public new UGUIGray Get(GameObject gobj){
@@ -24,7 +25,7 @@ public class UGUIGray : GobjLifeListener {
 		get{
 			if (_matGray == null)
             {
-				Shader shader = Core.ABShader.FindShader("Custom/ui_default_multifunctional");
+				Shader shader = UGameFile.curInstance.FindShader("Custom/ui_default_multifunctional");
 				if(shader != null){
 					_matGray = new Material(shader);
 					_matGray.SetInt("_IsGray",1);

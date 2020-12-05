@@ -170,5 +170,31 @@ namespace Core.Kernel
 		static public string ReplaceSeparator(string path){
 			return path.Replace ('\\', '/');
 		}
-	}
+
+        static public string LeftLast(string src, string last, bool include)
+        {
+            if (string.IsNullOrEmpty(src) || string.IsNullOrEmpty(last))
+                return src;
+            int index = src.LastIndexOf(last);
+            if (index >= 0)
+            {
+                src = src.Substring(0, index);
+                return include ? src + last : src;
+            }
+            return src;
+        }
+
+        static public string RightLast(string src, string last, bool include)
+        {
+            if (string.IsNullOrEmpty(src) || string.IsNullOrEmpty(last))
+                return src;
+            int index = src.LastIndexOf(last);
+            if (index >= 0)
+            {
+                index = include ? index : index + last.Length;
+                return src.Substring(index);
+            }
+            return src;
+        }
+    }
 }

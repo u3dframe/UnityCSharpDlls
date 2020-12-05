@@ -19,7 +19,7 @@ namespace Core.Kernel
 			get{
 				if (_instance == null) {
 					GameObject _gobj = GameMgr.mgrGobj;
-					_instance = UtilityHelper.Get<WWWMgr>(_gobj,true);
+					_instance = GHelper.Get<WWWMgr>(_gobj,true);
 				}
 				return _instance;
 			}

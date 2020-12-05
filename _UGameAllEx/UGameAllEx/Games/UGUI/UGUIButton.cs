@@ -14,7 +14,7 @@ public class UGUIButton : GobjLifeListener {
 	// 取得对象
 	static public new UGUIButton Get(GameObject gobj,bool isAdd){
 		
-		return UtilityHelper.Get<UGUIButton>(gobj,isAdd);
+		return GHelper.Get<UGUIButton>(gobj,isAdd);
 	}
 
 	static public new UGUIButton Get(GameObject gobj){

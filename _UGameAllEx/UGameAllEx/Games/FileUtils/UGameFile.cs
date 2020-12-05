@@ -63,33 +63,6 @@ namespace Core.Kernel
             return val;
         }
 
-        // 
-        static public string LeftLast(string src,string last,bool include)
-        {
-            if (string.IsNullOrEmpty(src) || string.IsNullOrEmpty(last))
-                return src;
-            int index = src.LastIndexOf(last);
-            if(index >= 0)
-            {
-                src = src.Substring(0, index);
-                return include ? src + last : src;
-            }
-            return src;
-        }
-
-        static public string RightLast(string src, string last, bool include)
-        {
-            if (string.IsNullOrEmpty(src) || string.IsNullOrEmpty(last))
-                return src;
-            int index = src.LastIndexOf(last);
-            if (index >= 0)
-            {
-                index = include ? index : index + last.Length;
-                return src.Substring(index);
-            }
-            return src;
-        }
-
         static public void DeleteFile(string fn, bool isFilePath)
         {
             string _fp = isFilePath ? fn : curInstance.GetFilePath(fn);
@@ -231,6 +204,11 @@ namespace Core.Kernel
 #else
             return render.sharedMaterials;
 #endif
+        }
+
+        virtual public Shader FindShader(string shaderName)
+        {
+            return Shader.Find(shaderName);
         }
     }
 }

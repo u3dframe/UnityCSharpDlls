@@ -15,7 +15,7 @@ public delegate void DF_ASM_SubLife(Animator animator, int stateMachinePathHash,
 public class AnimatorEx : PrefabBasic
 {
 	static public new AnimatorEx Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<AnimatorEx>(gobj,isAdd);
+		return GHelper.Get<AnimatorEx>(gobj,isAdd);
 	}
 
 	static public new AnimatorEx Get(GameObject gobj){

@@ -15,7 +15,7 @@ public delegate void DF_UGUIV2Bool(GameObject gameObject,bool isBl,Vector2 pos);
 /// </summary>
 public class UGUIEventListener : EventTrigger {
 	static public UGUIEventListener Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<UGUIEventListener>(gobj,isAdd);
+		return GHelper.Get<UGUIEventListener>(gobj,isAdd);
 	}
 
 	static public UGUIEventListener Get(GameObject gobj){

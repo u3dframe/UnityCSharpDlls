@@ -16,7 +16,6 @@ public static class GameLanguage
 	static public DF_LmtLanguage m_cfLmtLanguage = null; // 初始化限定语言
 	static public SystemLanguage m_curLanguage = SystemLanguage.Chinese;
 	
-	
 	static public string keyLanguage
 	{
 		get

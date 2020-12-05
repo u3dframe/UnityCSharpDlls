@@ -11,7 +11,7 @@ using System.Collections.Generic;
 /// </summary>
 public class ParticleSystemEx : GobjLifeListener {
 	static public new ParticleSystemEx Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<ParticleSystemEx>(gobj,isAdd);
+		return GHelper.Get<ParticleSystemEx>(gobj,isAdd);
 	}
 
 	static public new ParticleSystemEx Get(GameObject gobj){

@@ -11,16 +11,16 @@ using System;
 public class GobjLifeListener : MonoBehaviour,IUpdate {
 	static public bool IsNull(UnityEngine.Object uobj)
 	{
-		return UtilityHelper.IsNull(uobj);
+		return GHelper.IsNull(uobj);
 	}
 
 	static protected GameObject GetGobj(string name)
 	{
-		return UtilityHelper.GetGobjNotDestroy(name);
+		return GHelper.GetGobjNotDestroy(name);
 	}
 
 	static public GobjLifeListener Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<GobjLifeListener>(gobj,isAdd);
+		return GHelper.Get<GobjLifeListener>(gobj,isAdd);
 	}
 
 	static public GobjLifeListener Get(GameObject gobj){
@@ -70,7 +70,7 @@ public class GobjLifeListener : MonoBehaviour,IUpdate {
 	private bool _isAlive = false;
 	public bool isAlive { get {return _isAlive;} }
 	bool _isAppQuit = false;
-	public bool isAppQuit { get{ return this._isAppQuit || UtilityHelper.Is_App_Quit; } }
+	public bool isAppQuit { get{ return this._isAppQuit || GHelper.Is_App_Quit; } }
 
 
 	/// <summary>
@@ -163,4 +163,46 @@ public class GobjLifeListener : MonoBehaviour,IUpdate {
 		this.m_onDestroy -= call;
 		this.m_onDestroy += call;
 	}
+
+    public void LookAtV3(Vector3 v3Target)
+    {
+        this.m_trsf.LookAt(v3Target);
+    }
+
+    public void LookAtTrsf(Transform trsf)
+    {
+        this.m_trsf.LookAt(trsf);
+    }
+
+    protected Vector3 ToVec3(float x, float y, float z)
+    {
+        return new Vector3(x, y, z);
+    }
+
+    public void LookAt(float x, float y, float z)
+    {
+        Vector3 _v3 = ToVec3(x, y, z);
+        this.m_trsf.LookAt(_v3);
+    }
+
+    public void LookAtDirction(float x, float y, float z)
+    {
+        Vector3 _pos = this.m_trsf.position;
+        Vector3 _v3 = ToVec3(x, y, z);
+        LookAtV3(_pos + _v3);
+    }
+
+    public void SetPos(float x, float y, float z)
+    {
+        Vector3 _v3 = ToVec3(x, y, z);
+        this.m_trsf.position = _v3;
+    }
+
+    public void SetPosByAdd(float x, float y, float z)
+    {
+        // Vector3 v3 = this.m_trsf.position;
+        // Vector3 _v3 = ToV3(x,y,z);
+        // this.m_trsf.position = _v3 + v3;
+        this.m_trsf.Translate(x, y, z, Space.World);
+    }
 }

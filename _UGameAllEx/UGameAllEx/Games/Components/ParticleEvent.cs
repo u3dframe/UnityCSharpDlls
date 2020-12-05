@@ -8,7 +8,7 @@
 /// </summary>
 public class ParticleEvent : GobjLifeListener {
 	static public new ParticleEvent Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<ParticleEvent>(gobj,isAdd);
+		return GHelper.Get<ParticleEvent>(gobj,isAdd);
 	}
 
 	static public new ParticleEvent Get(GameObject gobj){

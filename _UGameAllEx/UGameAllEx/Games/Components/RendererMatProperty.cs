@@ -9,7 +9,7 @@
 public class RendererMatProperty : GobjLifeListener
 {
     static public new RendererMatProperty Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<RendererMatProperty>(gobj,isAdd);
+		return GHelper.Get<RendererMatProperty>(gobj,isAdd);
 	}
 
 	static public new RendererMatProperty Get(GameObject gobj){
