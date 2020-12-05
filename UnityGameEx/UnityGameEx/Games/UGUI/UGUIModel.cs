@@ -83,10 +83,6 @@ public class UGUIModel : PrefabBasic {
     {
         base.OnCall4Destroy();
         this._DestroyRt();
-        Material _mat = this._rawMat;
-        this._rawMat = null;
-        if (_mat)
-            GameObject.DestroyImmediate(_mat);
     }
 
     void _ReRtex(int w, int h)
