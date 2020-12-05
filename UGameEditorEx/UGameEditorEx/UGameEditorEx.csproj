@@ -27,6 +27,10 @@
       <HintPath>..\..\UnityDlls\UGEx\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="CToolEx">
+      <HintPath>..\..\UnityDlls\UGEx\CToolEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>..\..\UnityDlls\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>false</Private>
