@@ -21,7 +21,7 @@ namespace Core
 		static public string m_bk_url = null;
 
 #if UNITY_EDITOR
-		static private readonly string m_url_editor = "http://192.168.1.30:8006/dykj";
+		static public readonly string m_url_editor = "http://192.168.1.30:8006/dykj";
 #endif
 		// 编辑模式
 		static public bool isEditor{
@@ -208,5 +208,10 @@ namespace Core
             return render.sharedMaterials;
 #endif
         }
+
+		override public Shader FindShader(string shaderName)
+		{
+			return ABShader.FindShader(shaderName);
+		}
     }
 }

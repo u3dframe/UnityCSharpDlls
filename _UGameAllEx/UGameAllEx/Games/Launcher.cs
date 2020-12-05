@@ -24,6 +24,7 @@ public class Launcher : MonoBehaviour
     {
         Debug.Log("=== Entry = ");
         InputMgr.instance.Init();
+        UGUIEventSystem.instance.Init(false);
         AssetBundleManager.instance.isDebug = true;
         LuaManager.instance.Init();
     }

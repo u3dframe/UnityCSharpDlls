@@ -74,11 +74,8 @@ public class GameMgr : GobjLifeListener {
         if (this.m_isInitAfterUpload)
             return;
         this.m_isInitAfterUpload = true;
-
-        UGUIEventSystem.instance.Init(false);
         GameLanguage.Init();
         Localization.language = GameLanguage.strCurLanguage;
-        AssetBundleManager.instance.Init();
     }
 
 	void Update() {
