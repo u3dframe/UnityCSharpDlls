@@ -727,7 +727,7 @@ namespace Core
                 foreach (var layer in layers)
                 {
                     ChildAnimatorState[] states = layer.stateMachine.states;
-                    _FC: foreach (var state in states)
+                    foreach (var state in states)
                     {
                         if (IsInParams(state.state.name, stateNames))
                         {
@@ -738,6 +738,7 @@ namespace Core
                             }
                             _isChg = true;
                             state.state.AddStateMachineBehaviour<T>();
+                            _FC: continue;
                         }
                     }
                 }
