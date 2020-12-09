@@ -5,7 +5,7 @@ using Core;
 /// <summary>
 /// 类名 : CharacterController 扩展脚本
 /// 作者 : Canyon / 龚阳辉
-/// 日期 : 2019-08-23 19:17
+/// 日期 : 2020-06-23 19:17
 /// 功能 : 
 /// </summary>
 // [ExecuteInEditMode]

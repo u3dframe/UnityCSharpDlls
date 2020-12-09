@@ -11,6 +11,7 @@ using LitJson;
 /// 作者 : Canyon / 龚阳辉
 /// 日期 : 2017-07-22 10:15
 /// 功能 : lua 错误日志记录是放到 LuaState 的 PCall 里面的
+/// 修订 : 2020-11-26 19:35
 /// </summary>
 public class LogToNetHelper:MonoBehaviour
 {

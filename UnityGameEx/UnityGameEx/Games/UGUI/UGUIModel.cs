@@ -4,7 +4,7 @@ using UnityEngine.UI;
 /// <summary>
 /// 类名 : UGUI界面展示模型
 /// 作者 : Canyon / 龚阳辉
-/// 日期 : 2017-08-04 00:10
+/// 日期 : 2020-07-15 09:10
 /// 功能 : 
 /// </summary>
 public class UGUIModel : PrefabBasic {
