@@ -11,8 +11,9 @@ namespace Core.Kernel
     /// <summary>
     /// 类名 : AB数据关系
     /// 作者 : Canyon / 龚阳辉
-    /// 日期 : 2020-03-26 09:29
+    /// 日期 : 2018-03-12 13:40
     /// 功能 : 
+    /// 修订 : 2020-03-26 09:29
     /// </summary>
     public class ABDataDependence
     {
@@ -142,9 +143,44 @@ namespace Core.Kernel
             {
                 if (_instance == null){
                     _instance = new MgrABDataDependence();
+                    _instance.InitIgnoreAndMust();
                     ReLoadDeps();
                 }
                 return _instance;
+            }
+        }
+
+        void InitIgnoreAndMust()
+        {
+            string fp = string.Format("{0}/Editor/Cfgs/ab_ignore_files.txt", Application.dataPath);
+            string val = null;
+            if (File.Exists(fp))
+                val = File.ReadAllText(fp);
+            List<string> _list_ = new List<string>(ignoreFiles);
+            if (!string.IsNullOrEmpty(val))
+            {
+                string[] _arrs = val.Split("\r\n\t".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries);
+                if(_arrs != null && _arrs.Length > 0)
+                {
+                    _list_.AddRange(_arrs);
+                    ignoreFiles = _list_.ToArray();
+                }
+            }
+
+            _list_.Clear();
+            fp = string.Format("{0}/Editor/Cfgs/ab_must_files.txt", Application.dataPath);
+            val = null;
+            if (File.Exists(fp))
+                val = File.ReadAllText(fp);
+            if (!string.IsNullOrEmpty(val))
+            {
+                _list_.AddRange(mustFiles);
+                string[] _arrs = val.Split("\r\n\t".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries);
+                if (_arrs != null && _arrs.Length > 0)
+                {
+                    _list_.AddRange(_arrs);
+                    mustFiles = _list_.ToArray();
+                }
             }
         }
 
