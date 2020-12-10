@@ -11,6 +11,9 @@ using UObject = UnityEngine.Object;
 /// 功能 : 
 /// </summary>
 public class GRTHelper : GHelper {
+
+    static public Rect RViewport = new Rect(0, 0, 1, 1);
+
     static public Rect ToScreenPointRect(RectTransform rt,Camera cmr)
     {
         Vector3[] corners = new Vector3[4];
@@ -56,5 +59,30 @@ public class GRTHelper : GHelper {
         Rect rect1 = ToScreenPointRect(p1, cmr);
         Rect rect2 = ToScreenPointRect(p2, cmr);
         return rect1.Overlaps(rect2);
+    }
+
+    static public bool IsInCamera(Camera cmr,Transform trsf,Vector4 v4Off)
+    {
+        if (null == trsf)
+            return false;
+        if (cmr == null || !cmr.gameObject.activeInHierarchy)
+            return false;
+        Rect _curV = new Rect(RViewport);
+        _curV.x += v4Off.x;
+        _curV.y += v4Off.y;
+        _curV.height += v4Off.z;
+        _curV.width += v4Off.w;
+        bool _isClipPlane = !_curV.Equals(RViewport);
+        Vector3 v3 = cmr.WorldToViewportPoint(trsf.position);
+        bool isIn = _curV.Contains(v3);
+        bool isIn2 = !_isClipPlane;
+        if (_isClipPlane && v3.z >= cmr.nearClipPlane && v3.z <= cmr.farClipPlane)
+            isIn2 = true;
+        return isIn && isIn2;
+    }
+
+    static public bool IsInCamera(Camera cmr, Transform trsf)
+    {
+        return IsInCamera(cmr, trsf, Vector4.zero);
     }
 }
