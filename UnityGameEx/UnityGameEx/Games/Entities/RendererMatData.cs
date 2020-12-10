@@ -61,9 +61,11 @@ public class RendererMatData
             for (int j = 0; j < _len; j++)
             {
                 _mat_ = _mats_[j];
-                if (isNewMat && !m_isEditor)
+                if (isNewMat)
                 {
-                    _mat_ = UtilityHelper.NewMat(_mat_);
+                    if (!m_isEditor)
+                        _mat_ = UtilityHelper.NewMat(_mat_);
+
                     if (_mat_ != null)
                         this.m_mats.Add(_mat_);
                 }
