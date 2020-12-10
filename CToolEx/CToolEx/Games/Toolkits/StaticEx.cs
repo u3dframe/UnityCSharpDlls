@@ -89,14 +89,14 @@ public static class StaticEx {
     }
     */
 
-    static public Material GetMat(Renderer render)
+    static public Material GetMat(Renderer render,bool isShared = false)
     {
-        return UGameFile.curInstance.GetMat(render);
+        return UGameFile.curInstance.GetMat(render,isShared);
     }
 
-    static public Material[] GetMats(Renderer render)
+    static public Material[] GetMats(Renderer render,bool isShared = false)
     {
-        return UGameFile.curInstance.GetMats(render);
+        return UGameFile.curInstance.GetMats(render,isShared);
     }
 
     static public void ReShader(this Renderer render)
