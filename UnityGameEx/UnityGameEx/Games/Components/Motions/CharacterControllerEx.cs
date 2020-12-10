@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 using Core;
 
 /// <summary>
@@ -34,8 +33,7 @@ public class CharacterControllerEx : AnimatorEx
 		}
 	}
 	private Vector3 m_v3Scale = Vector3.one;
-    public SkinnedMeshRenderer m_skinRer { get; private set; }
-    public RendererMatData m_skinData { get; private set; }
+    public RendererMatData[] m_skinDatas { get; private set; }
 
     override protected void Update (){
 		base.Update();
@@ -74,9 +72,8 @@ public class CharacterControllerEx : AnimatorEx
 
     override protected void OnCall4Destroy() {
         base.OnCall4Destroy();
-        if (this.m_skinData != null)
-            this.m_skinData.ClearAll();
-        this.m_skinData = null;
+        this.ChgSkinMat(null, 99);
+        this.m_skinDatas = null;
     }
 
     override protected void OnClear(){
@@ -139,12 +136,35 @@ public class CharacterControllerEx : AnimatorEx
 
     public CharacterControllerEx ReSkinRer()
     {
-        if (this.m_skinRer == null)
+        if (this.m_skinDatas == null)
         {
-            this.m_skinRer = this.m_gobj.GetComponentInChildren<SkinnedMeshRenderer>(true);
-            this.m_skinData = RendererMatData.BuilderNew(this.m_skinRer);
+            var arrs = this.m_gobj.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            if(arrs != null)
+            {
+                this.m_skinDatas = new RendererMatData[arrs.Length];
+                for (int i = 0; i < arrs.Length; i++)
+                {
+                    this.m_skinDatas[i] = RendererMatData.BuilderNew(arrs[i]);
+                }
+            }
         }
         return this;
+    }
+
+    public void ChgSkinMat(Material newMat,int nType)
+    {
+        if (this.m_skinDatas == null || this.m_skinDatas.Length <= 0)
+            return;
+
+        RendererMatData _itData;
+        for (int i = 0; i < this.m_skinDatas.Length; i++)
+        {
+            _itData = this.m_skinDatas[i];
+            if (nType == 99)
+                _itData.ClearAll();
+            else
+                _itData.ChangeMat(newMat, nType);
+        }
     }
     
 	protected void CMove(Vector3 v3Add){
