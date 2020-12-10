@@ -43,6 +43,8 @@ namespace Core.Kernel
         static public readonly string m_suffix_png = ".png";
         static public readonly string m_suffix_fab = ".prefab";
         static public readonly string m_suffix_light = ".exr";
+        static public readonly string m_suffix_mat = ".mat";
+        static public readonly string m_suffix_shader = ".shader";
 
         /// <summary>
         /// 路径转为以 Assets/ 开头的
