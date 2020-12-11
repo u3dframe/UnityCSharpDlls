@@ -20,6 +20,8 @@ namespace Core
     public delegate void DF_LoadedSprite(Sprite sprite);
     public delegate void DF_LoadedAnimator(Animator ator);
     public delegate void DF_LoadedAnimationClip(AnimationClip clip);
+    public delegate void DF_LoadedMaterial(Material mat);
+    public delegate void DF_LoadedShader(Shader mat);
 
     public delegate void DF_LoadedAudioClip(AudioClip clip);
     public delegate void DF_ToLoadAdo(string abName, string assetName, DF_LoadedAudioClip clip);

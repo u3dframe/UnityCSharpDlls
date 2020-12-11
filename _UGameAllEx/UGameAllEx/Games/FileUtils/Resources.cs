@@ -56,6 +56,8 @@ namespace Core.Kernel
             bool _isFab = false , _isLmap =  false;
             if(abName.Contains("/effects/") || abName.Contains("/ef_")){
                 _fp  += "Effects/Builds/";
+            }else if( abName.Contains("/special_effects/")){
+                _fp  += "Effects/Builds/";
             }else if(abName.Contains("/c_")){
                 _fp  += "Characters/Builds/";
             }else if(abName.Contains("timeline/")){
@@ -84,7 +86,9 @@ namespace Core.Kernel
                 if(string.IsNullOrEmpty(_suffix))
                     _suffix = m_suffix_png;
                 return Load4Develop<T>(_fp,_suffix);
-            }
+             }else if(abName.EndsWith(m_strMat)){
+                return Load4Develop<T>(_fp,".mat");
+             }
             return null;
         }
 #endif

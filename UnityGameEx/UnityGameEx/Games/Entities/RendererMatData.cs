@@ -7,6 +7,7 @@ using Core.Kernel;
 /// 作者 : Canyon / 龚阳辉
 /// 日期 : 2019-10-14 09:53
 /// 功能 : 
+/// 修订 : 2020-12-10 09:45
 /// </summary>
 [System.Serializable]
 public class RendererMatData
@@ -138,8 +139,8 @@ public class RendererMatData
                 this.m_allMats.Add(newMat);
                 this.m_mats.Add(newMat);
                 break;
-
         }
+        // Debug.LogFormat("==== [{0}] = [{1}]] = [{2}]", newMat, this.m_mats.Count, nType);
         this.m_currRer.materials = this.m_mats.ToArray();
     }
 

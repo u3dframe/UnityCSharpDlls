@@ -30,7 +30,7 @@ public class AnimatorEx : PrefabBasic
 	public string m_kActionState = "ation_state";
 	public int m_actionState = -1;
 	private int _pre_aState = -1;
-	[Range(0f,5f)] public float m_actionSpeed = 1;
+	[Range(0f,50f)] public float m_actionSpeed = 1;
 	private float _pre_aSpeed = -1;
 
 	private BasicStateMachine[] _s_behaviours = null;
@@ -46,17 +46,9 @@ public class AnimatorEx : PrefabBasic
 
     override protected void OnCall4Awake(){
 		this.csAlias = "ANI_Ex";
-		if(this.m_animator == null){
+		if(this.m_animator == null)
 			this.m_animator = this.m_gobj.GetComponentInChildren<Animator>(true);
-		}
-
-		if(this.m_animator != null){
-			this.m_aniGID = this.m_animator.gameObject.GetInstanceID();
-			this._s_behaviours = this.m_animator.GetBehaviours<BasicStateMachine>();
-		}else{
-			Debug.LogErrorFormat("=== this animator is null, gobj name = [{0}]",this.m_gobj.name);
-		}
-		_ReAniEvents(true,true);
+        this._ReAniEvents();
 	}
 
 	override protected void OnCall4Hide(){
@@ -102,6 +94,17 @@ public class AnimatorEx : PrefabBasic
 	private string _ReAniEvtKey(string key){
 		return this.m_isUseGID4MsgKey ? string.Format("[{0}]_[{1}]",key,this.m_aniGID) : key;
 	}
+
+    private void _ReAniEvents() {
+        if (this.m_animator == null)
+        {
+            Debug.LogErrorFormat("=== this animator is null, gobj name = [{0}]", this.m_gobj.name);
+            return;
+        }
+        this.m_aniGID = this.m_animator.gameObject.GetInstanceID();
+        this._s_behaviours = this.m_animator.GetBehaviours<BasicStateMachine>();
+        _ReAniEvents(true, true);
+    }
 
 	private void _ReAniEvents(bool isBinde,bool isMust = false){
 		if(this.m_animator == null) return;

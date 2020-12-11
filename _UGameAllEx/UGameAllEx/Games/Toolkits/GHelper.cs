@@ -5,7 +5,7 @@ using UObject = UnityEngine.Object;
 
 
 /// <summary>
-/// 类名 : Gamobje 公用帮助脚本
+/// 类名 : GameObject 公用帮助脚本
 /// 作者 : Canyon / 龚阳辉
 /// 日期 : 2020-06-26 09:33
 /// 功能 : 泛型是不能被Tolua导成函数的

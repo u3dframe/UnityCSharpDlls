@@ -310,6 +310,11 @@ public class GboxExport : MonoBehaviour
             case TriggerType.Monster: return "monster";
             case TriggerType.Transport: return "transport";
             case TriggerType.ChangeStop: return "change_stop";
+            case TriggerType.rAdd: return "radd";
+            case TriggerType.ChatStart: return "chat_start";
+            case TriggerType.ChatOver: return "chat_over";
+            case TriggerType.Del: return "del";
+            case TriggerType.BoxGet:return "box_get";
             default: return "";
         }
     }

@@ -186,24 +186,24 @@ namespace Core.Kernel
             return GetTextBytes4Decrypt(fn);
         }
 
-        virtual public Material GetMat(Renderer render)
+/*
+#if UNITY_EDITOR
+#else
+#endif
+*/
+
+        virtual public Material GetMat(Renderer render,bool isShared = false)
         {
             if (null == render) return null;
-#if UNITY_EDITOR
-            return render.material;
-#else
-            return render.sharedMaterial;
-#endif
+            isShared = isShared || !m_isEditor;
+            return isShared ? render.sharedMaterial : render.material;
         }
 
-        virtual public Material[] GetMats(Renderer render)
+        virtual public Material[] GetMats(Renderer render,bool isShared = false)
         {
             if (null == render) return null;
-#if UNITY_EDITOR
-            return render.materials;
-#else
-            return render.sharedMaterials;
-#endif
+            isShared = isShared || !m_isEditor;
+            return isShared ? render.sharedMaterials : render.materials;
         }
 
         virtual public Shader FindShader(string shaderName)

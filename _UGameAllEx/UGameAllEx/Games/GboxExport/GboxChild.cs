@@ -9,7 +9,12 @@ public enum TriggerType
     ChangeStop,
     Transport,
     Move,
-    Door
+    Door,
+    rAdd,
+    ChatStart,
+    ChatOver,
+    Del,
+    BoxGet
 }
 
 public class GboxChild : MonoBehaviour
