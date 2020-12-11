@@ -25,14 +25,13 @@ namespace Core.Kernel
         // zip 压缩文件列表(将文件分包体大小来压缩,减小解压时所需内存)
         static public string m_fpZipList = string.Concat(m_appContentPath, "ziplist.txt");
         static public string m_fmtZip = string.Concat(m_appContentPath, "resource{0}.zip");
-        static public EM_EnCode EncodeWordFile = EM_EnCode.XXTEA; // 编码文本文件
         
         // 加密
         static public string Encrypt(string val)
         {
             if (!string.IsNullOrEmpty(val))
             {
-                switch (EncodeWordFile)
+                switch (curInstance.m_encodeWordFile)
                 {
                     case EM_EnCode.XXTEA:
                         val = XXTEA.Encrypt(val);
@@ -50,7 +49,7 @@ namespace Core.Kernel
         {
             if (!string.IsNullOrEmpty(val))
             {
-                switch (EncodeWordFile)
+                switch (curInstance.m_encodeWordFile)
                 {
                     case EM_EnCode.XXTEA:
                         val = XXTEA.Decrypt(val);
@@ -156,6 +155,8 @@ namespace Core.Kernel
                 return curInstance.GetPath(m_curPlatform);
             }
         }
+
+        public EM_EnCode m_encodeWordFile = EM_EnCode.XXTEA; // 编码文本文件
 
         // 对象函数
         virtual public string GetFilePath(string fn)
