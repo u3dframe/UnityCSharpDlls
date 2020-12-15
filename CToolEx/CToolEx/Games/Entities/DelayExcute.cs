@@ -39,19 +39,19 @@ public class DelayExcute : Core.Kernel.Beans.ED_Basic
 	
 	public new DelayExcute RegUpdate(bool isUp)
 	{
-        base.RegUpdate( isUp );
+        this.RegUpdate( isUp );
         return this;
 	}
 	
 	public DelayExcute Start()
 	{
-        base.StartUpdate();
+        this.StartUpdate();
 		return this;
 	}
 	
 	public void Stop(bool isClear)
 	{
-        base.StopUpdate();
+        this.StopUpdate();
         if (isClear){
 			this.m_call = null;
 		}
