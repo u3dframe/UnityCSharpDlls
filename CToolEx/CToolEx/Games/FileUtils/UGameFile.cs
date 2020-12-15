@@ -10,6 +10,7 @@ namespace Core.Kernel
     /// 日期 : 2019-11-15 14:29
     /// 功能 : 
     /// </summary>
+    /// #if UNITY_EDITOR #else #endif
     public class UGameFile : UGameRes
     {
         static private readonly UGameFile instance = new UGameFile();
@@ -186,12 +187,6 @@ namespace Core.Kernel
         {
             return GetTextBytes4Decrypt(fn);
         }
-
-/*
-#if UNITY_EDITOR
-#else
-#endif
-*/
 
         virtual public Material GetMat(Renderer render,bool isShared = false)
         {

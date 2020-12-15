@@ -8,7 +8,7 @@ using System;
 /// 功能 : this.enabled 不能在自身的 回调事件里面设置(只能通过外包设置)
 /// </summary>
 [System.Serializable]
-public class GobjLifeListener : MonoBehaviour,IUpdate {
+public class GobjLifeListener : Core.Kernel.Beans.EU_Basic {
 	static public bool IsNull(UnityEngine.Object uobj)
 	{
 		return GHelper.IsNull(uobj);
@@ -26,12 +26,7 @@ public class GobjLifeListener : MonoBehaviour,IUpdate {
 	static public GobjLifeListener Get(GameObject gobj){
 		return Get(gobj,true);
 	}
-
-	// 接口函数
-	[HideInInspector] public bool m_isOnUpdate = true;
-	public bool IsOnUpdate(){ return this.m_isOnUpdate;} 
-	virtual public void OnUpdate(float dt,float unscaledDt) {}	
-
+    
 	// 自身对象
 	Transform _m_trsf;
 	

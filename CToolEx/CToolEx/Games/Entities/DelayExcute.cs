@@ -6,7 +6,7 @@
 /// 功能 : 
 /// </summary>
 [Serializable]
-public class DelayExcute : IUpdate
+public class DelayExcute : Core.Kernel.Beans.ED_Basic
 {
 	public bool m_isUnscaled = false;
 	private float m_delayTime = 0.1f;
@@ -24,10 +24,8 @@ public class DelayExcute : IUpdate
 		this.m_call = callBack;
 		return this;
 	}
-	
-	private bool m_isOnUpdate = false;
-    public bool IsOnUpdate() { return this.m_isOnUpdate; }
-	public void OnUpdate(float dt, float unscaledDt) {
+
+	override public void OnUpdate(float dt, float unscaledDt) {
 		this._curDelayTime += this.m_isUnscaled ? unscaledDt : dt;
 		if(this._curDelayTime >= this.m_delayTime){
 			this.RegUpdate(false);
@@ -39,30 +37,23 @@ public class DelayExcute : IUpdate
 		}
 	}
 	
-	public DelayExcute RegUpdate(bool isUp)
+	public new DelayExcute RegUpdate(bool isUp)
 	{
-		this.m_isOnUpdate = false;
-		GameMgr.DiscardUpdate(this);
-		if (isUp)
-			GameMgr.RegisterUpdate(this);
-        this.m_isOnUpdate = isUp;
+        base.RegUpdate( isUp );
         return this;
 	}
 	
 	public DelayExcute Start()
 	{
-		if (!this.m_isOnUpdate)
-			this.RegUpdate(true);
-
+        base.StartUpdate();
 		return this;
 	}
 	
-	public DelayExcute Stop(bool isClear)
+	public void Stop(bool isClear)
 	{
-		this.RegUpdate(false);
-		if(isClear){
+        base.StopUpdate();
+        if (isClear){
 			this.m_call = null;
 		}
-		return this;
 	}
 }
