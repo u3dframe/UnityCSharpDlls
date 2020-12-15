@@ -66,8 +66,7 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic {
 	public bool isAlive { get {return _isAlive;} }
 	bool _isAppQuit = false;
 	public bool isAppQuit { get{ return this._isAppQuit || GHelper.Is_App_Quit; } }
-
-
+    
 	/// <summary>
 	/// 继承对象可实现的函数 (比代理事件快)
 	/// </summary>
@@ -79,11 +78,11 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic {
 	virtual protected void OnClear(){}
 
 	
-	public Action m_callAwake = null;
-    public Action m_callStart = null;
-    public Action m_callShow = null; // 显示
-    public Action m_callHide = null; // 隐藏
-    public event Core.DF_OnNotifyDestry m_onDestroy = null; // 销毁
+	protected Action m_callAwake = null;
+    protected Action m_callStart = null;
+    protected Action m_callShow = null; // 显示
+    protected Action m_callHide = null; // 隐藏
+    protected event Core.DF_OnNotifyDestry m_onDestroy = null; // 销毁
 
     void Awake()
 	{
@@ -158,6 +157,38 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic {
 		this.m_onDestroy -= call;
 		this.m_onDestroy += call;
 	}
+
+    public void AddOnlyOnceCallAwake(Action call)
+    {
+        if (call == null)
+            return;
+        this.m_callAwake -= call;
+        this.m_callAwake += call;
+    }
+
+    public void AddOnlyOnceCallStart(Action call)
+    {
+        if (call == null)
+            return;
+        this.m_callStart -= call;
+        this.m_callStart += call;
+    }
+
+    public void AddOnlyOnceCallShow(Action call)
+    {
+        if (call == null)
+            return;
+        this.m_callShow -= call;
+        this.m_callShow += call;
+    }
+
+    public void AddOnlyOnceCallHide(Action call)
+    {
+        if (call == null)
+            return;
+        this.m_callHide -= call;
+        this.m_callHide += call;
+    }
 
     public void LookAtV3(Vector3 v3Target)
     {
