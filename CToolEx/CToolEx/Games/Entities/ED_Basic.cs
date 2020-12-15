@@ -72,8 +72,8 @@ namespace Core.Kernel.Beans
 
         public void StopAllUpdate()
         {
-            this.RegUpdate(false);
-            this.RegLateUpdate(false);
+            this.StopUpdate();
+            this.StopLateUpdate();
         }
     }
 }
