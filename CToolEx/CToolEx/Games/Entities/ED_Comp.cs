@@ -19,9 +19,15 @@ namespace Core.Kernel.Beans
         public GameObject m_parentGobj { get { return this.m_parent?.gameObject; } }
         public bool m_isActiveInView { get { return this.m_gobj && this.m_gobj.activeInHierarchy; } }
         public Component m_comp { get; private set; }
+        public Behaviour m_behav { get; private set; }
         public string m_strComp { get; private set; }
         public GobjLifeListener m_compGLife { get; private set; }
         Action m_cfShow = null, m_cfHide = null, m_cfDestroy = null;
+
+        public ED_Comp(GameObject gobj)
+        {
+            this.InitGobj(gobj);
+        }
 
         public ED_Comp(GameObject gobj, Component comp, Action cfDestroy, Action cfShow, Action cfHide)
         {
@@ -54,8 +60,14 @@ namespace Core.Kernel.Beans
         void InitComp(GameObject gobj, Component comp, Action cfDestroy, Action cfShow, Action cfHide)
         {
             this.InitGobj(gobj);
+            this.InitComp(comp, cfDestroy, cfShow, cfHide);
+        }
+
+        public void InitComp(Component comp, Action cfDestroy, Action cfShow, Action cfHide)
+        {
             this.InitCallFunc(cfDestroy, cfShow, cfHide);
             this.m_comp = comp;
+            this.m_behav = comp as Behaviour;
             if (string.IsNullOrEmpty(this.m_strComp) && comp != null)
                 this.m_strComp = comp.ToString();
             bool _isGLife = GHelper.IsGLife(comp);
@@ -71,11 +83,15 @@ namespace Core.Kernel.Beans
 
         void InitComp(GameObject gobj, string strComp, Action cfDestroy, Action cfShow, Action cfHide)
         {
-            if (!gobj)
-                throw new Exception("=== gobj is null");
-            Component comp = gobj.GetComponent(strComp);
+            this.InitGobj(gobj);
+            this.InitComp(strComp, cfDestroy, cfShow, cfHide);
+        }
+
+        public void InitComp(string strComp, Action cfDestroy, Action cfShow, Action cfHide)
+        {
             this.m_strComp = strComp;
-            this.InitComp(gobj, comp, cfDestroy, cfShow, cfHide);
+            Component comp = this.m_gobj.GetComponent(strComp);
+            this.InitComp(comp, cfDestroy, cfShow, cfHide);
         }
 
         public void ClearComp()
@@ -84,6 +100,7 @@ namespace Core.Kernel.Beans
             this.m_trsf = null;
             this.m_trsfRect = null;
             this.m_comp = null;
+            this.m_behav = null;
             this.m_strComp = null;
             this.m_compGLife = null;
 
@@ -368,6 +385,27 @@ namespace Core.Kernel.Beans
         {
             if (this.m_cfHide != null)
                 this.m_cfHide();
+        }
+
+        public void SetEnabled(bool isBl)
+        {
+            if (this.m_behav)
+                this.m_behav.enabled = isBl;
+        }
+
+        static public ED_Comp Builder(GameObject gobj)
+        {
+            return new ED_Comp(gobj);
+        }
+
+        static public ED_Comp BuilderComp(GameObject gobj, Component comp, Action cfDestroy, Action cfShow, Action cfHide)
+        {
+            return new ED_Comp(gobj, comp, cfDestroy, cfShow, cfHide);
+        }
+
+        static public ED_Comp BuilderComp(GameObject gobj, string comp, Action cfDestroy, Action cfShow, Action cfHide)
+        {
+            return new ED_Comp(gobj, comp, cfDestroy, cfShow, cfHide);
         }
     }
 }
