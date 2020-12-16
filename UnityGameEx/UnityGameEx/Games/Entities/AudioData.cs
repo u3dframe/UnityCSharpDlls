@@ -34,7 +34,7 @@ public class AudioData
     AudioData Init(GameObject gobj, bool isNew, bool isMusic, float volume, bool playOnAwake)
     {
         GobjLifeListener glife = GobjLifeListener.Get(gobj);
-        glife.AddOnlyOnceDCall(this.OnNotifyDestry);
+        glife.OnlyOnceCallDetroy(this.OnNotifyDestry);
 
         if (!isNew)
             this.m_audio = UtilityHelper.Get<AudioSource>(gobj, true);
