@@ -403,7 +403,28 @@ public class GHelper {
 		return Clone(trsf?.gameObject);
 	}
 
-	static public RectTransform ToRectTransform(Transform trsf) {
+    static public GameObject ToGObj(UObject uobj)
+    {
+        if (IsNull(uobj)) return null;
+        if (uobj is GameObject)
+        {
+            return uobj as GameObject;            
+        }
+        else if (uobj is Component)
+        {
+            Component _c = uobj as Component;
+            return _c.gameObject;
+        }
+        return null;
+    }
+
+    static public Transform ToTransform(UObject uobj)
+    {
+        GameObject _gobj = ToGObj(uobj);
+        return _gobj?.transform;
+    }
+
+    static public RectTransform ToRectTransform(Transform trsf) {
 		if(IsNull(trsf)) return null;
 		return trsf as RectTransform;
 	}
