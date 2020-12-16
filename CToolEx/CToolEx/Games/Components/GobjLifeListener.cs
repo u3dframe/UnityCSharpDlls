@@ -65,6 +65,16 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         }
     }
 
+    public int m_gobjID
+    {
+        get
+        {
+            if (this.m_gobj)
+                return this.m_gobj.GetInstanceID();
+            return 0;
+        }
+    }
+
     [HideInInspector] public object m_obj = null; // 主obj
     [HideInInspector] public object m_obj1 = null; // 子obj
     [HideInInspector] public string csAlias = ""; // CSharp 别名
