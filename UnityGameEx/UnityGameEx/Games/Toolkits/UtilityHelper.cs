@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Playables;
-
+using UObject = UnityEngine.Object;
 
 /// <summary>
 /// 类名 : 基础公用帮助脚本
@@ -8,7 +8,8 @@ using UnityEngine.Playables;
 /// 日期 : 2020-06-26 09:33
 /// 功能 : 
 /// </summary>
-public class UtilityHelper : GHelper {
+public class UtilityHelper : GHelper
+{
     static public Vector2 ScreenPointToLocalPointInRectangleBy(GameObject parent, Camera uiCamera, Vector2 screenPoint)
     {
         Vector2 _v2 = Vector2.zero;
@@ -44,29 +45,23 @@ public class UtilityHelper : GHelper {
         pZ = _v3.z;
     }
 
-    static public Camera GetOrAddCamera(GameObject gobj){
-		return Get<Camera>(gobj,true);
-	}
+    static public Camera GetOrAddCamera(UObject uobj)
+    {
+        return Get<Camera>(uobj, true);
+    }
 
-	static public Camera GetOrAddCamera(Transform trsf){
-		return Get<Camera>(trsf,true);
-	}
+    static public Animator GetOrAddAnimator(UObject uobj)
+    {
+        return Get<Animator>(uobj, true);
+    }
 
-	static public Animator GetOrAddAnimator(GameObject gobj){
-		return Get<Animator>(gobj,true);
-	}
+    static public PlayableDirector GetOrAddPlayableDirector(UObject uobj)
+    {
+        return Get<PlayableDirector>(uobj, true);
+    }
 
-	static public Animator GetOrAddAnimator(Transform trsf){
-		return Get<Animator>(trsf,true);
-	}
-
-	static public PlayableDirector GetOrAddPlayableDirector(GameObject gobj)
-	{
-		return Get<PlayableDirector>(gobj, true);
-	}
-
-	static public PlayableDirector GetOrAddPlayableDirector(Transform trsf)
-	{
-		return Get<PlayableDirector>(trsf, true);
-	}
+    static public CanvasGroup GetOrAddCanvasGroup(UObject uobj)
+    {
+        return Get<CanvasGroup>(uobj, true);
+    }
 }
