@@ -12,8 +12,6 @@ using UObject = UnityEngine.Object;
 /// </summary>
 public class GRTHelper : GHelper {
 
-    static public Rect RViewport = new Rect(0, 0, 1, 1);
-
     static public Rect ToScreenPointRect(UObject uobj, Camera cmr)
     {
         RectTransform rt = ToRectTransform(uobj);
@@ -34,19 +32,20 @@ public class GRTHelper : GHelper {
         return rect1.Overlaps(rect2);
     }
 
-    static public bool IsInCamera(Camera cmr, UObject uobj, Vector4 v4Off)
+    static public bool IsInCameraByViewPort(Camera cmr, UObject uobj, Vector4 v4Off)
     {
         Transform trsf = ToTransform(uobj);
         if (IsNull(trsf))
             return false;
         if (IsNull(cmr) || !cmr.gameObject.activeInHierarchy)
             return false;
-        Rect _curV = new Rect(RViewport);
+        Rect _viewport = new Rect(0, 0, 1, 1);
+        Rect _curV = new Rect(_viewport);
         _curV.x += v4Off.x;
         _curV.y += v4Off.y;
         _curV.height += v4Off.z;
         _curV.width += v4Off.w;
-        bool _isClipPlane = !_curV.Equals(RViewport);
+        bool _isClipPlane = !_curV.Equals(_viewport);
         Vector3 v3 = cmr.WorldToViewportPoint(trsf.position);
         bool isIn = _curV.Contains(v3);
         bool isIn2 = !_isClipPlane;
@@ -55,8 +54,32 @@ public class GRTHelper : GHelper {
         return isIn && isIn2;
     }
 
-    static public bool IsInCamera(Camera cmr, UObject uobj)
+    static public bool IsInCameraByViewPort(Camera cmr, UObject uobj)
     {
-        return IsInCamera(cmr, uobj, Vector4.zero);
+        return IsInCameraByViewPort(cmr, uobj, Vector4.zero);
+    }
+
+    static public bool IsInCameraByScreenPoint(Camera cmr, UObject uobj, float offW,float offH)
+    {
+        Transform trsf = ToTransform(uobj);
+        if (IsNull(trsf))
+            return false;
+        if (IsNull(cmr) || !cmr.gameObject.activeInHierarchy)
+            return false;
+        if (offW <= 0) offW = 0;
+        if (offH <= 0) offH = 0;
+        bool _isClipPlane = offW < 1 && offH < 1;
+        Rect _screen = new Rect(offW * -0.5f, offH * -0.5f,Screen.width + offW, Screen.height + offH);
+        Vector3 v3 = cmr.WorldToScreenPoint(trsf.position);
+        bool isIn = _screen.Contains(v3);
+        bool isIn2 = !_isClipPlane;
+        if (_isClipPlane && v3.z >= cmr.nearClipPlane && v3.z <= cmr.farClipPlane)
+            isIn2 = true;
+        return isIn && isIn2;
+    }
+
+    static public bool IsInCameraByScreenPoint(Camera cmr, UObject uobj)
+    {
+        return IsInCameraByScreenPoint(cmr,uobj,0,0);
     }
 }
