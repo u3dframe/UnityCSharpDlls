@@ -55,6 +55,10 @@
       <HintPath>..\..\UnityDlls\LitJson.dll</HintPath>
       <Private>false</Private>
     </Reference>
+	<Reference Include="Unity.Postprocessing.Runtime">
+      <HintPath>..\..\UnityDlls\Unity.Postprocessing.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Unity.Cecil">
       <HintPath>..\..\UnityDlls\UnityEngine\Unity.Cecil.dll</HintPath>
       <Private>false</Private>
