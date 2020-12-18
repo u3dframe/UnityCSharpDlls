@@ -27,17 +27,17 @@ namespace Core.Kernel.Beans
         public GobjLifeListener m_compGLife { get; private set; }
         Action m_cfShow = null, m_cfHide = null, m_cfDestroy = null;
         
-        private ED_Comp(GameObject gobj)
+        protected ED_Comp(GameObject gobj)
         {
             this.InitGobj(gobj);
         }
 
-        private ED_Comp(GameObject gobj, Component comp, Action cfDestroy, Action cfShow, Action cfHide)
+        protected ED_Comp(GameObject gobj, Component comp, Action cfDestroy, Action cfShow, Action cfHide)
         {
             this.InitComp(gobj, comp, cfDestroy, cfShow, cfHide);
         }
 
-        private ED_Comp(GameObject gobj, string comp, Action cfDestroy, Action cfShow, Action cfHide)
+        protected ED_Comp(GameObject gobj, string comp, Action cfDestroy, Action cfShow, Action cfHide)
         {
             this.InitComp(gobj, comp, cfDestroy, cfShow, cfHide);
         }
@@ -371,7 +371,7 @@ namespace Core.Kernel.Beans
             return _ret?.gameObject;
         }
 
-        void On_Destroy(GobjLifeListener obj)
+        virtual protected void On_Destroy(GobjLifeListener obj)
         {
             var _call = this.m_cfDestroy;
             this.ClearComp();
@@ -379,13 +379,13 @@ namespace Core.Kernel.Beans
                 _call();
         }
 
-        void On_Show()
+        virtual protected void On_Show()
         {
             if (this.m_cfShow != null)
                 this.m_cfShow();
         }
 
-        void On_Hide()
+        virtual protected void On_Hide()
         {
             if (this.m_cfHide != null)
                 this.m_cfHide();
