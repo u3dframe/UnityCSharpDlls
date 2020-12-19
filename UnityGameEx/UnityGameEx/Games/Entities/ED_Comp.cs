@@ -91,7 +91,7 @@ namespace Core.Kernel.Beans
             this.InitComp(strComp, cfDestroy, cfShow, cfHide);
         }
 
-        public void InitComp(string strComp, Action cfDestroy, Action cfShow, Action cfHide)
+        virtual public void InitComp(string strComp, Action cfDestroy, Action cfShow, Action cfHide)
         {
             this.m_strComp = strComp;
             Component comp = this.m_gobj.GetComponent(strComp);
