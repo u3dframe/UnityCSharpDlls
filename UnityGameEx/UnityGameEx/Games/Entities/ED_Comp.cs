@@ -67,7 +67,7 @@ namespace Core.Kernel.Beans
             this.InitComp(comp, cfDestroy, cfShow, cfHide);
         }
 
-        public void InitComp(Component comp, Action cfDestroy, Action cfShow, Action cfHide)
+        virtual public void InitComp(Component comp, Action cfDestroy, Action cfShow, Action cfHide)
         {
             this.InitCallFunc(cfDestroy, cfShow, cfHide);
             this.m_comp = comp;
