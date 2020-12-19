@@ -22,6 +22,8 @@ public class MainCameraManager : MgrMainCamera
 
     override protected void Awake()
     {
+        base.Awake();
+
         if (m_camera){
             this.m_postVolume = UtilityHelper.Get<PostProcessVolume>(this.m_camera);
         }
