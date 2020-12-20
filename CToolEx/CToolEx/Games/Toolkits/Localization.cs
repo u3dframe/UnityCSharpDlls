@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Core.Kernel;
+using Core.Kernel.Beans;
 
 
 /// <summary>
@@ -8,213 +9,164 @@ using Core.Kernel;
 /// 作者 : Canyon / 龚阳辉
 /// 日期 : 2020-06-27 16:37
 /// 功能 : key值对应相应的语言
+/// 修订 : 2020-12-20 09:37
 /// </summary>
 static public class Localization
 {
-	static Dictionary<string, Dictionary<string, string>> mDicLgs = new Dictionary<string,Dictionary<string, string>>();
-	static string mLanguage = null;
-	static Dictionary<string, string> mCurr = null,mCTemp = null;
-	static public System.Action onLocalize; // 语言改变时候的通知
-	
-	/// <summary>
-	/// Name of the currently active language.
-	/// </summary>
-	static public string language
-	{
-		get
-		{
-			if (string.IsNullOrEmpty(mLanguage))
-			{
-				LoadAndSelect(mLanguage);
-			}
-			return mLanguage;
-		}
-		set
-		{
-			if (mLanguage != value)
-			{
-				mLanguage = value;
-				LoadAndSelect(mLanguage);
-			}
-		}
-	}
+    static Dictionary<string, EN_KVal> mDicLgs = new Dictionary<string, EN_KVal>();
+    static string mLanguage = null;
+    static EN_KVal mCurr = null;
+    static public System.Action onLocalize; // 语言改变时候的通知
 
-	static private Dictionary<string, string> GetCurrDict (string language)
-	{
-		if(mDicLgs.ContainsKey(language))
-		{
-			return mDicLgs[language];
-		}
-		return null;
-	}
-	
-	static public bool ReLoad (string language,bool isCsv)
-	{
-		string fn = null;
-		if (isCsv) fn = string.Format("lanuage/{0}.csv",language);
-		else  fn = string.Format("lanuage/{0}.properties",language);
-		string val = UGameFile.curInstance.GetDecryptText(fn).Trim();
-		return ReLoad(language,val,isCsv);
-	}
-	
-	static public bool ReLoad (string language,string val,bool isCsv)
-	{
-		if (string.IsNullOrEmpty(val)) return false;
-		string[] _rows = UGameFile.SplitRow(val);
-		if (UGameFile.IsNullOrEmpty(_rows)) return false;
-		mCTemp = GetCurrDict(language);
-		if(mCTemp == null)
-			mCTemp = new Dictionary<string, string>();
-		mCTemp.Clear();
-		
-		int lens = _rows.Length;
-		char[] spt = isCsv ? UGameFile.m_cSpComma : UGameFile.m_cSpEqual;
-		string[] _cols;
-		string _k,_v;
-		for(int i = 0; i < lens; i++){
-			_cols = UGameFile.Split(_rows[i],spt,true);
-			if(_cols == null || _cols.Length < 1)
-				continue;
-			_k = _cols[0];
-			if(_cols.Length > 1)
-				_v = _cols[1].Replace("\\n","\n");
-			else
-				_v = "";
-			
-			// 判断下
-			if(mCTemp.ContainsKey(_k))
-				Debug.LogErrorFormat("==== has same key = [{0}],val = [{1}] ",_k,_v);
-			else
-				mCTemp.Add(_k, _v);
-		}
-		lens = mCTemp.Count;
-		if(lens > 0)
-		{
-			mDicLgs[language] = mCTemp; 
-		}
-		return lens > 0;
-	}
-	
-	static bool Load (ref string val,bool isCsv)
-	{
-		if (string.IsNullOrEmpty(val)) val = GameLanguage.strCurLanguage;
-		if(mDicLgs.ContainsKey(val))
-		{
-			return true;
-		}
-		return ReLoad(val,isCsv);
-	}
-	
-	static void ReLangueInfo (string val)
-	{
-		if(mDicLgs.ContainsKey(val))
-		{
-			mCurr = mDicLgs[val];
-			mLanguage = val;
-			if (onLocalize != null) onLocalize();
-		}
-	}
+    /// <summary>
+    /// Name of the currently active language.
+    /// </summary>
+    static public string language
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(mLanguage))
+                LoadAndSelect(mLanguage);
+            return mLanguage;
+        }
+        set
+        {
+            if (mLanguage != value)
+            {
+                mLanguage = value;
+                LoadAndSelect(mLanguage);
+            }
+        }
+    }
 
-	static public bool LoadAndSelect (string val,bool isCsv = true)
-	{
-		mCurr = null;
-		string vRef = val;
-		if(Load(ref vRef,isCsv))
-		{
-			ReLangueInfo(vRef);
-			return true;
-		}
-		Debug.LogErrorFormat("==== Localization not has language = [{0}],SrcLanuage = [{1}] ",vRef,val);
-		return false;
-	}
+    static private EN_KVal GetEntity(string key)
+    {
+        if (!string.IsNullOrEmpty(key) && mDicLgs.ContainsKey(key))
+            return mDicLgs[key];
+        return null;
+    }
 
-	static public bool Exists (string key)
-	{
-		return mCurr != null && mCurr.ContainsKey(key);
-	}
-	
-	static public string Get (string key)
-	{
-		if (string.IsNullOrEmpty(key)) return null;
+    static public bool ReLoad(string language, bool isCsv)
+    {
+        EN_KVal temp = GetEntity(language);
+        if (temp == null)
+        {
+            temp = new EN_KVal();
+            mDicLgs.Add(language, temp);
+        }
+        return temp.ReLoad(language, isCsv);
+    }
 
-		if (mLanguage == null)
-		{
-			mLanguage = language;
-		}
-		
-		if (mLanguage == null)
-		{
-			Debug.LogError("No localization data present");
-			return null;
-		}
-		
-		if(Exists(key))
-			return mCurr[key];
-		return key;
-	}
+    static bool Load(string val, bool isCsv)
+    {
+        if (string.IsNullOrEmpty(val)) return false;
+        if (mDicLgs.ContainsKey(val)) return true;
+        return ReLoad(val, isCsv);
+    }
 
-	static public string Get (int key) {
-		return Get(key.ToString());
-	}
-	
-	static public string FormatMore (string key, params object[] parameters) {
-		if(Exists(key)){
-			string _fmt = Get(key);
-			// Debug.LogError(parameters[0].GetType());
-			return string.Format(_fmt, parameters); 
-		}
-		return key;
-	}
+    static void ReLangueInfo(string val)
+    {
+        if (mDicLgs.ContainsKey(val))
+        {
+            mCurr = mDicLgs[val];
+            mLanguage = val;
+            if (onLocalize != null) onLocalize();
+        }
+    }
 
-	static public string Format(string key,object obj1){
-		return FormatMore(key,obj1);
-	}
+    static public bool LoadAndSelect(string val, bool isCsv = true)
+    {
+        mCurr = null;
+        string vRef = val;
+        if (string.IsNullOrEmpty(vRef)) vRef = GameLanguage.strCurLanguage;
+        if (Load(vRef, isCsv))
+        {
+            ReLangueInfo(vRef);
+            return true;
+        }
+        Debug.LogErrorFormat("==== Localization not has language = [{0}],SrcLanuage = [{1}] ", vRef, val);
+        return false;
+    }
 
-	static public string Format(string key,object obj1,object obj2){
-		return FormatMore(key,obj1,obj2);
-	}
+    static public bool Exists(string key)
+    {
+        return mCurr != null && mCurr.Exists(key);
+    }
 
-	static public string Format(string key,object obj1,object obj2,object obj3){
-		return FormatMore(key,obj1,obj2,obj3);
-	}
+    static public string Get(string key, string tagName = null, bool isCsv = true)
+    {
+        if (string.IsNullOrEmpty(key)) return null;
+        if (mLanguage == null) mLanguage = language;
+        if (mLanguage == null)
+        {
+            Debug.LogError("No localization data present");
+            return null;
+        }
 
-	static public string Format(string key,object obj1,object obj2,object obj3,object obj4){
-		return FormatMore(key,obj1,obj2,obj3,obj4);
-	}
+        if (!string.IsNullOrEmpty(tagName))
+        {
+            string _key = UGameFile.ReSBegEnd(tagName, mLanguage);
+            if (Load(_key, isCsv))
+            {
+                EN_KVal _en = GetEntity(_key);
+                if (_en != null && _en.Exists(key))
+                    return _en.Get(key);
+            }
+        }
+        
+        if (Exists(key))
+            return mCurr.Get(key);
+        return key;
+    }
 
-	static public string Format(string key,object obj1,object obj2,object obj3,object obj4,object obj5){
-		return FormatMore(key,obj1,obj2,obj3,obj4,obj5);
-	}
+    static public string Get(int key, string tagName = null, bool isCsv = true)
+    {
+        return Get(key.ToString(), tagName, isCsv);
+    }
 
-	static public string Format(string key,object obj1,object obj2,object obj3,object obj4,object obj5,object obj6){
-		return FormatMore(key,obj1,obj2,obj3,obj4,obj5,obj6);
-	}
+    static public string FormatMoreStr(string tagName, bool isCsv, string key, params object[] parameters)
+    {
+        string _fmt = Get(key, tagName, isCsv);
+        if (!string.IsNullOrEmpty(_fmt) && !_fmt.Equals(key))
+        {
+            // Debug.LogError(parameters[0].GetType());
+            return string.Format(_fmt, parameters);
+        }
+        return key;
+    }
 
-	static public string FormatMore (int key, params object[] parameters) {
-		return FormatMore(key.ToString(),parameters);
-	}
+    static public string FormatMoreStr(string key, params object[] parameters)
+    {
+        return FormatMoreStr(null, true, key, parameters);
+    }
 
-	static public string Format(int key,object obj1){
-		return FormatMore(key,obj1);
-	}
+    static public string Format(string key, object obj1, object obj2 = null, object obj3 = null, object obj4 = null, object obj5 = null, object obj6 = null)
+    {
+        return FormatMoreStr(key, obj1, obj2, obj3, obj4, obj5, obj6);
+    }
 
-	static public string Format(int key,object obj1,object obj2){
-		return FormatMore(key,obj1,obj2);
-	}
+    static public string Format(string tagName, bool isCsv, string key, object obj1, object obj2 = null, object obj3 = null, object obj4 = null, object obj5 = null, object obj6 = null)
+    {
+        return FormatMoreStr(tagName, isCsv, key, obj1, obj2, obj3, obj4, obj5, obj6);
+    }
 
-	static public string Format(int key,object obj1,object obj2,object obj3){
-		return FormatMore(key,obj1,obj2,obj3);
-	}
+    static public string FormatMoreInt(string tagName, bool isCsv, int key, params object[] parameters)
+    {
+        return FormatMoreStr(tagName, isCsv, key.ToString(), parameters);
+    }
 
-	static public string Format(int key,object obj1,object obj2,object obj3,object obj4){
-		return FormatMore(key,obj1,obj2,obj3,obj4);
-	}
+    static public string FormatMoreInt(int key, params object[] parameters)
+    {
+        return FormatMoreInt(null, true, key, parameters);
+    }
 
-	static public string Format(int key,object obj1,object obj2,object obj3,object obj4,object obj5){
-		return FormatMore(key,obj1,obj2,obj3,obj4,obj5);
-	}
+    static public string Format(int key, object obj1, object obj2 = null, object obj3 = null, object obj4 = null, object obj5 = null, object obj6 = null)
+    {
+        return FormatMoreInt(key, obj1, obj2, obj3, obj4, obj5, obj6);
+    }
 
-	static public string Format(int key,object obj1,object obj2,object obj3,object obj4,object obj5,object obj6){
-		return FormatMore(key,obj1,obj2,obj3,obj4,obj5,obj6);
-	}
+    static public string Format(string tagName, bool isCsv, int key, object obj1, object obj2 = null, object obj3 = null, object obj4 = null, object obj5 = null, object obj6 = null)
+    {
+        return FormatMoreInt(tagName, isCsv, key, obj1, obj2, obj3, obj4, obj5, obj6);
+    }
 }
