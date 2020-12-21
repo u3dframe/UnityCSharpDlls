@@ -21,6 +21,7 @@ public class UGUIModel : PrefabBasic
 
     public SmoothFollower m_sfwer { get; private set; }
     public Transform m_wrap { get; private set; }
+    public float m_wrapLossyScale { get; private set; }
     public float m_wrapLocalScale { get; private set; }
     public GameObject m_node { get; private set; }
     public bool m_isAutoScale = true; // 是否对象自动缩放
@@ -80,12 +81,28 @@ public class UGUIModel : PrefabBasic
         this._ReRtex(this.m_rtWidth, this.m_rtHeight);
         this.ReRawImg(_imgRaw);
         this.SetModelLocalScale(this.m_wrapLocalScale);
+        this.StartUpdate();
     }
 
     protected override void OnCall4Destroy()
     {
+        this.StopUpdate();
         base.OnCall4Destroy();
         this._DestroyRt();
+    }
+
+    public override void OnUpdate(float dt, float unscaledDt)
+    {
+        base.OnUpdate(dt, unscaledDt);
+
+        if (this.m_isAutoScale)
+        {
+            if (this.m_wrap != null && this.m_wrapLossyScale != this.m_wrap.lossyScale.x)
+            {
+                this.m_wrapLossyScale = this.m_wrap.lossyScale.x;
+                this.ReSfwer(this.sfwerD, this.sfwerH, this.sfwerL);
+            }
+        }
     }
 
     void _ReRtex(int w, int h)
