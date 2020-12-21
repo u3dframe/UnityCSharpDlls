@@ -28,7 +28,7 @@
             this.m_mat = this.m_graphic.material;
 
             GobjLifeListener glife = GobjLifeListener.Get(graphic.gameObject);
-            glife.AddOnlyOnceDCall(this.OnNotifyDestry);
+            glife.OnlyOnceCallDetroy(this.OnNotifyDestry);
             glife.m_obj1 = this;
 
             if (isNewMat)

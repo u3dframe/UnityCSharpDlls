@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 /// <summary>
@@ -21,6 +21,8 @@ public class UGUILocalize : GobjLifeListener {
 		return Get(gobj,true);
 	}
 
+	public string m_tagName{ get; private set; }
+	public bool m_isCsv{ get; private set; }
 	public string m_key = "";
 	public Text m_text;
 	bool m_isInit = false;
@@ -85,8 +87,8 @@ public class UGUILocalize : GobjLifeListener {
 		if(string.IsNullOrEmpty(m_key)){
 			_sval = "";
 		}else{
-			if(fmtPars == null || fmtPars.Length <= 0) _sval = Localization.Get(m_key);
-			else _sval = Localization.FormatMore(m_key,fmtPars);
+			if(fmtPars == null || fmtPars.Length <= 0) _sval = Localization.Get(this.m_key,this.m_tagName,this.m_isCsv);
+			else _sval = Localization.FormatMoreStr(this.m_tagName,this.m_isCsv,this.m_key,fmtPars);
 		}
 		_SetTextVal(_sval);
 	}
@@ -98,15 +100,14 @@ public class UGUILocalize : GobjLifeListener {
 		m_text.text = _sval;
 	}
 
-	public void SetText(string key){
-		this.m_isChg = !string.Equals(key,this.m_key);
-		this.m_key = key;
+	public void SetText(object key){
+		string _key_ = key.ToString();
+		if(string.IsNullOrEmpty(_key_))
+			_key_ = "1";
+		this.m_isChg = this.m_isChg || !string.Equals(_key_,this.m_key);
+		this.m_key = _key_;
 		this.m_isUseLocalize = true;
 		OnLocalize();
-	}
-
-	public void SetText(int key){
-		SetText(key.ToString());
 	}
 
 	public void SetUText(string val){
@@ -118,6 +119,8 @@ public class UGUILocalize : GobjLifeListener {
 	}
 
 	bool IsInPars(object v,params object[] pars){
+		if(v == null)
+			return true;
 		int _l1 = pars.Length;
 		for(int i = 0;i < _l1;i++){
 			if(v == pars[i])
@@ -140,65 +143,15 @@ public class UGUILocalize : GobjLifeListener {
 		return false;
 	}
 
-	public void FormatMore(string key,params object[] pars){
+	void FormatMore(string key,params object[] pars){
+		if(string.IsNullOrEmpty(key))
+			key = "1";
 		this.m_isChg = !string.Equals(key,this.m_key);
 		this.m_key = key;
 		this.m_isChg = this.m_isChg || IsChangePars(pars);
 		this.fmtPars = pars;
 		this.m_isUseLocalize = true;
 		OnLocalize();
-	}
-
-	public void Format(string key,object obj1){
-		FormatMore(key,obj1);
-	}
-
-	public void Format(string key,object obj1,object obj2){
-		FormatMore(key,obj1,obj2);
-	}
-
-	public void Format(string key,object obj1,object obj2,object obj3){
-		FormatMore(key,obj1,obj2,obj3);
-	}
-
-	public void Format(string key,object obj1,object obj2,object obj3,object obj4){
-		FormatMore(key,obj1,obj2,obj3,obj4);
-	}
-
-	public void Format(string key,object obj1,object obj2,object obj3,object obj4,object obj5){
-		FormatMore(key,obj1,obj2,obj3,obj4,obj5);
-	}
-
-	public void Format(string key,object obj1,object obj2,object obj3,object obj4,object obj5,object obj6){
-		FormatMore(key,obj1,obj2,obj3,obj4,obj5,obj6);
-	}
-
-	public void FormatMore(int key,params object[] pars){
-		FormatMore(key.ToString(),pars);
-	}
-
-	public void Format(int key,object obj1){
-		FormatMore(key,obj1);
-	}
-
-	public void Format(int key,object obj1,object obj2){
-		FormatMore(key,obj1,obj2);
-	}
-
-	public void Format(int key,object obj1,object obj2,object obj3){
-		FormatMore(key,obj1,obj2,obj3);
-	}
-
-	public void Format(int key,object obj1,object obj2,object obj3,object obj4){
-		FormatMore(key,obj1,obj2,obj3,obj4);
-	}
-
-	public void Format(int key,object obj1,object obj2,object obj3,object obj4,object obj5){
-		FormatMore(key,obj1,obj2,obj3,obj4,obj5);
-	}
-
-	public void Format(int key,object obj1,object obj2,object obj3,object obj4,object obj5,object obj6){
-		FormatMore(key,obj1,obj2,obj3,obj4,obj5,obj6);
 	}
 
 	public Color GetColor(){
@@ -208,5 +161,27 @@ public class UGUILocalize : GobjLifeListener {
 
 	public void SetColor(Color color){
 		if(m_text != null) m_text.color = color;
+	}
+
+	public void Format(object key,object obj1,object obj2 = null,object obj3 = null,object obj4 = null,object obj5 = null,object obj6 = null)
+	{
+		if(key == null)
+			key = "1";
+		List<object> list = UtilityHelper.ToList(obj1,obj2,obj3,obj4,obj5,obj6);
+		if(list == null || list.Count <= 0)
+		{
+			this.SetText(key.ToString());
+			return;
+		}
+		this.FormatMore(key.ToString(),list.ToArray());
+	}
+
+	public void SetOrFormat(string tag,bool isCsv,object key,object obj1 = null,object obj2 = null,object obj3 = null,object obj4 = null,object obj5 = null,object obj6 = null)
+	{
+		bool isChg = !string.Equals(tag,this.m_tagName) || this.m_isCsv != isCsv;
+		this.m_isChg = this.m_isChg || isChg;
+		this.m_tagName = tag;
+		this.m_isCsv = isCsv;
+		this.Format(key,obj1,obj2,obj3,obj4,obj5,obj6);
 	}
 }

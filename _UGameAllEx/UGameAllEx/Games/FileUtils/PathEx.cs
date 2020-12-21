@@ -7,8 +7,8 @@
 /// </summary>
 namespace Core.Kernel
 {
-	public class PathEx
-	{
+	public class PathEx : StrEx
+    {
 		// 取得文件分隔符"/"
 		static public readonly char folderSeparator = Path.DirectorySeparatorChar;
         

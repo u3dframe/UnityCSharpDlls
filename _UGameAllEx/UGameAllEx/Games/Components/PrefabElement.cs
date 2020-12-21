@@ -1,7 +1,4 @@
-using System;
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 /// <summary>
 /// 类名 : Prefab 单元对象

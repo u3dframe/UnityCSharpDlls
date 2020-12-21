@@ -53,8 +53,8 @@ public class UGUIButton : GobjLifeListener {
         this.v3Scale = m_trsf.localScale;
 
         this.m_evt = UGUIEventListener.Get(m_gobj);
-        this.m_evt.onPress += _OnPress;
-        this.m_evt.onClick += _OnClick;
+        this.m_evt.OnlyOnceCallPress(_OnPress);
+        this.m_evt.OnlyOnceCallClick(_OnClick);
 		this.csAlias = "U_BTN";
     }
 

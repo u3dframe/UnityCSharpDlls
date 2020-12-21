@@ -27,11 +27,6 @@ namespace Core.Kernel
     public class ReadWriteHelper : FileEx
     {
         static public ET_FPType m_emFpType = ET_FPType.UNITY_EDITOR;
-        static public readonly char[] m_cSpRow = "\r\n\t".ToCharArray();
-        static public readonly char[] m_cSpComma = ",".ToCharArray();
-        static public readonly char[] m_cSpEqual = "=".ToCharArray();
-        static public readonly char[] m_cSpEmicolon = ";".ToCharArray();
-
         // 平台
         static public readonly string platformAndroid = "Android";
         static public readonly string platformIOS = "IOS";
@@ -234,107 +229,6 @@ namespace Core.Kernel
             if(m_isEditor || m_isIOS)
 			    fp = string.Concat ("file://", fp);
             return fp;
-        }
-
-        static public string ReUrlEnd(string url)
-        {
-            return ReFnPath(url,true);
-        }
-
-        static public string ReUrlTime(string url)
-        {
-            return string.Concat(url, "?time=", System.DateTime.Now.Ticks);
-        }
-
-        static public string ReUrlTime(string url, string fn)
-        {
-            url = ReUrlEnd(url);
-            return string.Concat(url, fn, "?time=", System.DateTime.Now.Ticks);
-        }
-
-        static public string ReUrlTime(string url, string proj, string fn)
-        {
-            if (!string.IsNullOrEmpty(proj))
-            {
-                url = ReUrlEnd(url);
-                url = string.Concat(url, proj);
-            }
-            return ReUrlTime(url, fn);
-        }
-
-        static System.Random sysRnd = new System.Random(System.Guid.NewGuid().GetHashCode());
-        static public string GetUrl(string[] arrs, string defUrl, ref int index)
-        {
-            string _ret = defUrl;
-            if (arrs != null && arrs.Length > 0)
-            {
-                int _lens = arrs.Length;
-
-                if (index < 0)
-                {
-                    if (_lens > 1)
-                    {
-                        index = sysRnd.Next(_lens);
-                    }
-                    else
-                    {
-                        index = 0;
-                    }
-                }
-                index %= _lens;
-                _ret = arrs[index];
-                index++;
-            }
-            return _ret;
-        }
-
-        /// <summary>
-		/// 字符串分割
-		/// </summary>
-        static public string[] Split(string val, char[] spt, bool isRmEmpty)
-        {
-            if (string.IsNullOrEmpty(val) || spt == null || spt.Length <= 0)
-                return null;
-            System.StringSplitOptions _sp = System.StringSplitOptions.None;
-            if (isRmEmpty) _sp = System.StringSplitOptions.RemoveEmptyEntries;
-            return val.Split(spt, _sp);
-        }
-
-        /// <summary>
-		/// 行分割 \r\n\t
-		/// </summary>
-        static public string[] SplitRow(string val)
-        {
-            return Split(val, m_cSpRow, true);
-        }
-
-        /// <summary>
-		/// 常用分割 - 英文 逗号 ,
-		/// </summary>
-        static public string[] SplitComma(string val)
-        {
-            return Split(val, m_cSpComma, false);
-        }
-
-        /// <summary>
-		/// 常用分割 - 英文 分号 ;
-		/// </summary>
-        static public string[] SplitDivision(string val,bool isRmEmpty)
-        {
-            return Split(val, m_cSpEmicolon,isRmEmpty);
-        }
-
-        static public int LensArrs(object[] arrs)
-        {
-            if (arrs == null)
-                return 0;
-            return arrs.Length;
-        }
-
-        static public bool IsNullOrEmpty(object[] arrs)
-        {
-            int lens = LensArrs(arrs);
-            return lens <= 0;
         }
     }
 }

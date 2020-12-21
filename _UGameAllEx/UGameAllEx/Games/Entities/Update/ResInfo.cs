@@ -18,7 +18,7 @@ namespace Core.Kernel
     /// 日期 : 2017-12-07 14:35
     /// 功能 : 
     /// </summary>
-    public class ResInfo : CustomYieldInstruction,IUpdate {
+    public class ResInfo : Beans.ED_Basic {
         // 资源名 = m_compareCode + 后缀名
         public string m_resName = "";
 
@@ -143,9 +143,6 @@ namespace Core.Kernel
         }
 
         // ============== 下载相关的
-        public bool m_isOnUpdate = false;
-        public bool IsOnUpdate() { return this.m_isOnUpdate; }
-
         int m_numLimitTry = 3; // 限定失败后下载次数
         int m_numCountTry = 1; // 当前下载次数
 
@@ -226,7 +223,7 @@ namespace Core.Kernel
             this.OnUpdate(Time.deltaTime, Time.unscaledDeltaTime);
         }
 
-        public void OnUpdate(float dt, float unscaledDt) {
+        override public void OnUpdate(float dt, float unscaledDt) {
             switch (this.m_downState)
             {
                 case EM_DownLoad.Init:
@@ -453,18 +450,8 @@ namespace Core.Kernel
 
         public ResInfo DownStart()
         {
-            if (!this.m_isOnUpdate)
-                RegUpdate(true);
+            this.StartUpdate();
             return this;
-        }
-
-        public void RegUpdate(bool isUp)
-        {
-            this.m_isOnUpdate = false;
-            GameMgr.DiscardUpdate(this);
-            if (isUp)
-                GameMgr.RegisterUpdate(this);
-            this.m_isOnUpdate = isUp;
         }
 
         public ResInfo ReDownReady(DF_LDownFile callFunc = null)

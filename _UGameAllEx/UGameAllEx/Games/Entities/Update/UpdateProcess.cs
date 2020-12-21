@@ -12,7 +12,7 @@ namespace Core.Kernel
 	/// 日期 : 2019-08-20 19:35
 	/// 功能 : 下载更新
 	/// </summary>
-	public class UpdateProcess : IUpdate  {
+	public class UpdateProcess : Beans.ED_Basic {
         bool m_isValidVersion = true, m_isUnZip = true;
         Action m_cfFinish = null;
         DF_OnState m_cfChgState = null;
@@ -28,9 +28,7 @@ namespace Core.Kernel
         public CompareFiles m_compare { get; private set; }
         int n_appfull_down = 0;
 
-        public bool m_isOnUpdate = false;
-        public bool IsOnUpdate() { return this.m_isOnUpdate; }
-        public void OnUpdate(float dt, float unscaledDt) {
+        override public void OnUpdate(float dt, float unscaledDt) {
             switch (this.m_state)
             {
                 case EM_Process.PreUnZipRes:
@@ -113,21 +111,10 @@ namespace Core.Kernel
             this._SetState(EM_Process.PreUnZipRes);
             return this;
         }
-
-        public void RegUpdate(bool isUp)
-        {
-            this.m_isOnUpdate = false;
-            GameMgr.DiscardUpdate(this);
-            if (isUp)
-                GameMgr.RegisterUpdate(this);
-            this.m_isOnUpdate = isUp;
-        }
-
+        
         public UpdateProcess Start()
         {
-            if (!this.m_isOnUpdate)
-                this.RegUpdate(true);
-
+            this.StartUpdate();
             return this;
         }
 
@@ -438,7 +425,7 @@ namespace Core.Kernel
 
         void _ST_Completed()
         {
-            this.RegUpdate(false);
+            this.StopUpdate();
             _OnGC(true);
 
             var cfg = CfgVersion.instance;

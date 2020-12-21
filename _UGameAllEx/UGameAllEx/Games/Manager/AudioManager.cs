@@ -114,7 +114,7 @@ public class AudioManager : GobjLifeListener
         if (_dt_ == null)
         {
             GobjLifeListener glife = GobjLifeListener.Get(gobj);
-            glife.AddOnlyOnceDCall(this._OnNotifyDestry);
+            glife.OnlyOnceCallDetroy(this._OnNotifyDestry);
 
             _dt_ = AudioData.BuilderSound(gobj, false, this.m_volumeSound);
         }

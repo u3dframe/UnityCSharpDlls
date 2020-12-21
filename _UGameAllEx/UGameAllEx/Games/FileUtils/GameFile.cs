@@ -189,26 +189,6 @@ namespace Core
 #endif
         }
 
-		override public Material GetMat(Renderer render)
-        {
-            if (null == render) return null;
-#if UNITY_EDITOR
-            return render.material;
-#else
-            return render.sharedMaterial;
-#endif
-        }
-
-        override public Material[] GetMats(Renderer render)
-        {
-            if (null == render) return null;
-#if UNITY_EDITOR
-            return render.materials;
-#else
-            return render.sharedMaterials;
-#endif
-        }
-
 		override public Shader FindShader(string shaderName)
 		{
 			return ABShader.FindShader(shaderName);
