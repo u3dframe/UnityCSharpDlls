@@ -315,6 +315,7 @@ public class GboxExport : MonoBehaviour
             case TriggerType.ChatOver: return "chat_over";
             case TriggerType.Del: return "del";
             case TriggerType.BoxGet:return "box_get";
+            case TriggerType.ForceFight:return "force_fight";
             default: return "";
         }
     }

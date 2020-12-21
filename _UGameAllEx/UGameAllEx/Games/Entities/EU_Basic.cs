@@ -12,7 +12,7 @@ namespace Core.Kernel.Beans
     [Serializable]
     public class EU_Basic : MonoBehaviour, IUpdate, ILateUpdate
     {
-        [HideInInspector] public bool m_isOnUpdate = true;
+        [HideInInspector] public bool m_isOnUpdate = false;
         public bool IsOnUpdate() { return this.m_isOnUpdate; }
         virtual public void OnUpdate(float dt, float unscaledDt) { }
 
@@ -27,7 +27,7 @@ namespace Core.Kernel.Beans
 
         public EU_Basic StartUpdate()
         {
-            if (!this.m_isOnUpdate)
+            if (!this.m_isOnUpdate || !GameMgr.IsInUpdate(this))
                 this.RegUpdate(true);
             return this;
         }
@@ -52,7 +52,7 @@ namespace Core.Kernel.Beans
 
         public EU_Basic StartLateUpdate()
         {
-            if (!this.m_isOnLateUpdate)
+            if (!this.m_isOnLateUpdate || !GameMgr.IsInLateUpdate(this))
                 this.RegLateUpdate(true);
             return this;
         }

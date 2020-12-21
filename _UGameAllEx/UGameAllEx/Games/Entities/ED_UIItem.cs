@@ -264,7 +264,7 @@ public class ED_UIItem : Core.Kernel.Beans.ED_Comp
         this.m_imgValBg.SetActive(_isBl);
     }
 
-    public void VwValue(object obj)
+    public void VwValue(object obj,bool isUText)
     {
         if(this.m_txtValue == null)
             return;
@@ -272,6 +272,12 @@ public class ED_UIItem : Core.Kernel.Beans.ED_Comp
         bool _isBl = obj != null;
         if(_isBl)
         {
+            if(isUText)
+            {
+                this.m_txtValue.SetUText(obj.ToString());
+                return;
+            }
+
             if(obj is int)
                 this.m_txtValue.SetText((int)obj);
             else
@@ -367,6 +373,10 @@ public class ED_UIItem : Core.Kernel.Beans.ED_Comp
         {
             if(type == 6)
                 this.m_imgIcon.SetImgHead(icon,false);
+            else if(type == 10)
+                this.m_imgIcon.SetImgHalfBody(icon,false);
+            else if(type == 11)
+                this.m_imgIcon.SetImgBody(icon,false);
             else
                 this.m_imgIcon.SetIcon(icon,false);
         }

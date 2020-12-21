@@ -16,6 +16,8 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
 
     public delegate void DF_OnValueChanged(float value);
 
+    public delegate void DF_OnMovingStateChanged(bool isMoving);
+
     protected class ListItem
     {
         public GameObject gameObject;
@@ -62,34 +64,33 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
             }
         }
 
+        public float toMove = 0;
+
         public float LowBound
         {
             get { return worldPos[GetNearestContentIndexToCenter()]; }
-            //set { WorldMove(value - LowBound); }
+            set { toMove = value - LowBound; }
         }
 
         public float HighBound
         {
             get { return LowBound + Length; }
-            //set { WorldMove(value - HighBound); }
+            set { toMove = value - HighBound; }
         }
 
         public float normalizedPosition
         {
             get
             {
-                var viewDelta = view.viewWorldHigh - view.viewWorldLow;
-                var total = Length - viewDelta;
+                var total = Length - (view.viewWorldHigh - view.viewWorldLow);
                 var i = GetNearestContentIndexToCenter();
                 return (initWorldPos - worldPos[i]) / total + pivot;
             }
             set
             {
-                //var viewDelta = view.viewWorldHigh - view.viewWorldLow;
-                //var total = Length - viewDelta;
-                //var i = GetNearestContentIndexToCenter();
-                //var delta = initWorldPos - (value - pivot) * total - worldPos[i];
-                //WorldMove(delta);
+                var total = Length - (view.viewWorldHigh - view.viewWorldLow);
+                var i = GetNearestContentIndexToCenter();
+                toMove = initWorldPos - (value - pivot) * total - worldPos[i];
             }
         }
 
@@ -430,6 +431,8 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
 
     public DF_OnValueChanged OnValueChanged;
 
+    public DF_OnMovingStateChanged OnMovingStateChanged;
+
     public bool interactable = true;
 
     [SerializeField]
@@ -576,10 +579,28 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
 
     protected void CheckedOnMovingCompleted()
     {
-        if (currMovingCompletedIndex < 0 || currMovingCompletedIndex == prevMovingCompletedIndex) return;
-        prevMovingCompletedIndex = currMovingCompletedIndex;
-        OnMovingCompleted?.Invoke(currMovingCompletedIndex);
+        if (currMovingCompletedIndex < 0) return;
+        if (!isDragging && !isForceMoving && worldDragSpeed == 0)
+            currIsMoving = false;
+        if (currMovingCompletedIndex != prevMovingCompletedIndex)
+        {
+            prevMovingCompletedIndex = currMovingCompletedIndex;
+            OnMovingCompleted?.Invoke(currMovingCompletedIndex);
+        }
         currMovingCompletedIndex = -1;
+    }
+
+    protected bool prevIsMoving = false;
+
+    protected bool currIsMoving = false;
+
+    protected void CheckedOnMovingStateChanged()
+    {
+        if (currIsMoving != prevIsMoving)
+        {
+            OnMovingStateChanged?.Invoke(currIsMoving);
+            prevIsMoving = currIsMoving;
+        }
     }
 
     protected float CalcAutoMovingSpeed(int index)
@@ -634,7 +655,7 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
             np = normalizedPosition;
         virtualContent.Reset();
         if (movementType == MovementType.AutoAlignment)
-            MoveToImmediately(resetPos ? 0 : Mathf.Min(currentIndex, itemCount - 1));
+            MoveToImmediately(resetPos ? 0 : currentIndex);
         else
             normalizedPosition = resetPos ? (vertical ? 1 : 0) : np;
         if (scrollbar != null)
@@ -690,15 +711,12 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
 
     protected LoopListView3 syncView = null;
 
-    protected float syncDelta = 0;
-
     public void Sync()
     {
         if (syncView == null) return;
         syncView.StopMovement();
         float x = (worldCenter - virtualContent.LowBound) / virtualContent.Length;
-        var newLowBound = syncView.worldCenter - x * syncView.virtualContent.Length;
-        syncView.syncDelta = newLowBound - syncView.virtualContent.LowBound;
+        syncView.virtualContent.LowBound = syncView.worldCenter - x * syncView.virtualContent.Length;
     }
 
     public void SetSyncView(LoopListView3 view)
@@ -753,6 +771,7 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
     public void OnEndDrag(PointerEventData eventData)
     {
         if (eventData.pointerId != currentPointerId || !interactable) return;
+        currIsMoving = false;   //应对一个极端情况
         isDragging = false;
         inertiaLerp = 0;
     }
@@ -761,7 +780,7 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
     {
         foreach (var p in itemPrefabs)
         {
-            if (p.name == name)
+            if (p != null && p.name == name)
                 return p;
         }
         return null;
@@ -941,6 +960,7 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         var prevDis = GetDistanceToCenterFrom(currentIndex);
         if (isForceMoving)
         {
+            currIsMoving = true;
             var speed = CalcAutoMovingSpeed(currentIndex);
             MoveVirtualContent(speed * deltaTime);
             var dis = GetDistanceToCenterFrom(currentIndex);
@@ -962,10 +982,10 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
                 speed = worldDragSpeed;
                 prevPointerPosition = currPointerPosition;
             }
-            else if (syncDelta != 0)
+            else if (virtualContent.toMove != 0)
             {
-                speed = syncDelta / deltaTime;
-                syncDelta = 0;
+                speed = virtualContent.toMove / deltaTime;
+                virtualContent.toMove = 0;
             }
             else
             {
@@ -984,14 +1004,17 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
             }
             if (speed != 0)
             {
+                currIsMoving = true;
                 var delta = speed * deltaTime;
                 MoveVirtualContent(delta);
                 var newIndex = virtualContent.CalcLocationIndex();
                 var newDis = GetDistanceToCenterFrom(newIndex);
+
+                //到达中心后，预测下一帧的总速度，如果与当前帧速度反向
+                //则直接将content对齐中心，避免其在中心附近震荡
                 void adjust()
                 {
                     if (isDragging || movementType != MovementType.AutoAlignment) return;
-                    //预测下一帧速度
                     var nextWorldDragSpeed = worldDragSpeed;
                     if (Mathf.Abs(nextWorldDragSpeed) > 0)
                     {
@@ -999,10 +1022,14 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
                         if (Mathf.Abs(nextWorldDragSpeed) < 1)
                             nextWorldDragSpeed = 0;
                     }
-                    var nextSpeed = Mathf.Lerp(nextWorldDragSpeed, CalcAutoMovingSpeed(currentIndex), Mathf.Clamp(inertiaLerp + deltaTime * 1.5f, 0, 1));
+                    var nextSpeed = Mathf.Lerp(nextWorldDragSpeed, CalcAutoMovingSpeed(newIndex), Mathf.Clamp(inertiaLerp + deltaTime * 1.5f, 0, 1));
                     if (nextSpeed * speed <= 0)
+                    {
                         MoveVirtualContent(-newDis);
+                        worldDragSpeed = 0;
+                    }
                 }
+
                 if (newIndex != currentIndex)
                 {
                     if (newDis * delta >= 0)    //定位索引改变时，位移与新索引距离同向，说明已越过或到达新物体中心
@@ -1040,6 +1067,11 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
                         adjust();
                     }
                 }
+            }
+            else
+            {
+                if (movementType == MovementType.Unrestricted)
+                    currIsMoving = false;
             }
         }
 
@@ -1099,7 +1131,8 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         }
 
         CheckedOnMovingCompleted();
-        
+        CheckedOnMovingStateChanged();
+
         //自动定位时，normalizedPosition会不断有微小变化
         //为避免不必要的回调，只有当其变化量换算为世界坐标不小于1时才触发回调
         var currNormalizedPos = normalizedPosition;
@@ -1138,17 +1171,20 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         this.OnMovingCompleted = null;
         this.OnIndexChanged = null;
         this.OnValueChanged = null;
-        
+        this.OnMovingStateChanged = null;
+
         base.OnDestroy();
     }
 
-    public void Init(LoopListView3.DF_GetItemName cfGetName,LoopListView3.DF_OnItemCreated cfCreate,LoopListView3.DF_SetItemData cfUpdate,LoopListView3.DF_OnIndexChanged cfMvEnd = null,LoopListView3.DF_OnValueChanged cfChgNormal = null)
+    public void Init(LoopListView3.DF_GetItemName cfGetName, LoopListView3.DF_OnItemCreated cfCreate, LoopListView3.DF_SetItemData cfUpdate
+        , LoopListView3.DF_OnIndexChanged cfMvEnd = null, LoopListView3.DF_OnValueChanged cfChgNormal = null, LoopListView3.DF_OnMovingStateChanged cfChgMv = null)
     {
         this.GetItemName = cfGetName;
         this.OnItemCreated = cfCreate;
         this.SetItemData = cfUpdate;
         this.OnMovingCompleted = cfMvEnd;
         this.OnValueChanged = cfChgNormal;
+        this.OnMovingStateChanged = cfChgMv;
     }
 
     public void SetScale(GameObject gobj,float val,string childNode = null)

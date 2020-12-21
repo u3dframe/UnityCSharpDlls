@@ -136,9 +136,14 @@ public class GameMgr : GobjLifeListener {
 			onLateUpdate();
 		}
 	}
-	
-	static public void RegisterUpdate(IUpdate up) {
-		if(mListUps.Contains(up))
+
+    static public bool IsInUpdate(IUpdate up)
+    {
+        return mListUps.Contains(up);
+    }
+
+    static public void RegisterUpdate(IUpdate up) {
+		if(IsInUpdate(up))
 			return;
 		mListUps.Add(up);
 	}
@@ -158,8 +163,13 @@ public class GameMgr : GobjLifeListener {
 		}
 	}
 
-	static public void RegisterLateUpdate(ILateUpdate up) {
-		if(mListLateUps.Contains(up))
+    static public bool IsInLateUpdate(ILateUpdate up)
+    {
+        return mListLateUps.Contains(up);
+    }
+
+    static public void RegisterLateUpdate(ILateUpdate up) {
+		if(IsInLateUpdate(up))
 			return;
 		mListLateUps.Add(up);
 	}
