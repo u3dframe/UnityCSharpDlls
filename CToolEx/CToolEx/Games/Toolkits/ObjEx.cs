@@ -23,6 +23,11 @@
             return lens <= 0;
         }
 
+        static public bool IsNullOrEmpty(List<object> list)
+        {
+            return (list == null || list.Count <= 0);
+        }
+
         static public List<object> ToList(params object[] vals)
         {
             if (vals == null || vals.Length <= 0)
