@@ -7,21 +7,24 @@ using UnityEngine.UI;
 /// 日期 : 2020-07-15 09:10
 /// 功能 : 
 /// </summary>
-public class UGUIModel : PrefabBasic {
-	static public new UGUIModel Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<UGUIModel>(gobj,true);
-	}
+public class UGUIModel : PrefabBasic
+{
+    static public new UGUIModel Get(GameObject gobj, bool isAdd)
+    {
+        return UtilityHelper.Get<UGUIModel>(gobj, true);
+    }
 
-	static public new UGUIModel Get(GameObject gobj){
-		return Get(gobj,true);
-	}
+    static public new UGUIModel Get(GameObject gobj)
+    {
+        return Get(gobj, true);
+    }
 
     public SmoothFollower m_sfwer { get; private set; }
     public Transform m_wrap { get; private set; }
+    public float m_wrapLocalScale { get; private set; }
     public GameObject m_node { get; private set; }
     public bool m_isAutoScale = true; // 是否对象自动缩放
     public float m_childScaleTo1 { get; private set; }
-    public float m_wrapLocalScale { get; private set; }
     public Camera m_camera { get; private set; }
     [SerializeField] RenderTexture _rtTarget;
     public RenderTexture m_rtTarget { get { return _rtTarget; } }
@@ -29,8 +32,8 @@ public class UGUIModel : PrefabBasic {
     [SerializeField] bool m_isUseRTFmt = false;
     [SerializeField] int m_rtWidth = 1024;
     [SerializeField] int m_rtHeight = 1024;
-    [SerializeField][Range(0, 8)] int m_rtdepth = 1;
-    [SerializeField][Range(1, 16)] int m_rtAntiAliasing = 1;
+    [SerializeField] [Range(0, 8)] int m_rtdepth = 1;
+    [SerializeField] [Range(1, 16)] int m_rtAntiAliasing = 1;
     RawImage _imgRaw = null;
     public RawImage m_imgRaw { get; private set; }
     public float m_rawWidth { get; private set; }
@@ -53,7 +56,7 @@ public class UGUIModel : PrefabBasic {
         };
         base.ReBindNodes();
     }
-    
+
     protected override void OnCall4Start()
     {
         base.OnCall4Start();
@@ -72,7 +75,7 @@ public class UGUIModel : PrefabBasic {
             this.m_sfwer.target = this.m_wrap;
             this.m_sfwer.isUpByLate = true;
             this.m_sfwer.isRunning = true;
-            this.ReSfwer(this.sfwerD,this.sfwerH,this.sfwerL);
+            this.ReSfwer(this.sfwerD, this.sfwerH, this.sfwerL);
         }
         this._ReRtex(this.m_rtWidth, this.m_rtHeight);
         this.ReRawImg(_imgRaw);
@@ -87,13 +90,13 @@ public class UGUIModel : PrefabBasic {
 
     void _ReRtex(int w, int h)
     {
-        if(this.m_rtWidth != w || this.m_rtHeight != h)
+        if (this.m_rtWidth != w || this.m_rtHeight != h)
         {
             this.m_rtWidth = w;
             this.m_rtHeight = h;
             this._DestroyRt();
         }
-        
+
         if (this.m_isUseRT && this.m_rtTarget == null)
         {
             if (m_isUseRTFmt)
@@ -109,7 +112,7 @@ public class UGUIModel : PrefabBasic {
                     rtFmt = RenderTextureFormat.ARGBHalf;
                 else if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RG16))
                     rtFmt = RenderTextureFormat.RG16;
-                this._rtTarget = new RenderTexture(this.m_rtWidth, this.m_rtHeight,this.m_rtdepth, rtFmt);
+                this._rtTarget = new RenderTexture(this.m_rtWidth, this.m_rtHeight, this.m_rtdepth, rtFmt);
             }
             else
             {
@@ -155,7 +158,7 @@ public class UGUIModel : PrefabBasic {
             this._imgRaw.enabled = false;
             this._imgRaw.texture = null;
         }
-        
+
         this.m_imgRaw = raw;
         if (this.m_imgRaw)
         {
@@ -166,7 +169,7 @@ public class UGUIModel : PrefabBasic {
         }
     }
 
-    public void ReSet(int rtWidth,int rtHeight,bool isUseRt = true)
+    public void ReSet(int rtWidth, int rtHeight, bool isUseRt = true)
     {
         this.m_isUseRT = isUseRt;
         if (!isUseRt)
@@ -186,7 +189,7 @@ public class UGUIModel : PrefabBasic {
                 this.m_rawMat.mainTexture = this.m_rtTarget;
         }
     }
-    
+
     public void ReSetModelLayer(string modelLayer)
     {
         if (!string.IsNullOrEmpty(modelLayer))
@@ -194,7 +197,7 @@ public class UGUIModel : PrefabBasic {
         UtilityHelper.SetLayerAll(this.m_node, this.m_layerModel);
     }
 
-    public void ReSfwer(float distance,float height = 1.78f,float lookAtHeight = 0.86f)
+    public void ReSfwer(float distance, float height = 1.78f, float lookAtHeight = 0.86f)
     {
         if (distance == 0)
             return;
@@ -223,7 +226,7 @@ public class UGUIModel : PrefabBasic {
         }
 
         if (this.m_camera)
-            this.m_camera.farClipPlane =  Mathf.Ceil(_abs + scale * 0.5f + 0.5f);
+            this.m_camera.farClipPlane = Mathf.Ceil(_abs + scale * 0.5f + 0.5f);
 
         if (this.m_isAutoScale)
         {
@@ -231,8 +234,8 @@ public class UGUIModel : PrefabBasic {
             this.SetModelLocalScale(scale);
         }
     }
-    
-    public void ReRawWH(float w,float h)
+
+    public void ReRawWH(float w, float h)
     {
         w = (w <= 0) ? this.m_rtWidth : w;
         h = (h <= 0) ? this.m_rtHeight : h;
