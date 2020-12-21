@@ -1,5 +1,7 @@
 ﻿namespace Core.Kernel
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// 类名 : 对象工具
     /// 作者 : Canyon / 龚阳辉
@@ -19,6 +21,20 @@
         {
             int lens = LensArrs(arrs);
             return lens <= 0;
+        }
+
+        static public List<object> ToList(params object[] vals)
+        {
+            if (vals == null || vals.Length <= 0)
+                return null;
+
+            List<object> list = new List<object>();
+            for (int i = 0; i < vals.Length; i++)
+            {
+                if (vals[i] != null)
+                    list.Add(vals[i]);
+            }
+            return list;
         }
 
         static public int NMaxMore(params int[] vals)
