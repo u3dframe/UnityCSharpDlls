@@ -30,4 +30,11 @@ public class MainCameraManager : MgrMainCamera
             this.m_postVolume = UtilityHelper.Get<PostProcessVolume>(this.m_camera);
         }
     }
+
+    public void SetPPVolume(PostProcessProfile pppfile)
+    {
+        if (this.m_postVolume == null)
+            return;
+        this.m_postVolume.profile = pppfile;
+    }
 }
