@@ -49,32 +49,31 @@ public static class RenderSettingsEx
         RenderSettings.reflectionIntensity = intensity;
     }
 
-    static public void SetAmbientGradient(Color skyColor, Color eqColor, Color gdColor, float intensity = 0)
+    static public Color ReColorIntensity(Color org,float intensity = 0)
     {
         if (intensity > 0)
         {
-            float factor = Mathf.Pow(2, intensity);
-            skyColor = new Color(skyColor.r * factor, skyColor.g * factor, skyColor.b * factor, skyColor.a);
-            eqColor = new Color(eqColor.r * factor, eqColor.g * factor, eqColor.b * factor, eqColor.a);
-            gdColor = new Color(gdColor.r * factor, gdColor.g * factor, gdColor.b * factor, gdColor.a);
+            // float factor = Mathf.Pow(2, intensity);
+            float in1 = (org.r + org.g + org.b) / 3f;
+            float factor = intensity / in1;
+            org = new Color(org.r * factor, org.g * factor, org.b * factor, org.a);
         }
+        return org;
+    }
 
+    static public void SetAmbientGradient(Color skyColor, Color eqColor, Color gdColor, float intensity = 0)
+    {
         RenderSettings.ambientIntensity = intensity;
         RenderSettings.ambientMode = AmbientMode.Trilight;
-        RenderSettings.ambientSkyColor = skyColor;
-        RenderSettings.ambientEquatorColor = eqColor;
-        RenderSettings.ambientGroundColor = gdColor;
+        RenderSettings.ambientSkyColor = ReColorIntensity(skyColor, intensity);
+        RenderSettings.ambientEquatorColor = ReColorIntensity(eqColor, intensity);
+        RenderSettings.ambientGroundColor = ReColorIntensity(gdColor, intensity);
     }
 
     static public void SetAmbientColor(Color skyColor, float intensity = 0)
     {
-        if (intensity > 0)
-        {
-            float factor = Mathf.Pow(2, intensity);
-            skyColor = new Color(skyColor.r * factor, skyColor.g * factor, skyColor.b * factor, skyColor.a);
-        }
         RenderSettings.ambientIntensity = intensity;
         RenderSettings.ambientMode = AmbientMode.Flat;
-        RenderSettings.ambientLight = skyColor;
+        RenderSettings.ambientLight = ReColorIntensity(skyColor, intensity);
     }
 }
