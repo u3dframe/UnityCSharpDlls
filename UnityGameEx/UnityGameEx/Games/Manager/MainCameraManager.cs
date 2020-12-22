@@ -18,6 +18,7 @@ public class MainCameraManager : MgrMainCamera
 		return Get(gobj,true);
 	}
 	
+    public PostProcessLayer m_postLayer { get; private set; }
     public PostProcessVolume m_postVolume { get; private set; }
 
     override protected void Awake()
@@ -25,6 +26,7 @@ public class MainCameraManager : MgrMainCamera
         base.Awake();
 
         if (m_camera){
+            this.m_postLayer = UtilityHelper.Get<PostProcessLayer>(this.m_camera);
             this.m_postVolume = UtilityHelper.Get<PostProcessVolume>(this.m_camera);
         }
     }
