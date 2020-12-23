@@ -109,13 +109,6 @@ public class UGUIEventListener : EventTrigger
         _isPressed = true;
         press_time = Time.realtimeSinceStartup;
         v2Start = eventData.position;
-        if (m_isSyncScroll)
-        {
-            if (_sclParent != null)
-                _sclParent.OnBeginDrag(eventData);
-
-            this.ExcuteSyncDrag(eventData, 0);
-        }
         if (onPress != null)
             onPress(gameObject, _isPressed, eventData.position);
         PropagationFirst(eventData, ExecuteEvents.pointerDownHandler);
@@ -129,14 +122,6 @@ public class UGUIEventListener : EventTrigger
         {
             diff_time = Time.realtimeSinceStartup - press_time;
             press_time = 0;
-        }
-
-        if (m_isSyncScroll)
-        {
-            if (_sclParent != null)
-                _sclParent.OnEndDrag(eventData);
-
-            this.ExcuteSyncDrag(eventData, 2);
         }
         if (onPress != null)
             onPress(gameObject, _isPressed, eventData.position);
