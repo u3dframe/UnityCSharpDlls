@@ -13,6 +13,69 @@ namespace Core.Kernel.Beans
     /// </summary>
     public class ED_Comp : ED_Basic
     {
+        static Dictionary<Type, Queue<ED_Comp>> m_caches = new Dictionary<Type, Queue<ED_Comp>>();
+        static T GetCache<T>() where T : ED_Comp
+        {
+            Type _tp = typeof(T);
+            Queue<ED_Comp> _que = null;
+            if(!m_caches.TryGetValue(_tp,out _que))
+            {
+                _que = new Queue<ED_Comp>();
+                m_caches.Add(_tp, _que);
+            }
+            if (_que.Count <= 0)
+                return null;
+            return (T)_que.Dequeue();
+        }
+
+        static void AddCache(ED_Comp entity)
+        {
+            if (entity == null || GHelper.Is_App_Quit)
+                return;
+
+            Type _tp = entity.GetType();
+            Queue<ED_Comp> _que = null;
+            if (!m_caches.TryGetValue(_tp, out _que))
+            {
+                _que = new Queue<ED_Comp>();
+                m_caches.Add(_tp, _que);
+            }
+            _que.Enqueue(entity);
+        }
+
+        static public T Builder<T>(UObject uobj) where T : ED_Comp,new()
+        {
+            GameObject _go = GHelper.ToGObj(uobj);
+            if (_go == null || !_go)
+                return null;
+            T ret = GetCache<T>();
+            if (ret == null)
+                ret = new T();
+            ret.InitGobj(_go);
+            return ret;
+        }
+
+        static public ED_Comp Builder(UObject uobj)
+        {
+            return Builder<ED_Comp>(uobj);
+        }
+
+        static public ED_Comp BuilderComp(UObject uobj, Component comp, Action cfDestroy, Action cfShow, Action cfHide)
+        {
+            GameObject _go = GHelper.ToGObj(uobj);
+            if (_go == null || !_go)
+                return null;
+            return new ED_Comp(_go, comp, cfDestroy, cfShow, cfHide);
+        }
+
+        static public ED_Comp BuilderComp(UObject uobj, string comp, Action cfDestroy, Action cfShow, Action cfHide)
+        {
+            GameObject _go = GHelper.ToGObj(uobj);
+            if (_go == null || !_go)
+                return null;
+            return new ED_Comp(_go, comp, cfDestroy, cfShow, cfHide);
+        }
+
         public string m_g_name { get; private set; }
         public GameObject m_gobj { get; private set; }
         public int m_gobjID { get; private set; }
@@ -26,7 +89,10 @@ namespace Core.Kernel.Beans
         public string m_strComp { get; private set; }
         public GobjLifeListener m_compGLife { get; private set; }
         Action m_cfShow = null, m_cfHide = null, m_cfDestroy = null;
-        
+        public ED_Comp()
+        {
+        }
+
         protected ED_Comp(GameObject gobj)
         {
             this.InitGobj(gobj);
@@ -42,7 +108,7 @@ namespace Core.Kernel.Beans
             this.InitComp(gobj, comp, cfDestroy, cfShow, cfHide);
         }
 
-        void InitGobj(GameObject gobj)
+        protected void InitGobj(GameObject gobj)
         {
             if (!gobj)
                 throw new Exception("=== gobj is null");
@@ -377,6 +443,8 @@ namespace Core.Kernel.Beans
             this.ClearComp();
             if (_call != null)
                 _call();
+
+            AddCache(this);
         }
 
         virtual protected void On_Show()
@@ -395,30 +463,6 @@ namespace Core.Kernel.Beans
         {
             if (this.m_behav)
                 this.m_behav.enabled = isBl;
-        }
-        
-        static public ED_Comp Builder(UObject uobj)
-        {
-            GameObject _go = GHelper.ToGObj(uobj);
-            if (_go == null || !_go)
-                return null;
-            return new ED_Comp(_go);
-        }
-
-        static public ED_Comp BuilderComp(UObject uobj, Component comp, Action cfDestroy, Action cfShow, Action cfHide)
-        {
-            GameObject _go = GHelper.ToGObj(uobj);
-            if (_go == null || !_go)
-                return null;
-            return new ED_Comp(_go, comp, cfDestroy, cfShow, cfHide);
-        }
-
-        static public ED_Comp BuilderComp(UObject uobj, string comp, Action cfDestroy, Action cfShow, Action cfHide)
-        {
-            GameObject _go = GHelper.ToGObj(uobj);
-            if (_go == null || !_go)
-                return null;
-            return new ED_Comp(_go, comp, cfDestroy, cfShow, cfHide);
         }
     }
 }
