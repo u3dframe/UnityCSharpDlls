@@ -10,6 +10,16 @@
     /// </summary>
     public class ObjEx
     {
+        static public bool IsSameClass(System.Type childClass, System.Type faClass)
+        {
+            return childClass == faClass || childClass.IsSubclassOf(faClass);
+        }
+
+        static public bool IsSameIClass(System.Type childClass, System.Type faClass)
+        {
+            return childClass == faClass || faClass.IsAssignableFrom(childClass);
+        }
+
         static public int LensArrs(object[] arrs)
         {
             if (arrs == null)
