@@ -135,6 +135,31 @@ namespace Core
             SaveAssets(gObj, isSave);
         }
 
+        static public void ErrorMissingScripts(GameObject gObj)
+        {
+            if (gObj == null || !gObj)
+                return;
+            var components = gObj.GetComponents<Component>();
+            var serializedObject = new SerializedObject(gObj);
+            var prop = serializedObject.FindProperty("m_Component");
+            bool isHasMissing = false;
+            Component _comp = null;
+            for (int j = 0; j < components.Length; j++)
+            {
+                _comp = components[j];
+                if (_comp == null || _comp.name.Contains("Missing"))
+                {
+                    isHasMissing = true;
+                    break;
+                }
+            }
+            if (isHasMissing)
+            {
+                string _name = UtilityHelper.RelativeName(gObj);
+                Debug.LogErrorFormat("=== missing Script = gname = [{0}]",_name);
+            }
+        }
+
         const string _fnSharder = "shaders.ab_shader";
 
         public static void ClearBuild()
@@ -283,7 +308,7 @@ namespace Core
                         GameObject.DestroyImmediate(item, true);
                     }
                 }
-                CleanupMissingScripts(gobj);
+                ErrorMissingScripts(gobj); // 2019 的prefab需要手动去移除丢失的组件
 
                 // 加上这句，才会保存修改后的prefab
                 if (IsPrefabInstance(gobj, false))
