@@ -56,7 +56,7 @@ public class UGUIEventListener : EventTrigger
 
     [HideInInspector] public bool m_isPropagation = false; // 是否透传
     [HideInInspector] public bool m_isSyncScroll = true;
-    ScrollRect _sclParent = null;
+    public ScrollRect m_sclParent { get; set; }
     T GetInParent<T>(Transform trsf) where T : Component
     {
         if (trsf == null) return null;
@@ -68,7 +68,7 @@ public class UGUIEventListener : EventTrigger
     void Awake()
     {
         this.limit_dis_max = maxDistance * maxDistance;
-        _sclParent = GetInParent<ScrollRect>(transform);
+        m_sclParent = GetInParent<ScrollRect>(transform);
     }
 
     void OnDisable()
@@ -174,8 +174,8 @@ public class UGUIEventListener : EventTrigger
     {
         if (m_isSyncScroll)
         {
-            if (_sclParent != null)
-                _sclParent.OnBeginDrag(eventData);
+            if (m_sclParent != null)
+                m_sclParent.OnBeginDrag(eventData);
 
             this.ExcuteSyncDrag(eventData, SyncEventType.BeginDrag);
         }
@@ -189,8 +189,8 @@ public class UGUIEventListener : EventTrigger
     {
         if (m_isSyncScroll)
         {
-            if (_sclParent != null)
-                _sclParent.OnDrag(eventData);
+            if (m_sclParent != null)
+                m_sclParent.OnDrag(eventData);
 
             this.ExcuteSyncDrag(eventData, SyncEventType.Drag);
         }
@@ -203,8 +203,8 @@ public class UGUIEventListener : EventTrigger
     {
         if (m_isSyncScroll)
         {
-            if (_sclParent != null)
-                _sclParent.OnEndDrag(eventData);
+            if (m_sclParent != null)
+                m_sclParent.OnEndDrag(eventData);
 
             this.ExcuteSyncDrag(eventData, SyncEventType.EndDrag);
         }
@@ -265,6 +265,7 @@ public class UGUIEventListener : EventTrigger
         this.onEndDrag = null;
         this.onDrop = null;
         this.onPress = null;
+        this.m_sclParent = null;
         this.m_listSyncDrag.Clear();
     }
 
