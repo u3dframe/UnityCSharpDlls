@@ -57,26 +57,18 @@ public class UGUIEventListener : EventTrigger
     [HideInInspector] public bool m_isPropagation = false; // 是否透传
     [HideInInspector] public bool m_isSyncScroll = true;
     ScrollRect _sclParent = null;
-    ScrollRect GetScrollInParent(Transform trsf)
+    T GetInParent<T>(Transform trsf) where T : Component
     {
         if (trsf == null) return null;
-        ScrollRect ret = trsf.GetComponent<ScrollRect>();
+        T ret = trsf.GetComponent<T>();
         if (ret != null) return ret;
-        return GetScrollInParent(trsf.parent);
+        return GetInParent<T>(trsf.parent);
     }
-
-    ScrollRect GetScrollInParent(GameObject gobj)
-    {
-        if (gobj == null) return null;
-        return GetScrollInParent(gobj.transform);
-    }
-
+    
     void Awake()
     {
         this.limit_dis_max = maxDistance * maxDistance;
-        _sclParent = GetScrollInParent(transform);
-        if(_sclParent != null)
-            this.AddSyncDrag4EventTrigger(_sclParent);
+        _sclParent = GetInParent<ScrollRect>(transform);
     }
 
     void OnDisable()

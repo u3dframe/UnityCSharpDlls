@@ -20,7 +20,7 @@ namespace Core.Kernel.Beans
             }
         }
 
-        public bool m_isOnUpdate = false;
+        public bool m_isOnUpdate { get; set; }
         public bool IsOnUpdate() { return this.m_isOnUpdate; }
         virtual public void OnUpdate(float dt, float unscaledDt) { }
 
@@ -45,7 +45,7 @@ namespace Core.Kernel.Beans
             this.RegUpdate(false);
         }
 
-        public bool m_isOnLateUpdate = false;
+        public bool m_isOnLateUpdate { get; set; }
         public bool IsOnLateUpdate() { return this.m_isOnLateUpdate; }
         virtual public void OnLateUpdate() { }
 
