@@ -62,18 +62,20 @@ namespace Core.Kernel.Beans
 
         static public ED_Comp BuilderComp(UObject uobj, Component comp, Action cfDestroy, Action cfShow, Action cfHide)
         {
-            GameObject _go = GHelper.ToGObj(uobj);
-            if (_go == null || !_go)
+            ED_Comp _comp = Builder(uobj);            
+            if (_comp == null)
                 return null;
-            return new ED_Comp(_go, comp, cfDestroy, cfShow, cfHide);
+            _comp.InitComp(comp, cfDestroy, cfShow, cfHide);
+            return _comp;
         }
 
         static public ED_Comp BuilderComp(UObject uobj, string comp, Action cfDestroy, Action cfShow, Action cfHide)
         {
-            GameObject _go = GHelper.ToGObj(uobj);
-            if (_go == null || !_go)
+            ED_Comp _comp = Builder(uobj);
+            if (_comp == null)
                 return null;
-            return new ED_Comp(_go, comp, cfDestroy, cfShow, cfHide);
+            _comp.InitComp(comp, cfDestroy, cfShow, cfHide);
+            return _comp;
         }
 
         public string m_g_name { get; private set; }
@@ -93,21 +95,6 @@ namespace Core.Kernel.Beans
         {
         }
 
-        protected ED_Comp(GameObject gobj)
-        {
-            this.InitGobj(gobj);
-        }
-
-        protected ED_Comp(GameObject gobj, Component comp, Action cfDestroy, Action cfShow, Action cfHide)
-        {
-            this.InitComp(gobj, comp, cfDestroy, cfShow, cfHide);
-        }
-
-        protected ED_Comp(GameObject gobj, string comp, Action cfDestroy, Action cfShow, Action cfHide)
-        {
-            this.InitComp(gobj, comp, cfDestroy, cfShow, cfHide);
-        }
-
         protected void InitGobj(GameObject gobj)
         {
             if (!gobj)
@@ -120,17 +107,11 @@ namespace Core.Kernel.Beans
             this.m_trsfRect = this.m_trsf as RectTransform;
         }
 
-        void InitCallFunc(Action cfDestroy, Action cfShow, Action cfHide)
+        public void InitCallFunc(Action cfDestroy, Action cfShow, Action cfHide)
         {
             this.m_cfDestroy = cfDestroy;
             this.m_cfShow = cfShow;
             this.m_cfHide = cfHide;
-        }
-
-        void InitComp(GameObject obj, Component comp, Action cfDestroy, Action cfShow, Action cfHide)
-        {
-            this.InitGobj(obj);
-            this.InitComp(comp, cfDestroy, cfShow, cfHide);
         }
 
         virtual public void InitComp(Component comp, Action cfDestroy, Action cfShow, Action cfHide)
@@ -149,12 +130,6 @@ namespace Core.Kernel.Beans
             this.m_compGLife.OnlyOnceCallDetroy(On_Destroy);
             this.m_compGLife.OnlyOnceCallShow(On_Show);
             this.m_compGLife.OnlyOnceCallHide(On_Hide);
-        }
-
-        void InitComp(GameObject obj, string strComp, Action cfDestroy, Action cfShow, Action cfHide)
-        {
-            this.InitGobj(obj);
-            this.InitComp(strComp, cfDestroy, cfShow, cfHide);
         }
 
         virtual public void InitComp(string strComp, Action cfDestroy, Action cfShow, Action cfHide)
@@ -347,7 +322,6 @@ namespace Core.Kernel.Beans
             if (this.m_trsfRect)
                 this.m_trsfRect.pivot = new Vector2(x, y);
         }
-
 
         public void GetRectSize(ref float w, ref float h)
         {
