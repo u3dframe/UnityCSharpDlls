@@ -51,9 +51,7 @@ public class GameMgr : GobjLifeListener {
 	static private List<ILateUpdate> mListLateUps = new List<ILateUpdate>();
 
 	List<IUpdate> upList = new List<IUpdate>();
-	IUpdate upItem = null;
 	List<ILateUpdate> upLateList = new List<ILateUpdate>();
-	ILateUpdate upLateItem = null;
 	[SerializeField] int upLens = 0;
 	[SerializeField] int lateLens = 0;
     bool m_isInitAfterUpload = false;
@@ -93,8 +91,6 @@ public class GameMgr : GobjLifeListener {
 		_mgrGobj = null;
 		onUpdate = null;
 		onLateUpdate = null;
-		upItem = null;
-		upLateItem = null;
 		mListUps.Clear();
 		mListLateUps.Clear();
 		upList.Clear();
@@ -105,37 +101,62 @@ public class GameMgr : GobjLifeListener {
 		upList.AddRange(mListUps);
 		upLens = upList.Count;
 		for (int i = 0; i < upLens; i++)
-		{
-			upItem = upList[i];
-			if(upItem != null && upItem.IsOnUpdate()){
-				upItem.OnUpdate(dt,unscaledDt);
-			}
-		}
+            _Exc_Up(upList[i], dt, unscaledDt);
 		upList.Clear();
 
-		if(onUpdate != null)
-		{
-			onUpdate(dt,unscaledDt);
-		}
-	}
+        try
+        {
+            if (onUpdate != null)
+                onUpdate(dt, unscaledDt);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogErrorFormat("=== onUpdate Err = [{0}]", ex);
+        }
+    }
+
+    void _Exc_Up(IUpdate item,float dt, float unscaledDt)
+    {
+        try
+        {
+            if (item != null && item.IsOnUpdate())
+                item.OnUpdate(dt, unscaledDt);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogErrorFormat("=== IUpdate Err = [{0}]", ex);
+        }
+    }
 
 	void _Exc_LateUp(){
 		upLateList.AddRange(mListLateUps);
 		lateLens = upLateList.Count;
 		for (int i = 0; i < lateLens; i++)
-		{
-			upLateItem = upLateList[i];
-			if(upLateItem != null && upLateItem.IsOnLateUpdate()){
-				upLateItem.OnLateUpdate();
-			}
-		}
+            _Exc_LateUp(upLateList[i]);
 		upLateList.Clear();
-
-		if(onLateUpdate != null)
-		{
-			onLateUpdate();
-		}
+        try
+        {
+            if (onLateUpdate != null)
+                onLateUpdate();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogErrorFormat("=== onLateUpdate Err = [{0}]", ex);
+        }
 	}
+
+    void _Exc_LateUp(ILateUpdate lateItem)
+    {
+        try
+        {
+            if (lateItem != null && lateItem.IsOnLateUpdate())
+                lateItem.OnLateUpdate();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogErrorFormat("=== ILateUpdate Err = [{0}]", ex);
+        }
+    }
 
     static public bool IsInUpdate(IUpdate up)
     {
