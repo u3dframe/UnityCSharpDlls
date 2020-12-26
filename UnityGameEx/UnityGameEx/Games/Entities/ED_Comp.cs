@@ -91,6 +91,8 @@ namespace Core.Kernel.Beans
         public string m_strComp { get; private set; }
         public GobjLifeListener m_compGLife { get; private set; }
         Action m_cfShow = null, m_cfHide = null, m_cfDestroy = null;
+        protected Vector3 m_startPos = Vector3.zero;
+        protected Vector3 m_startLocPos = Vector3.zero;
         public ED_Comp()
         {
         }
@@ -105,6 +107,8 @@ namespace Core.Kernel.Beans
             this.m_gobjID = this.m_gobj.GetInstanceID();
             this.m_trsf = this.m_gobj.transform;
             this.m_trsfRect = this.m_trsf as RectTransform;
+            this.m_startPos = this.m_trsf.position;
+            this.m_startLocPos = this.m_trsf.localPosition;
         }
 
         public void InitCallFunc(Action cfDestroy, Action cfShow, Action cfHide)
@@ -152,6 +156,8 @@ namespace Core.Kernel.Beans
             this.m_cfDestroy = null;
             this.m_cfShow = null;
             this.m_cfHide = null;
+            this.m_cfUpdate = null;
+            this.m_cfEndUpdate = null;
         }
 
         public Component GetComponent(string cType)
@@ -437,6 +443,147 @@ namespace Core.Kernel.Beans
         {
             if (this.m_behav)
                 this.m_behav.enabled = isBl;
+        }
+
+        public bool m_isUpByLate { get; set; }
+        private int m_upPosState = 0;
+        protected float m_jugdePosDis = 0.0025f;
+        private Vector3 m_curPos = Vector3.zero;
+        private Vector3 m_toPos = Vector3.zero;
+        private Vector3 m_diffPos = Vector3.zero;
+        private float m_currentVelocity = 0.0F;
+        private float m_smoothTime = 0.1F;
+        protected Action m_cfUpdate = null;
+        private Action m_cfEndUpdate = null;
+
+        public void StartCurrUpdate()
+        {
+            this.StopAllUpdate();
+            if (this.m_isUpByLate)
+                this.StartLateUpdate();
+            else
+                this.StartUpdate();
+        }
+
+        override public void OnLateUpdate()
+        {
+            base.OnLateUpdate();
+            if (!m_isUpByLate) return;
+            _On_Update();
+        }
+
+        override public void OnUpdate(float dt, float unscaledDt)
+        {
+            base.OnUpdate(dt, unscaledDt);
+            if (m_isUpByLate) return;
+            _On_Update();
+        }
+
+        void _On_Update()
+        {
+            if(this.m_cfUpdate != null)
+                this.m_cfUpdate();
+            this._OnCurrUpdate();
+        }
+
+        virtual protected void _OnCurrUpdate()
+        {
+            if(this.m_cfUpdate != null)
+            {
+                if(this.m_upPosState != 0)
+                {
+                    this.SetCurrPos();
+
+                    this.m_diffPos = this.m_toPos - this.m_curPos;
+                    if (this.m_diffPos.sqrMagnitude < this.m_jugdePosDis)
+                    {
+                        this.m_cfUpdate -= _SmoothMoveX;
+                        this.m_cfUpdate -= _SmoothMoveY;
+                        this.m_cfUpdate -= _SmoothMoveZ;
+                        this.m_upPosState = 0;
+                    }
+                }
+            }
+
+            if (this.m_cfUpdate == null)
+            {
+                this.StopAllUpdate();
+                this.ExcuteCFUpdateEnd();
+            }
+        }
+
+        protected void SetCurrPos()
+        {
+            if (this.m_upPosState == 1)
+                this.m_trsf.localPosition = this.m_curPos;
+            else
+                this.m_trsf.position = this.m_curPos;
+        }
+
+        void ExcuteCFUpdateEnd()
+        {
+            var _call = this.m_cfEndUpdate;
+            this.m_cfEndUpdate = null;
+            if (_call != null)
+                _call();
+        }
+
+        virtual protected void _SmoothMoveX()
+        {
+            this.m_curPos.x = Mathf.SmoothDamp(this.m_curPos.x, this.m_toPos.x, ref m_currentVelocity, m_smoothTime);
+        }
+
+        virtual protected void _SmoothMoveY()
+        {
+            this.m_curPos.y = Mathf.SmoothDamp(this.m_curPos.y, this.m_toPos.y, ref m_currentVelocity, m_smoothTime);
+        }
+
+        virtual protected void _SmoothMoveZ()
+        {
+            this.m_curPos.z = Mathf.SmoothDamp(this.m_curPos.z, this.m_toPos.z, ref m_currentVelocity, m_smoothTime);
+        }
+
+        public bool IsSmoothPos(float toX, float toY, float toZ, bool isLocal, float smoothTime = 0f, Action callFinish = null)
+        {
+            this.StopAllUpdate();
+            this.m_upPosState = 0;
+            this.m_cfUpdate = null;
+            this.m_cfEndUpdate = callFinish;
+            this.m_smoothTime = smoothTime;
+            this.m_toPos.x = toX;
+            this.m_toPos.y = toY;
+            this.m_toPos.z = toZ;
+            this.m_curPos = isLocal ? this.m_trsf.localPosition : this.m_trsf.position;
+
+            this.m_diffPos = this.m_toPos - this.m_curPos;
+            bool _isSmoonth = (smoothTime > 0) && (m_diffPos.sqrMagnitude > this.m_jugdePosDis);
+            if (_isSmoonth)
+            {
+                if (this.m_curPos.x != toX)
+                    this.m_cfUpdate += _SmoothMoveX;
+
+                if (this.m_curPos.y != toY)
+                    this.m_cfUpdate += _SmoothMoveY;
+
+                if (this.m_curPos.z != toZ)
+                    this.m_cfUpdate += _SmoothMoveZ;
+
+                this.m_upPosState = isLocal ? 1 : 2;
+            }
+            else
+            {
+                this.SetCurrPos();
+            }
+            return _isSmoonth;
+        }
+
+        public void ToSmoothPos(float toX, float toY, float toZ, bool isLocal, float smoothTime = 0f, Action callFinish = null)
+        {
+            bool _isSmoonth = this.IsSmoothPos(toX, toY, toZ, isLocal, smoothTime, callFinish);
+            if (_isSmoonth)
+                this.StartCurrUpdate();
+            else
+                this.ExcuteCFUpdateEnd();
         }
     }
 }
