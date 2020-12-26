@@ -107,8 +107,8 @@ namespace Core.Kernel.Beans
             this.m_gobjID = this.m_gobj.GetInstanceID();
             this.m_trsf = this.m_gobj.transform;
             this.m_trsfRect = this.m_trsf as RectTransform;
-            this.m_startPos = this.m_trsf.position;
-            this.m_startLocPos = this.m_trsf.localPosition;
+            this.m_startPos = this.GetCurrPos(false);
+            this.m_startLocPos = this.GetCurrPos();
         }
 
         public void InitCallFunc(Action cfDestroy, Action cfShow, Action cfHide)
@@ -145,6 +145,7 @@ namespace Core.Kernel.Beans
 
         public void ClearComp()
         {
+            this.StopAllUpdate();
             this.m_gobj = null;
             this.m_trsf = null;
             this.m_trsfRect = null;
@@ -158,6 +159,19 @@ namespace Core.Kernel.Beans
             this.m_cfHide = null;
             this.m_cfUpdate = null;
             this.m_cfEndUpdate = null;
+        }
+
+        public Vector3 GetCurrPos(bool isLocal = true)
+        {
+            return isLocal ? this.m_trsf.localPosition : this.m_trsf.position;
+        }
+
+        public void SetCurrPos(Vector3 pos, bool isLocal = true)
+        {
+            if (isLocal)
+                this.m_trsf.localPosition = pos;
+            else
+                this.m_trsf.position = pos;
         }
 
         public Component GetComponent(string cType)
@@ -242,7 +256,7 @@ namespace Core.Kernel.Beans
 
         public Vector3 GetPosition()
         {
-            return this.m_trsf.position;
+            return this.GetCurrPos(false);
         }
 
         public void SetPosition(float x, float y, float z)
@@ -514,13 +528,11 @@ namespace Core.Kernel.Beans
 
         protected void SetCurrPos()
         {
-            if (this.m_upPosState == 1)
-                this.m_trsf.localPosition = this.m_curPos;
-            else
-                this.m_trsf.position = this.m_curPos;
+            bool isLocal = this.m_upPosState == 1;
+            this.SetCurrPos(this.m_curPos, isLocal);
         }
 
-        void ExcuteCFUpdateEnd()
+        protected void ExcuteCFUpdateEnd()
         {
             var _call = this.m_cfEndUpdate;
             this.m_cfEndUpdate = null;
@@ -542,7 +554,7 @@ namespace Core.Kernel.Beans
         {
             this.m_curPos.z = Mathf.SmoothDamp(this.m_curPos.z, this.m_toPos.z, ref m_currentVelocity, m_smoothTime);
         }
-
+        
         public bool IsSmoothPos(float toX, float toY, float toZ, bool isLocal, float smoothTime = 0f, Action callFinish = null)
         {
             this.StopAllUpdate();
@@ -553,7 +565,7 @@ namespace Core.Kernel.Beans
             this.m_toPos.x = toX;
             this.m_toPos.y = toY;
             this.m_toPos.z = toZ;
-            this.m_curPos = isLocal ? this.m_trsf.localPosition : this.m_trsf.position;
+            this.m_curPos = GetCurrPos(isLocal);
 
             this.m_diffPos = this.m_toPos - this.m_curPos;
             bool _isSmoonth = (smoothTime > 0) && (m_diffPos.sqrMagnitude > this.m_jugdePosDis);
