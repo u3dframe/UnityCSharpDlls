@@ -558,7 +558,7 @@ namespace Core.Kernel.Beans
         public bool IsSmoothPos(float toX, float toY, float toZ, bool isLocal, float smoothTime = 0f, Action callFinish = null)
         {
             this.StopAllUpdate();
-            this.m_upPosState = 0;
+            this.m_upPosState = isLocal ? 1 : 2;
             this.m_cfUpdate = null;
             this.m_cfEndUpdate = callFinish;
             this.m_smoothTime = smoothTime;
@@ -579,11 +579,12 @@ namespace Core.Kernel.Beans
 
                 if (this.m_curPos.z != toZ)
                     this.m_cfUpdate += _SmoothMoveZ;
-
-                this.m_upPosState = isLocal ? 1 : 2;
             }
             else
             {
+                this.m_curPos.x = toX;
+                this.m_curPos.y = toY;
+                this.m_curPos.z = toZ;
                 this.SetCurrPos();
             }
             return _isSmoonth;
