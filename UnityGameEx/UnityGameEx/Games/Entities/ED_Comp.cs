@@ -460,6 +460,7 @@ namespace Core.Kernel.Beans
         }
 
         public bool m_isUpByLate { get; set; }
+        protected bool m_isSmoothPos { get; private set; }
         private int m_upPosState = 0;
         protected float m_jugdePosDis = 0.0025f;
         private Vector3 m_curPos = Vector3.zero;
@@ -554,12 +555,24 @@ namespace Core.Kernel.Beans
         {
             this.m_curPos.z = Mathf.SmoothDamp(this.m_curPos.z, this.m_toPos.z, ref m_currentVelocity, m_smoothTime);
         }
+
+        protected bool IsChgSmoothPos(float toX, float toY, float toZ)
+        {
+            Vector3 _toV3 = new Vector3(toX, toY, toZ);
+            _toV3 = this.m_toPos - _toV3;
+            if (_toV3.sqrMagnitude <= m_jugdePosDis)
+                return false;
+            return true;
+        }
         
         public bool IsSmoothPos(float toX, float toY, float toZ, bool isLocal, float smoothTime = 0f, Action callFinish = null)
         {
+            if (!this.IsChgSmoothPos(toX, toY, toZ))
+                return this.m_isSmoothPos;
+
             this.StopAllUpdate();
-            this.m_upPosState = isLocal ? 1 : 2;
             this.m_cfUpdate = null;
+            this.m_upPosState = isLocal ? 1 : 2;
             this.m_cfEndUpdate = callFinish;
             this.m_smoothTime = smoothTime;
             this.m_toPos.x = toX;
@@ -568,8 +581,8 @@ namespace Core.Kernel.Beans
             this.m_curPos = GetCurrPos(isLocal);
 
             this.m_diffPos = this.m_toPos - this.m_curPos;
-            bool _isSmoonth = (smoothTime > 0) && (m_diffPos.sqrMagnitude > this.m_jugdePosDis);
-            if (_isSmoonth)
+            this.m_isSmoothPos = (smoothTime > 0) && (m_diffPos.sqrMagnitude > this.m_jugdePosDis);
+            if (this.m_isSmoothPos)
             {
                 if (this.m_curPos.x != toX)
                     this.m_cfUpdate += _SmoothMoveX;
@@ -587,7 +600,7 @@ namespace Core.Kernel.Beans
                 this.m_curPos.z = toZ;
                 this.SetCurrPos();
             }
-            return _isSmoonth;
+            return this.m_isSmoothPos;
         }
 
         public void ToSmoothPos(float toX, float toY, float toZ, bool isLocal, float smoothTime = 0f, Action callFinish = null)
