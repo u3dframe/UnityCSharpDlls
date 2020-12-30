@@ -89,7 +89,7 @@ public class GameMgr : GobjLifeListener {
 	/// </summary>
 	override protected void OnCall4Destroy() {
 		_mgrGobj = null;
-		onUpdate = null;
+        onUpdate = null;
 		onLateUpdate = null;
 		mListUps.Clear();
 		mListLateUps.Clear();
@@ -209,4 +209,14 @@ public class GameMgr : GobjLifeListener {
 				onLateUpdate += call;
 		}
 	}
+
+    static public void Fps(bool isShow)
+    {
+        GameObject _gobj = GameMgr.mgrGobj;
+        if (IsNull(_gobj))
+            return;
+        FPSDisplay _fps = GHelper.Get<FPSDisplay>(_gobj, isShow);
+        if (!isShow && !IsNull(_fps))
+            GameObject.DestroyImmediate(_fps);
+    }
 }
