@@ -20,7 +20,7 @@ public class LogToNetHelper:MonoBehaviour
         public string d_url = "";
         public int sendCount = 0;
         public Dictionary<string, string> m_kvs = new Dictionary<string, string>();
-        public void Init(string url, string proj, params string[] kvs)
+        public void Init(string url, string proj, params object[] kvs)
         {
             this.Clear();
             this.sendCount = 0;
@@ -32,7 +32,7 @@ public class LogToNetHelper:MonoBehaviour
             this.d_url = url;
 
             int _lens = kvs.Length;
-            string _k,_v;
+            object _k,_v;
             for (int i = 0; i < _lens; i += 2)
             {
                 if (i + 1 >= _lens)
@@ -45,7 +45,7 @@ public class LogToNetHelper:MonoBehaviour
                 if (_v == null)
                     continue;
 
-                this.m_kvs.Add(_k, _v);
+                this.m_kvs.Add(_k.ToString(), _v.ToString());
             }
 
             if (!this.m_kvs.ContainsKey("p_deviceName"))
@@ -253,7 +253,7 @@ public class LogToNetHelper:MonoBehaviour
         SendDefault(subject, body, 99999);
     }
 
-    public void SendParams(string url, string proj,params string[] kvs)
+    public void SendParams(string url, string proj,params object[] kvs)
     {
         if (string.IsNullOrEmpty(url))
             url = this.m_url;
@@ -262,17 +262,17 @@ public class LogToNetHelper:MonoBehaviour
         _AddQueue(_data);
     }
 
-    public void SendKvs(string url, string proj,string k1, string v1, string k2 = null, string v2 = null, string k3 = null, string v3 = null, string k4 = null, string v4 = null, string k5 = null, string v5 = null, string k6 = null, string v6 = null)
+    public void SendKvs(string url, string proj,object k1, object v1, object k2 = null, object v2 = null, object k3 = null, object v3 = null, object k4 = null, object v4 = null, object k5 = null, object v5 = null, object k6 = null, object v6 = null)
     {
         SendParams(url, proj, k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6);
     }
 
-    public void SendKvsByDefUProj(string k1, string v1, string k2 = null, string v2 = null, string k3 = null, string v3 = null, string k4 = null, string v4 = null, string k5 = null, string v5 = null, string k6 = null, string v6 = null)
+    public void SendKvsByDefUProj(object k1, object v1, object k2 = null, object v2 = null, object k3 = null, object v3 = null, object k4 = null, object v4 = null, object k5 = null, object v5 = null, object k6 = null, object v6 = null)
     {
         SendParams(this.m_url, this.m_proj, k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6);
     }
 
-    public void UserLog(string k1, string v1, string k2 = null, string v2 = null, string k3 = null, string v3 = null, string k4 = null, string v4 = null, string k5 = null, string v5 = null, string k6 = null, string v6 = null)
+    public void UserLog(object k1, object v1, object k2 = null, object v2 = null, object k3 = null, object v3 = null, object k4 = null, object v4 = null, object k5 = null, object v5 = null, object k6 = null, object v6 = null)
     {
         // process
         SendParams(this.m_url, "client_log_user", k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6);
