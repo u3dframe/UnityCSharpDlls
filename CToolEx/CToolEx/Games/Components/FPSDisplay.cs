@@ -11,7 +11,7 @@ using System.Collections;
 public class FPSDisplay : MonoBehaviour
 {
 	float deltaTime = 0.0f;
-    [SerializeField][Range(0.01f,0.2f)] float hsRate = 0.03f;
+    [SerializeField][Range(0.02f,0.05f)] float hsRate = 0.023f;
     [SerializeField] Color tCol = new Color(1,0,100/255f,1);
 	GUIStyle style = new GUIStyle();
 	void Update()
