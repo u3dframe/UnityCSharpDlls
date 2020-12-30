@@ -649,6 +649,56 @@ namespace Core
             BuildNow(true, false);
         }
 
+        static public bool IsInParams(string cur, params string[] strs)
+        {
+            if (strs == null || strs.Length <= 0)
+                return false;
+            if (string.IsNullOrEmpty(cur))
+                return false;
+            for (int i = 0; i < strs.Length; i++)
+            {
+                if (cur.Equals(strs[i]))
+                    return true;
+            }
+            return false;
+        }
+
+        static public void BindStateMachineBehaviour<T>(params string[] stateNames) where T : StateMachineBehaviour
+        {
+            string _fd = BuildPatcher.m_appAssetPath;
+            string[] files = Directory.GetFiles(_fd, "*.controller", SearchOption.AllDirectories);
+            AnimatorController animatorController = null;
+            bool _isChg = false;
+            foreach (string file in files)
+            {
+                animatorController = BuildPatcher.GetObject<AnimatorController>(file);
+                if (animatorController == null)
+                    continue;
+                _isChg = false;
+                AnimatorControllerLayer[] layers = animatorController.layers;
+                foreach (var layer in layers)
+                {
+                    ChildAnimatorState[] states = layer.stateMachine.states;
+                    foreach (var state in states)
+                    {
+                        if (IsInParams(state.state.name, stateNames))
+                        {
+                            foreach (var item in state.state.behaviours)
+                            {
+                                if (item is T)
+                                    goto _FC;
+                            }
+                            _isChg = true;
+                            state.state.AddStateMachineBehaviour<T>();
+                            _FC: continue;
+                        }
+                    }
+                }
+                if (_isChg)
+                    SaveAssets(animatorController, true);
+            }
+        }
+
         static protected void LandscapePlatformSetting(BuildTarget buildTarget, string applicationIdentifier, string bundleVersion, string bundleVersionCode, bool isAddBVer = true)
         {
             if (!string.IsNullOrEmpty(applicationIdentifier))
@@ -668,6 +718,7 @@ namespace Core
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
 
+            // PlayerSettings.MTRendering = true; // 多线程渲染
             ScriptingImplementation scripting = ScriptingImplementation.IL2CPP;
             // EditorUserBuildSettings.activeBuildTarget
             switch (buildTarget)
@@ -723,55 +774,6 @@ namespace Core
                 }
             }
         }
-
-        static public bool IsInParams(string cur, params string[] strs)
-        {
-            if (strs == null || strs.Length <= 0)
-                return false;
-            if (string.IsNullOrEmpty(cur))
-                return false;
-            for (int i = 0; i < strs.Length; i++)
-            {
-                if (cur.Equals(strs[i]))
-                    return true;
-            }
-            return false;
-        }
-
-        static public void BindStateMachineBehaviour<T>(params string[] stateNames) where T : StateMachineBehaviour
-        {
-            string _fd = BuildPatcher.m_appAssetPath;
-            string[] files = Directory.GetFiles(_fd, "*.controller", SearchOption.AllDirectories);
-            AnimatorController animatorController = null;
-            bool _isChg = false;
-            foreach (string file in files)
-            {
-                animatorController = BuildPatcher.GetObject<AnimatorController>(file);
-                if (animatorController == null)
-                    continue;
-                _isChg = false;
-                AnimatorControllerLayer[] layers = animatorController.layers;
-                foreach (var layer in layers)
-                {
-                    ChildAnimatorState[] states = layer.stateMachine.states;
-                    foreach (var state in states)
-                    {
-                        if (IsInParams(state.state.name, stateNames))
-                        {
-                            foreach (var item in state.state.behaviours)
-                            {
-                                if (item is T)
-                                    goto _FC;
-                            }
-                            _isChg = true;
-                            state.state.AddStateMachineBehaviour<T>();
-                            _FC: continue;
-                        }
-                    }
-                }
-                if(_isChg)
-                    SaveAssets(animatorController, true);
-            }
-        }
+        
     }
 }
