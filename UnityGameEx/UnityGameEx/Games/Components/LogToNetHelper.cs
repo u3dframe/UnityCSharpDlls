@@ -271,4 +271,10 @@ public class LogToNetHelper:MonoBehaviour
     {
         SendParams(this.m_url, this.m_proj, k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6);
     }
+
+    public void UserLog(string k1, string v1, string k2 = null, string v2 = null, string k3 = null, string v3 = null, string k4 = null, string v4 = null, string k5 = null, string v5 = null, string k6 = null, string v6 = null)
+    {
+        // process
+        SendParams(this.m_url, "client_log_user", k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6);
+    }
 }
