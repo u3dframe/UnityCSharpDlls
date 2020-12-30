@@ -673,6 +673,8 @@ namespace Core
             switch (buildTarget)
             {
                 case BuildTarget.Android:
+                    PlayerSettings.Android.startInFullscreen = true;
+                    PlayerSettings.Android.renderOutsideSafeArea = false;
                     scripting = PlayerSettings.GetScriptingBackend(BuildTargetGroup.Android);
                     if (scripting != ScriptingImplementation.IL2CPP)
                         PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
