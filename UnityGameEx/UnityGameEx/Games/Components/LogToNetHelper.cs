@@ -32,17 +32,20 @@ public class LogToNetHelper:MonoBehaviour
             this.d_url = url;
 
             int _lens = kvs.Length;
-            string _v;
+            string _k,_v;
             for (int i = 0; i < _lens; i += 2)
             {
                 if (i + 1 >= _lens)
                     break;
 
+                _k = kvs[i];
+                if (_k == null)
+                    continue;
                 _v = kvs[i + 1];
                 if (_v == null)
                     continue;
 
-                this.m_kvs.Add(kvs[i], _v);
+                this.m_kvs.Add(_k, _v);
             }
 
             if (!this.m_kvs.ContainsKey("p_deviceName"))
@@ -259,23 +262,13 @@ public class LogToNetHelper:MonoBehaviour
         _AddQueue(_data);
     }
 
-    public void SendKvs(string url, string proj,string k1, string v1, string k2, string v2, string k3, string v3, string k4, string v4, string k5, string v5)
+    public void SendKvs(string url, string proj,string k1, string v1, string k2 = null, string v2 = null, string k3 = null, string v3 = null, string k4 = null, string v4 = null, string k5 = null, string v5 = null, string k6 = null, string v6 = null)
     {
-        SendParams(url, proj, k1, v1, k2, v2, k3, v3, k4, v4, k5, v5);
+        SendParams(url, proj, k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6);
     }
 
-    public void SendKvs(string url, string proj, string k1, string v1, string k2, string v2, string k3, string v3, string k4, string v4)
+    public void SendKvsByDefUProj(string k1, string v1, string k2 = null, string v2 = null, string k3 = null, string v3 = null, string k4 = null, string v4 = null, string k5 = null, string v5 = null, string k6 = null, string v6 = null)
     {
-        SendParams(url, proj, k1, v1, k2, v2, k3, v3, k4, v4);
-    }
-
-    public void SendKvs(string url, string proj, string k1, string v1, string k2, string v2, string k3, string v3)
-    {
-        SendParams(url, proj, k1, v1, k2, v2, k3, v3);
-    }
-
-    public void SendKvs(string url, string proj, string k1, string v1, string k2, string v2)
-    {
-        SendParams(url, proj, k1, v1, k2, v2);
+        SendParams(this.m_url, this.m_proj, k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6);
     }
 }
