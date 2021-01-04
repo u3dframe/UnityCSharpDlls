@@ -44,7 +44,7 @@ public class RendererSortOrder : GobjLifeListener
 
     public float m_delay = 0.1f;
     bool m_isInited = false;
-    [SerializeField] bool m_isNewMat = true;
+    [SerializeField] bool m_isNewMat = false;
     Dictionary<int, RendererMatData> m_dicAllMats = new Dictionary<int, RendererMatData>();
 
     override protected void OnCall4Start()
