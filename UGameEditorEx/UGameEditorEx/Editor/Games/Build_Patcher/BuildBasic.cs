@@ -105,37 +105,6 @@ namespace Core
             return true;
         }
 
-        static public void CleanupMissingScripts(GameObject gObj, bool isSave = true)
-        {
-            // We must use the GetComponents array to actually detect missing components
-            var components = gObj.GetComponents<Component>();
-
-            // Create a serialized UObject so that we can edit the component list
-            var serializedObject = new SerializedObject(gObj);
-            // Find the component list property
-            var prop = serializedObject.FindProperty("m_Component");
-            SerializedProperty _pit;
-            string _pname;
-            for (int j = components.Length - 1; j >= 0; j--)
-            {
-                _pit = prop.GetArrayElementAtIndex(j);
-                _pname = null;
-                if (_pit != null)
-                    _pname = _pit.displayName;
-                // _pit.objectReferenceInstanceIDValue
-                // Check if the ref is null
-                if (string.IsNullOrEmpty(_pname))
-                {
-                    // If so, remove from the serialized component array
-                    prop.DeleteArrayElementAtIndex(j);
-                }
-            }
-
-            // Apply our changes to the game UObject
-            serializedObject.ApplyModifiedProperties();
-            SaveAssets(gObj, isSave);
-        }
-
         static public void ErrorMissingScripts(GameObject gObj)
         {
             if (gObj == null || !gObj)
