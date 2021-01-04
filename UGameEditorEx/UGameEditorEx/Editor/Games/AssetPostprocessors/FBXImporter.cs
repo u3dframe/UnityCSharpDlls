@@ -34,7 +34,7 @@ public class FBXImporter : AssetPostprocessor
         // BindModelCollider(gobj);
         // EmptyModelMaterial(gobj); // 导致很多问题,美术控制
         EmptyModelAnimation(gobj);
-        // HandlerAnimationClip(gobj,true,this.assetPath);
+        HandlerAnimationClip(gobj,true,this.assetPath);
     }
 
     void BindModelCollider(GameObject gobj)
@@ -159,14 +159,20 @@ public class FBXImporter : AssetPostprocessor
             AnimationClip[] objectList = UnityEngine.Resources.FindObjectsOfTypeAll<AnimationClip>();
             animationClipList.AddRange(objectList);
         }
-
+        bool isChg = false;
         foreach (AnimationClip theAnimation in animationClipList)
         {
-            HandlerAnimationClip(theAnimation, isRvScale, assetPath);
+            isChg = isChg || HandlerAnimationClip(theAnimation, isRvScale, assetPath);
+        }
+        if (isChg)
+        {
+            EditorUtility.SetDirty(gobj);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
     }
 
-    static public void HandlerAnimationClip(AnimationClip theAnimation,bool isRvScale = true, string assetPath = "")
+    static public bool HandlerAnimationClip(AnimationClip theAnimation,bool isRvScale = true, string assetPath = "")
     {
         try
         {
@@ -191,12 +197,14 @@ public class FBXImporter : AssetPostprocessor
                     key.outTangent = float.Parse(key.outTangent.ToString("f3"));
                 }
                 AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, curve);
+                return curve.length > 0;
             }
         }
         catch (System.Exception e)
         {
             Debug.LogErrorFormat("HandleAnimationClip Failed !!! animationPath : {0} error: {1}", assetPath, e);
         }
+        return false;
     }
 
     // [MenuItem("Assets/Tools/Re - Import All Fbx")]

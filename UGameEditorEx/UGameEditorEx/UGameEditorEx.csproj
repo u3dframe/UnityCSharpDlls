@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Editor\Games\AssetPostprocessors\FBXImporter.cs" />
     <Compile Remove="Editor\Games\Build_Patcher\BuildTools.cs" />
     <Compile Remove="Editor\Games\MCheat.cs" />
   </ItemGroup>
