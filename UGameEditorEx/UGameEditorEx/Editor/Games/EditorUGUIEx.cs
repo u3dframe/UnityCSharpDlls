@@ -116,9 +116,7 @@ public class EditorUGUIEx
                 assetPath = BuildPatcher.GetPath(gobj);
                 Debug.LogFormat("==== [{0}] begin", assetPath);
                 EditorUtility.DisplayProgressBar(string.Format("ReBindUGUILocaliz ing - ({0}/{1})", i + 1, lens), assetPath, (i + 1 / (float)lens));
-
-                BuildPatcher.CleanupMissingScripts(gobj, false);
-
+                
                 // gobClone = PrefabUtility.InstantiateAttachedAsset (gobj) as GameObject;
                 gobClone = PrefabUtility.InstantiatePrefab(gobj) as GameObject;
                 var txts = gobj.GetComponentsInChildren<Text>(true);
