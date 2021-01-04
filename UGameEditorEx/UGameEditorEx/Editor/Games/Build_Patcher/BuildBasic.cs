@@ -114,19 +114,20 @@ namespace Core
             var serializedObject = new SerializedObject(gObj);
             // Find the component list property
             var prop = serializedObject.FindProperty("m_Component");
-
-            // Track how many components we've removed
-            int r = 0;
-            // Iterate over all components
-            for (int j = 0; j < components.Length; j++)
+            SerializedProperty _pit;
+            string _pname;
+            for (int j = components.Length - 1; j >= 0; j--)
             {
+                _pit = prop.GetArrayElementAtIndex(j);
+                _pname = null;
+                if (_pit != null)
+                    _pname = _pit.displayName;
+                // _pit.objectReferenceInstanceIDValue
                 // Check if the ref is null
-                if (components[j] == null)
+                if (string.IsNullOrEmpty(_pname))
                 {
                     // If so, remove from the serialized component array
-                    prop.DeleteArrayElementAtIndex(j - r);
-                    // Increment removed count
-                    r++;
+                    prop.DeleteArrayElementAtIndex(j);
                 }
             }
 
@@ -717,7 +718,7 @@ namespace Core
             PlayerSettings.allowedAutorotateToLandscapeRight = true;
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
-
+            // PlayerSettings.gpuSkinning = true; // 将 Skinning活动 推送到 GPU
             // PlayerSettings.MTRendering = true; // 多线程渲染
             ScriptingImplementation scripting = ScriptingImplementation.IL2CPP;
             // EditorUserBuildSettings.activeBuildTarget

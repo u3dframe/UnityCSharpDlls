@@ -34,6 +34,7 @@ public class FBXImporter : AssetPostprocessor
         // BindModelCollider(gobj);
         // EmptyModelMaterial(gobj); // 导致很多问题,美术控制
         EmptyModelAnimation(gobj);
+        // HandlerAnimationClip(gobj,true,this.assetPath);
     }
 
     void BindModelCollider(GameObject gobj)
@@ -145,7 +146,12 @@ public class FBXImporter : AssetPostprocessor
         }
     }
 
-    void ModelAnimationClip(GameObject gobj)
+    // void OnPostprocessAnimation(GameObject gobj, AnimationClip clip)
+    // {
+        // HandlerAnimationClip(clip,true,this.assetPath);
+    // }
+
+    static public void HandlerAnimationClip(GameObject gobj, bool isRvScale = true, string assetPath = "")
     {
         List<AnimationClip> animationClipList = new List<AnimationClip>(AnimationUtility.GetAnimationClips(gobj));
         if (animationClipList.Count == 0)
@@ -156,35 +162,40 @@ public class FBXImporter : AssetPostprocessor
 
         foreach (AnimationClip theAnimation in animationClipList)
         {
-            try
-            {
-                //去除scale曲线
-                foreach (EditorCurveBinding theCurveBinding in AnimationUtility.GetCurveBindings(theAnimation))
-                {
-                    string name = theCurveBinding.propertyName.ToLower();
-                    if (name.Contains("scale"))
-                    {
-                        AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, null);
-                        continue;
-                    }
+            HandlerAnimationClip(theAnimation, isRvScale, assetPath);
+        }
+    }
 
-                    // 浮点数精度压缩到 - f3
-                    AnimationCurve curve = AnimationUtility.GetEditorCurve(theAnimation,theCurveBinding);
-                    Keyframe key;
-                    for (int ii = 0; ii < curve.length; ++ii)
-                    {
-                        key = curve[ii];
-                        key.value = float.Parse(key.value.ToString("f3"));
-                        key.inTangent = float.Parse(key.inTangent.ToString("f3"));
-                        key.outTangent = float.Parse(key.outTangent.ToString("f3"));
-                    }
-                    AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, curve);
-                }
-            }
-            catch (System.Exception e)
+    static public void HandlerAnimationClip(AnimationClip theAnimation,bool isRvScale = true, string assetPath = "")
+    {
+        try
+        {
+            //去除scale曲线
+            foreach (EditorCurveBinding theCurveBinding in AnimationUtility.GetCurveBindings(theAnimation))
             {
-                Debug.LogErrorFormat("CompressAnimationClip Failed !!! animationPath : {0} error: {1}", assetPath, e);
+                string name = theCurveBinding.propertyName.ToLower();
+                if (isRvScale && name.Contains("scale"))
+                {
+                    AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, null);
+                    continue;
+                }
+
+                // 浮点数精度压缩到 - f3
+                AnimationCurve curve = AnimationUtility.GetEditorCurve(theAnimation, theCurveBinding);
+                Keyframe key;
+                for (int ii = 0; ii < curve.length; ++ii)
+                {
+                    key = curve[ii];
+                    key.value = float.Parse(key.value.ToString("f3"));
+                    key.inTangent = float.Parse(key.inTangent.ToString("f3"));
+                    key.outTangent = float.Parse(key.outTangent.ToString("f3"));
+                }
+                AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, curve);
             }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogErrorFormat("HandleAnimationClip Failed !!! animationPath : {0} error: {1}", assetPath, e);
         }
     }
 
@@ -220,5 +231,31 @@ public class FBXImporter : AssetPostprocessor
                 AssetDatabase.ImportAsset(_assetPath);
             }
         }
+    }
+
+    [MenuItem("Assets/Tools/Re - Optimization Anim Clip")]
+    static void ReAnimClipOptimization()
+    {
+        AnimationClip[] arrs = Selection.GetFiltered<AnimationClip>(SelectionMode.Assets | SelectionMode.DeepAssets);
+        if (arrs == null || arrs.Length <= 0)
+        {
+            Debug.LogError("=== Optimization Anim Clip = is not select clips");
+            return;
+        }
+        EditorUtility.DisplayProgressBar("Optimization Anim Clip", "begin ...", 0);
+        int _lens = arrs.Length;
+        AnimationClip _it = null;
+        string _assetPath = null;
+        for (int i = 0; i < _lens; i++)
+        {
+            _it = arrs[i];
+            EditorUtility.DisplayProgressBar("Optimization Anim Clip", _it.name, (i + 1) / (float)_lens);
+            _assetPath = AssetDatabase.GetAssetPath(_it);
+            HandlerAnimationClip(_it, false, _assetPath);
+        }
+        EditorUtility.ClearProgressBar();
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        EditorUtility.DisplayDialog("Optimization Anim Clip Finished", "Rmv Mat's OverdueProperties", "Okey");
     }
 }
