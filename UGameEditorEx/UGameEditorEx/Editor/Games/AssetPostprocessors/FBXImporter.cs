@@ -276,6 +276,6 @@ public class FBXImporter : AssetPostprocessor
         EditorUtility.ClearProgressBar();
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        EditorUtility.DisplayDialog("Optimization Anim Clip Finished", "Rmv Mat's OverdueProperties", "Okey");
+        EditorUtility.DisplayDialog("Optimization Anim Clip Finished", "This is Finish Over", "Okey");
     }
 }
