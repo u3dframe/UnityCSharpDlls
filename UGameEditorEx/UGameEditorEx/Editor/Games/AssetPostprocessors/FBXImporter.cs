@@ -34,7 +34,7 @@ public class FBXImporter : AssetPostprocessor
         // BindModelCollider(gobj);
         // EmptyModelMaterial(gobj); // 导致很多问题,美术控制
         EmptyModelAnimation(gobj);
-        HandlerAnimationClip(gobj,true,this.assetPath);
+        // HandlerAnimationClip(gobj,true,this.assetPath);
     }
 
     void BindModelCollider(GameObject gobj)
