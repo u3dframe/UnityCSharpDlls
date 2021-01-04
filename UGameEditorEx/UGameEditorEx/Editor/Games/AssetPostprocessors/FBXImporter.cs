@@ -189,12 +189,24 @@ public class FBXImporter : AssetPostprocessor
                 // 浮点数精度压缩到 - f3
                 AnimationCurve curve = AnimationUtility.GetEditorCurve(theAnimation, theCurveBinding);
                 Keyframe key;
+                string _tmp;
                 for (int ii = 0; ii < curve.length; ++ii)
                 {
                     key = curve[ii];
-                    key.value = float.Parse(key.value.ToString("f3"));
-                    key.inTangent = float.Parse(key.inTangent.ToString("f3"));
-                    key.outTangent = float.Parse(key.outTangent.ToString("f3"));
+                    _tmp = key.value.ToString("f3");
+                    key.value = float.Parse(_tmp);
+
+                    _tmp = key.inTangent.ToString("f3");
+                    key.inTangent = float.Parse(_tmp);
+
+                    _tmp = key.outTangent.ToString("f3");
+                    key.outTangent = float.Parse(_tmp);
+
+                    _tmp = key.inWeight.ToString("f3");
+                    key.inWeight = float.Parse(_tmp);
+
+                    _tmp = key.outWeight.ToString("f3");
+                    key.outWeight = float.Parse(_tmp);
                 }
                 AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, curve);
                 return curve.length > 0;
