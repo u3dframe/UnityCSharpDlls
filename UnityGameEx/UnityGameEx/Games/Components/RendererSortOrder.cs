@@ -214,7 +214,7 @@ public class RendererSortOrder : GobjLifeListener
         }
     }
 
-    public int GetDefLayerSortingOrder(Renderer rer)
+    public int GetDefSortingOrder(Renderer rer)
     {
         if (rer == null || !rer)
             return -9999999;
@@ -234,7 +234,7 @@ public class RendererSortOrder : GobjLifeListener
 
         if (m_isAdd)
         {
-            int _v = GetDefLayerSortingOrder(rer);
+            int _v = GetDefSortingOrder(rer);
             if (_v != -9999999)
             {
                 rer.ReSortingOrder(this.m_val_layer + _v);
