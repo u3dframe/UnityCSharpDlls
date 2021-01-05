@@ -28,7 +28,7 @@ namespace Core.Kernel.Beans
             return (T)_que.Dequeue();
         }
 
-        static void AddCache(ED_Comp entity)
+        static protected void AddCache(ED_Comp entity)
         {
             if (entity == null || GHelper.Is_App_Quit)
                 return;
@@ -40,7 +40,9 @@ namespace Core.Kernel.Beans
                 _que = new Queue<ED_Comp>();
                 m_caches.Add(_tp, _que);
             }
-            _que.Enqueue(entity);
+
+            if(!_que.Contains(entity))
+                _que.Enqueue(entity);
         }
 
         static public T Builder<T>(UObject uobj) where T : ED_Comp,new()
@@ -136,8 +138,6 @@ namespace Core.Kernel.Beans
             this.m_compGLife.OnlyOnceCallDetroy(On_Destroy);
             this.m_compGLife.OnlyOnceCallShow(On_Show);
             this.m_compGLife.OnlyOnceCallHide(On_Hide);
-
-            this.m_edCvs = ED_Cavs.Builder(this.m_gobj);
         }
 
         virtual public void InitComp(string strComp, Action cfDestroy, Action cfShow, Action cfHide)
@@ -158,11 +158,8 @@ namespace Core.Kernel.Beans
             this.m_strComp = null;
             this.m_compGLife = null;
 
-            ED_Cavs _e_ = this.m_edCvs;
             this.m_edCvs = null;
-            if (_e_ != null)
-                _e_.ClearComp();
-
+            
             this.m_cfDestroy = null;
             this.m_cfShow = null;
             this.m_cfHide = null;
@@ -273,6 +270,11 @@ namespace Core.Kernel.Beans
             this.m_trsf.position = new Vector3(x, y, z);
         }
 
+        public Vector3 GetLocalPosition()
+        {
+            return this.GetCurrPos();
+        }
+
         public void SetLocalPosition(float x, float y, float z)
         {
             this.m_trsf.localPosition = new Vector3(x, y, z);
@@ -363,20 +365,15 @@ namespace Core.Kernel.Beans
                 this.m_trsfRect.sizeDelta = new Vector2(x, y);
         }
 
-        public void SetParent(Transform parent, bool isLocal, bool isSyncLayer)
+        public void SetParent(UObject parent, bool isLocal, bool isSyncLayer)
         {
+            Transform _last = this.m_parent;
             if (isSyncLayer)
                 GHelper.SetParentSyncLayer(this.m_trsf, parent, isLocal);
             else
                 GHelper.SetParent(this.m_trsf, parent, isLocal);
-        }
-
-        public void SetParent(GameObject parent, bool isLocal, bool isSyncLayer)
-        {
-            if (isSyncLayer)
-                GHelper.SetParentSyncLayer(this.m_gobj, parent, isLocal);
-            else
-                GHelper.SetParent(this.m_gobj, parent, isLocal);
+            Transform _curr = this.m_parent;
+            this.ReEDCavs(_last != _curr);
         }
 
         public void LookAt(float x, float y, float z)
@@ -619,6 +616,19 @@ namespace Core.Kernel.Beans
                 this.StartCurrUpdate();
             else
                 this.ExcuteCFUpdateEnd();
+        }
+
+        public void ReEDCavs(bool isMust)
+        {
+            isMust = isMust || this.m_edCvs == null;
+            if (!isMust)
+                return;
+            ED_Cavs _e_ = this.m_edCvs;
+            this.m_edCvs = null;
+            if (_e_ != null)
+                _e_.ClearComp();
+            this.m_edCvs = ED_Cavs.Builder(this.m_gobj);
+            this.m_edCvs.InitComp(this.m_comp, null, null, null);
         }
 
         public void ReCavsSort(bool isBack)

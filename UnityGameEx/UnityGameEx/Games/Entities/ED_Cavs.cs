@@ -111,7 +111,7 @@ public class ED_Cavs : Core.Kernel.Beans.ED_Comp
         this.AutoSortOrder();
     }
 
-    override public void ClearComp()
+    override protected void On_Destroy(GobjLifeListener obj)
     {
         CavInfo[] _arrs = this.m_cvsCurrs;
         this.m_rootCvs = null;
@@ -128,7 +128,7 @@ public class ED_Cavs : Core.Kernel.Beans.ED_Comp
                     _info.Dispose();
             }
         }
-        base.ClearComp();
+        base.On_Destroy( obj );
     }
 
     public void AutoSortOrder(bool isBack = false)
