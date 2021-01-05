@@ -37,8 +37,8 @@ public class RendererSortOrder : GobjLifeListener
     public int m_val_queue = 0;
 
     Renderer[] renderers;
-    string _k_sl_id = "r_sid_{0}";
-    string _k_sl_val = "r_val_{0}";
+    string _k_sl_id = "l_sid_{0}";
+    string _k_sl_val = "l_val_{0}";
     string _k_mat_val = "m_val_{0}";
     Dictionary<string, int> m_r_sinfo = new Dictionary<string, int>();
 
@@ -214,6 +214,15 @@ public class RendererSortOrder : GobjLifeListener
         }
     }
 
+    public int GetDefLayerSortingOrder(Object uobj)
+    {
+        if (uobj == null || !uobj)
+            return -9999999;
+        int _r_o_id = uobj.GetInstanceID();
+        string _k = string.Format(_k_sl_val, _r_o_id);
+        return _GetDefVal(_k);
+    }
+
     void _ReSLayer(Renderer rer, bool isCan)
     {
         if (!isCan || rer == null || this.m_val_layer == 0) return;
@@ -225,9 +234,7 @@ public class RendererSortOrder : GobjLifeListener
 
         if (m_isAdd)
         {
-            int _r_o_id = rer.GetInstanceID();
-            string _k = string.Format(_k_sl_val, _r_o_id);
-            int _v = _GetDefVal(_k);
+            int _v = GetDefLayerSortingOrder(rer);
             if (_v != -9999999)
             {
                 rer.ReSortingOrder(this.m_val_layer + _v);
@@ -239,11 +246,11 @@ public class RendererSortOrder : GobjLifeListener
         }
     }
 
-    int _GetRenderQueue(Material _mat_)
+    public int GetDefRenderQueue(Material mat)
     {
-        if (_mat_ == null)
+        if (mat == null)
             return -9999999;
-        int _m_o_id = _mat_.GetInstanceID();
+        int _m_o_id = mat.GetInstanceID();
         string _k = string.Format(_k_mat_val, _m_o_id);
         return _GetDefVal(_k);
     }
@@ -275,7 +282,7 @@ public class RendererSortOrder : GobjLifeListener
 
             if (m_isAdd)
             {
-                _rq = _GetRenderQueue(_mat_);
+                _rq = GetDefRenderQueue(_mat_);
                 if (_rq != -9999999)
                 {
                     _mat_.ReRenderQueue(this.m_val_queue + _rq);
