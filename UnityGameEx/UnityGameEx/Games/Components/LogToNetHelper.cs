@@ -166,6 +166,7 @@ public class LogToNetHelper:MonoBehaviour
 
     IEnumerator EntCorHander(UnityWebRequest request, LogNetData data)
     {
+        request.certificateHandler = WebVerifyCert.NoVCert;
         request.timeout = 59;
         yield return request.SendWebRequest();
         data.sendCount++;
