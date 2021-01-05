@@ -93,6 +93,9 @@ namespace Core.Kernel.Beans
         Action m_cfShow = null, m_cfHide = null, m_cfDestroy = null;
         protected Vector3 m_startPos = Vector3.zero;
         protected Vector3 m_startLocPos = Vector3.zero;
+
+        public ED_Cavs m_edCvs { get; private set; }
+
         public ED_Comp()
         {
         }
@@ -130,10 +133,11 @@ namespace Core.Kernel.Beans
                 this.m_compGLife = comp as GobjLifeListener;
             else
                 this.m_compGLife = GobjLifeListener.Get(this.m_gobj);
-
             this.m_compGLife.OnlyOnceCallDetroy(On_Destroy);
             this.m_compGLife.OnlyOnceCallShow(On_Show);
             this.m_compGLife.OnlyOnceCallHide(On_Hide);
+
+            this.m_edCvs = ED_Cavs.Builder(this.m_gobj);
         }
 
         virtual public void InitComp(string strComp, Action cfDestroy, Action cfShow, Action cfHide)
@@ -143,7 +147,7 @@ namespace Core.Kernel.Beans
             this.InitComp(comp, cfDestroy, cfShow, cfHide);
         }
 
-        public void ClearComp()
+        virtual public void ClearComp()
         {
             this.StopAllUpdate();
             this.m_gobj = null;
@@ -153,6 +157,11 @@ namespace Core.Kernel.Beans
             this.m_behav = null;
             this.m_strComp = null;
             this.m_compGLife = null;
+
+            ED_Cavs _e_ = this.m_edCvs;
+            this.m_edCvs = null;
+            if (_e_ != null)
+                _e_.ClearComp();
 
             this.m_cfDestroy = null;
             this.m_cfShow = null;
@@ -610,6 +619,18 @@ namespace Core.Kernel.Beans
                 this.StartCurrUpdate();
             else
                 this.ExcuteCFUpdateEnd();
+        }
+
+        public void ReCavsSort(bool isBack)
+        {
+            if (this.m_edCvs != null)
+                this.m_edCvs.AutoSortOrder(isBack);
+        }
+
+        public void SetCavsSort(int sortOrder)
+        {
+            if (this.m_edCvs != null)
+                this.m_edCvs.SetSortOrder(sortOrder);
         }
     }
 }
