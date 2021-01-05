@@ -214,11 +214,11 @@ public class RendererSortOrder : GobjLifeListener
         }
     }
 
-    public int GetDefLayerSortingOrder(Object uobj)
+    public int GetDefLayerSortingOrder(Renderer rer)
     {
-        if (uobj == null || !uobj)
+        if (rer == null || !rer)
             return -9999999;
-        int _r_o_id = uobj.GetInstanceID();
+        int _r_o_id = rer.GetInstanceID();
         string _k = string.Format(_k_sl_val, _r_o_id);
         return _GetDefVal(_k);
     }
