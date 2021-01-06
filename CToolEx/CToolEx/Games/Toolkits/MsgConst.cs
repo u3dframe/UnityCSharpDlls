@@ -16,5 +16,8 @@
 
         public const string MSound_Volume = "Msg_OnUp_Volume"; // Musice,Sound up Volume
         public const string MSound_State = "Msg_OnUp_MSState"; // Musice,Sound up Play,Stop
+
+        public const string MSL_RootChange = "Msg_MSL_RVal_{0}"; // SortOrder Layer(curVal,cur - last)
+        public const string MSL_ChangeRoot = "Msg_MSL_RChg_{0}"; // SortOrder Layer(isAdd,orderChangeValue)
     }
 }
