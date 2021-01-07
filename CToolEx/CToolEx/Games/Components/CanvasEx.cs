@@ -57,6 +57,12 @@ public class CanvasEx : GobjLifeListener
     public int m_sortOrder { get; private set; }
     public int m_curSortOrder { get; private set; }
 
+    [SerializeField] string OS_ParentName = ""; // 仅仅展示
+    [SerializeField] int OS_OrderBase = 0; // 仅仅展示
+    [SerializeField] int OS_LayerID = 0; // 仅仅展示
+    [SerializeField] int OS_Order = 0; // 仅仅展示
+    [SerializeField] int OS_OrderCurr = 0; // 仅仅展示
+
     override protected void OnCall4Destroy()
     {
         int _gid = this.m_gobjID;
@@ -114,7 +120,17 @@ public class CanvasEx : GobjLifeListener
 
         this.m_cvs.sortingLayerID = _sid;
         this.m_cvs.sortingOrder = sortingOrder;
+        this._ReOnlyShow();
         return this;
+    }
+
+    void _ReOnlyShow()
+    {
+        this.OS_LayerID = this.m_sortingLayerID;
+        this.OS_Order = this.m_sortOrder;
+        this.OS_OrderBase = this.m_orderBase;
+        this.OS_OrderCurr = this.m_curSortOrder;
+        this.OS_ParentName = this.m_cvsRoot ? this.m_cvsRoot.name : "";
     }
 
     public void ReInit(int valBase = -1)
@@ -177,5 +193,7 @@ public class CanvasEx : GobjLifeListener
 
         string _key1 = string.Format(MsgConst.MSL_Cvs_ValChange, this.m_gobjID);
         Messenger.Brocast<int, int>(_key1, _cur, _diff);
+
+        this._ReOnlyShow();
     }
 }
