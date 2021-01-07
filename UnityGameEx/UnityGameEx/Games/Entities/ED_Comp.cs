@@ -135,9 +135,19 @@ namespace Core.Kernel.Beans
                 this.m_compGLife = comp as GobjLifeListener;
             else
                 this.m_compGLife = GobjLifeListener.Get(this.m_gobj);
-            this.m_compGLife.OnlyOnceCallDetroy(On_Destroy);
-            this.m_compGLife.OnlyOnceCallShow(On_Show);
-            this.m_compGLife.OnlyOnceCallHide(On_Hide);
+
+            _ReEvent(true);
+        }
+
+        virtual protected void _ReEvent(bool isBind)
+        {
+            GobjLifeListener _glife = this.m_compGLife;
+            if (_glife)
+            {
+                _glife.OnlyOnceCallDetroy(On_Destroy,isBind);
+                _glife.OnlyOnceCallShow(On_Show,isBind);
+                _glife.OnlyOnceCallHide(On_Hide,isBind);
+            }
         }
 
         virtual public void InitComp(string strComp, Action cfDestroy, Action cfShow, Action cfHide)
@@ -243,6 +253,17 @@ namespace Core.Kernel.Beans
                     GameObject.Destroy(_gobj);
             }
             return _isBl;
+        }
+
+        public bool DestroySelf(bool isInculdeUObj = false)
+        {
+            if (isInculdeUObj)
+                return this.DestroyObj(true);
+
+            this._ReEvent(false);
+            this.m_cfDestroy = null;
+            this.On_Destroy(this.m_compGLife);
+            return true;
         }
 
         public void DonotDestory()
@@ -626,21 +647,21 @@ namespace Core.Kernel.Beans
             ED_Cavs _e_ = this.m_edCvs;
             this.m_edCvs = null;
             if (_e_ != null)
-                _e_.ClearComp();
+                _e_.DestroySelf();
+
             this.m_edCvs = ED_Cavs.Builder(this.m_gobj);
             this.m_edCvs.InitComp(this.m_comp, null, null, null);
         }
 
-        public void ReCavsSort(bool isBack)
+        public void ReCavsSortBase(int valBase)
         {
             if (this.m_edCvs != null)
-                this.m_edCvs.AutoSortOrder(isBack);
-        }
-
-        public void SetCavsSort(int sortOrder)
-        {
-            if (this.m_edCvs != null)
-                this.m_edCvs.SetSortOrder(sortOrder);
+            {
+                if (valBase < 0)
+                    this.m_edCvs.ReInit(-1);
+                else
+                    this.m_edCvs.ReBaseOrder(valBase, false);
+            }
         }
     }
 }

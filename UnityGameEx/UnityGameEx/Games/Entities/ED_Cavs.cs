@@ -12,75 +12,9 @@ public class ED_Cavs : Core.Kernel.Beans.ED_Comp
     {
         return Builder<ED_Cavs>(uobj);
     }
-
-    class CavInfo
-    {
-        public UGUICanvasAdaptive m_rootCvs { get; private set; }
-        public Canvas m_cvs { get; private set; }
-        public bool m_isAuto { get; private set; }
-        public int m_sortOrder { get; private set; }
-        public int m_curSortOrder { get; private set; }
-
-        public CavInfo(Canvas cav, UGUICanvasAdaptive root)
-        {
-            this.m_cvs = cav;
-            this.m_rootCvs = root;
-            if(root != null)
-                cav.sortingLayerID = root.m_sortingLayerID;
-            this.m_sortOrder = cav.sortingOrder;
-            this.m_curSortOrder = this.m_sortOrder;
-        }
-
-        virtual public void Dispose()
-        {
-            if (this.m_isAuto)
-                this.AutoSortOrder(true);
-
-            this.m_rootCvs = null;
-            this.m_cvs = null;
-            this.m_sortOrder = 0;
-            this.m_curSortOrder = 0;
-            this.m_isAuto = false;
-        }
-
-        public bool IsEmpty()
-        {
-            return this.m_cvs == null || this.m_rootCvs == null;
-        }
-
-        public bool IsEmptyOrSameRoot()
-        {
-            return this.IsEmpty() || this.m_cvs == this.m_rootCvs.m_cvs;
-        }
-        
-        public void AutoSortOrder(bool isBack = false)
-        {
-            if (this.IsEmptyOrSameRoot())
-                return;
-            this.m_isAuto = !isBack;
-            int _symbol = isBack ? -1 : 1;
-            int _root = this.m_rootCvs.m_curSortOrder;
-            int _sort = _root + (this.m_sortOrder * _symbol);
-            this.m_rootCvs.m_curSortOrder = _sort;
-            this.m_curSortOrder = _sort;
-            this.m_cvs.sortingOrder = _sort;
-        }
-
-        public void SetSortOrder(int sortOrder)
-        {
-            if (this.IsEmpty())
-                return;
-
-            if (this.m_isAuto)
-                this.AutoSortOrder(true);
-
-            this.m_curSortOrder = sortOrder;
-            this.m_cvs.sortingOrder = sortOrder;
-        }
-    }
 	
-	public UGUICanvasAdaptive m_rootCvs { get; private set; }
-    CavInfo[] m_cvsCurrs = null;
+    CanvasEx[] m_cvsCurrs = null;
+    public int m_nLens { get; private set; }
     
     public ED_Cavs() : base()
     {
@@ -94,70 +28,49 @@ public class ED_Cavs : Core.Kernel.Beans.ED_Comp
     override public void InitComp(Component comp, Action cfDestroy, Action cfShow, Action cfHide)
     {
         base.InitComp(comp, cfDestroy, cfShow, cfHide);
-        this.m_rootCvs = UGUICanvasAdaptive.GetInParent(this.m_gobj);
         Canvas[] _arrs = this.m_gobj.GetComponentsInChildren<Canvas>(true);
-        this.m_cvsCurrs = null;
         int _lens = UtilityHelper.LensArrs(_arrs);
-        if (_lens > 0)
+        this.m_nLens = _lens;
+        this.m_cvsCurrs = null;
+        if (this.m_nLens > 0)
 		{
-            this.m_cvsCurrs = new CavInfo[_lens];
+            this.m_cvsCurrs = new CanvasEx[this.m_nLens];
             Canvas _cvs = null;
-            for (int i = 0; i < _lens; i++)
+            for (int i = 0; i < this.m_nLens; i++)
             {
                 _cvs = _arrs[i];
-                this.m_cvsCurrs[i] = new CavInfo(_cvs, this.m_rootCvs);
+                this.m_cvsCurrs[i] = CanvasEx.Get(_cvs.gameObject, false);
             }
         }
-        this.AutoSortOrder();
+        this.ReInit(-1);
     }
 
     override protected void On_Destroy(GobjLifeListener obj)
     {
-        CavInfo[] _arrs = this.m_cvsCurrs;
-        this.m_rootCvs = null;
         this.m_cvsCurrs = null;
-
-        int _lens = UtilityHelper.LensArrs(_arrs);
-        if (_lens > 0)
-        {
-            CavInfo _info = null;
-            for (int i = 0; i < _lens; i++)
-            {
-                _info = _arrs[i];
-                if (_info != null)
-                    _info.Dispose();
-            }
-        }
         base.On_Destroy( obj );
     }
 
-    public void AutoSortOrder(bool isBack = false)
+    public void ReInit(int valBase)
     {
-        int _lens = UtilityHelper.LensArrs(this.m_cvsCurrs);
-        if (_lens <= 0)
-            return;
-
-        CavInfo _info = null;
-        for (int i = 0; i < _lens; i++)
+        CanvasEx _citem = null;
+        for (int i = 0; i < this.m_nLens; i++)
         {
-            _info = this.m_cvsCurrs[i];
-            if (_info != null)
-                _info.AutoSortOrder(isBack);
+            _citem = this.m_cvsCurrs[i];
+            _citem.ReInit(valBase);
         }
     }
 
-    public void SetSortOrder(int sortOrder)
+    public void ReBaseOrder(int valBase,bool isForce)
     {
-        int _lens = UtilityHelper.LensArrs(this.m_cvsCurrs);
-        if (_lens <= 0)
-            return;
-
-        CavInfo _info = null;
-        for (int i = 0; i < _lens; i++)
+        CanvasEx _citem = null;
+        int _curVal = 0;
+        for (int i = 0; i < this.m_nLens; i++)
         {
-            _info = this.m_cvsCurrs[i];
-            if (_info != null)
-                _info.SetSortOrder(sortOrder);
+            _citem = this.m_cvsCurrs[i];
+            _curVal = valBase < 0 ? _citem.m_orderBase : valBase;
+            isForce = isForce || valBase <= 0;
+            _citem.ReBaseOrder(_curVal, isForce);
         }
     }
 }
