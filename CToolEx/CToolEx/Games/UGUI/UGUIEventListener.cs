@@ -57,18 +57,11 @@ public class UGUIEventListener : EventTrigger
     [HideInInspector] public bool m_isPropagation = false; // 是否透传
     [HideInInspector] public bool m_isSyncScroll = true;
     public ScrollRect m_sclParent { get; set; }
-    T GetInParent<T>(Transform trsf) where T : Component
-    {
-        if (trsf == null) return null;
-        T ret = trsf.GetComponent<T>();
-        if (ret != null) return ret;
-        return GetInParent<T>(trsf.parent);
-    }
     
     void Awake()
     {
         this.limit_dis_max = maxDistance * maxDistance;
-        m_sclParent = GetInParent<ScrollRect>(transform);
+        m_sclParent = GHelper.GetInParent<ScrollRect>(transform,true);
     }
 
     void OnDisable()
