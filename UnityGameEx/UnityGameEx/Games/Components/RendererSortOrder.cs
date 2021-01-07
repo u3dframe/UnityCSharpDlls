@@ -236,8 +236,10 @@ public class RendererSortOrder : GobjLifeListener
 
     void _ReSLayer(Renderer rer, bool isCan)
     {
-        if (!isCan || rer == null || this.m_val_layer == 0) return;
+        if (!isCan || rer == null) return;
         rer.sortingLayerID = this.m_sLayerID;
+
+        if (this.m_val_layer == 0) return;
 
         if (m_isAdd)
         {
