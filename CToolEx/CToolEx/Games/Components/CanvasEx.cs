@@ -147,11 +147,11 @@ public class CanvasEx : GobjLifeListener
     public void ReBaseOrder(int valBase,bool isForce = false)
     {
         this.Init();
-        isForce = isForce || !(this.m_orderBase == valBase || valBase < 0 || valBase > 30);
+        isForce = isForce || !(this.m_orderBase == valBase || valBase < 0 || valBase > 31);
         if (!isForce)
             return;
         valBase = Mathf.Max(valBase, 0);
-        valBase = Mathf.Min(valBase, 30);
+        valBase = Mathf.Min(valBase, 31);
         int _sort = valBase * 1000;
         if (this.m_cvsRoot != null && this.m_cvsRoot != this)
             _sort += this.m_cvsRoot.m_sortOrder;
