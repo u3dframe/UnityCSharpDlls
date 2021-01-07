@@ -216,11 +216,12 @@ public class GHelper : Core.Kernel.ObjEx
 
     static public T GetInParent<T>(UObject uobj,bool includeSelf) where T : Component
     {
-        GameObject gobj = ToGObj(uobj);
-        if (IsNull(gobj)) return null;
-        T ret = includeSelf ? gobj.GetComponent<T>() : null;
+        Transform trsf = ToTransform(uobj);
+        if (IsNull(trsf)) return null;
+        Transform _parent = includeSelf ? trsf : trsf.parent;
+        T ret = _parent?.GetComponent<T>();
         if (!ret)
-            ret = gobj.GetComponentInParent<T>();
+            ret = _parent?.GetComponentInParent<T>();
         return ret;
     }
 
@@ -228,9 +229,11 @@ public class GHelper : Core.Kernel.ObjEx
     {
         Transform trsf = ToTransform(uobj);
         if (IsNull(trsf)) return null;
-        T ret = includeSelf ? trsf.GetComponent<T>() : null;
-        if (ret != null) return ret;
-        return GetInParentRecursion<T>(trsf.parent,includeSelf);
+        Transform _parent = includeSelf ? trsf : trsf.parent;
+        T ret = _parent?.GetComponent<T>();
+        if (ret) return ret;
+        _parent = includeSelf ? trsf : _parent;
+        return GetInParentRecursion<T>(_parent.parent, true);
     }
 
     /// <summary>
