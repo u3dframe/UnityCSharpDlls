@@ -393,6 +393,7 @@ namespace Core.Kernel.Beans
                 GHelper.SetParentSyncLayer(this.m_trsf, parent, isLocal);
             else
                 GHelper.SetParent(this.m_trsf, parent, isLocal);
+
             Transform _curr = this.m_parent;
             this.ReEDCavs(_last != _curr);
         }
