@@ -107,7 +107,7 @@ public class RendererSortOrder : GobjLifeListener
         if (this.m_delay_excsort <= 0)
         {
             this.m_delay_excsort = -2;
-            ReRenderSorting();
+            this.ReRenderSorting();
         }
     }
 
