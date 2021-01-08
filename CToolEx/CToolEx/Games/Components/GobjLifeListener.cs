@@ -267,10 +267,11 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
     public void InitAnimEnd(int end_unique, Action callEnd, bool isBind)
     {
         this.m_anim_unique = end_unique;
-        this.InitCallAnimEnd(callEnd, isBind);
+        this.m_callAnimEnd = null;
+        this.ReCallAnimEnd(callEnd, isBind);
     }
 
-    public void InitCallAnimEnd(Action callEnd, bool isBind)
+    public void ReCallAnimEnd(Action callEnd, bool isBind)
     {
         if (callEnd == null)
             return;
