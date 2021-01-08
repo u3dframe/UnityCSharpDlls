@@ -26,7 +26,6 @@ public class AnimatorEx : PrefabBasic
 	private bool _pre_IsUseGID = false;
 
 	public Animator m_animator = null;
-	private int m_aniGID = 0;
 	public string m_kActionState = "ation_state";
 	public int m_actionState = -1;
 	private int _pre_aState = -1;
@@ -88,11 +87,11 @@ public class AnimatorEx : PrefabBasic
 	}
 
 	private string _ReAniPreEvtKey(string key){
-		return this._pre_IsUseGID ? string.Format("[{0}]_[{1}]",key,this.m_aniGID) : key;
+		return this._pre_IsUseGID ? string.Format("[{0}]_[{1}]",key,this.m_gobjID) : key;
 	}
 
 	private string _ReAniEvtKey(string key){
-		return this.m_isUseGID4MsgKey ? string.Format("[{0}]_[{1}]",key,this.m_aniGID) : key;
+		return this.m_isUseGID4MsgKey ? string.Format("[{0}]_[{1}]",key,this.m_gobjID) : key;
 	}
 
     private void _ReAniEvents() {
@@ -101,7 +100,6 @@ public class AnimatorEx : PrefabBasic
             Debug.LogErrorFormat("=== this animator is null, gobj name = [{0}]", this.m_gobj.name);
             return;
         }
-        this.m_aniGID = this.m_animator.gameObject.GetInstanceID();
         this._s_behaviours = this.m_animator.GetBehaviours<BasicStateMachine>();
         _ReAniEvents(true, true);
     }
