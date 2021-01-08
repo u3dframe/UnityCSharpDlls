@@ -99,7 +99,7 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
     protected event Core.DF_OnNotifyDestry m_onDestroy = null; // 销毁
 
     public int m_anim_unique { get; private set; }
-    Action m_call_anim_end = null;
+    protected Action m_callAnimEnd = null;
 
     void Awake()
     {
@@ -275,9 +275,9 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         if (callEnd == null)
             return;
 
-        this.m_call_anim_end -= callEnd;
+        this.m_callAnimEnd -= callEnd;
         if (isBind)
-            this.m_call_anim_end += callEnd;
+            this.m_callAnimEnd += callEnd;
     }
 
     protected void OnCallAnimEnd(int unique)
@@ -285,7 +285,7 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         if (this.m_anim_unique != unique)
             return;
 
-        if (this.m_call_anim_end != null)
-            this.m_call_anim_end();
+        if (this.m_callAnimEnd != null)
+            this.m_callAnimEnd();
     }
 }
