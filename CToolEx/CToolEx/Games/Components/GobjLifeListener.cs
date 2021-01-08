@@ -98,6 +98,9 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
     protected Action m_callHide = null; // 隐藏
     protected event Core.DF_OnNotifyDestry m_onDestroy = null; // 销毁
 
+    public int m_anim_unique { get; private set; }
+    Action m_call_anim_end = null;
+
     void Awake()
     {
         this._isAlive = true;
@@ -259,5 +262,30 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         // Vector3 _v3 = ToV3(x,y,z);
         // this.m_trsf.position = _v3 + v3;
         this.m_trsf.Translate(x, y, z, Space.World);
+    }
+
+    public void InitAnimEnd(int end_unique, Action callEnd, bool isBind)
+    {
+        this.m_anim_unique = end_unique;
+        this.InitCallAnimEnd(callEnd, isBind);
+    }
+
+    public void InitCallAnimEnd(Action callEnd, bool isBind)
+    {
+        if (callEnd == null)
+            return;
+
+        this.m_call_anim_end -= callEnd;
+        if (isBind)
+            this.m_call_anim_end += callEnd;
+    }
+
+    protected void OnCallAnimEnd(int unique)
+    {
+        if (this.m_anim_unique != unique)
+            return;
+
+        if (this.m_call_anim_end != null)
+            this.m_call_anim_end();
     }
 }

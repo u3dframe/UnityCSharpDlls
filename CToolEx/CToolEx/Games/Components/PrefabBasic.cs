@@ -33,10 +33,7 @@ public class PrefabBasic : GobjLifeListener {
     protected Dictionary<string,GameObject> m_dicName2Gobj = new Dictionary<string,GameObject>();
 
     protected bool isInit = false;
-
-    public int m_anim_unique { get; private set; }
-    Action m_call_anim_end = null;
-
+    
     override protected void OnCall4Start(){
 		this.Init();
 	}
@@ -196,28 +193,6 @@ public class PrefabBasic : GobjLifeListener {
     public void SetChildGobjs(GameObject[] gobjs)
     {
         this.m_gobjs = gobjs;
-    }
-
-    public void InitAnimEnd(int end_unique,Action callEnd,bool isBind)
-    {
-        this.m_anim_unique = end_unique;
-        this.InitCallAnimEnd(callEnd, isBind);
-    }
-
-    public void InitCallAnimEnd(Action callEnd, bool isBind)
-    {
-        this.m_call_anim_end -= callEnd;
-        if(isBind)
-            this.m_call_anim_end += callEnd;
-    }
-
-    protected void OnCallAnimEnd(int unique)
-    {
-        if (this.m_anim_unique != unique)
-            return;
-
-        if (this.m_call_anim_end != null)
-            this.m_call_anim_end();
     }
 
     [ContextMenu("Re Bind Nodes (重新绑定所需节点)")]
