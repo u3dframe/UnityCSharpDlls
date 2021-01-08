@@ -114,19 +114,18 @@ public class SceneBasicEx : GobjLifeListener
 		if(jdFog == null)
 			return;
 
-		RenderSettings.fog = (bool)jdFog["fog"];
+        bool fog = (bool)jdFog["fog"];
 		int mode = (int)jdFog["fogMode"];
-		RenderSettings.fogMode = (FogMode) mode;
-		
 		Color fColor = Color.white;
 		fColor.r = UtilityHelper.Str2Float(jdFog["fc_r"].ToString());
 		fColor.g = UtilityHelper.Str2Float(jdFog["fc_g"].ToString());
 		fColor.b = UtilityHelper.Str2Float(jdFog["fc_b"].ToString());
 		fColor.a = UtilityHelper.Str2Float(jdFog["fc_a"].ToString());
-		RenderSettings.fogColor = fColor;
-		RenderSettings.fogDensity = UtilityHelper.Str2Float(jdFog["fogDensity"].ToString());
-		RenderSettings.fogStartDistance = UtilityHelper.Str2Float(jdFog["fogStartDistance"].ToString());
-		RenderSettings.fogEndDistance = UtilityHelper.Str2Float(jdFog["fogEndDistance"].ToString());
+		float fogDensity = UtilityHelper.Str2Float(jdFog["fogDensity"].ToString());
+        float fogStartDistance = UtilityHelper.Str2Float(jdFog["fogStartDistance"].ToString());
+        float fogEndDistance = UtilityHelper.Str2Float(jdFog["fogEndDistance"].ToString());
+
+        RenderSettingsEx.SetFog(fog, mode, fColor, fogDensity, fogStartDistance, fogEndDistance);
 	}
 
 	void _LoadLightmap(JsonData jdLm) {

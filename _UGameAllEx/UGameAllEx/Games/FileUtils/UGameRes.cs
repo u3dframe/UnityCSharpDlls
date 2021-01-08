@@ -48,7 +48,7 @@ namespace Core.Kernel
         static public readonly string m_suffix_mat = ".mat";
         static public readonly string m_suffix_shader = ".shader";
         static public readonly string m_suffix_scriptable = ".asset";
-
+        
         /// <summary>
         /// 路径转为以 Assets/ 开头的
         /// </summary>
@@ -150,6 +150,13 @@ namespace Core.Kernel
             if (string.IsNullOrEmpty(abName))
                 return false;
             return abName.EndsWith(m_strAdoClip);
+        }
+
+        static public bool IsScriptableAB(string abName)
+        {
+            if (string.IsNullOrEmpty(abName))
+                return false;
+            return abName.EndsWith(m_strScriptable);
         }
     }
 }

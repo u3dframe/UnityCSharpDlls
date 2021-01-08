@@ -56,8 +56,10 @@ public class SmoothFollower : MonoBehaviour
 	public System.Action callFinished = null;
 	
 	private Transform _trsf = null;
+    private Vector3 _tPos = Vector3.zero;
+    private Vector3 _fPos = Vector3.zero;
 
-	void Update() {
+    void Update() {
 		if(isUpByLate) return;
 		_OnUpdate();
 	}
@@ -94,14 +96,15 @@ public class SmoothFollower : MonoBehaviour
 			currentRotation = Quaternion.Euler (0, currentRotationAngle, 0);
 		}
 
-		_trsf.position = target.position;
-		_trsf.position -= currentRotation * Vector3.forward * currentDistance;
-		_trsf.position = new Vector3(_trsf.position.x, currentHeight, _trsf.position.z);
+        _tPos = target.position;
+        _fPos = _tPos - currentRotation * Vector3.forward * currentDistance;
+        _fPos.y = currentHeight;
+        _trsf.position = _fPos;
 
 		lookAtVector.x = 0;
 		lookAtVector.z = 0;
 		lookAtVector.y = lookAtHeight;
-		lookAtVector += target.position;
+		lookAtVector += _tPos;
 		_trsf.LookAt(lookAtVector);
 		_CallEnd ();
 	}

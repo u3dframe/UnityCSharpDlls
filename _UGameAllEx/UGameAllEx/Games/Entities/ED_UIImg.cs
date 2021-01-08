@@ -11,13 +11,27 @@ using UnityEngine.UI;
 /// </summary>
 public class ED_UIImg : Core.Kernel.Beans.ED_Comp
 {
+    static public new ED_UIImg Builder(UnityEngine.Object uobj)
+    {
+        return Builder<ED_UIImg>(uobj);
+    }
+
+    static public ED_UIImg Builder(Image image)
+    {
+        if (image == null || !image)
+            return null;
+        ED_UIImg _it = Builder(image.gameObject);
+        _it.InitComp(image,null,null,null);
+        return _it;
+    }
+    
     public string m_sAtals { get; private set; }
     public string m_sImg { get; private set; }
     public Image m_img { get; private set; }
     public AssetInfo m_asset { get; private set; }
     public bool m_isNativeSize { get; private set; }
 
-    protected ED_UIImg(GameObject gobj) : base(gobj)
+    public ED_UIImg() : base()
     {
     }
 
@@ -35,8 +49,11 @@ public class ED_UIImg : Core.Kernel.Beans.ED_Comp
     override protected void On_Destroy(GobjLifeListener obj)
     {
         this.m_img = null;
-        base.On_Destroy(obj);
         this.OnUnLoadAsset();
+        this.m_sAtals = null;
+        this.m_sImg = null;
+        this.m_isNativeSize = false;
+        base.On_Destroy(obj);
     }
 
     void OnUnLoadAsset()
@@ -121,7 +138,7 @@ public class ED_UIImg : Core.Kernel.Beans.ED_Comp
         
         this.m_img.sprite = sprite;
         if(this.m_isNativeSize)
-            this.m_img.SetNativeSize();
+            this.SetNativeSize();
     }
 
     public void SetIcon(string icon,bool isNativeSize)
@@ -162,20 +179,16 @@ public class ED_UIImg : Core.Kernel.Beans.ED_Comp
         this.m_img.fillAmount = amount;
     }
 
-    static public new ED_UIImg Builder(UnityEngine.Object uobj)
+    public void SetNativeSize()
     {
-        GameObject _go = UtilityHelper.ToGObj(uobj);
-        if (_go == null || !_go)
-            return null;
-        return new ED_UIImg(_go); 
+        if(!this.m_img)
+            return;
+        this.m_img.SetNativeSize();
     }
 
-    static public ED_UIImg Builder(Image image)
+    public void SetNativeSizeASync()
     {
-        if (image == null || !image)
-            return null;
-        ED_UIImg _it = Builder(image.gameObject);
-        _it.InitComp(image,null,null,null);
-        return _it;
+        this.m_isNativeSize = true;
+        this.SetNativeSize();
     }
 }

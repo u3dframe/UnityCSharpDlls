@@ -27,6 +27,18 @@ public class UGUIEventListener : EventTrigger
 
     static public float maxDistance = 70f;
 
+    enum SyncEventType
+    {
+        PointerEnter = 0,
+        PointerExit,
+        PointerDown,
+        PointerUp,
+        BeginDrag,
+        Drag,
+        EndDrag,
+        Drop,
+    }
+
     protected event DF_UGUIV2Bool onMouseEnter;
     protected event DF_UGUIPos onClick;
     protected event DF_UGUIPos onBegDrag;
@@ -44,26 +56,12 @@ public class UGUIEventListener : EventTrigger
 
     [HideInInspector] public bool m_isPropagation = false; // 是否透传
     [HideInInspector] public bool m_isSyncScroll = true;
-    ScrollRect _sclParent = null;
-
-    ScrollRect GetScrollInParent(Transform trsf)
-    {
-        if (trsf == null) return null;
-        ScrollRect ret = trsf.GetComponent<ScrollRect>();
-        if (ret != null) return ret;
-        return GetScrollInParent(trsf.parent);
-    }
-
-    ScrollRect GetScrollInParent(GameObject gobj)
-    {
-        if (gobj == null) return null;
-        return GetScrollInParent(gobj.transform);
-    }
-
+    public ScrollRect m_sclParent { get; set; }
+    
     void Awake()
     {
         this.limit_dis_max = maxDistance * maxDistance;
-        _sclParent = GetScrollInParent(transform);
+        m_sclParent = GHelper.GetInParent<ScrollRect>(transform,true);
     }
 
     void OnDisable()
@@ -71,9 +69,7 @@ public class UGUIEventListener : EventTrigger
         if (this._isAppQuit) return;
 
         if (_isPressed && onPress != null)
-        {
             onPress(gameObject, false, transform.position);
-        }
         _isPressed = false;
     }
 
@@ -95,56 +91,49 @@ public class UGUIEventListener : EventTrigger
     // 移入
     override public void OnPointerEnter(PointerEventData eventData)
     {
+        if (m_isSyncScroll)
+            this.ExcuteSyncDrag(eventData, SyncEventType.PointerEnter);
         if (onMouseEnter != null)
-        {
             onMouseEnter(gameObject, true, eventData.position);
-        }
     }
 
     // 移出
     override public void OnPointerExit(PointerEventData eventData)
     {
+        if (m_isSyncScroll)
+            this.ExcuteSyncDrag(eventData, SyncEventType.PointerExit);
         if (onMouseEnter != null)
-        {
             onMouseEnter(gameObject, false, eventData.position);
-        }
     }
 
     // 按下
     override public void OnPointerDown(PointerEventData eventData)
     {
+        if (m_isSyncScroll)
+            this.ExcuteSyncDrag(eventData, SyncEventType.PointerDown);
+
         _isPressed = true;
         press_time = Time.realtimeSinceStartup;
         v2Start = eventData.position;
-        if (m_isSyncScroll && _sclParent != null)
-        {
-            _sclParent.OnBeginDrag(eventData);
-        }
         if (onPress != null)
-        {
             onPress(gameObject, _isPressed, eventData.position);
-        }
         PropagationFirst(eventData, ExecuteEvents.pointerDownHandler);
     }
 
     // 抬起
     override public void OnPointerUp(PointerEventData eventData)
     {
+        if (m_isSyncScroll)
+            this.ExcuteSyncDrag(eventData, SyncEventType.PointerUp);
+
         _isPressed = false;
         if (press_time > 0)
         {
             diff_time = Time.realtimeSinceStartup - press_time;
             press_time = 0;
         }
-
-        if (m_isSyncScroll && _sclParent != null)
-        {
-            _sclParent.OnEndDrag(eventData);
-        }
         if (onPress != null)
-        {
             onPress(gameObject, _isPressed, eventData.position);
-        }
         PropagationFirst(eventData, ExecuteEvents.pointerUpHandler);
     }
 
@@ -168,9 +157,7 @@ public class UGUIEventListener : EventTrigger
         diff_time = 0;
         if (!_isCanClick) return;
         if (onClick != null)
-        {
             onClick(gameObject, eventData.position);
-        }
         PropagationFirst(eventData, ExecuteEvents.submitHandler);
         PropagationFirst(eventData, ExecuteEvents.pointerClickHandler);
     }
@@ -178,49 +165,53 @@ public class UGUIEventListener : EventTrigger
     // 开始拖拽
     override public void OnBeginDrag(PointerEventData eventData)
     {
-        if (m_isSyncScroll && _sclParent != null)
+        if (m_isSyncScroll)
         {
-            _sclParent.OnBeginDrag(eventData);
+            if (m_sclParent != null)
+                m_sclParent.OnBeginDrag(eventData);
+
+            this.ExcuteSyncDrag(eventData, SyncEventType.BeginDrag);
         }
+
         if (onBegDrag != null)
-        {
             onBegDrag(gameObject, eventData.position);
-        }
     }
 
     // 推拽中
     override public void OnDrag(PointerEventData eventData)
     {
-        if (m_isSyncScroll && _sclParent != null)
+        if (m_isSyncScroll)
         {
-            _sclParent.OnDrag(eventData);
+            if (m_sclParent != null)
+                m_sclParent.OnDrag(eventData);
+
+            this.ExcuteSyncDrag(eventData, SyncEventType.Drag);
         }
         if (onDraging != null)
-        {
             onDraging(gameObject, eventData.position, eventData.delta);
-        }
     }
 
     // 结束拖拽
     override public void OnEndDrag(PointerEventData eventData)
     {
-        if (m_isSyncScroll && _sclParent != null)
+        if (m_isSyncScroll)
         {
-            _sclParent.OnEndDrag(eventData);
+            if (m_sclParent != null)
+                m_sclParent.OnEndDrag(eventData);
+
+            this.ExcuteSyncDrag(eventData, SyncEventType.EndDrag);
         }
         if (onEndDrag != null)
-        {
             onEndDrag(gameObject, eventData.position);
-        }
     }
 
     // 将元素拖拽到另外一个元素下面执行
     override public void OnDrop(PointerEventData eventData)
     {
+        if (m_isSyncScroll)
+            this.ExcuteSyncDrag(eventData, SyncEventType.Drop);
         if (onDrop != null)
-        {
             onDrop(gameObject, eventData.position);
-        }
     }
 
     public void PropagationFirst<T>(PointerEventData data, ExecuteEvents.EventFunction<T> function) where T : IEventSystemHandler
@@ -267,6 +258,8 @@ public class UGUIEventListener : EventTrigger
         this.onEndDrag = null;
         this.onDrop = null;
         this.onPress = null;
+        this.m_sclParent = null;
+        this.m_listSyncDrag.Clear();
     }
 
     public void OnlyOnceCallMEnter(DF_UGUIV2Bool call, bool isAdd = true)
@@ -330,5 +323,69 @@ public class UGUIEventListener : EventTrigger
         this.onPress -= call;
         if (isAdd)
             this.onPress += call;
+    }
+
+    List<EventTrigger> m_listSyncDrag = new List<EventTrigger>();
+    public void AddSyncDrag4EventTrigger(UnityEngine.Object uobj)
+    {
+        if (this._isAppQuit)
+            return;
+
+        GameObject gobj = GHelper.ToGObj(uobj);
+        if (gobj == null || !gobj || gobj == this.gameObject)
+            return;
+
+        EventTrigger[] _evts = gobj.GetComponents<EventTrigger>();
+        if (GHelper.IsNullOrEmpty(_evts))
+            return;
+        EventTrigger _evt = null;
+        for (int i = 0; i < _evts.Length; i++)
+        {
+            _evt = _evts[i];
+            if (this.m_listSyncDrag.Contains(_evt))
+                continue;
+            this.m_listSyncDrag.Add(_evt);
+        }
+    }
+
+    void ExcuteSyncDrag(PointerEventData eventData, SyncEventType syncType)
+    {
+        if (this._isAppQuit)
+            return;
+        if (this.m_listSyncDrag == null || this.m_listSyncDrag.Count <= 0)
+            return;
+        int _lens = this.m_listSyncDrag.Count;
+        EventTrigger _evt = null;
+        for (int i = 0; i < _lens; i++)
+        {
+            _evt = this.m_listSyncDrag[i];
+            switch (syncType)
+            {
+                case SyncEventType.BeginDrag:
+                    _evt.OnBeginDrag(eventData);
+                    break;
+                case SyncEventType.Drag:
+                    _evt.OnDrag(eventData);
+                    break;
+                case SyncEventType.EndDrag:
+                    _evt.OnEndDrag(eventData);
+                    break;
+                case SyncEventType.PointerEnter:
+                    _evt.OnPointerEnter(eventData);
+                    break;
+                case SyncEventType.PointerExit:
+                    _evt.OnPointerExit(eventData);
+                    break;
+                case SyncEventType.PointerDown:
+                    _evt.OnPointerDown(eventData);
+                    break;
+                case SyncEventType.PointerUp:
+                    _evt.OnPointerUp(eventData);
+                    break;
+                case SyncEventType.Drop:
+                    _evt.OnDrop(eventData);
+                    break;
+            }
+        }
     }
 }

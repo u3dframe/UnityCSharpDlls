@@ -48,4 +48,11 @@ public class MgrMainCamera : MonoBehaviour
     {
 		return IsInCamera(this.m_camera, uobj);
 	}
+
+    public void SetSkybox(Material mat)
+    {
+        if (this.m_skybox == null)
+            return;
+        this.m_skybox.material = mat;
+    }
 }

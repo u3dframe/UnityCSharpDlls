@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Core.Kernel;
 
 /// <summary>
 /// 类名 : Render 渲染 排序控制
@@ -30,27 +31,22 @@ public class RendererSortOrder : GobjLifeListener
     public SortType m_sType = SortType.LayerAndQueue;
     public string m_nmLayer = "Default";
     int m_sLayerID = 0;
-    bool m_isNameInSLayer = true;
 
     public bool m_isAdd = true;
     public int m_val_layer = 0;
     public int m_val_queue = 0;
 
     Renderer[] renderers;
-    string _k_sl_id = "r_sid_{0}";
-    string _k_sl_val = "r_val_{0}";
+    string _k_sl_id = "l_sid_{0}";
+    string _k_sl_val = "l_val_{0}";
     string _k_mat_val = "m_val_{0}";
     Dictionary<string, int> m_r_sinfo = new Dictionary<string, int>();
 
-    public float m_delay = 0.1f;
+    public float m_delay_init = 0.03f;
+    public float m_delay_excsort = 0.1f;
     bool m_isInited = false;
-    [SerializeField] bool m_isNewMat = true;
+    [SerializeField] bool m_isNewMat = false;
     Dictionary<int, RendererMatData> m_dicAllMats = new Dictionary<int, RendererMatData>();
-
-    override protected void OnCall4Start()
-    {
-        this.Init(this.m_isNewMat);
-    }
 
     override protected void OnCall4Destroy()
     {
@@ -70,6 +66,7 @@ public class RendererSortOrder : GobjLifeListener
 
     void Update()
     {
+        _UpDelayInit();
         _UpDelayReRS();
     }
 
@@ -82,22 +79,36 @@ public class RendererSortOrder : GobjLifeListener
 
         renderers = this.GetComponentsInChildren<Renderer>(true);
         _InitSortInfo();
-
-        if (this.m_delay <= 0)
-            ReRenderSorting();
         return this;
+    }
+    void _UpDelayInit()
+    {
+        if (this.m_isInited || this.m_delay_init <= -1)
+            return;
+
+        if (this.m_delay_init > 0)
+            this.m_delay_init -= Time.deltaTime;
+
+        if (this.m_delay_init <= 0)
+        {
+            this.m_delay_init = -2;
+            this.Init(this.m_isNewMat);
+        }
     }
 
     void _UpDelayReRS()
     {
-        if (this.m_delay <= 0)
+        if (!this.m_isInited || this.m_delay_excsort <= -1)
             return;
 
-        this.m_delay -= Time.deltaTime;
-        if (this.m_delay > 0)
-            return;
+        if (this.m_delay_excsort > 0)
+            this.m_delay_excsort -= Time.deltaTime;
 
-        ReRenderSorting();
+        if (this.m_delay_excsort <= 0)
+        {
+            this.m_delay_excsort = -2;
+            this.ReRenderSorting();
+        }
     }
 
     void _InitSortInfo()
@@ -184,14 +195,14 @@ public class RendererSortOrder : GobjLifeListener
 
     void _CheckSortName()
     {
-        this.m_isNameInSLayer = false;
-        this.m_sLayerID = 0;
         if (string.IsNullOrEmpty(this.m_nmLayer))
-        {
             return;
-        }
-        this.m_sLayerID = SortingLayer.NameToID(this.m_nmLayer);
-        this.m_isNameInSLayer = SortingLayer.IsValid(this.m_sLayerID);
+
+        int _lid = SortingLayer.NameToID(this.m_nmLayer);
+        if (SortingLayer.IsValid(_lid))
+            this.m_sLayerID = _lid;
+        else
+            this.m_nmLayer = SortingLayer.IDToName(this.m_sLayerID);
     }
 
     [ContextMenu("Re Render Sorting")]
@@ -214,20 +225,25 @@ public class RendererSortOrder : GobjLifeListener
         }
     }
 
+    public int GetDefSortingOrder(Renderer rer)
+    {
+        if (rer == null || !rer)
+            return -9999999;
+        int _r_o_id = rer.GetInstanceID();
+        string _k = string.Format(_k_sl_val, _r_o_id);
+        return _GetDefVal(_k);
+    }
+
     void _ReSLayer(Renderer rer, bool isCan)
     {
-        if (!isCan || rer == null || this.m_val_layer == 0) return;
-        if (m_isNameInSLayer)
-        {
-            rer.sortingLayerName = this.m_nmLayer;
-            rer.sortingLayerID = this.m_sLayerID;
-        }
+        if (!isCan || rer == null) return;
+        rer.sortingLayerID = this.m_sLayerID;
+
+        if (this.m_val_layer == 0) return;
 
         if (m_isAdd)
         {
-            int _r_o_id = rer.GetInstanceID();
-            string _k = string.Format(_k_sl_val, _r_o_id);
-            int _v = _GetDefVal(_k);
+            int _v = GetDefSortingOrder(rer);
             if (_v != -9999999)
             {
                 rer.ReSortingOrder(this.m_val_layer + _v);
@@ -239,11 +255,11 @@ public class RendererSortOrder : GobjLifeListener
         }
     }
 
-    int _GetRenderQueue(Material _mat_)
+    public int GetDefRenderQueue(Material mat)
     {
-        if (_mat_ == null)
+        if (mat == null)
             return -9999999;
-        int _m_o_id = _mat_.GetInstanceID();
+        int _m_o_id = mat.GetInstanceID();
         string _k = string.Format(_k_mat_val, _m_o_id);
         return _GetDefVal(_k);
     }
@@ -275,7 +291,7 @@ public class RendererSortOrder : GobjLifeListener
 
             if (m_isAdd)
             {
-                _rq = _GetRenderQueue(_mat_);
+                _rq = GetDefRenderQueue(_mat_);
                 if (_rq != -9999999)
                 {
                     _mat_.ReRenderQueue(this.m_val_queue + _rq);

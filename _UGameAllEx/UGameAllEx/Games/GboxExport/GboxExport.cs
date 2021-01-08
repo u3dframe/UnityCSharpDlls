@@ -33,7 +33,6 @@ public class GboxExport : MonoBehaviour
     //public float rowSpacing = 1.3526F;
     public string exPath = @"D:\\scr";
 
-
     class derive
     {
         public float max;
@@ -84,6 +83,10 @@ public class GboxExport : MonoBehaviour
                 lis.Add(o[i].obj[q].gameObject);
                 o[i].obj[q].name = lis.Count.ToString();
                 o[i].obj[q].transform.SetSiblingIndex(lis.Count - 1);
+                Vector3 pos = o[i].obj[q].transform.localPosition;
+                pos.y = o[i].obj[q].CreateObjPosY;
+                o[i].obj[q].transform.localPosition = pos;
+          
             }
         }
         exserver(o);
@@ -100,7 +103,7 @@ public class GboxExport : MonoBehaviour
         {
             for (int m = 0; m < o[i].obj.Count; m++)
             {
-                content.Append(o[i].obj[m].isObstruct ? 1 : 0);
+                content.Append(o[i].obj[m].isObstruct ? 0 : o[i].obj[m].ObstructLayer);
                 content.Append(", ");
                 if (m == o[i].obj.Count - 1)
                 {
@@ -136,7 +139,7 @@ public class GboxExport : MonoBehaviour
         {
             for (int m = 0; m < o[i].obj.Count; m++)
             {
-                content.Append(o[i].obj[m].isObstruct ? 1 : 0);
+                content.Append(o[i].obj[m].isObstruct ? 0 : o[i].obj[m].ObstructLayer);
             }
         }
         try

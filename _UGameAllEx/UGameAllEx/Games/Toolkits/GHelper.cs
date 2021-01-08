@@ -214,43 +214,45 @@ public class GHelper : Core.Kernel.ObjEx
         return Get<T>(sub, isAdd);
     }
 
-    static public T GetInParent<T>(UObject uobj) where T : Component
-    {
-        GameObject gobj = ToGObj(uobj);
-        if (IsNull(gobj)) return null;
-        T ret = gobj.GetComponent<T>();
-        if (!ret)
-        {
-            ret = gobj.GetComponentInParent<T>();
-        }
-        return ret;
-    }
-
-    static public T GetInParentRecursion<T>(UObject uobj) where T : Component
+    static public T GetInParent<T>(UObject uobj,bool includeSelf) where T : Component
     {
         Transform trsf = ToTransform(uobj);
         if (IsNull(trsf)) return null;
-        T ret = trsf.GetComponent<T>();
-        if (ret != null) return ret;
-        return GetInParentRecursion<T>(trsf.parent);
+        Transform _parent = includeSelf ? trsf : trsf.parent;
+        T ret = _parent?.GetComponent<T>();
+        if (!ret)
+            ret = _parent?.GetComponentInParent<T>();
+        return ret;
+    }
+
+    static public T GetInParentRecursion<T>(UObject uobj,bool includeSelf) where T : Component
+    {
+        Transform trsf = ToTransform(uobj);
+        if (IsNull(trsf)) return null;
+        Transform _parent = includeSelf ? trsf : trsf.parent;
+        T ret = _parent?.GetComponent<T>();
+        if (ret) return ret;
+        _parent = includeSelf ? trsf : _parent;
+        return GetInParentRecursion<T>(_parent.parent, true);
     }
 
     /// <summary>
     /// 添加组件
     /// </summary>
-    static public T Add<T>(UObject uobj) where T : Component
+    static public T Add<T>(UObject uobj,bool isOnlyOne = true) where T : Component
     {
         GameObject gobj = ToGObj(uobj);
-        if (IsNoNull(gobj))
+        if (IsNull(gobj))
+            return null;
+        if (isOnlyOne)
         {
             T[] ts = gobj.GetComponents<T>();
             for (int i = 0; i < ts.Length; i++)
             {
                 if (ts[i] != null) GameObject.DestroyImmediate(ts[i]);
             }
-            return gobj.AddComponent<T>();
         }
-        return null;
+        return gobj.AddComponent<T>();
     }
 
     /// <summary>
@@ -343,6 +345,13 @@ public class GHelper : Core.Kernel.ObjEx
             _go_ = trsf.GetChild(i).gameObject;
             _go_.SetActive(isActive);
         }
+    }
+
+    static public Transform GetParent(UObject uobj)
+    {
+        Transform trsf = ToTransform(uobj);
+        if (IsNull(trsf)) return null;
+        return trsf.parent;
     }
 
     /// <summary>

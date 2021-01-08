@@ -21,6 +21,9 @@ public enum TriggerType
 public class GboxChild : MonoBehaviour
 {
 #if UNITY_EDITOR
+    [Range(1, 9)]
+    public int ObstructLayer = 1;
+    public float CreateObjPosY = 0;
     public bool isObstruct = false;//是否阻挡，用于导出阻挡信息
     public List<GameObject> objs = new List<GameObject>();
     public List<GameObject> unrealObjs = new List<GameObject>();
@@ -46,6 +49,7 @@ public class GboxChild : MonoBehaviour
         unrealObjs.Clear();
         unreallist.Clear();
         triggerId = 0;
+        ObstructLayer = 1;
         type = TriggerType.Add;
         nexts.Clear();
         para = null;
@@ -106,15 +110,17 @@ public class GboxChild : MonoBehaviour
         }
         for (int i = 0; i < objs.Count; i++)
         {
+
+        if(objs[i]){
             GameObject o = GameObject.Instantiate(objs[i]);
             o.transform.SetParent(transform);
             o.transform.localScale = Vector3.one;
             o.transform.localPosition = Vector3.zero;
             o.transform.localRotation = Quaternion.identity;
             o.gameObject.layer = LayerMask.NameToLayer("SceneObj");
-        }
+        }}
         for (int i = 0; i < unrealObjs.Count; i++)
-        {
+        { if(unrealObjs[i]){
             GameObject o = GameObject.Instantiate(unrealObjs[i]);
             o.transform.SetParent(transform);
             o.transform.localScale = Vector3.one;
@@ -122,7 +128,7 @@ public class GboxChild : MonoBehaviour
             o.transform.localRotation = Quaternion.identity;
             o.gameObject.layer = LayerMask.NameToLayer("SceneObj");
             o.gameObject.name = "UnrealObjs";
-            unreallist.Add(o);
+            unreallist.Add(o);}
         }
     }
 

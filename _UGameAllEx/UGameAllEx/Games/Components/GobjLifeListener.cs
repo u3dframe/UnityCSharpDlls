@@ -41,9 +41,7 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         get
         {
             if (IsNull(_m_trsf))
-            {
                 _m_trsf = transform;
-            }
             return _m_trsf;
         }
     }
@@ -58,20 +56,19 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         get
         {
             if (IsNull(_m_gobj))
-            {
                 _m_gobj = gameObject;
-            }
             return _m_gobj;
         }
     }
 
+    int _gobjID = 0;
     public int m_gobjID
     {
         get
         {
-            if (this.m_gobj)
-                return this.m_gobj.GetInstanceID();
-            return 0;
+            if (_gobjID == 0 && !IsNull(this.m_gobj))
+                _gobjID = this.m_gobj.GetInstanceID();
+            return _gobjID;
         }
     }
 
@@ -159,6 +156,7 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         this.m_callHide = null;
         this._m_gobj = null;
         this._m_trsf = null;
+        this._gobjID = 0;
 
         OnClear();
     }

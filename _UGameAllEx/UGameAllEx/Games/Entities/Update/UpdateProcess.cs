@@ -136,7 +136,7 @@ namespace Core.Kernel
 
             this._SetStatePre(EM_Process.WaitCommand);
             _vPath = UGameFile.ReWwwUrl(UGameFile.m_fpZipList);
-            WWWMgr.instance.StartUWR(_vPath, _CFLoadZipList, _vPath);
+            WWWMgr.instance.StartUWR(_vPath, _CFLoadZipList,null, _vPath);
         }
 
         void _CFLoadZipList(bool isSuccess, UnityWebRequest uwr, object pars)
@@ -193,7 +193,7 @@ namespace Core.Kernel
                     this._SetStatePre(EM_Process.WaitCommand);
                     string _vPath = string.Format(UGameFile.m_fmtZip, nmZipIndex);
                     _vPath = UGameFile.ReWwwUrl(_vPath);
-                    WWWMgr.instance.StartUWR(_vPath, _CFLoadZipOne,_vPath);
+                    WWWMgr.instance.StartUWR(_vPath, _CFLoadZipOne,null, _vPath);
                 }
                 else
                 {
@@ -320,7 +320,7 @@ namespace Core.Kernel
             this._SetStatePre(EM_Process.WaitCommand);
             string _vPath = string.Concat(UGameFile.m_appContentPath,CfgVersion.m_defFileName);
             _vPath = UGameFile.ReWwwUrl(_vPath);
-            WWWMgr.instance.StartUWR(_vPath, _CFLoadStreamVersion,_vPath);
+            WWWMgr.instance.StartUWR(_vPath, _CFLoadStreamVersion,null,_vPath);
         }
 
         void _CFLoadStreamVersion(bool isSuccess, UnityWebRequest uwr, object pars)

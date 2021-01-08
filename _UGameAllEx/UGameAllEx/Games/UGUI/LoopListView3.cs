@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 
-public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerDownHandler, IPointerUpHandler
+public class LoopListView3 : EventTrigger
 {
     public delegate string DF_GetItemName(int index);
 
@@ -92,6 +92,13 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
                 var i = GetNearestContentIndexToCenter();
                 toMove = initWorldPos - (value - pivot) * total - worldPos[i];
             }
+        }
+
+        public void SetNormalizedPosition(float value)
+        {
+            normalizedPosition = value;
+            WorldMove(toMove);
+            toMove = 0;
         }
 
         public void Reset()
@@ -445,12 +452,16 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
     {
         AutoAlignment,
         Unrestricted,
-        //Elastic,
-        //Clamped,
+        Elastic,
+        Clamped,
     }
 
     [SerializeField]
     protected MovementType movementType = MovementType.AutoAlignment;
+
+    [SerializeField]
+    [Range(0.01f, 10f)]
+    protected float elasticity = 1.5f;
 
     public enum LayoutType
     {
@@ -610,9 +621,43 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         var s = -distance * autoSpeedChangeRate;
         if (Mathf.Abs(s) < autoSpeedMinValue)
         {
-            s = s > 0 ? autoSpeedMinValue : -autoSpeedMinValue;
+            s = Mathf.Sign(s) * autoSpeedMinValue;
         }
         return s;
+    }
+
+    protected float elasticAlignLow = 0;
+
+    protected float prevElasticDistance = 0;
+
+    protected float CalcElasticSpeed()
+    {
+        var contHigh = virtualContent.HighBound;
+        var contLow = virtualContent.LowBound;
+        var viewHigh = viewWorldHigh;
+        var viewLow = viewWorldLow;
+        var contPivot = vertical ? content.pivot.y : content.pivot.x;
+        var contLen = virtualContent.Length;
+        if (contLen <= viewHigh - viewLow)
+        {
+            elasticAlignLow = (viewHigh - viewLow) * contPivot + viewLow - contLen * contPivot;
+        }
+        else if (contHigh < viewHigh)
+        {
+            elasticAlignLow = viewHigh - contLen;
+        }
+        else if (contLow > viewLow)
+        {
+            elasticAlignLow = viewLow;
+        }
+        else
+            return 0;
+        prevElasticDistance = contLow - elasticAlignLow;
+        if (Mathf.Abs(prevElasticDistance) <= 0.01f) return 0;
+        var speed = -prevElasticDistance * autoSpeedChangeRate;
+        if (Mathf.Abs(speed) < autoSpeedMinValue)
+            speed = autoSpeedMinValue * Mathf.Sign(speed);
+        return speed;
     }
 
     protected RectTransform viewRect
@@ -657,9 +702,7 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         if (movementType == MovementType.AutoAlignment)
             MoveToImmediately(resetPos ? 0 : currentIndex);
         else
-            normalizedPosition = resetPos ? (vertical ? 1 : 0) : np;
-        if (scrollbar != null)
-            scrollbar.size = (viewWorldHigh - viewWorldLow) / virtualContent.Length;
+            normalizedPosition = resetPos ? (vertical ? content.pivot.y : content.pivot.x) : np;
     }
 
     public int GetItemIndex(GameObject obj)
@@ -705,7 +748,11 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
     public void StopMovement()
     {
         //不能停止自动定位运动
-        isForceMoving = false;
+        if (isForceMoving)
+        {
+            isForceMoving = false;
+            currentIndex = virtualContent.CalcLocationIndex();
+        }
         worldDragSpeed = 0;
     }
 
@@ -736,7 +783,7 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         virtualContent.WorldMove(delta);
     }
 
-    public void OnPointerDown(PointerEventData eventData)
+    public override void OnPointerDown(PointerEventData eventData)
     {
         if (isPointerDown || !interactable) return;
         isPointerDown = true;
@@ -744,7 +791,7 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         currentPointerId = eventData.pointerId; //只处理第一个触屏的指针/手指
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    public override void OnPointerUp(PointerEventData eventData)
     {
         if (eventData.pointerId != currentPointerId || !interactable) return;
         isPointerDown = false;
@@ -755,20 +802,20 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
     protected Vector3 currPointerPosition;
     protected float inertiaLerp = 1;
 
-    public void OnBeginDrag(PointerEventData eventData)
+    public override void OnBeginDrag(PointerEventData eventData)
     {
         if (eventData.pointerId != currentPointerId || !interactable || isForceMoving) return;
         isDragging = true;
         RectTransformUtility.ScreenPointToWorldPointInRectangle(viewRect, eventData.position, eventData.pressEventCamera, out prevPointerPosition);
     }
 
-    public void OnDrag(PointerEventData eventData)
+    public override void OnDrag(PointerEventData eventData)
     {
         if (eventData.pointerId != currentPointerId || !interactable || isForceMoving) return;
         RectTransformUtility.ScreenPointToWorldPointInRectangle(viewRect, eventData.position, eventData.pressEventCamera, out currPointerPosition);
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    public override void OnEndDrag(PointerEventData eventData)
     {
         if (eventData.pointerId != currentPointerId || !interactable) return;
         currIsMoving = false;   //应对一个极端情况
@@ -851,8 +898,48 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         return new Rect(position.x - rtWidth * rt.pivot.x, position.y - rtHeight * rt.pivot.y, rtWidth, rtHeight);
     }
 
-    protected void UpdateContent(float lowBound)
+    protected void UpdateContent()
     {
+        UpdateVisibleItemIndexList(out var vl, out _);
+        itemCache.Clear();
+        foreach (var item in itemList)
+        {
+            if (visibleItemIndexList.Contains(item.index))
+                itemCache[item.index] = item;
+            else
+                PutItemToPool(item);
+        }
+        itemList.Clear();
+        if (visibleItemIndexList.Count == 0) return;
+        ListItem it;
+        bool isChanged;
+        foreach (int i in visibleItemIndexList)
+        {
+            isChanged = false;
+            if (itemCache.ContainsKey(i))
+            {
+                it = itemCache[i];
+            }
+            else
+            {
+                it = GetItemFromPool(GetItemName(i));
+                it.index = i;
+                isChanged = true;
+            }
+            var dis = GetNormalizedDistanceToCenterFrom(i);
+            if (Mathf.Abs(it.normalizedDistance - dis) >= distanceMinDelta)
+            {
+                isChanged = true;
+                it.normalizedDistance = dis;
+            }
+            if (isChanged)
+                _ExcSetDate(it.gameObject, it.index, it.normalizedDistance);
+            itemList.Add(it);
+            if (!it.gameObject.activeSelf)
+                it.gameObject.SetActive(true);
+            it.gameObject.transform.SetAsLastSibling();
+        }
+
         var si = itemList[0].index;
         var ei = itemList[itemList.Count - 1].index;
         var initPos = contentInitPosition;
@@ -860,48 +947,50 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         if (vertical)
         {
             //开启循环或item不在virtual content边缘时，填充spacing而不是padding
-            int margin = (!loop && ei == itemCount - 1) ? contentPadding.bottom : contentSpacing;
+            int bottom = (!loop && ei == itemCount - 1) ? contentPadding.bottom : contentSpacing;
+            int top = (!loop && si == 0) ? contentPadding.top : contentSpacing;
             contentLayout.padding.left = contentPadding.left;
             contentLayout.padding.right = contentPadding.right;
-            contentLayout.padding.top = (!loop && si == 0) ? contentPadding.top : contentSpacing;
-            contentLayout.padding.bottom = margin;
+            contentLayout.padding.top = top;
+            contentLayout.padding.bottom = bottom;
             //ForceRebuildLayoutImmediate()不起作用，调用了依然没刷新content尺寸，先手动计算
             //LayoutRebuilder.ForceRebuildLayoutImmediate(content);
-            lowBound -= margin * contScale.y;
+            vl -= bottom * contScale.y;
             //var contHeight = content.rect.height * contScale.y;
-            float height = (margin + contentSpacing * (itemList.Count - 1));
+            float contHeight = (bottom + top + contentSpacing * (itemList.Count - 1));
             for (int i = 0; i < itemList.Count; i++)
-                height += itemList[i].gameObject.GetComponent<RectTransform>().rect.height;
-            height *= contScale.y;
-            content.position = new Vector3(initPos.x, lowBound + height * content.pivot.y, initPos.z);
+                contHeight += itemList[i].gameObject.GetComponent<RectTransform>().rect.height;
+            contHeight *= contScale.y;
+            content.position = new Vector3(initPos.x, vl + contHeight * content.pivot.y, initPos.z);
         }
         else
         {
-            int margin = (!loop && si == 0) ? contentPadding.left : contentSpacing;
-            contentLayout.padding.left = margin;
-            contentLayout.padding.right = (!loop && ei == itemCount - 1) ? contentPadding.right : contentSpacing;
+            int left = (!loop && si == 0) ? contentPadding.left : contentSpacing;
+            int right = (!loop && ei == itemCount - 1) ? contentPadding.right : contentSpacing;
+            contentLayout.padding.left = left;
+            contentLayout.padding.right = right;
             contentLayout.padding.top = contentPadding.top;
             contentLayout.padding.bottom = contentPadding.bottom;
             //LayoutRebuilder.ForceRebuildLayoutImmediate(content);
-            lowBound -= margin * contScale.x;
+            vl -= left * contScale.x;
             //var contWidth = content.rect.width * contScale.x;
-            float width = (margin + contentSpacing * (itemList.Count - 1));
+            float contWidth = (left + right + contentSpacing * (itemList.Count - 1));
             for (int i = 0; i < itemList.Count; i++)
-                width += itemList[i].gameObject.GetComponent<RectTransform>().rect.width;
-            width *= contScale.x;
-            content.position = new Vector3(lowBound + width * content.pivot.x, initPos.y, initPos.z);
+                contWidth += itemList[i].gameObject.GetComponent<RectTransform>().rect.width;
+            contWidth *= contScale.x;
+            content.position = new Vector3(vl + contWidth * content.pivot.x, initPos.y, initPos.z);
         }
     }
 
     private HorizontalOrVerticalLayoutGroup contentLayout;
 
-    protected override void Awake()
+    protected void Awake()
     {
         if (!Application.IsPlaying(gameObject)) return;
         virtualContent = new VirtualContent(this);
     }
 
-    protected override void Start()
+    protected void Start()
     {
         if (!Application.IsPlaying(gameObject)) return;
         viewWorldRect = WorldRect(viewRect);
@@ -942,20 +1031,14 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         sizeFilter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
     }
 
-    private float prevNormalizedPos = 0;
-
-    private float endMovingDelta = 0.01f;   //触发到达中心回调的最小距离
-
-    private readonly Dictionary<int, ListItem> itemCache = new Dictionary<int, ListItem>();
-
-    protected void LateUpdate()
+    protected static float RubberRate(float overStretching, float viewSize)
     {
-        if (!Application.IsPlaying(gameObject)) return;
-        if (!isInitted) return;
+        return 1 / ((Mathf.Abs(overStretching) * 3f / viewSize) + 1);
+    }
 
-        if (itemCount <= 0) return;
-
-        //content运动
+    protected void UpdateVirtualContent()
+    {
+        //virtual content运动
         var deltaTime = Time.deltaTime; //暂时不用Time.unscaledDeltaTime
         var prevDis = GetDistanceToCenterFrom(currentIndex);
         if (isForceMoving)
@@ -974,39 +1057,78 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         else if (isDragging || !isPointerDown)
         {
             float speed;
+            float elasticSpeed = 0;
+            if (movementType == MovementType.Elastic)
+                elasticSpeed = CalcElasticSpeed();
             if (isDragging)
             {
                 var worldDragVelocity = (currPointerPosition - prevPointerPosition) / deltaTime;
                 var newSpeed = vertical ? worldDragVelocity.y : worldDragVelocity.x;
                 worldDragSpeed = Mathf.Lerp(worldDragSpeed, newSpeed, deltaTime * 10);
+                if (elasticSpeed != 0 && elasticSpeed * worldDragSpeed <= 0)
+                {
+                    worldDragSpeed *= RubberRate(virtualContent.LowBound - elasticAlignLow, viewWorldHigh - viewWorldLow);
+                }
                 speed = worldDragSpeed;
                 prevPointerPosition = currPointerPosition;
             }
             else if (virtualContent.toMove != 0)
             {
                 speed = virtualContent.toMove / deltaTime;
-                virtualContent.toMove = 0;
             }
             else
             {
                 //惯性速度衰减
                 worldDragSpeed *= Mathf.Pow(inertiaDecelerationRate, deltaTime);
-                if (Mathf.Abs(worldDragSpeed) < 1)
+                if (Mathf.Abs(worldDragSpeed) < 0.1f)
                     worldDragSpeed = 0;
                 speed = worldDragSpeed;
+                //惯性速度与自动定位/弹性速度插值
+                var autoSpeed = speed;
                 if (movementType == MovementType.AutoAlignment)
-                {
-                    //惯性速度和自动定位速度插值
-                    var autoSpeed = CalcAutoMovingSpeed(currentIndex);
-                    inertiaLerp += deltaTime * 1.5f;
-                    speed = Mathf.Lerp(speed, autoSpeed, Mathf.Clamp(inertiaLerp, 0, 1));
-                }
+                    autoSpeed = CalcAutoMovingSpeed(currentIndex);
+                else if (movementType == MovementType.Elastic)
+                    autoSpeed = elasticSpeed;
+                inertiaLerp += deltaTime * elasticity;
+                speed = Mathf.Lerp(speed, autoSpeed, Mathf.Clamp01(inertiaLerp));
             }
             if (speed != 0)
             {
                 currIsMoving = true;
                 var delta = speed * deltaTime;
                 MoveVirtualContent(delta);
+
+                if (!loop && !isDragging && movementType == MovementType.Elastic && elasticSpeed != 0)
+                {
+                    var currElasticDis = virtualContent.LowBound - elasticAlignLow;
+                    if (currElasticDis * prevElasticDistance <= 0)
+                    {
+                        MoveVirtualContent(-currElasticDis);
+                        currIsMoving = false;
+                        worldDragSpeed = 0;
+                    }
+                }
+
+                if (!loop && movementType == MovementType.Clamped)
+                {
+                    var currNormalizedPos = normalizedPosition;
+                    var normalizedTotal = virtualContent.Length - viewWorldHigh + viewWorldLow;
+                    if (normalizedTotal <= 0)
+                        virtualContent.SetNormalizedPosition(vertical ? content.pivot.y : content.pivot.x);
+                    else if (currNormalizedPos > 1)
+                        virtualContent.SetNormalizedPosition(1);
+                    else if (currNormalizedPos < 0)
+                        virtualContent.SetNormalizedPosition(0);
+                    else
+                        goto NotClamped;
+                    if (!isDragging)
+                    {
+                        currIsMoving = false;
+                        worldDragSpeed = 0;
+                    }
+                }
+
+                NotClamped:
                 var newIndex = virtualContent.CalcLocationIndex();
                 var newDis = GetDistanceToCenterFrom(newIndex);
 
@@ -1019,10 +1141,10 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
                     if (Mathf.Abs(nextWorldDragSpeed) > 0)
                     {
                         nextWorldDragSpeed *= Mathf.Pow(inertiaDecelerationRate, deltaTime);
-                        if (Mathf.Abs(nextWorldDragSpeed) < 1)
+                        if (Mathf.Abs(nextWorldDragSpeed) < 0.1f)
                             nextWorldDragSpeed = 0;
                     }
-                    var nextSpeed = Mathf.Lerp(nextWorldDragSpeed, CalcAutoMovingSpeed(newIndex), Mathf.Clamp(inertiaLerp + deltaTime * 1.5f, 0, 1));
+                    var nextSpeed = Mathf.Lerp(nextWorldDragSpeed, CalcAutoMovingSpeed(newIndex), Mathf.Clamp(inertiaLerp + deltaTime * elasticity, 0, 1));
                     if (nextSpeed * speed <= 0)
                     {
                         MoveVirtualContent(-newDis);
@@ -1070,54 +1192,29 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
             }
             else
             {
-                if (movementType == MovementType.Unrestricted)
+                if (movementType == MovementType.Unrestricted || movementType == MovementType.Clamped ||
+                    movementType == MovementType.Elastic && elasticSpeed == 0)
                     currIsMoving = false;
             }
         }
+        virtualContent.toMove = 0;
+    }
 
-        //更新itemList
-        UpdateVisibleItemIndexList(out var vl, out _);
-        if (visibleItemIndexList.Count > 0)
-        {
-            itemCache.Clear();
-            foreach (var item in itemList)
-            {
-                if (visibleItemIndexList.Contains(item.index))
-                    itemCache[item.index] = item;
-                else
-                    PutItemToPool(item);
-            }
-            itemList.Clear();
-            ListItem it;
-            bool isChanged;
-            foreach (int i in visibleItemIndexList)
-            {
-                isChanged = false;
-                if (itemCache.ContainsKey(i))
-                {
-                    it = itemCache[i];
-                }
-                else
-                {
-                    it = GetItemFromPool(GetItemName(i));
-                    it.index = i;
-                    isChanged = true;
-                }
-                var dis = GetNormalizedDistanceToCenterFrom(i);
-                if (Mathf.Abs(it.normalizedDistance - dis) >= distanceMinDelta)
-                {
-                    isChanged = true;
-                    it.normalizedDistance = dis;
-                }
-                if (isChanged)
-                    _ExcSetDate(it.gameObject, it.index, it.normalizedDistance);
-                itemList.Add(it);
-                if (!it.gameObject.activeSelf)
-                    it.gameObject.SetActive(true);
-                it.gameObject.transform.SetAsLastSibling();
-            }
-            UpdateContent(vl);
-        }
+    private float prevNormalizedPos = 0;
+
+    private const float endMovingDelta = 0.01f;   //触发到达中心回调的最小距离
+
+    private readonly Dictionary<int, ListItem> itemCache = new Dictionary<int, ListItem>();
+
+    protected void LateUpdate()
+    {
+        if (!Application.IsPlaying(gameObject)) return;
+        if (!isInitted) return;
+
+        if (itemCount <= 0) return;
+
+        UpdateVirtualContent();
+        UpdateContent();
 
         foreach (var kv in pool)
         {
@@ -1135,8 +1232,8 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
 
         //自动定位时，normalizedPosition会不断有微小变化
         //为避免不必要的回调，只有当其变化量换算为世界坐标不小于1时才触发回调
-        var currNormalizedPos = normalizedPosition;
         var normalizedTotal = virtualContent.Length - viewWorldHigh + viewWorldLow;
+        var currNormalizedPos = normalizedPosition;
         if (Mathf.Abs((currNormalizedPos - prevNormalizedPos) * normalizedTotal) >= (vertical ? content.lossyScale.y : content.lossyScale.x))
         {
             OnValueChanged?.Invoke(currNormalizedPos);
@@ -1149,12 +1246,26 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         {
             if (loop || scrollbarVisibility == ScrollbarVisibility.AutoHide && normalizedTotal <= 0)
             {
-                scrollbar.gameObject.SetActive(false);
+                if (scrollbar.gameObject.activeSelf)
+                    scrollbar.gameObject.SetActive(false);
             }
             else
             {
-                scrollbar.gameObject.SetActive(true);
-                scrollbar.SetValueWithoutNotify(currNormalizedPos);
+                if (!scrollbar.gameObject.activeSelf)
+                    scrollbar.gameObject.SetActive(true);
+                float offset = 0;
+                if (movementType != MovementType.Unrestricted && normalizedTotal > 0)
+                {
+                    var contHigh = virtualContent.HighBound;
+                    var contLow = virtualContent.LowBound;
+                    if (contHigh < viewWorldHigh)
+                        offset = viewWorldHigh - contHigh;
+                    else if (contLow > viewWorldLow)
+                        offset = contLow - viewWorldLow;
+                }
+                scrollbar.size = Mathf.Clamp01((viewWorldHigh - viewWorldLow - offset) / virtualContent.Length);
+                scrollbar.value = currNormalizedPos;
+                
             }
         }
     }
@@ -1163,7 +1274,7 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         SetItemData?.Invoke(gobj,index,normalizedDistance);
     }
 
-    override protected void OnDestroy()
+    protected void OnDestroy()
     {
         this.GetItemName = null;
         this.OnItemCreated = null;
@@ -1173,7 +1284,6 @@ public class LoopListView3 : UIBehaviour, IEventSystemHandler, IBeginDragHandler
         this.OnValueChanged = null;
         this.OnMovingStateChanged = null;
 
-        base.OnDestroy();
     }
 
     public void Init(LoopListView3.DF_GetItemName cfGetName, LoopListView3.DF_OnItemCreated cfCreate, LoopListView3.DF_SetItemData cfUpdate

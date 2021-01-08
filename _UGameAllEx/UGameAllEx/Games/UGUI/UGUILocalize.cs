@@ -30,7 +30,6 @@ public class UGUILocalize : GobjLifeListener {
 	bool m_isChg = false;
 	object[] fmtPars = null;
 	string _sval = "";
-	string _language = "";
 	
 	public string m_textVal{
 		get{
@@ -68,15 +67,13 @@ public class UGUILocalize : GobjLifeListener {
 		if(m_isInit)
 			return;
 		
-		_language = Localization.language;
 		m_isInit = true;
 		m_isChg = !string.IsNullOrEmpty(m_key);
 		m_text = gameObject.GetComponent<Text>();
 	}
 
 	void _OnLocalize(){
-		this.m_isChg = !string.Equals(_language,Localization.language);
-		_language = Localization.language;
+		this.m_isChg = true;
 		OnLocalize();
 	}
 

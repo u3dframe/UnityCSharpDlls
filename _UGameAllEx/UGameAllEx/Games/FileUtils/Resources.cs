@@ -54,15 +54,13 @@ namespace Core.Kernel
                 return null;
             string _fp = m_appAssetPath;
             bool _isFab = false , _isLmap =  false;
-            if(abName.Contains("/effects/") || abName.Contains("/ef_")){
-                _fp  += "Effects/Builds/";
-            }else if( abName.Contains("/special_effects/")){
+            if(abName.Contains("/effects/")  || abName.Contains("/uis/")  || abName.Contains("/ef_") || abName.Contains("/special_effects/")){
                 _fp  += "Effects/Builds/";
             }else if(abName.Contains("/c_")){
                 _fp  += "Characters/Builds/";
             }else if(abName.Contains("timeline/")){
                 _fp  += "Characters/Builds/";
-            }else if(abName.Contains("/maps/") || abName.Contains("/explores/")){
+            }else if(abName.Contains("/maps/") || abName.Contains("/explores/") || abName.Contains("post_process/") || abName.Contains("skyboxs/")){
                 _fp  += "Scene/Builds/";
             }else if(abName.Contains("lightmaps/")){
                 _fp  += "Scene/Builds/";
@@ -87,7 +85,9 @@ namespace Core.Kernel
                     _suffix = m_suffix_png;
                 return Load4Develop<T>(_fp,_suffix);
              }else if(abName.EndsWith(m_strMat)){
-                return Load4Develop<T>(_fp,".mat");
+                return Load4Develop<T>(_fp,m_suffix_mat);
+             }else if(abName.EndsWith(m_strScriptable)){
+                return Load4Develop<T>(_fp,m_suffix_scriptable);
              }
             return null;
         }

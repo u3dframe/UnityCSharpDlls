@@ -11,6 +11,11 @@ using UnityEngine.UI;
 /// </summary>
 public class ED_UIItem : Core.Kernel.Beans.ED_Comp
 {
+    static public new ED_UIItem Builder(UnityEngine.Object uobj)
+    {
+        return Builder<ED_UIItem>(uobj);
+    }
+    
     public class ItemStar{
         public GameObject m_gobj;
         public ED_UIImg m_imgBg;
@@ -52,7 +57,7 @@ public class ED_UIItem : Core.Kernel.Beans.ED_Comp
     public GameObject m_gobjFragment { get; private set; } // 
 
     List<ED_UIItem.ItemStar> m_listStars = new List<ED_UIItem.ItemStar>();
-    protected ED_UIItem(GameObject gobj) : base(gobj)
+    public ED_UIItem() : base()
     {
     }
 
@@ -499,17 +504,49 @@ public class ED_UIItem : Core.Kernel.Beans.ED_Comp
         this.m_gobjMinHero.SetActive(_isBl);
     }
 
+    public void SetIconSize(float offX,float offY)
+    {
+        if(this.m_imgIcon == null || offX < 0 || offY < 0)
+            return;
+        if(offX == 0 || offY == 0)
+        {
+            this.m_imgIcon.SetNativeSizeASync();
+            return;
+        }
+
+        this.m_imgIcon.SetSizeDelta( offX,offY );
+    }
+
     override protected void On_Destroy(GobjLifeListener obj)
     {
         this.m_listStars.Clear();
+        this.m_csEle = null;
+        this.m_gobjShadow = null;
+        this.m_txtName = null;
+        this.m_txtValue = null;
+        this.m_imgValBg = null;
+        this.m_txtValDesc = null;
+        this.m_txtDesc = null;
+        this.m_txtOrder = null;
+        this.m_gobjOrder = null;
+        this.m_gobjTag = null;
+        this.m_txtTag = null;
+        this.m_imgBg = null;
+        this.m_imgSSR = null;
+        this.m_imgIcon = null;
+        this.m_imgQuality = null;
+        this.m_imgFeatureBg = null;
+        this.m_imgFeatureIcon = null;
+        this.m_gobjEmpty = null;
+        this.m_gobjSelect = null;
+        this.m_gobjLock = null;
+        this.m_gobjTopTag = null;
+        this.m_txtTopTag = null;
+        this.m_gobjMinHero = null;
+        this.m_imgMinHeroIcon = null;
+        this.m_txtMinHero = null;
+        this.m_gobjFragment = null;
+        
         base.On_Destroy(obj);
-    }
-
-    static public new ED_UIItem Builder(UnityEngine.Object uobj)
-    {
-        GameObject _go = UtilityHelper.ToGObj(uobj);
-        if (_go == null || !_go)
-            return null;
-        return new ED_UIItem(_go); 
     }
 }
