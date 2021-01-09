@@ -28,7 +28,7 @@ public class SmoothFollower : MonoBehaviour
 	public float lookAtHeight = 0.0f;
 
 	public bool isLerpDistance = false;
-    public bool isBackDistance = false;
+    public bool isBackDistance = true;
     public float distance = 10.0f;
 	public float distanceDamping = 1.8f;
 
@@ -41,8 +41,7 @@ public class SmoothFollower : MonoBehaviour
 
     public bool isSmoothPos = false;
     Vector3 m_curPosVelocity = Vector3.zero;
-    [Range(0.01f,10f)] public float m_posSmoothTime = 0.01f;
-    [Range(0.1f, 10f)] public float m_maxPosSpeed = 3f;
+    [Range(0.02f,5f)] public float m_posSmoothTime = 0.1f;
 
     Vector3 _v3lookAt = Vector3.zero;
 	float currentHeight = 0.0f;
@@ -112,7 +111,7 @@ public class SmoothFollower : MonoBehaviour
         _fPos = _tPos + currentRotation * Vector3.forward * currentDistance * _symbolDistance;
         _fPos.y = currentHeight;
         if(isSmoothPos)
-            _trsf.position = Vector3.SmoothDamp(_trsf.position, _fPos, ref m_curPosVelocity, m_posSmoothTime, m_maxPosSpeed);
+            _trsf.position = Vector3.SmoothDamp(_trsf.position, _fPos, ref m_curPosVelocity, m_posSmoothTime);
         else
             _trsf.position = _fPos;
 		_v3lookAt.x = 0;
