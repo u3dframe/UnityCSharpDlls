@@ -7,7 +7,7 @@ using System;
 /// 日期 : 2020-12-25 17:33
 /// 功能 : 数据加载逻辑
 /// </summary>
-public class ED_Camera : Core.Kernel.Beans.ED_Comp
+public class ED_Camera : ED_Animator
 {
     static public new ED_Camera Builder(UnityEngine.Object uobj)
     {

@@ -546,6 +546,15 @@ public class GHelper : Core.Kernel.ObjEx
         return obj is PrefabBasic;
     }
 
+    static public Color ToColor(float r,float g,float b,float a = 1)
+    {
+        r = r > 1 ? r / 255f : r;
+        g = g > 1 ? g / 255f : g;
+        b = b > 1 ? b / 255f : b;
+        a = a > 1 ? a / 255f : a;
+        return new Color(r, g, b, a);
+    }
+
     /// <summary>
     /// 网络可用
     /// </summary>

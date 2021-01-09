@@ -319,6 +319,7 @@ public class GboxExport : MonoBehaviour
             case TriggerType.Del: return "del";
             case TriggerType.BoxGet:return "box_get";
             case TriggerType.ForceFight:return "force_fight";
+            case TriggerType.ChangeDoor:return "change_door";
             default: return "";
         }
     }

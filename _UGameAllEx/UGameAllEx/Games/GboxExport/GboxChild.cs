@@ -15,7 +15,8 @@ public enum TriggerType
     ChatOver,
     Del,
     BoxGet,
-    ForceFight
+    ForceFight,
+    ChangeDoor
 }
 
 public class GboxChild : MonoBehaviour

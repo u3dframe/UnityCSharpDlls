@@ -6,7 +6,7 @@ using System;
 /// 日期 : 2021-01-04 15:03
 /// 功能 : 
 /// </summary>
-public class ED_UIEffect : Core.Kernel.Beans.ED_Comp
+public class ED_UIEffect : ED_Animator
 {
     static public new ED_UIEffect Builder(UnityEngine.Object uobj)
     {
@@ -22,15 +22,8 @@ public class ED_UIEffect : Core.Kernel.Beans.ED_Comp
     {
     }
 
-    override public void InitComp(string strComp, Action cfDestroy, Action cfShow, Action cfHide)
-    {
-        base.InitComp(strComp, cfDestroy, cfShow, cfHide);
-    }
-
     override public void InitComp(Component comp, Action cfDestroy, Action cfShow, Action cfHide)
     {
-        if(comp == null)
-            comp = PrefabElement.Get(this.m_gobj,false);
         base.InitComp(comp, cfDestroy, cfShow, cfHide);
         this.m_csPsEx = ParticleSystemEx.Get(this.m_gobj);
         this.m_csSortLayer = RendererSortOrder.Get(this.m_gobj).Init(false);

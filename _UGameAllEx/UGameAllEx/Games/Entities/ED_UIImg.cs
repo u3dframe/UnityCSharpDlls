@@ -9,7 +9,7 @@ using UnityEngine.UI;
 /// 日期 : 2020-12-18 14:03
 /// 功能 : 数据加载逻辑
 /// </summary>
-public class ED_UIImg : Core.Kernel.Beans.ED_Comp
+public class ED_UIImg : ED_Animator
 {
     static public new ED_UIImg Builder(UnityEngine.Object uobj)
     {
@@ -179,6 +179,12 @@ public class ED_UIImg : Core.Kernel.Beans.ED_Comp
         this.m_img.fillAmount = amount;
     }
 
+    public void VwImgColor(float r, float g, float b, float a = 1)
+    {
+        if (this.m_img == null)
+            return;
+        this.m_img.color = UtilityHelper.ToColor(r, g, b, a);
+    }
     public void SetNativeSize()
     {
         if(!this.m_img)

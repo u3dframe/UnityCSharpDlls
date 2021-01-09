@@ -87,21 +87,19 @@ namespace Core.Kernel
 			int lens = m_lFolders.Count;
 			for (int i = 0; i < lens; i++) {
 				_str = m_lFolders [i];
-				if (resName.StartsWith (_str)) {
+				if (resName.StartsWith (_str))
 					return true;
-				}
+				if (resName.Contains(_str))
+					return true;
 			}
 
 			lens = m_lFiles.Count;
 			for (int i = 0; i < lens; i++) {
 				_str = m_lFiles [i];
-				if (resName.Equals (_str)) {
+				if (resName.Equals (_str))
 					return true;
-				}
                 if (resName.EndsWith(_str))
-                {
                     return true;
-                }
             }
 			return false;
 		}

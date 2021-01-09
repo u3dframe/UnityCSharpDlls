@@ -214,6 +214,7 @@ public class LoopListView3 : EventTrigger
         {
             //判断如果添加了content是否会导致视口内出现重复列表元素
             //如果重复，返回false
+            if (view.allowSameItem) return true;
             GetVisibleItemIndexes(checkSet, out _, out _);
             if (GetVisibleItemRange(pos, out var s, out var e))
             {
@@ -533,6 +534,9 @@ public class LoopListView3 : EventTrigger
     [SerializeField]
     protected bool loop = false;
 
+    [SerializeField]
+    protected bool allowSameItem = false;
+
     [Range(0.01f, 1f)]
     [SerializeField]
     protected float distanceMinDelta = 0.01f;
@@ -684,10 +688,11 @@ public class LoopListView3 : EventTrigger
         itemCount = count;
         if (count <= 0)
         {
-            foreach (Transform t in content)
+            for (int i = 0; i < content.childCount; i++)
             {
-                if (t.gameObject.activeSelf)
-                    t.gameObject.SetActive(false);
+                var obj = content.GetChild(i).gameObject;
+                if (obj.activeSelf)
+                    obj.SetActive(false);
             }
             return;
         }
@@ -707,10 +712,10 @@ public class LoopListView3 : EventTrigger
 
     public int GetItemIndex(GameObject obj)
     {
-        foreach (var item in itemList)
+        for (int i = 0; i < itemList.Count; i++)
         {
-            if (item.gameObject == obj)
-                return item.index;
+            if (itemList[i].gameObject == obj)
+                return itemList[i].index;
         }
         return -1;
     }
@@ -774,8 +779,11 @@ public class LoopListView3 : EventTrigger
 
     public void IterateItemList(DF_SetItemData callback)
     {
-        foreach (var item in itemList)
+        for (int i = 0; i < itemList.Count; i++)
+        {
+            var item = itemList[i];
             callback(item.gameObject, item.index, item.normalizedDistance);
+        }
     }
 
     protected void MoveVirtualContent(float delta)
@@ -825,8 +833,9 @@ public class LoopListView3 : EventTrigger
 
     protected GameObject GetPrefabByName(string name)
     {
-        foreach (var p in itemPrefabs)
+        for (int i = 0; i < itemPrefabs.Count; i++)
         {
+            var p = itemPrefabs[i];
             if (p != null && p.name == name)
                 return p;
         }
@@ -878,8 +887,8 @@ public class LoopListView3 : EventTrigger
 
     protected void ClearItemList()
     {
-        foreach (var item in itemList)
-            PutItemToPool(item);
+        for (int i = 0; i < itemList.Count; i++)
+            PutItemToPool(itemList[i]);
         itemList.Clear();
     }
 
@@ -902,9 +911,10 @@ public class LoopListView3 : EventTrigger
     {
         UpdateVisibleItemIndexList(out var vl, out _);
         itemCache.Clear();
-        foreach (var item in itemList)
+        for (int i = 0; i < itemList.Count; i++)
         {
-            if (visibleItemIndexList.Contains(item.index))
+            var item = itemList[i];
+            if (visibleItemIndexList.Contains(item.index) && !itemCache.ContainsKey(item.index))
                 itemCache[item.index] = item;
             else
                 PutItemToPool(item);
@@ -913,12 +923,14 @@ public class LoopListView3 : EventTrigger
         if (visibleItemIndexList.Count == 0) return;
         ListItem it;
         bool isChanged;
-        foreach (int i in visibleItemIndexList)
+        for (int x = 0; x < visibleItemIndexList.Count; x++)
         {
+            var i = visibleItemIndexList[x];
             isChanged = false;
             if (itemCache.ContainsKey(i))
             {
                 it = itemCache[i];
+                itemCache.Remove(i);
             }
             else
             {
@@ -994,10 +1006,10 @@ public class LoopListView3 : EventTrigger
     {
         if (!Application.IsPlaying(gameObject)) return;
         viewWorldRect = WorldRect(viewRect);
-        foreach (var obj in itemPrefabs)
+        for (int i = 0; i < itemPrefabs.Count; i++)
         {
-            if (obj != null)
-                obj.SetActive(false);
+            if (itemPrefabs[i] != null)
+                itemPrefabs[i].SetActive(false);
         }
 
         //借用LayoutGroup和ContentSizeFitter组件布局

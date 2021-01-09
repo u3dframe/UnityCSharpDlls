@@ -9,7 +9,7 @@ using UnityEngine.UI;
 /// 日期 : 2020-12-18 14:03
 /// 功能 : 
 /// </summary>
-public class ED_UIItem : Core.Kernel.Beans.ED_Comp
+public class ED_UIItem : ED_Animator
 {
     static public new ED_UIItem Builder(UnityEngine.Object uobj)
     {
@@ -61,15 +61,8 @@ public class ED_UIItem : Core.Kernel.Beans.ED_Comp
     {
     }
 
-    override public void InitComp(string strComp, Action cfDestroy, Action cfShow, Action cfHide)
-    {
-        base.InitComp(strComp, cfDestroy, cfShow, cfHide);
-    }
-
     override public void InitComp(Component comp, Action cfDestroy, Action cfShow, Action cfHide)
     {
-        if(comp == null)
-            comp = PrefabElement.Get(this.m_gobj,false);
         base.InitComp(comp, cfDestroy, cfShow, cfHide);
         PrefabElement csEle = this.m_comp as PrefabElement;
         if(!csEle)
@@ -242,11 +235,8 @@ public class ED_UIItem : Core.Kernel.Beans.ED_Comp
     {
         if(this.m_txtName == null)
             return;
-        r = r > 1 ? r / 255f : r;
-        g = g > 1 ? g / 255f : g;
-        b = b > 1 ? b / 255f : b;
-        a = a > 1 ? a / 255f : a;
-        Color _c = new Color(r,g,b,a);
+        
+        Color _c = UtilityHelper.ToColor(r,g,b,a);
         this.VwNameColor(_c);
     }
 
@@ -295,11 +285,7 @@ public class ED_UIItem : Core.Kernel.Beans.ED_Comp
         if(this.m_txtValue == null)
             return;
         
-        r = r > 1 ? r / 255f : r;
-        g = g > 1 ? g / 255f : g;
-        b = b > 1 ? b / 255f : b;
-        a = a > 1 ? a / 255f : a;
-        Color _c = new Color(r,g,b,a);
+        Color _c = UtilityHelper.ToColor(r,g,b,a);
         this.VwValueColor(_c);
     }
 

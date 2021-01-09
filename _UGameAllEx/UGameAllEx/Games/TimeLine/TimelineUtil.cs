@@ -4,7 +4,7 @@ using UnityEngine.Playables;
 using System.Collections.Generic;
 using System;
 
-public class TimelineUtil : Core.Kernel.Beans.ED_Comp
+public class TimelineUtil : ED_Animator
 {
     public string name { get; private set; }                                                 // 标签
     public PlayableAsset asset { get; private set; }                                        // 资源（编辑的playable文件）
@@ -28,15 +28,8 @@ public class TimelineUtil : Core.Kernel.Beans.ED_Comp
         return Builder<TimelineUtil>(uobj);
     }
 
-    override public void InitComp(string strComp, Action cfDestroy, Action cfShow, Action cfHide)
-    {
-        base.InitComp(strComp, cfDestroy, cfShow, cfHide);
-    }
-
     override public void InitComp(Component comp, Action cfDestroy, Action cfShow, Action cfHide)
     {
-        if (comp == null)
-            comp = PrefabElement.Get(this.m_gobj, false);
         base.InitComp(comp, cfDestroy, cfShow, cfHide);
         PrefabElement csEle = this.m_comp as PrefabElement;
         if (!csEle)

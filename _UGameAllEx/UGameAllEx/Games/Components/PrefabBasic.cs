@@ -33,7 +33,8 @@ public class PrefabBasic : GobjLifeListener {
     protected Dictionary<string,GameObject> m_dicName2Gobj = new Dictionary<string,GameObject>();
 
     protected bool isInit = false;
-	override protected void OnCall4Start(){
+    
+    override protected void OnCall4Start(){
 		this.Init();
 	}
 	
@@ -281,6 +282,7 @@ public class PrefabBasic : GobjLifeListener {
         }
     }
 
+    /*
     [ContextMenu("PrintDicKeys")]
     void PrintDicKeys()
     {
@@ -292,4 +294,5 @@ public class PrefabBasic : GobjLifeListener {
             Debug.Log(key);
         }
     }
+    */
 }
