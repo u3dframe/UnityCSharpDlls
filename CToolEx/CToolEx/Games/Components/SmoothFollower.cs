@@ -26,23 +26,31 @@ public class SmoothFollower : MonoBehaviour
 	public bool isRunning = false;
     public Transform target;
 	public float lookAtHeight = 0.0f;
-	    
+
 	public bool isLerpDistance = false;
-	public float distance = 10.0f;
+    public bool isBackDistance = false;
+    public float distance = 10.0f;
 	public float distanceDamping = 1.8f;
 
 	public bool isLerpHeight = false;
 	public float height = 5.0f;
 	public float heightDamping = 1.8f;
-	
+
 	public bool isLerpRotate = false;
 	public float rotationDamping = 1.8f;
-	
-	Vector3 _v3lookAt = Vector3.zero;
+
+    public bool isSmoothPos = false;
+    Vector3 m_curPosVelocity = Vector3.zero;
+    [Range(0.01f,10f)] public float m_posSmoothTime = 0.01f;
+    [Range(0.1f, 10f)] public float m_maxPosSpeed = 3f;
+
+    Vector3 _v3lookAt = Vector3.zero;
 	float currentHeight = 0.0f;
 	float wantedHeight = 0.0f;
-	float currentDistance = 1.0f;
-	Quaternion currentRotation;
+    int _symbolDistance = 1;
+    float currentDistance = 1.0f;
+    Quaternion zeroRotation = Quaternion.identity;
+    Quaternion currentRotation;
 	float wantedRotationAngle = 0.0f;
 	float currentRotationAngle = 0.0f;
 	float _dt = 0.0f;
@@ -91,20 +99,22 @@ public class SmoothFollower : MonoBehaviour
         _tPos = target.position;
         if (isLerpRotate)
         {
-            currentRotation = Quaternion.identity;
             wantedRotationAngle = target.eulerAngles.y;
             currentRotationAngle = _trsf.eulerAngles.y;
             currentRotationAngle = Mathf.LerpAngle(currentRotationAngle, wantedRotationAngle, rotationDamping * _dt);
             currentRotation = Quaternion.Euler(0, currentRotationAngle, 0);
-            _fPos = _tPos - currentRotation * Vector3.forward * currentDistance;
         }
         else
         {
-            _fPos = _tPos;
+            currentRotation = zeroRotation;
         }
+        _symbolDistance = isBackDistance ? -1 : 1;
+        _fPos = _tPos + currentRotation * Vector3.forward * currentDistance * _symbolDistance;
         _fPos.y = currentHeight;
-        _trsf.position = _fPos;
-
+        if(isSmoothPos)
+            _trsf.position = Vector3.SmoothDamp(_trsf.position, _fPos, ref m_curPosVelocity, m_posSmoothTime, m_maxPosSpeed);
+        else
+            _trsf.position = _fPos;
 		_v3lookAt.x = 0;
 		_v3lookAt.z = 0;
 		_v3lookAt.y = lookAtHeight;
