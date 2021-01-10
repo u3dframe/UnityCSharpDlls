@@ -25,6 +25,8 @@ namespace Core.Kernel
         public List<string> m_lBeDeps = new List<string>();
         public string m_abName = "";
         public string m_abSuffix = "";
+        public bool m_isShader { get; private set; }
+        public bool m_isShaderSVC { get; private set; }
 
         public ABDataDependence() { }
 
@@ -62,13 +64,16 @@ namespace Core.Kernel
             }
 
             if (MgrABDataDependence.IsMustFile(this.m_res))
-            {
                 this.m_isMustAB = true;
-            }
+
+            System.Type _objType = obj.GetType();
+            this.m_isShader = BuildPatcher.IsSameClass(_objType, BuildPatcher.tpShader);
+            this.m_isShaderSVC = BuildPatcher.IsSameClass(_objType, BuildPatcher.tpSVC);
 
             string[] deps = AssetDatabase.GetDependencies(m_res, false);
             if (deps == null || deps.Length <= 0)
                 return;
+
             foreach (var item in deps)
             {
                 if (!m_lDependences.Contains(item))
@@ -90,8 +95,31 @@ namespace Core.Kernel
                 m_lBeDeps.Add(beDeps);
         }
 
+        ABDataDependence GetSVC4Shader()
+        {
+            if (!this.m_isShader)
+                return null;
+            if (this.m_lBeDeps == null || this.m_lBeDeps.Count <= 0)
+                return null;
+            int _lens = this.m_lBeDeps.Count;
+            ABDataDependence _it_ = null;
+            for (int i = 0; i < _lens; i++)
+            {
+                _it_ = MgrABDataDependence.GetData(this.m_lBeDeps[i]);
+                if (_it_.m_isShaderSVC)
+                    return _it_;
+            }
+            return null;
+        }
+
         public void ReAB(string abName = "", string abSuffix = "")
         {
+            ABDataDependence _svc = this.GetSVC4Shader();
+            if(_svc != null)
+            {
+                abName = _svc.m_abName;
+                abSuffix = _svc.m_abSuffix;
+            }
             this.m_abName = abName == null ? "" : abName;
             this.m_abSuffix = abSuffix == null ? "" : abSuffix;
         }
@@ -132,10 +160,24 @@ namespace Core.Kernel
         }
     }
 
+    class SortABDep : Comparer<ABDataDependence>
+    {
+        public override int Compare(ABDataDependence a, ABDataDependence b)
+        {
+            if (a.m_isShaderSVC && !b.m_isShaderSVC)
+                return -1;
+            if (!a.m_isShaderSVC && b.m_isShaderSVC)
+                return 1;
+            if (a.m_nBeUsed > b.m_nBeUsed)
+                return -1;
+            if (a.m_nBeUsed < b.m_nBeUsed)
+                return 1;
+            return 0;
+        }
+    }
+
     public class MgrABDataDependence
     {
-        public Dictionary<string, ABDataDependence> m_dic = new Dictionary<string, ABDataDependence>();
-
         static private MgrABDataDependence _instance = null;
         static public MgrABDataDependence instance
         {
@@ -148,6 +190,20 @@ namespace Core.Kernel
                 }
                 return _instance;
             }
+        }
+
+        private SortABDep m_sort = new SortABDep();
+        private ListDict<ABDataDependence> m_dicList = new ListDict<ABDataDependence>(true);
+
+        public int Count
+        {
+            get { return this.m_dicList.Count(); }
+        }
+
+        public List<ABDataDependence> GetList()
+        {
+            this.m_dicList.m_list.Sort(m_sort);
+            return this.m_dicList.m_list;
         }
 
         void InitIgnoreAndMust()
@@ -262,7 +318,7 @@ namespace Core.Kernel
                 _data.InitDeps(obj,isMust);
             } else {
                 _data = new ABDataDependence(obj, isMust);
-                instance.m_dic.Add(resPath, _data);
+                instance.m_dicList.Add(resPath, _data);
             }
             
             if (!string.IsNullOrEmpty(beDeps)) {
@@ -279,11 +335,7 @@ namespace Core.Kernel
 
         static public ABDataDependence GetData(string key)
         {
-            if (instance.m_dic.ContainsKey(key))
-            {
-                return instance.m_dic[key];
-            }
-            return null;
+            return instance.m_dicList.Get(key);
         }
 
         static public ABDataDependence GetData(Object obj)
@@ -316,14 +368,14 @@ namespace Core.Kernel
         // [MenuItem("Tools/Deps/ClearDeps")]
         static public void ClearDeps()
         {
-            instance.m_dic.Clear();
+            instance.m_dicList.Clear();
         }
 
         // [MenuItem("Tools/Deps/SaveDeps", false, 31)]
         static public void SaveDeps()
         {
             string _fp = string.Format("{0}_deps.json", BuildPatcher.m_dirDataNoAssets);
-            string _v = JsonMapper.ToJson(instance.m_dic);
+            string _v = JsonMapper.ToJson(instance.m_dicList.m_list);
             BuildPatcher.WriteText(_fp,_v,true);
             AssetDatabase.Refresh();
         }
@@ -348,7 +400,7 @@ namespace Core.Kernel
                         continue;
                     
                     _obj = JsonMapper.ToObject<ABDataDependence>(_val);
-                    instance.m_dic.Add(key,_obj);
+                    instance.m_dicList.Add(key,_obj);
                 }
             }
         }
@@ -362,7 +414,7 @@ namespace Core.Kernel
         // [MenuItem("Tools/Deps/PrintDic")]
         static public void PrintDic()
         {
-            foreach (var item in instance.m_dic)
+            foreach (var item in instance.m_dicList.m_list)
             {
                 Debug.Log(item);
             }
@@ -377,7 +429,7 @@ namespace Core.Kernel
         static public void WriteDepsToTxt(int limitCount = 2)
         {
             StringBuilder builder = new StringBuilder();
-            foreach (var item in instance.m_dic.Values)
+            foreach (var item in instance.m_dicList.m_list)
             {
                 Debug.Log(item.GetBeUsedCount());
                 if (item.GetBeUsedCount() >= limitCount)

@@ -288,9 +288,9 @@ namespace Core
         public static void BuildNow(bool isBuildAB = true, bool isTip = true)
         {
             EditorUtility.DisplayProgressBar("BuildNow", "Start BuildNow ...", 0.05f);
-            float count = MgrABDataDependence.instance.m_dic.Count;
+            float count = MgrABDataDependence.instance.Count;
             int curr = 0;
-            foreach (var item in MgrABDataDependence.instance.m_dic.Values)
+            foreach (var item in MgrABDataDependence.instance.GetList())
             {
                 curr++;
                 if (item.GetBeUsedCount() > 1)
