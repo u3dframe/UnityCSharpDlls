@@ -127,6 +127,13 @@ namespace Core.Kernel
             UnLoadOne(obj,false);
         }
 
+        static public bool IsSVCAB(string abName)
+        {
+            if (string.IsNullOrEmpty(abName))
+                return false;
+            return abName.EndsWith(m_strSVC);
+        }
+
         static public bool IsShaderAB(string abName){
             if(string.IsNullOrEmpty(abName))
                 return false;
