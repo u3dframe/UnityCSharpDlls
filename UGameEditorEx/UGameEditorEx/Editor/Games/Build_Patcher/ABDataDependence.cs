@@ -89,6 +89,13 @@ namespace Core.Kernel
             return m_nBeUsed;
         }
 
+        public int GetNDeps()
+        {
+            if (m_lDependences != null)
+                return m_lDependences.Count;
+            return 0;
+        }
+
         public void AddBeDeps(string beDeps)
         {
             if (!m_lBeDeps.Contains(beDeps))
@@ -99,9 +106,9 @@ namespace Core.Kernel
         {
             if (!this.m_isShaderSVC)
                 return;
-            if (this.m_lDependences == null || this.m_lDependences.Count <= 0)
+            int _lens = this.GetNDeps();
+            if (_lens <= 0)
                 return;
-            int _lens = this.m_lDependences.Count;
             ABDataDependence _it_ = null;
             for (int i = 0; i < _lens; i++)
             {
@@ -125,9 +132,9 @@ namespace Core.Kernel
             _builder.AppendLine();
             _builder.AppendFormat("m_nUseCount = [{0}]", m_nBeUsed);
             _builder.AppendLine();
-            _builder.AppendFormat("m_lDependences = [{0}]", m_lDependences.Count);
+            int _lens = this.GetNDeps();
+            _builder.AppendFormat("m_lDependences = [{0}]", _lens);
             _builder.AppendLine();
-            int _lens = m_lDependences.Count;
             for (int i = 0; i < _lens; i++)
             {
                 _builder.AppendLine("  " + m_lDependences[i]);
@@ -160,9 +167,13 @@ namespace Core.Kernel
                 return -1;
             if (!a.m_isShaderSVC && b.m_isShaderSVC)
                 return 1;
-            if (a.m_nBeUsed > b.m_nBeUsed)
+            if (a.GetBeUsedCount() > b.GetBeUsedCount())
                 return -1;
-            if (a.m_nBeUsed < b.m_nBeUsed)
+            if (a.GetBeUsedCount() < b.GetBeUsedCount())
+                return 1;
+            if (a.GetNDeps() > b.GetNDeps())
+                return -1;
+            if (a.GetNDeps() < b.GetNDeps())
                 return 1;
             return 0;
         }
