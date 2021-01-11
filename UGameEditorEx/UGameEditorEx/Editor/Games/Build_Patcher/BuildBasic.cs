@@ -288,9 +288,10 @@ namespace Core
         public static void BuildNow(bool isBuildAB = true, bool isTip = true)
         {
             EditorUtility.DisplayProgressBar("BuildNow", "Start BuildNow ...", 0.05f);
-            float count = MgrABDataDependence.instance.Count;
+            float count = MgrABDataDependence.GetCount();
             int curr = 0;
-            foreach (var item in MgrABDataDependence.instance.GetList())
+            List<ABDataDependence> _list = MgrABDataDependence.GetCurrList();
+            foreach (var item in _list)
             {
                 curr++;
                 if (item.GetBeUsedCount() > 1)
@@ -300,6 +301,14 @@ namespace Core
                 }
             }
 
+            _list = MgrABDataDependence.ReAB4Shader();
+            if(_list != null)
+            {
+                foreach (var item in _list)
+                {
+                    SetABInfo(item.m_res, item.m_abName, item.m_abSuffix);
+                }
+            }
             AssetDatabase.RemoveUnusedAssetBundleNames();
 
             if (isBuildAB)

@@ -102,19 +102,24 @@ namespace Core.Kernel
                 m_lBeDeps.Add(beDeps);
         }
 
-        public void ReABBySVC4Shader()
+        public List<ABDataDependence> ReABBySVC4Shader()
         {
             if (!this.m_isShaderSVC)
-                return;
+                return null;
             int _lens = this.GetNDeps();
             if (_lens <= 0)
-                return;
+                return null;
+            List<ABDataDependence> ret = new List<ABDataDependence>();
             ABDataDependence _it_ = null;
             for (int i = 0; i < _lens; i++)
             {
                 _it_ = MgrABDataDependence.GetData(this.m_lDependences[i]);
+                if (_it_ == null || _it_.m_res.Contains("/PostProcessing/"))
+                    continue;
                 _it_.ReAB(this.m_abName, this.m_abSuffix);
+                ret.Add(_it_);
             }
+            return ret;
         }
 
         public void ReAB(string abName = "", string abSuffix = "")
@@ -206,14 +211,16 @@ namespace Core.Kernel
         public List<ABDataDependence> GetList(bool isSort = false)
         {
             if (isSort)
-            {
                 this.m_dicList.m_list.Sort(m_sort);
-                int lens = this.m_dicList.m_list.Count;
-                ABDataDependence _f = lens > 0 ? this.m_dicList.m_list[0] : null;
-                if (_f != null)
-                    _f.ReABBySVC4Shader();
-            }
             return this.m_dicList.m_list;
+        }
+
+        public List<ABDataDependence> ReABBySVC4Shader()
+        {
+            this.GetList(true);
+            int lens = this.m_dicList.m_list.Count;
+            ABDataDependence _f = lens > 0 ? this.m_dicList.m_list[0] : null;
+            return (_f != null) ? _f.ReABBySVC4Shader() : null;
         }
 
         void InitIgnoreAndMust()
@@ -341,6 +348,21 @@ namespace Core.Kernel
                     Init(item, false, resPath);
                 }
             }
+        }
+
+        static public int GetCount()
+        {
+            return instance.Count;
+        }
+
+        static public List<ABDataDependence> GetCurrList(bool isSort = false)
+        {
+            return instance.GetList(isSort);
+        }
+
+        static public List<ABDataDependence> ReAB4Shader()
+        {
+            return instance.ReABBySVC4Shader();
         }
 
         static public ABDataDependence GetData(string key)
