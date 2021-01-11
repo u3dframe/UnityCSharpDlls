@@ -95,31 +95,23 @@ namespace Core.Kernel
                 m_lBeDeps.Add(beDeps);
         }
 
-        ABDataDependence GetSVC4Shader()
+        public void ReABBySVC4Shader()
         {
-            if (!this.m_isShader)
-                return null;
-            if (this.m_lBeDeps == null || this.m_lBeDeps.Count <= 0)
-                return null;
-            int _lens = this.m_lBeDeps.Count;
+            if (!this.m_isShaderSVC)
+                return;
+            if (this.m_lDependences == null || this.m_lDependences.Count <= 0)
+                return;
+            int _lens = this.m_lDependences.Count;
             ABDataDependence _it_ = null;
             for (int i = 0; i < _lens; i++)
             {
-                _it_ = MgrABDataDependence.GetData(this.m_lBeDeps[i]);
-                if (_it_.m_isShaderSVC)
-                    return _it_;
+                _it_ = MgrABDataDependence.GetData(this.m_lDependences[i]);
+                _it_.ReAB(this.m_abName, this.m_abSuffix);
             }
-            return null;
         }
 
         public void ReAB(string abName = "", string abSuffix = "")
         {
-            ABDataDependence _svc = this.GetSVC4Shader();
-            if(_svc != null)
-            {
-                abName = _svc.m_abName;
-                abSuffix = _svc.m_abSuffix;
-            }
             this.m_abName = abName == null ? "" : abName;
             this.m_abSuffix = abSuffix == null ? "" : abSuffix;
         }
@@ -200,9 +192,16 @@ namespace Core.Kernel
             get { return this.m_dicList.Count(); }
         }
 
-        public List<ABDataDependence> GetList()
+        public List<ABDataDependence> GetList(bool isSort = false)
         {
-            this.m_dicList.m_list.Sort(m_sort);
+            if (isSort)
+            {
+                this.m_dicList.m_list.Sort(m_sort);
+                int lens = this.m_dicList.m_list.Count;
+                ABDataDependence _f = lens > 0 ? this.m_dicList.m_list[0] : null;
+                if (_f != null)
+                    _f.ReABBySVC4Shader();
+            }
             return this.m_dicList.m_list;
         }
 
@@ -375,7 +374,8 @@ namespace Core.Kernel
         static public void SaveDeps()
         {
             string _fp = string.Format("{0}_deps.json", BuildPatcher.m_dirDataNoAssets);
-            string _v = JsonMapper.ToJson(instance.m_dicList.m_list);
+            var _obj = instance.m_dicList.m_dic;
+            string _v = JsonMapper.ToJson(_obj);
             BuildPatcher.WriteText(_fp,_v,true);
             AssetDatabase.Refresh();
         }
@@ -414,7 +414,8 @@ namespace Core.Kernel
         // [MenuItem("Tools/Deps/PrintDic")]
         static public void PrintDic()
         {
-            foreach (var item in instance.m_dicList.m_list)
+            var _obj = instance.GetList(true);
+            foreach (var item in _obj)
             {
                 Debug.Log(item);
             }
@@ -429,7 +430,8 @@ namespace Core.Kernel
         static public void WriteDepsToTxt(int limitCount = 2)
         {
             StringBuilder builder = new StringBuilder();
-            foreach (var item in instance.m_dicList.m_list)
+            var _obj = instance.GetList(true);
+            foreach (var item in _obj)
             {
                 Debug.Log(item.GetBeUsedCount());
                 if (item.GetBeUsedCount() >= limitCount)
