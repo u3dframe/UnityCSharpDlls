@@ -27,7 +27,7 @@ public class MemDisplay : MonoBehaviour
 	{
 		int w = Screen.width, h = Screen.height;
         int _h = (int)(h * hsRate) + 1;
-        Rect rect = new Rect(0,50, w, _h);
+        Rect rect = new Rect(0,30, w, _h);
 		style.alignment = TextAnchor.UpperLeft;
 		style.fontSize = _h;
 		style.normal.textColor = tCol;
