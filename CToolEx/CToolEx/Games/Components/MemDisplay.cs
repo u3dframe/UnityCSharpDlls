@@ -56,7 +56,7 @@ public class MemDisplay : MonoBehaviour
                 break;
         }
 
-        string text = string.Format("M_All {1:0.0} {0} ,M_Used {2:0.0} {0} ,usedHeap {3:0.0} {0} ,GC_Total {4:0.0} {0} ,O_T {5:0.0} {0} ,O_Free{6:0.0} {0}"
+        string text = string.Format("M_All {1:0.0} {0} ,M_Used {2:0.0} {0} ,usedHeap {3:0.0} {0} ,GC_Total {4:0.0} {0} ,O_T {5:0.0} {0} ,O_Free {6:0.0} {0}"
             , m_key_byte
             , (monoAll / m_kb), (monoUsed / m_kb), (usedHeap / m_kb), (totalMem / m_kb)
             , (m_outMemAll / m_kb), (m_outMemFree / m_kb));
