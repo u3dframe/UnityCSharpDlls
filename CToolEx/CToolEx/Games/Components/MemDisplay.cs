@@ -17,6 +17,7 @@ public class MemDisplay : MonoBehaviour
 
     public long m_outMemAll = 0;
     public long m_outMemFree = 0;
+    public long m_luaUseMem = 0;
     public MemBType m_eBType = MemBType.MB;
     public double m_def_kb = 1024;
     private double m_kb = 1d;
@@ -56,10 +57,10 @@ public class MemDisplay : MonoBehaviour
                 break;
         }
 
-        string text = string.Format("M_All {1:0.0} {0} ,M_Used {2:0.0} {0} ,usedHeap {3:0.0} {0} ,GC_Total {4:0.0} {0} ,O_T {5:0.0} {0} ,O_Free {6:0.0} {0}"
+        string text = string.Format("M_All {1:0.0} {0} ,M_Used {2:0.0} {0} ,usedHeap {3:0.0} {0} ,GC_Total {4:0.0} {0} ,O_T {5:0.0} {0} ,O_Free {6:0.0} {0} ,LuaMem {7:0.0} {0}"
             , m_key_byte
             , (monoAll / m_kb), (monoUsed / m_kb), (usedHeap / m_kb), (totalMem / m_kb)
-            , (m_outMemAll / m_kb), (m_outMemFree / m_kb));
+            , (m_outMemAll / m_kb), (m_outMemFree / m_kb), (m_luaUseMem / m_kb));
 		GUI.Label(rect, text, style);
 	}
 }
