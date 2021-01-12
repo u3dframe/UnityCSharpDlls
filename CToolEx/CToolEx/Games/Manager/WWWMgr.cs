@@ -14,9 +14,19 @@ namespace Core.Kernel
     /// </summary>
     public class WebVerifyCert : CertificateHandler
     {
-        static public readonly WebVerifyCert NoVCert = new WebVerifyCert();
+        static public readonly WebVerifyCert NoVCert = new WebVerifyCert(false);
 
-        public bool m_isVerify = false;
+        public WebVerifyCert():base()
+        {
+        }
+
+        public WebVerifyCert(bool isVerify) : this()
+        {
+            this.m_isVerify = isVerify;
+        }
+
+        public bool m_isVerify { get; set; }
+
         protected override bool ValidateCertificate(byte[] certificateData)
         {
             if (this.m_isVerify)
