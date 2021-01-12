@@ -210,12 +210,26 @@ public class GameMgr : GobjLifeListener {
 		}
 	}
 
+    static public FPSDisplay GetFps(bool isAdd)
+    {
+        return GHelper.Get<FPSDisplay>(GameMgr.mgrGobj, isAdd);
+    }
+
     static public void Fps(bool isShow)
     {
-        GameObject _gobj = GameMgr.mgrGobj;
-        if (IsNull(_gobj))
-            return;
-        FPSDisplay _fps = GHelper.Get<FPSDisplay>(_gobj, isShow);
+        FPSDisplay _fps = GetFps(isShow);
+        if (!isShow && !IsNull(_fps))
+            GameObject.DestroyImmediate(_fps);
+    }
+
+    static public MemDisplay GetMem(bool isAdd)
+    {
+        return GHelper.Get<MemDisplay>(GameMgr.mgrGobj, isAdd);
+    }
+
+    static public void Mem(bool isShow)
+    {
+        MemDisplay _fps = GetMem(isShow);
         if (!isShow && !IsNull(_fps))
             GameObject.DestroyImmediate(_fps);
     }
