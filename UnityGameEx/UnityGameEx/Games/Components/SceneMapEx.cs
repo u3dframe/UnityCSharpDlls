@@ -153,7 +153,7 @@ public class SceneMapEx : GobjLifeListener
             return null;
 
         SceneMapEx _cs = GetMSM(map_key);
-        if (!_cs)
+        if (_cs != null)
             return _cs;
 
         string _fname = ReFname(map_key);
@@ -166,11 +166,13 @@ public class SceneMapEx : GobjLifeListener
             return null;
 
         m_cursor_map++;
-        string _fmv = string.Format("_Map_{0}_{1}", map_key, m_cursor_map);
+        string _fmv = string.Format("_map_{0}_{1}", map_key, m_cursor_map);
         GameObject _gobj = new GameObject(_fmv);
         _cs = Get(_gobj, true);
-        _cs.Init(map_key, jdRoot);
         m_caches.Add(map_key, _cs);
+
+        _cs.Init(map_key, jdRoot);
+        _cs.DoLoad();
         return _cs;
     }
 
