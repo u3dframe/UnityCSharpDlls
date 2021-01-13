@@ -49,9 +49,16 @@ public class SceneMapEx : GobjLifeListener
 
         int _GetIndex(string val)
         {
+            if (string.IsNullOrEmpty(val))
+                return -1;
+
+            string _it = null;
             for (int i = 0; i < this.m_assets.Length; i++)
             {
-                if (string.Equals(this.m_assets[i], val))
+                _it = this.m_assets[i];
+                if (string.IsNullOrEmpty(_it))
+                    continue;
+                if (_it.Contains(val))
                     return i;
             }
             return -1;
@@ -98,6 +105,7 @@ public class SceneMapEx : GobjLifeListener
                 return;
 
             int _index = _GetIndex(tex.name);
+            // Debug.LogErrorFormat("==== lt = [{0}] = [{1}]", _index, tex.name);
             switch (_index)
             {
                 case 0:
