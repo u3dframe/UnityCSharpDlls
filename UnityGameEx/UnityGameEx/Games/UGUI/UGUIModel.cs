@@ -26,7 +26,7 @@ public class UGUIModel : PrefabBasic
     public GameObject m_node { get; private set; }
     public bool m_isAutoScale = true; // 是否对象自动缩放
     public float m_childScaleTo1 { get; private set; }
-    public Camera m_camera { get; private set; }
+    public Camera m_curCmr { get; private set; }
     [SerializeField] RenderTexture _rtTarget;
     public RenderTexture m_rtTarget { get { return _rtTarget; } }
     [SerializeField] bool m_isUseRT = true;
@@ -68,11 +68,11 @@ public class UGUIModel : PrefabBasic
             _nodeScale = this.m_node.transform.lossyScale.x;
         this.m_childScaleTo1 = 1 / _nodeScale;
         this._imgRaw = this.m_trsf.GetComponentInChildren<RawImage>(true);
-        this.m_camera = this.m_trsf.GetComponentInChildren<Camera>(true);
+        this.m_curCmr = this.m_trsf.GetComponentInChildren<Camera>(true);
 
-        if (this.m_camera)
+        if (this.m_curCmr)
         {
-            this.m_sfwer = SmoothFollower.Get(this.m_camera.gameObject);
+            this.m_sfwer = SmoothFollower.Get(this.m_curCmr.gameObject);
             this.m_sfwer.target = this.m_wrap;
             this.m_sfwer.isUpByLate = true;
             this.m_sfwer.isRunning = true;
@@ -139,9 +139,9 @@ public class UGUIModel : PrefabBasic
             // this.ReMatMainTexture();
         }
 
-        if (this.m_camera)
+        if (this.m_curCmr)
         {
-            this.m_camera.targetTexture = this.m_rtTarget;
+            this.m_curCmr.targetTexture = this.m_rtTarget;
             // this.m_camera.clearFlags = CameraClearFlags.Depth;
         }
     }
@@ -155,8 +155,8 @@ public class UGUIModel : PrefabBasic
             this.m_imgRaw.texture = null;
 
         RenderTexture _cur = this.m_rtTarget;
-        if (this.m_camera)
-            this.m_camera.targetTexture = null;
+        if (this.m_curCmr)
+            this.m_curCmr.targetTexture = null;
 
         if (_cur != null && RenderTexture.active == _cur)
             RenderTexture.active = null;
@@ -236,14 +236,14 @@ public class UGUIModel : PrefabBasic
            scale = this.m_wrap.lossyScale.x;
             if (this.m_isAutoScale)
             {
-                float angle = this.m_camera.fieldOfView * 0.5f;
+                float angle = this.m_curCmr.fieldOfView * 0.5f;
                 float radian = Mathf.Deg2Rad * angle;
                 scale = Mathf.Tan(radian) * distance;
             }
         }
 
-        if (this.m_camera)
-            this.m_camera.farClipPlane = Mathf.Ceil(_abs + scale * 0.5f + 0.5f);
+        if (this.m_curCmr)
+            this.m_curCmr.farClipPlane = Mathf.Ceil(_abs + scale * 0.5f + 0.5f);
 
         if (this.m_isAutoScale)
         {
@@ -282,5 +282,12 @@ public class UGUIModel : PrefabBasic
         this.m_isAutoScale = false;
         this.m_wrapLocalScale = locScale;
         this.SetModelLocalScale(locScale);
+    }
+
+    public void ReSetLayer(int layer)
+    {
+        UtilityHelper.SetLayerBy(this.m_gobj, layer, true);
+        if (this.m_curCmr)
+            this.m_curCmr.cullingMask = layer;
     }
 }
