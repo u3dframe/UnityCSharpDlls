@@ -78,7 +78,7 @@ public static class LJsonHelper {
         JsonData jd = ToJData(jdRoot, key);
         if (jd == null || !jd.IsString)
             return null;
-        return ToJData(jd.ToJson());
+        return ToJData(jd.ToString());
     }
 
     static public JsonData ToJDataByStrVal(JsonData jdRoot, string key, string key_child)
