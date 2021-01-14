@@ -53,21 +53,29 @@ public class ED_Cavs : Core.Kernel.Beans.ED_Comp
 
     public void ReInit(int valBase)
     {
+        if (this.m_cvsCurrs == null)
+            return;
         CanvasEx _citem = null;
         for (int i = 0; i < this.m_nLens; i++)
         {
             _citem = this.m_cvsCurrs[i];
+            if (_citem == null)
+                continue;
             _citem.ReInit(valBase);
         }
     }
 
     public void ReBaseOrder(int valBase,bool isForce)
     {
+        if (this.m_cvsCurrs == null)
+            return;
         CanvasEx _citem = null;
         int _curVal = 0;
         for (int i = 0; i < this.m_nLens; i++)
         {
             _citem = this.m_cvsCurrs[i];
+            if (_citem == null)
+                continue;
             _curVal = valBase < 0 ? _citem.m_orderBase : valBase;
             isForce = isForce || valBase <= 0;
             _citem.ReBaseOrder(_curVal, isForce);

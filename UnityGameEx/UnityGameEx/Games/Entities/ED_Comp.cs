@@ -179,11 +179,16 @@ namespace Core.Kernel.Beans
 
         public Vector3 GetCurrPos(bool isLocal = true)
         {
-            return isLocal ? this.m_trsf.localPosition : this.m_trsf.position;
+            if (this.m_trsf)
+                return isLocal ? this.m_trsf.localPosition : this.m_trsf.position;
+            return Vector3.zero;
         }
 
         public void SetCurrPos(Vector3 pos, bool isLocal = true)
         {
+            if (!this.m_trsf)
+                return;
+
             if (isLocal)
                 this.m_trsf.localPosition = pos;
             else
@@ -192,22 +197,27 @@ namespace Core.Kernel.Beans
 
         public Component GetComponent(string cType)
         {
+            if (!this.m_gobj)
+                return null;
             return this.m_gobj.GetComponent(cType);
         }
 
         public Component GetComponent(Type cType)
         {
+            if (!this.m_gobj)
+                return null;
             return this.m_gobj.GetComponent(cType);
         }
 
         public void SetActive(bool isActive)
         {
-            this.m_gobj.SetActive(isActive);
+            if (this.m_gobj)
+                this.m_gobj.SetActive(isActive);
         }
 
         public void SetGName(string gname)
         {
-            if (string.IsNullOrEmpty(gname) || this.m_g_name.Equals(gname))
+            if (string.IsNullOrEmpty(gname) || this.m_g_name.Equals(gname) || !this.m_gobj)
                 return;
             this.m_g_name = gname;
             this.m_gobj.name = gname;
@@ -215,16 +225,23 @@ namespace Core.Kernel.Beans
 
         public void SetLayer(string layer, bool isAll)
         {
+            if (!this.m_gobj)
+                return;
             GHelper.SetLayerBy(this.m_gobj, layer, isAll);
         }
 
         public void SetLayer(int layer, bool isAll)
         {
+            if (!this.m_gobj)
+                return;
             GHelper.SetLayerBy(this.m_gobj, layer, isAll);
         }
 
         public GameObject Clone(object parent)
         {
+            if (!this.m_gobj)
+                return null;
+
             if (parent != null)
             {
                 Transform _p = null;
@@ -268,7 +285,8 @@ namespace Core.Kernel.Beans
 
         public void DonotDestory()
         {
-            GameObject.DontDestroyOnLoad(this.m_gobj);
+            if (this.m_gobj)
+                GameObject.DontDestroyOnLoad(this.m_gobj);
         }
 
         public int m_childCount { get { if (this.m_trsf) return this.m_trsf.childCount; return 0; } }
@@ -288,7 +306,8 @@ namespace Core.Kernel.Beans
 
         public void SetPosition(float x, float y, float z)
         {
-            this.m_trsf.position = new Vector3(x, y, z);
+            if (this.m_trsf)
+                this.m_trsf.position = new Vector3(x, y, z);
         }
 
         public Vector3 GetLocalPosition()
@@ -298,37 +317,46 @@ namespace Core.Kernel.Beans
 
         public void SetLocalPosition(float x, float y, float z)
         {
-            this.m_trsf.localPosition = new Vector3(x, y, z);
+            if (this.m_trsf)
+                this.m_trsf.localPosition = new Vector3(x, y, z);
         }
 
         public void SetLocalScale(float x, float y, float z)
         {
-            this.m_trsf.localScale = new Vector3(x, y, z);
+            if (this.m_trsf)
+                this.m_trsf.localScale = new Vector3(x, y, z);
         }
 
         public Vector3 GetEulerAngles()
         {
-            return this.m_trsf.eulerAngles;
+            if (this.m_trsf)
+                return this.m_trsf.eulerAngles;
+            return Vector3.zero;
         }
 
         public void SetEulerAngles(float x, float y, float z)
         {
-            this.m_trsf.eulerAngles = new Vector3(x, y, z);
+            if (this.m_trsf)
+                this.m_trsf.eulerAngles = new Vector3(x, y, z);
         }
 
         public void SetLocalEulerAngles(float x, float y, float z)
         {
-            this.m_trsf.localEulerAngles = new Vector3(x, y, z);
+            if (this.m_trsf)
+                this.m_trsf.localEulerAngles = new Vector3(x, y, z);
         }
 
         public Vector3 GetForward()
         {
-            return this.m_trsf.forward;
+            if (this.m_trsf)
+                return this.m_trsf.forward;
+            return Vector3.forward;
         }
 
         public void SetForward(float x, float y, float z)
         {
-            this.m_trsf.forward = new Vector3(x, y, z);
+            if (this.m_trsf)
+                this.m_trsf.forward = new Vector3(x, y, z);
         }
 
         public Vector2 GetAnchoredPosition()
@@ -388,6 +416,9 @@ namespace Core.Kernel.Beans
 
         public void SetParent(UObject parent, bool isLocal, bool isSyncLayer)
         {
+            if (!this.m_trsf)
+                return;
+
             Transform _last = this.m_parent;
             if (isSyncLayer)
                 GHelper.SetParentSyncLayer(this.m_trsf, parent, isLocal);
@@ -400,13 +431,16 @@ namespace Core.Kernel.Beans
 
         public void LookAt(float x, float y, float z)
         {
+            if (!this.m_trsf)
+                return;
             Vector3 _v3 = new Vector3(x, y, z);
             this.m_trsf.LookAt(_v3);
         }
 
         public void Translate(float x, float y, float z, Space space)
         {
-            this.m_trsf.Translate(x, y, z, space);
+            if (this.m_trsf)
+                this.m_trsf.Translate(x, y, z, space);
         }
 
         public void TranslateWorld(float x, float y, float z)
@@ -421,6 +455,8 @@ namespace Core.Kernel.Beans
 
         public void AddLocalPos(float x, float y, float z)
         {
+            if (!this.m_trsf)
+                return;
             Vector3 _v3 = this.m_trsf.localPosition;
             _v3 += new Vector3(x, y, z);
             this.m_trsf.localPosition = _v3;
@@ -428,33 +464,40 @@ namespace Core.Kernel.Beans
 
         public int GetSiblingIndex()
         {
-            return this.m_trsf.GetSiblingIndex();
+            if (this.m_trsf)
+                return this.m_trsf.GetSiblingIndex();
+            return 0;
         }
 
         public void SetSiblingIndex(int bIndex)
         {
-            this.m_trsf.SetSiblingIndex(bIndex);
+            if (this.m_trsf)
+                this.m_trsf.SetSiblingIndex(bIndex);
         }
 
         public void SetAsFirstSibling()
         {
-            this.m_trsf.SetAsFirstSibling();
+            if (this.m_trsf)
+                this.m_trsf.SetAsFirstSibling();
         }
 
         public void SetAsLastSibling()
         {
-            this.m_trsf.SetAsLastSibling();
+            if (this.m_trsf)
+                this.m_trsf.SetAsLastSibling();
         }
 
         public Transform Find(string childName)
         {
-            if (string.IsNullOrEmpty(childName))
+            if (string.IsNullOrEmpty(childName) || !this.m_trsf)
                 return null;
             return this.m_trsf.Find(childName);
         }
 
         public GameObject FindGobj(string childName)
         {
+            if (!this.m_trsf)
+                return null;
             Transform _ret = this.Find(childName);
             return _ret?.gameObject;
         }
@@ -595,6 +638,9 @@ namespace Core.Kernel.Beans
         
         public bool IsSmoothPos(float toX, float toY, float toZ, bool isLocal, float smoothTime = 0f, Action callFinish = null)
         {
+            if (!this.m_trsf)
+                return false;
+
             if (!this.IsChgSmoothPos(toX, toY, toZ))
                 return this.m_isSmoothPos;
 
@@ -633,6 +679,8 @@ namespace Core.Kernel.Beans
 
         public void ToSmoothPos(float toX, float toY, float toZ, bool isLocal, float smoothTime = 0f, Action callFinish = null)
         {
+            if (!this.m_trsf)
+                return;
             bool _isSmoonth = this.IsSmoothPos(toX, toY, toZ, isLocal, smoothTime, callFinish);
             if (_isSmoonth)
                 this.StartCurrUpdate();
@@ -642,6 +690,9 @@ namespace Core.Kernel.Beans
 
         public void ReEDCavs(bool isMust)
         {
+            if (!this.m_trsf)
+                return;
+
             isMust = isMust || this.m_edCvs == null;
             if (!isMust)
                 return;
@@ -656,6 +707,9 @@ namespace Core.Kernel.Beans
 
         public void ReCavsSortBase(int valBase)
         {
+            if (!this.m_trsf)
+                return;
+
             if (this.m_edCvs != null)
             {
                 if (valBase < 0)
