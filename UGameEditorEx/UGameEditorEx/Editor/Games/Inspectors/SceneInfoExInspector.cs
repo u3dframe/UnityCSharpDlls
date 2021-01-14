@@ -42,7 +42,8 @@ public class SceneInfoExInspector : Editor
 
     void _SaveInfos(){
 		UtilityHelper.Is_App_Quit = false;
-		Scene scene = EditorSceneManager.GetActiveScene();
+        GameFile.CurrDirRes();
+        Scene scene = EditorSceneManager.GetActiveScene();
 		string sname = scene.name;
 		m_obj.m_infoName = "sinfo_" + sname;
 		string _fabName = "map_" + sname;
@@ -100,7 +101,7 @@ public class SceneInfoExInspector : Editor
 		}
 
 		string _fname = SceneInfoEx.ReFname(m_obj.m_infoName);
-		string _vc = jdRoot.ToJson();
+		string _vc = jdRoot.ToJson();        
 		GameFile.WriteText(_fname,_vc);
 
 		string fp = string.Format("{0}{1}{2}.prefab",GameFile.m_appAssetPath,"Scene/Builds/prefabs/maps/",_fabName);
