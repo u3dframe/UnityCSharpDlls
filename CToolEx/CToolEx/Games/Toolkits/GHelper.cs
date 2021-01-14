@@ -397,9 +397,7 @@ public class GHelper : Core.Kernel.ObjEx
         Transform trsfParent = ToTransform(uobjParent);
         GameObject ret = GameObject.Instantiate(gobj, trsfParent, false) as GameObject;
         if (IsNoNull(trsfParent))
-        {
             SetParentSyncLayer(ret.transform, trsfParent, true);
-        }
         return ret;
     }
 
@@ -447,28 +445,18 @@ public class GHelper : Core.Kernel.ObjEx
 
     static public void SetLayerBy(UObject uobj, string nmLayer, bool isAll)
     {
-        GameObject gobj = ToGObj(uobj);
         if (isAll)
-        {
-            SetLayerAll(gobj, nmLayer);
-        }
+            SetLayerAll(uobj, nmLayer);
         else
-        {
-            SetLayer(gobj, nmLayer);
-        }
+            SetLayer(uobj, nmLayer);
     }
 
     static public void SetLayerBy(UObject uobj, int layer, bool isAll)
     {
-        GameObject gobj = ToGObj(uobj);
         if (isAll)
-        {
-            SetLayerAll(gobj, layer);
-        }
+            SetLayerAll(uobj, layer);
         else
-        {
-            SetLayer(gobj, layer);
-        }
+            SetLayer(uobj, layer);
     }
 
     static public Vector3 ToVec3(float x, float y, float z)
@@ -491,18 +479,12 @@ public class GHelper : Core.Kernel.ObjEx
     {
         Transform trsf = ToTransform(uobj);
         if (!trsf)
-        {
             return;
-        }
 
         if (string.IsNullOrEmpty(refName))
-        {
             refName = trsf.name;
-        }
         else
-        {
             refName = trsf.name + "/" + refName;
-        }
 
         RecursionName(trsf.parent, ref refName);
     }
