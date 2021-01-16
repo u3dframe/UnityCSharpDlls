@@ -39,9 +39,13 @@ public class SceneMapEx : GobjLifeListener
             this.m_cfLoad = cfLoad;
             this.m_curData = new SceneLightMapData();
             if (!string.IsNullOrEmpty(lColor))
-                lColor += UGameFile.m_suffix_light;
+                lColor = UGameFile.ReSEnd(lColor,UGameFile.m_suffix_light);
             this.m_assets[0] = lColor;
+            if (!string.IsNullOrEmpty(lDir))
+                lDir = UGameFile.ReSEnd(lDir, UGameFile.m_suffix_png);
             this.m_assets[1] = lDir;
+            if (!string.IsNullOrEmpty(lmask))
+                lmask = UGameFile.ReSEnd(lmask, UGameFile.m_suffix_png);
             this.m_assets[2] = lmask;
 
             this.DoLoading();
