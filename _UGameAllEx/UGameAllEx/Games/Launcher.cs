@@ -7,6 +7,8 @@ public class Launcher : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GameFile.IsInitLuaMgr = false;
+        GameFile.VwMems(true);
         GameFile.InitFirst(_StartUpdateProcess);
     }
 
@@ -26,6 +28,7 @@ public class Launcher : MonoBehaviour
         InputMgr.instance.Init();
         UGUIEventSystem.instance.Init(false);
         AssetBundleManager.instance.isDebug = true;
+        SceneMapEx.m_cfLoad = ResourceManager.LoadTexture;
         LuaManager.instance.Init();
     }
 

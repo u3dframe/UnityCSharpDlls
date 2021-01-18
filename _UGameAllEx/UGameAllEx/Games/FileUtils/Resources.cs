@@ -56,11 +56,11 @@ namespace Core.Kernel
             bool _isFab = false , _isLmap =  false;
             if(abName.Contains("/effects/")  || abName.Contains("/uis/")  || abName.Contains("/ef_") || abName.Contains("/special_effects/")){
                 _fp  += "Effects/Builds/";
-            }else if(abName.Contains("/c_")){
+            }else if(abName.Contains("/c_") || abName.Contains("timeline/")){
                 _fp  += "Characters/Builds/";
-            }else if(abName.Contains("timeline/")){
-                _fp  += "Characters/Builds/";
-            }else if(abName.Contains("/maps/") || abName.Contains("/explores/") || abName.Contains("post_process/") || abName.Contains("skyboxs/")){
+            }else if(abName.Contains("/maps/") || abName.Contains("post_process/") || abName.Contains("skyboxs/") || abName.Contains("card/")){
+                _fp  += "Scene/Builds/";
+            }else if(abName.Contains("/explore/comom/") || abName.Contains("/explore/grass/") || abName.Contains("/explore/snow/") || abName.Contains("/explore/eb_") || abName.Contains("/explore/explore_" )){
                 _fp  += "Scene/Builds/";
             }else if(abName.Contains("lightmaps/")){
                 _fp  += "Scene/Builds/";

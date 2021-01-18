@@ -103,6 +103,9 @@ public class ED_UIImg : ED_Animator
 
     public void SetImage(int nType,string sAtals,string sImg,bool isNativeSize,bool isNdReRes = true)
     {
+        if(!this.m_img)
+            return;
+            
         if(isNdReRes == true)
         {
             sAtals = this.ReAtals(nType,sAtals);
@@ -181,7 +184,7 @@ public class ED_UIImg : ED_Animator
 
     public void VwImgColor(float r, float g, float b, float a = 1)
     {
-        if (this.m_img == null)
+        if(!this.m_img)
             return;
         this.m_img.color = UtilityHelper.ToColor(r, g, b, a);
     }

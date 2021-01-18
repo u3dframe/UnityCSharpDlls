@@ -26,7 +26,15 @@ namespace Core.Kernel
         // zip 压缩文件列表(将文件分包体大小来压缩,减小解压时所需内存)
         static public string m_fpZipList = string.Concat(m_appContentPath, "ziplist.txt");
         static public string m_fmtZip = string.Concat(m_appContentPath, "resource{0}.zip");
-        
+        static public void SetEnCode(EM_EnCode code)
+        {
+            curInstance.m_encodeWordFile = code;
+        }
+
+        static public void CloseEnCode()
+        {
+            SetEnCode(EM_EnCode.None);
+        }
         // 加密
         static public string Encrypt(string val)
         {

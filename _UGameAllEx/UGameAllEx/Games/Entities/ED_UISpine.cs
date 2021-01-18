@@ -44,8 +44,11 @@ public class ED_UISpine : ED_Animator
             return;
         
         UtilityHelper.SetParent(this.m_trsf,uobjParent,true);
-        this.m_trsf.localScale = locScale;
-        this.m_trsf.localPosition = locPos;
+        RectTransform s = uobjParent as RectTransform;
+        s.localScale = locScale;
+        s.localPosition = locPos;
+        //this.m_trsf.localScale = locScale;
+        //this.m_trsf.localPosition = locPos;
 
         CanvasEx _c_ = CanvasEx.GetInParent( this.m_trsf );
         if(_c_ != null)

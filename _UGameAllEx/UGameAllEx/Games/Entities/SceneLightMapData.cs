@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 /// <summary>
 /// 类名 : 场景的光照贴图数据
@@ -6,8 +7,8 @@
 /// 日期 : 2019-08-19 10:17
 /// 功能 : 
 /// </summary>
-[System.Serializable]
-public class SceneLightMapData
+[Serializable]
+public class SceneLightMapData : IDisposable
 {
 	public Texture2D lightmapColor,lightmapDir,shadowMask;
 
@@ -40,5 +41,17 @@ public class SceneLightMapData
         return this.lightmapColor == data.lightmapColor &&
         this.lightmapDir == data.lightmapDir &&
         this.shadowMask == data.shadowMask;
+    }
+
+    public void Dispose()
+    {
+        this.lightmapColor = null;
+        this.lightmapDir = null;
+        this.shadowMask = null;
+    }
+
+    public void Clear()
+    {
+        this.Dispose();
     }
 }

@@ -56,7 +56,8 @@ public static class LJsonHelper {
         return _ret;
     }
 
-    static public JsonData ToJData(JsonData jdRoot,string key){
+    static public JsonData ToJData(JsonData jdRoot,string key)
+    {
 		if(jdRoot == null || string.IsNullOrEmpty(key))
 			return null;
 		
@@ -70,6 +71,20 @@ public static class LJsonHelper {
     {
         JsonData jd = ToJData(jdRoot, key);
         return ToJData(jd, key_child);
+    }
+
+    static public JsonData ToJDataByStrVal(JsonData jdRoot, string key)
+    {
+        JsonData jd = ToJData(jdRoot, key);
+        if (jd == null || !jd.IsString)
+            return null;
+        return ToJData(jd.ToString());
+    }
+
+    static public JsonData ToJDataByStrVal(JsonData jdRoot, string key, string key_child)
+    {
+        JsonData jd = ToJDataByStrVal(jdRoot, key);
+        return ToJDataByStrVal(jd, key_child);
     }
 
     static public JsonData ToJData(JsonData jdRoot,int index){
@@ -138,5 +153,17 @@ public static class LJsonHelper {
     {
         string v = ToStrDef(jdRoot, index, "0");
         return UtilityHelper.Str2Int(v);
+    }
+
+    static public long ToLong(JsonData jdRoot, string key)
+    {
+        string v = ToStrDef(jdRoot, key, "0");
+        return UtilityHelper.Str2Long(v);
+    }
+
+    static public long ToLong(JsonData jdRoot, int index)
+    {
+        string v = ToStrDef(jdRoot, index, "0");
+        return UtilityHelper.Str2Long(v);
     }
 }

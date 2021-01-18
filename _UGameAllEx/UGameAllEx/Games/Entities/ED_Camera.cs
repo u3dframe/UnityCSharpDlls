@@ -118,13 +118,15 @@ public class ED_Camera : ED_Animator
 
     public void SetFieldOfView(float val)
     {
-        if (null == this.m_cmr)
+        if(UtilityHelper.IsNull(this.m_cmr))
             return;
         this.m_cmr.fieldOfView = val;
     }
 
     public void ToSmooth4LocXYZ(float val, float toFieldOfView, float smoothFov = 0f,float smoothPos = 0f, int xyz = 0, Action callFinish = null)
     {
+        if(UtilityHelper.IsNull(this.m_gobj))
+            return;
         Vector3 _to = this.GetCurrPos();
         float _x = _to.x;
         float _y = _to.y;
@@ -146,6 +148,8 @@ public class ED_Camera : ED_Animator
 
     public void ToSmooth4LocXYZStartAdd(float val, float toFieldOfView, float smoothFov = 0f,float smoothPos = 0f, int xyz = 0, Action callFinish = null)
     {
+        if(UtilityHelper.IsNull(this.m_gobj))
+            return;
         Vector3 _to = this.m_startLocPos;
         float _x = _to.x;
         float _y = _to.y;
@@ -167,12 +171,16 @@ public class ED_Camera : ED_Animator
 
     public void RebackStart(float smoothFov = 0f,float smoothPos = 0f, Action callFinish = null)
     {
+        if(UtilityHelper.IsNull(this.m_gobj))
+            return;
         Vector3 _to = this.m_startLocPos;
         this.ToSmooth4Local(_to.x, _to.y, _to.z, this.m_startFOV, smoothFov,smoothPos, callFinish);
     }
 
     public void GetUILocPos(UnityEngine.Object src,Camera uiCmr,UnityEngine.Object uiParent,ref float posX,ref float posY)
     {
+        if(UtilityHelper.IsNull(this.m_gobj))
+            return;
         GetUILocPos(this.m_cmr,src,uiCmr,uiParent,ref posX,ref posY);
     }
 }

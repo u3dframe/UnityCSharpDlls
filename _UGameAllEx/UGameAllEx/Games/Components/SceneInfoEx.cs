@@ -18,10 +18,4 @@ public class SceneInfoEx : SceneBasicEx
 	static public new SceneInfoEx Get(GameObject gobj){
 		return Get(gobj,true);
 	}
-	
-    protected override void OnCall4Awake()
-    {
-		this.m_cfLoad = ResourceManager.LoadTexture;
-        base.OnCall4Awake();
-    }
 }

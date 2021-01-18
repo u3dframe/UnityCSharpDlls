@@ -18,7 +18,7 @@ public class ED_Animator : Core.Kernel.Beans.ED_Comp
     public Animator m_curAni { get; private set; }
     protected AnimationClip[] m_clips = null;
     private Dictionary<string,bool> m_dic = null;
-
+    public string m_nameParent { get{if(this.m_parent) return this.m_parent.name; return "";} }
     
     public ED_Animator() : base()
     {

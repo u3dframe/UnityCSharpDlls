@@ -8,6 +8,13 @@ using System;
 /// 功能 : 
 /// </summary>
 public sealed class LuaHelper : UtilityHelper {
+
+	static public int LuaMemroy() {
+		var mgr = LuaManager.instance;
+		if (mgr != null) return mgr.LuaMemroy;
+		return 0;
+	}
+
 	/// <summary>
 	/// 清理内存
 	/// </summary>

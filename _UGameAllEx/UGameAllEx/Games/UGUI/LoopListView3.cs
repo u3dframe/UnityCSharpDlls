@@ -707,7 +707,10 @@ public class LoopListView3 : EventTrigger
         if (movementType == MovementType.AutoAlignment)
             MoveToImmediately(resetPos ? 0 : currentIndex);
         else
+        {
             normalizedPosition = resetPos ? (vertical ? content.pivot.y : content.pivot.x) : np;
+            currentIndex = currentIndex;
+        }
     }
 
     public int GetItemIndex(GameObject obj)

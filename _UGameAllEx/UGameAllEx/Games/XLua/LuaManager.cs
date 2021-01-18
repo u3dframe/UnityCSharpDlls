@@ -38,6 +38,11 @@ public class LuaManager : GobjLifeListener
 	public bool m_isPaused{get; private set;}
 	private DF_OnBool luaAppPaused;
 
+	public int LuaMemroy
+	{
+		get{ return (luaEnv != null) ? luaEnv.Memroy : 0; }
+	}
+
 	public void Init(){
 		Core.Kernel.Messenger.AddListener<string,int,TNet.ByteBuffer>("OnCF2Lua",this.OnCFNet2Lua);
 	}
@@ -72,6 +77,7 @@ public class LuaManager : GobjLifeListener
 #if UNITY_5_4_OR_NEWER
 		SceneManager.sceneLoaded += _OnSceneLoaded;
 #endif
+		GameFile.IsInitLuaMgr = true;
 	}
 
 #if UNITY_5_4_OR_NEWER

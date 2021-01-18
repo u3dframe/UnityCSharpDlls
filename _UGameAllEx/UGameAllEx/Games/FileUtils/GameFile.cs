@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using LitJson;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -42,6 +43,8 @@ namespace Core
             }
 		}
 
+		static public bool IsInitLuaMgr{ get;set; }
+
 		static public void AppQuit(){
 			#if UNITY_EDITOR
 			UnityEditor.EditorApplication.isPlaying = false;
@@ -77,16 +80,18 @@ namespace Core
             m_emFpType = Kernel.ET_FPType.UNITY_EDITOR;
 #endif
             curInstance = instance;
+			CloseEnCode();
 			InitFdRoot(m_resFdRoot);
 			if(Application.isPlaying){
 				GameEntranceEx.Entrance(_OnCFError);
-				LogToNetHelper.shareInstance.Init("https://push.dianyue.com/","client_log");
+				LogToNetHelper.shareInstance.Init("http://push.dianyue.com/","client_log");
 			}
 
 			CfgPackage.InitPackage(()=>{
 				m_bk_url = CfgPackage.instance.m_urlVersion;
 				if(callFunc != null)
 					callFunc();
+				EU_Bridge.SendAndCall("{\"cmd\":\"logLev\",\"logLev\":10}",null);
 			});
         }
 
@@ -158,6 +163,53 @@ namespace Core
 		static public void VwFps(bool isShow)
 		{
 			GameMgr.Fps(isShow);
+		}
+
+		static private DelayExcute m_en = null;
+		static void _CallDEx()
+		{
+			if(m_en != null)
+				m_en.Init(0.08f,_CallDEx);
+			m_en.Start();
+
+			EU_Bridge.SendAndCall("{\"cmd\":\"phone_mem_cpu\"}",_CallPhone);
+		}
+
+		static void _CallPhone(string strData)
+		{
+			JsonData _json = LJsonHelper.ToJData(strData);
+			if (_json == null)
+				return;
+			
+			JsonData _jd = LJsonHelper.ToJDataByStrVal(_json,"data");
+			if (_jd == null)
+				return;
+			MemDisplay _dis = GameMgr.GetMem(false);
+			if(UtilityHelper.IsNull(_dis))
+				return;
+			
+			if(IsInitLuaMgr)
+				_dis.m_luaUseMem = LuaHelper.LuaMemroy() * 1024;
+			
+			_dis.m_outMemAll = LJsonHelper.ToLong( _jd,"am_total" );
+			_dis.m_outMemFree = LJsonHelper.ToLong( _jd,"am_free" );
+		}
+
+		static public void VwMems(bool isShow)
+		{
+			GameMgr.Mem(isShow);
+
+			if(m_en != null){
+				m_en.Stop(true);
+				m_en = null;
+			}
+
+			if(isShow)
+			{
+				if(m_en == null)
+					m_en = new DelayExcute(0.08f,_CallDEx);
+				_CallDEx();
+			}
 		}
 
         override public bool IsLoadOrg4Editor()
