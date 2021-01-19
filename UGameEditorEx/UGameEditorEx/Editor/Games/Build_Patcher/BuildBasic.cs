@@ -667,8 +667,7 @@ namespace Core
                 if (string.IsNullOrEmpty(_guid))
                     continue;
                 _assetPath = AssetDatabase.GUIDToAssetPath(_guid);
-                _sb.AppendFormat("=== guid = [{0}], assetPath = [{1}]", _assetPath).AppendLine();
-                _sb.AppendLine();
+                _sb.AppendFormat("=== guid = [{0}], assetPath = [{1}]", _guid,_assetPath).AppendLine();
             }
             string _v = _sb.ToString();
             _sb.Length = 0;
