@@ -654,6 +654,28 @@ namespace Core
             }
         }
 
+        static public string Get4GUID(params string[] guids)
+        {
+            if (IsNullOrEmpty(guids))
+                return "";
+            var _sb = new System.Text.StringBuilder();
+            string _guid = null;
+            string _assetPath = null;
+            for (int i = 0; i < guids.Length; i++)
+            {
+                _guid = guids[i];
+                if (string.IsNullOrEmpty(_guid))
+                    continue;
+                _assetPath = AssetDatabase.GUIDToAssetPath(_guid);
+                _sb.AppendFormat("=== guid = [{0}], assetPath = [{1}]", _assetPath).AppendLine();
+                _sb.AppendLine();
+            }
+            string _v = _sb.ToString();
+            _sb.Length = 0;
+            _sb.Clear();
+            return _v;
+        }
+
         static protected void LandscapePlatformSetting(BuildTarget buildTarget, string applicationIdentifier, string bundleVersion, string bundleVersionCode, bool isAddBVer = true)
         {
             if (!string.IsNullOrEmpty(applicationIdentifier))
