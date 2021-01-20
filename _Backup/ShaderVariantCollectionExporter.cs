@@ -93,13 +93,11 @@ public static class ShaderVariantCollectionExporter
 
     static private void EditorUpdate()
     {
-        if (_isStarted && _elapsedTime.ElapsedMilliseconds >= WaitTimeBeforeSave)
+        if (_elapsedTime.ElapsedMilliseconds >= WaitTimeBeforeSave)
         {
-            _isStarted = false;
+            EditorApplication.update -= EditorUpdate;
             _elapsedTime.Stop();
             _elapsedTime.Reset();
-            EditorApplication.update -= EditorUpdate;
-            EditorApplication.isPlaying = true;
             object _obj = InvokeInternalStaticMethod(typeof(ShaderUtil), "GetCurrentShaderVariantCollectionVariantCount");
             Debug.LogFormat("=== Update CurrSVC_VariantCount = [{0}]", _obj);
             InvokeInternalStaticMethod(typeof(ShaderUtil), "SaveCurrentShaderVariantCollection", _SVCPath);
@@ -115,7 +113,7 @@ public static class ShaderVariantCollectionExporter
         InvokeInternalStaticMethod(typeof(ShaderUtil), "ClearCurrentShaderVariantCollection");
         object _obj = InvokeInternalStaticMethod(typeof(ShaderUtil), "GetCurrentShaderVariantCollectionShaderCount");
         Debug.LogFormat("=== CurrSVC_ShaderCount = [{0}]", _obj);
-
+        
         int totalMaterials = materials.Count;
 
         var camera = Camera.main;
@@ -164,7 +162,7 @@ public static class ShaderVariantCollectionExporter
         _elapsedTime.Stop();
         _elapsedTime.Reset();
         _elapsedTime.Start();
-        _isStarted = true;
+		EditorApplication.isPlaying = false;
         EditorApplication.update -= EditorUpdate;
         EditorApplication.update += EditorUpdate;
     }
@@ -188,8 +186,7 @@ public static class ShaderVariantCollectionExporter
 
         return methodInfo.Invoke(null, parameters);
     }
-
-    static private bool _isStarted = false;
+	
     static private readonly Stopwatch _elapsedTime = new Stopwatch();
     private const int WaitTimeBeforeSave = 2000;
     static private string _SVCPath = "Assets/ShaderVariantCollection.shadervariants";
