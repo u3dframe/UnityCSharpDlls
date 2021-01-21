@@ -96,14 +96,18 @@ public static class ShaderVariantCollectionExporter
         if (_elapsedTime.ElapsedMilliseconds >= WaitTimeBeforeSave)
         {
             EditorApplication.update -= EditorUpdate;
-            _elapsedTime.Stop();
-            _elapsedTime.Reset();
+			EditorApplication.isPlaying = true;
+            Debug.LogFormat("=== Update Time1 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
+            System.Threading.Thread.Sleep(5000);
+            Debug.LogFormat("=== Update Time2 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
             object _obj = InvokeInternalStaticMethod(typeof(ShaderUtil), "GetCurrentShaderVariantCollectionVariantCount");
             Debug.LogFormat("=== Update CurrSVC_VariantCount = [{0}]", _obj);
             InvokeInternalStaticMethod(typeof(ShaderUtil), "SaveCurrentShaderVariantCollection", _SVCPath);
-            EditorApplication.isPlaying = false;
             _obj = InvokeInternalStaticMethod(typeof(ShaderUtil), "GetCurrentShaderVariantCollectionShaderCount");
             Debug.LogFormat("=== Update CurrSVC_ShaderCount = [{0}]", _obj);
+            _elapsedTime.Stop();
+            _elapsedTime.Reset();
+            EditorApplication.isPlaying = false;
         }
     }
 
@@ -188,6 +192,6 @@ public static class ShaderVariantCollectionExporter
     }
 	
     static private readonly Stopwatch _elapsedTime = new Stopwatch();
-    private const int WaitTimeBeforeSave = 2000;
+    private const int WaitTimeBeforeSave = 1000;
     static private string _SVCPath = "Assets/ShaderVariantCollection.shadervariants";
 }
