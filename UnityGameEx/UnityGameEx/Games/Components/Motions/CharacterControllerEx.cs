@@ -71,9 +71,8 @@ public class CharacterControllerEx : AnimatorEx
 	}
 
     override protected void OnCall4Destroy() {
-        base.OnCall4Destroy();
         this.ChgSkinMat(null, 99);
-        this.m_skinDatas = null;
+        base.OnCall4Destroy();
     }
 
     override protected void OnClear(){
@@ -136,7 +135,7 @@ public class CharacterControllerEx : AnimatorEx
 
     public CharacterControllerEx ReSkinRer()
     {
-        if (this.m_skinDatas == null)
+        if (this.m_gobj && this.m_skinDatas == null)
         {
             var arrs = this.m_gobj.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             if(arrs != null)
@@ -153,18 +152,26 @@ public class CharacterControllerEx : AnimatorEx
 
     public void ChgSkinMat(Material newMat,int nType)
     {
-        if (this.m_skinDatas == null || this.m_skinDatas.Length <= 0)
+        var _arrs = this.m_skinDatas;
+        this.m_skinDatas = null;
+        if (_arrs == null || _arrs.Length <= 0)
             return;
 
         RendererMatData _itData;
-        for (int i = 0; i < this.m_skinDatas.Length; i++)
+        for (int i = 0; i < _arrs.Length; i++)
         {
-            _itData = this.m_skinDatas[i];
+            _itData = _arrs[i];
+            if (_itData == null)
+                continue;
+
             if (nType == 99)
                 _itData.ClearAll();
             else
                 _itData.ChangeMat(newMat, nType);
         }
+
+        if (nType != 99)
+            this.m_skinDatas = _arrs;
     }
     
 	protected void CMove(Vector3 v3Add){
