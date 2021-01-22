@@ -116,8 +116,7 @@ public class SmoothFollower : SmoothLookAt
 
 	public void DoStart(Transform target,float distance,float height,float lookAtHeight,bool isLerpDistance,bool isLerpHeight,bool isLerpRotate){
 		this.ReSetPars( target,distance,height,lookAtHeight,isLerpDistance,isLerpHeight,isLerpRotate );
-		this.isRunningFollow = true;
-        this.isRunningAt = true;
+		this.isRunning = true;
     }
 
 	public void ReSetPars(Transform target,float distance,float height,float lookAtHeight,bool isLerpDistance,bool isLerpHeight,bool isLerpRotate){
@@ -142,4 +141,16 @@ public class SmoothFollower : SmoothLookAt
 			this._OnUpdate();
 		}
 	}
+
+    bool _isRunning = false;
+    public bool isRunning
+    {
+        get { return _isRunning; }
+        set
+        {
+            this._isRunning = value;
+            this.isRunningFollow = value;
+            this.isRunningAt = value;
+        }
+    }
 }  

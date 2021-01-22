@@ -33,7 +33,7 @@ public class SmoothLookAt : MonoBehaviour
     public Transform target;
     public bool isUpByLate = false;
     public bool isRunningAt = false;
-    public bool m_smoothAt = true;
+    public bool m_smoothAt = false;
     [HideInInspector] public float dampingAt = 2.2f; // 6
     [HideInInspector] public Vector3 v3Offset = Vector3.zero;
     [HideInInspector] public Vector3 v3Target = Vector3.zero;
@@ -91,5 +91,28 @@ public class SmoothLookAt : MonoBehaviour
             return;
         }
         m_trsf.LookAt(dest);
+    }
+
+    public void LookAt(Transform target,float ox,float oy,float oz,bool smoothAt = true, bool upLate = false)
+    {
+        this.target = target;
+        this.v3Offset.x = ox;
+        this.v3Offset.y = oy;
+        this.v3Offset.z = oz;
+        this.m_smoothAt = smoothAt;
+        this.isUpByLate = upLate;
+        this.m_lookType = LookType.Trsf;
+        this.isRunningAt = true;
+    }
+
+    public void LookAt(float tx, float ty, float tz, bool smoothAt = true, bool upLate = false)
+    {
+        this.v3Target.x = tx;
+        this.v3Target.y = ty;
+        this.v3Target.z = tx;
+        this.m_smoothAt = smoothAt;
+        this.isUpByLate = upLate;
+        this.m_lookType = LookType.Vec3;
+        this.isRunningAt = true;
     }
 }
