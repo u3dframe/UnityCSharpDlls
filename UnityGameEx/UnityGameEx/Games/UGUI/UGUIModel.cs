@@ -227,7 +227,7 @@ public class UGUIModel : PrefabBasic
 
         this.m_sfwer.distance = distance;
         this.m_sfwer.height = height;
-        this.m_sfwer.lookAtHeight = lookAtHeight;
+        this.m_sfwer.v3Offset.y = lookAtHeight;
 
         float _abs = Mathf.Abs(distance);
         float scale = 1;
