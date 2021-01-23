@@ -14,19 +14,14 @@ public enum LookType
 /// </summary>
 public class SmoothLookAt : MonoBehaviour
 {
-    static public SmoothLookAt Get(GameObject gobj, bool isAdd)
+    static public SmoothLookAt Get(Object uobj, bool isAdd)
     {
-        SmoothLookAt _r = gobj.GetComponent<SmoothLookAt>();
-        if (isAdd && null == _r)
-        {
-            _r = gobj.AddComponent<SmoothLookAt>();
-        }
-        return _r;
+        return GHelper.Get<SmoothLookAt>(uobj, isAdd);
     }
 
-    static public SmoothLookAt Get(GameObject gobj)
+    static public SmoothLookAt Get(Object uobj)
     {
-        return Get(gobj, true);
+        return Get(uobj, true);
     }
 
     public LookType m_lookType = LookType.Trsf;
@@ -93,9 +88,10 @@ public class SmoothLookAt : MonoBehaviour
         m_trsf.LookAt(dest);
     }
 
-    public void LookAt(Transform target,float ox,float oy,float oz,bool smoothAt = true, bool upLate = false)
+    public void LookAt(Object target,float ox,float oy,float oz,bool smoothAt = true, bool upLate = false)
     {
-        this.target = target;
+        Transform _t = GHelper.ToTransform(target);
+        this.target = _t;
         this.v3Offset.x = ox;
         this.v3Offset.y = oy;
         this.v3Offset.z = oz;

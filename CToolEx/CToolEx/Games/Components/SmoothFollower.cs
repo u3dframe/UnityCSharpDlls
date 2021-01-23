@@ -10,16 +10,13 @@
 public class SmoothFollower : SmoothLookAt
 {
 	// 取得对象
-	static public new SmoothFollower Get(GameObject gobj,bool isAdd){
-		SmoothFollower _r = gobj.GetComponent<SmoothFollower> ();
-		if (isAdd && null == _r) {
-			_r = gobj.AddComponent<SmoothFollower> ();
-		}
-		return _r;
+	static public new SmoothFollower Get(Object uobj,bool isAdd){
+        return GHelper.Get<SmoothFollower>(uobj, isAdd);
 	}
 
-	static public new SmoothFollower Get(GameObject gobj){
-		return Get(gobj,true);
+	static public new SmoothFollower Get(Object uobj)
+    {
+		return Get(uobj, true);
 	}
 
     public bool isRunningFollow = false;
