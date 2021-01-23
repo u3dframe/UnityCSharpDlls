@@ -99,7 +99,7 @@ public class InputBaseMgr : GobjLifeListener {
 	public DF_InpVec2 m_lfSlide = null; // 滑动
 	public DF_InpRayHit m_lfRayHit = null; // 单击到物体
 
-    float _no_ops_time = 0;
+    [SerializeField] float _no_ops_time = 0;
     public int m_fpsFrameRate { get; set; }
     protected bool m_isOpt { get; set; }
     public float m_noOpsLmtSec = 5 * 60;
@@ -156,8 +156,9 @@ public class InputBaseMgr : GobjLifeListener {
         }
 
         _no_ops_time += Time.deltaTime;
-        if(_no_ops_time >=  this.m_noOpsLmtSec)
+        if(_no_ops_time >= this.m_noOpsLmtSec)
         {
+            _no_ops_time -= this.m_noOpsLmtSec;
             Application.targetFrameRate = 1;
         }
     }
