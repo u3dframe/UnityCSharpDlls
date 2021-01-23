@@ -5,6 +5,7 @@ using UnityEditor.Animations;
 using System.IO;
 using System.Collections.Generic;
 using Core.Kernel;
+using System.Linq;
 using UObject = UnityEngine.Object;
 namespace Core
 {
@@ -42,6 +43,14 @@ namespace Core
         static public string[] GetFiles(string fpdir)
         {
             return Directory.GetFiles(fpdir, "*.*", SearchOption.AllDirectories);
+        }
+
+        static public string[] GetFilesBySuffix(string fpdir,string suffixToLowers)
+        {
+            string[] _files = GetFiles(fpdir);
+            if (string.IsNullOrEmpty(suffixToLowers))
+                return _files;
+            return _files.Where(s => suffixToLowers.Contains(GetSuffixToLower(s))).ToArray();
         }
 
         static public void SaveAssets(UObject obj, bool isSave = true)
