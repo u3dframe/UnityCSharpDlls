@@ -99,10 +99,10 @@ public class InputBaseMgr : GobjLifeListener {
 	public DF_InpVec2 m_lfSlide = null; // 滑动
 	public DF_InpRayHit m_lfRayHit = null; // 单击到物体
 
-    [SerializeField] float _no_ops_time = 0;
+    [SerializeField] float _noOpsTime = 0;
     public int m_fpsFrameRate { get; set; }
     protected bool m_isOpt { get; set; }
-    [Range(0.1f,0.5f)] public float m_fpsRate = 0.2f;
+    [Range(0.1f,0.5f)] public float m_noOpsFpsRate = 0.2f;
     public float m_noOpsLmtSec = 5 * 60;
 
 	private LayerMask _lay_mask = 1 << 0 | 1 << 1 | 1 << 4;
@@ -151,16 +151,16 @@ public class InputBaseMgr : GobjLifeListener {
 
         if(m_isOpt)
         {
-            _no_ops_time = 0f;
+            _noOpsTime = 0f;
             Application.targetFrameRate = m_fpsFrameRate;
             return;
         }
 
-        _no_ops_time += Time.deltaTime;
-        if(_no_ops_time >= this.m_noOpsLmtSec)
+        _noOpsTime += Time.deltaTime;
+        if(_noOpsTime >= this.m_noOpsLmtSec)
         {
-            _no_ops_time -= this.m_noOpsLmtSec;
-            int _fps = Mathf.CeilToInt(m_fpsFrameRate * m_fpsRate + 0.5f);
+            _noOpsTime -= this.m_noOpsLmtSec;
+            int _fps = Mathf.CeilToInt(m_fpsFrameRate * m_noOpsFpsRate);
             _fps = Mathf.Max(_fps, 3);
             Application.targetFrameRate = _fps;
         }
