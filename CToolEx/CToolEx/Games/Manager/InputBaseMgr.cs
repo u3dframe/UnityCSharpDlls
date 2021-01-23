@@ -170,11 +170,9 @@ public class InputBaseMgr : GobjLifeListener {
 #if UNITY_EDITOR
 		OnUpdate();
 #endif
-        if (!IsClickInUI)
-        {
-           m_isOpt = true;
+        m_isOpt = IsClickInUI;
+        if (!m_isOpt)
             return;
-        }
 
         if (Input.touchSupported)
         {
