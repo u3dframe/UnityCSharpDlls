@@ -34,7 +34,8 @@ namespace Core.Kernel
 
 		static public string GetSuffixToLower (string fn)
 		{
-			return GetSuffix (fn).ToLower ();
+            string _ret = GetSuffix(fn);
+            return _ret.ToLower ();
 		}
 
 		// 扩展名 Suffix(无.号)
@@ -48,7 +49,8 @@ namespace Core.Kernel
 
 		static public string GetSuffixNoPointToLower (string fn)
 		{
-			return GetSuffixNoPoint(fn).ToLower();
+            string _ret = GetSuffixNoPoint(fn);
+            return _ret.ToLower();
 		}
 
 		// 文件名字(含有扩展名)
