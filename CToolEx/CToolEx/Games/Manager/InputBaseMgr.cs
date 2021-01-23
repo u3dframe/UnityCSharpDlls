@@ -102,6 +102,7 @@ public class InputBaseMgr : GobjLifeListener {
     [SerializeField] float _no_ops_time = 0;
     public int m_fpsFrameRate { get; set; }
     protected bool m_isOpt { get; set; }
+    [Range(0.1f,0.5f)] public float m_fpsRate = 0.2f;
     public float m_noOpsLmtSec = 5 * 60;
 
 	private LayerMask _lay_mask = 1 << 0 | 1 << 1 | 1 << 4;
@@ -159,7 +160,9 @@ public class InputBaseMgr : GobjLifeListener {
         if(_no_ops_time >= this.m_noOpsLmtSec)
         {
             _no_ops_time -= this.m_noOpsLmtSec;
-            Application.targetFrameRate = 1;
+            int _fps = Mathf.CeilToInt(m_fpsFrameRate * m_fpsRate + 0.5f);
+            _fps = Mathf.Max(_fps, 3);
+            Application.targetFrameRate = _fps;
         }
     }
 
