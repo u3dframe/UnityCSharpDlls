@@ -131,7 +131,12 @@ public class SceneMapEx : GobjLifeListener
             if (_tmp != null)
                 _tmp.Clear();
 
-            AssetInfo.abMgr.UnLoadAsset(this.m_abName);
+            for (int i = 0; i < this.m_assets.Length; i++)
+            {
+                if (string.IsNullOrEmpty(this.m_assets[i]))
+                    continue;
+                AssetInfo.abMgr.UnLoadAsset(this.m_abName);
+            }
         }
     }
 	
