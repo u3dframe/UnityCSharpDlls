@@ -87,6 +87,7 @@ namespace Core.Kernel.Beans
         public RectTransform m_trsfRect { get; private set; }
         public Transform m_parent { get { return this.m_trsf?.parent; } }
         public GameObject m_parentGobj { get { return this.m_parent?.gameObject; } }
+        public bool m_isHasMonoLife { get; private set; }
         public bool m_isActiveInView { get { return this.m_gobj && this.m_gobj.activeInHierarchy; } }
         public Component m_comp { get; private set; }
         public Behaviour m_behav { get; private set; }
@@ -114,6 +115,7 @@ namespace Core.Kernel.Beans
             this.m_trsfRect = this.m_trsf as RectTransform;
             this.m_startPos = this.GetCurrPos(false);
             this.m_startLocPos = this.GetCurrPos();
+            this.m_isHasMonoLife = this.m_isActiveInView;
         }
 
         public void InitCallFunc(Action cfDestroy, Action cfShow, Action cfHide)
@@ -212,7 +214,11 @@ namespace Core.Kernel.Beans
         public void SetActive(bool isActive)
         {
             if (this.m_gobj)
+            {
                 this.m_gobj.SetActive(isActive);
+                if(!this.m_isHasMonoLife)
+                    this.m_isHasMonoLife = this.m_isActiveInView;
+            }
         }
 
         public void SetGName(string gname)
@@ -281,6 +287,16 @@ namespace Core.Kernel.Beans
             this.m_cfDestroy = null;
             this.On_Destroy(this.m_compGLife);
             return true;
+        }
+
+        public void Destroy4NoLife()
+        {
+            if (this.m_isHasMonoLife)
+            {
+                this.m_isHasMonoLife = false;
+                return;
+            }
+            this.DestroySelf();
         }
 
         public void DonotDestory()
