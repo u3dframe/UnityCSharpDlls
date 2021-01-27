@@ -255,6 +255,22 @@ public class GHelper : Core.Kernel.ObjEx
         return gobj.AddComponent<T>();
     }
 
+    static public void DestroyAllChild(UObject uobj)
+    {
+        Transform trsf = ToTransform(uobj);
+        if (IsNull(trsf)) return;
+        GameObject gobjChild;
+        while (true)
+        {
+            if (trsf.childCount <= 0)
+                break;
+
+            gobjChild = trsf.GetChild(0).gameObject;
+            GameObject.DestroyImmediate(gobjChild);
+        }
+        trsf.DetachChildren();
+    }
+
     /// <summary>
     /// 递归查找子对象
     /// </summary>
