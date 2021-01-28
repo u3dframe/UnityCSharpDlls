@@ -88,9 +88,14 @@ static public class Localization
         return false;
     }
 
+    static public bool IsHasCurr()
+    {
+        return mCurr != null;
+    }
+
     static public bool Exists(string key)
     {
-        return mCurr != null && mCurr.Exists(key);
+        return IsHasCurr() && mCurr.Exists(key);
     }
 
     static public string Get(string key, string tagName = null, bool isCsv = true)

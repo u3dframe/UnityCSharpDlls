@@ -73,7 +73,14 @@ public class GameMgr : GobjLifeListener {
             return;
         this.m_isInitAfterUpload = true;
         GameLanguage.Init();
-        Localization.language = GameLanguage.strCurLanguage;
+        string _lg = GameLanguage.strCurLanguage;
+        Localization.language = _lg;
+        if(!Localization.IsHasCurr())
+        {
+            string _lgD = GameLanguage.strDefLanguage;
+            if (!_lg.Equals(_lgD))
+                Localization.language = _lgD;
+        }
     }
 
 	void Update() {
