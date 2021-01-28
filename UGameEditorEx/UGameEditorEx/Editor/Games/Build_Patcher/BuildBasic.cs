@@ -684,7 +684,7 @@ namespace Core
             return _v;
         }
 
-        static protected void LandscapePlatformSetting(BuildTarget buildTarget, string applicationIdentifier, string bundleVersion, string bundleVersionCode, bool isAddBVer = true)
+        static protected void LandscapePlatformSetting(BuildTarget buildTarget, string applicationIdentifier,ref string bundleVersion,ref string bundleVersionCode, bool isAddBVer = true)
         {
             if (!string.IsNullOrEmpty(applicationIdentifier))
                 PlayerSettings.applicationIdentifier = applicationIdentifier;
@@ -729,6 +729,7 @@ namespace Core
                         cur = pre + 1;
                     // if (isAddBVer && _is_ver && !_pre_ver.StartsWith(bundleVersion))
                     //     cur = 1;
+                    bundleVersionCode = cur.ToString();
                     PlayerSettings.Android.bundleVersionCode = cur;
                     // PlayerSettings.allowFullscreenSwitch = true;
                     break;
@@ -742,7 +743,8 @@ namespace Core
                         cur = pre + 1;
                     // if (isAddBVer && _is_ver && !_pre_ver.StartsWith(bundleVersion))
                     //     cur = 1;
-                    PlayerSettings.iOS.buildNumber = cur.ToString();
+                    bundleVersionCode = cur.ToString();
+                    PlayerSettings.iOS.buildNumber = bundleVersionCode;
                     break;
             }
 
@@ -750,12 +752,13 @@ namespace Core
             {
                 if (_is_ver)
                 {
-                    PlayerSettings.bundleVersion = bundleVersion + "." + cur;
+                    bundleVersion = bundleVersion + "." + cur;
+                    PlayerSettings.bundleVersion = bundleVersion;
                 }
                 else
                 {
-                    string _ver = LeftLast(_pre_ver, ".", true) + cur;
-                    PlayerSettings.bundleVersion = _ver;
+                    bundleVersion = LeftLast(_pre_ver, ".", true) + cur;
+                    PlayerSettings.bundleVersion = bundleVersion;
                 }
             }
         }
