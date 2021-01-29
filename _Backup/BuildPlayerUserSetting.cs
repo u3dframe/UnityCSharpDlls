@@ -27,8 +27,9 @@ namespace Core.Kernel
             PlayerSettings.allowedAutorotateToLandscapeRight = true;
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
-            // PlayerSettings.gpuSkinning = true; // 将 Skinning活动 推送到 GPU
-            // PlayerSettings.MTRendering = true; // 多线程渲染
+            PlayerSettings.MTRendering = true; // 多线程渲染 Multithreaded Rendering
+            PlayerSettings.gpuSkinning = true; // 将 Skinning活动 推送到 GPU  Compute SKinning
+            PlayerSettings.stripUnusedMeshComponents = true; // optimize mesh data
             ScriptingImplementation scripting = ScriptingImplementation.IL2CPP;
             // EditorUserBuildSettings.activeBuildTarget
             switch (buildTarget)
@@ -54,6 +55,7 @@ namespace Core.Kernel
                         cur = pre + 1;
                     // if (isAddBVer && _is_ver && !_pre_ver.StartsWith(bundleVersion))
                     //     cur = 1;
+                    bundleVersionCode = cur.ToString();
                     PlayerSettings.Android.bundleVersionCode = cur;
                     // PlayerSettings.allowFullscreenSwitch = true;
                     break;
@@ -67,7 +69,8 @@ namespace Core.Kernel
                         cur = pre + 1;
                     // if (isAddBVer && _is_ver && !_pre_ver.StartsWith(bundleVersion))
                     //     cur = 1;
-                    PlayerSettings.iOS.buildNumber = cur.ToString();
+                    bundleVersionCode = cur.ToString();
+                    PlayerSettings.iOS.buildNumber = bundleVersionCode;
                     break;
             }
 
@@ -75,12 +78,13 @@ namespace Core.Kernel
             {
                 if (_is_ver)
                 {
-                    PlayerSettings.bundleVersion = bundleVersion + "." + cur;
+                    bundleVersion = bundleVersion + "." + cur;
+                    PlayerSettings.bundleVersion = bundleVersion;
                 }
                 else
                 {
-                    string _ver = UGameFile.LeftLast(_pre_ver, ".", true) + cur;
-                    PlayerSettings.bundleVersion = _ver;
+                    bundleVersion = LeftLast(_pre_ver, ".", true) + cur;
+                    PlayerSettings.bundleVersion = bundleVersion;
                 }
             }
 
@@ -88,6 +92,20 @@ namespace Core.Kernel
             EditorUserBuildSettings.development = true;
             EditorUserBuildSettings.connectProfiler = true;
             EditorUserBuildSettings.buildWithDeepProfilingSupport = true; // 深度Profiler
+			
+			/*
+			// 或者
+			BuildOptions option = BuildOptions.None;
+			bool development = true;
+			EditorUserBuildSettings.development = development;
+			if(development) {
+				option |= BuildOptions.Development;
+				option |= BuildOptions.ConnectWithProfiler;
+				option |= BuildOptions.EnableDeepProfilingSupport;
+				option |= BuildOptions.AllowDebugging;
+			}
+			option |= BuildOptions.CompressWithLz4;
+			*/
         }
         
     }
