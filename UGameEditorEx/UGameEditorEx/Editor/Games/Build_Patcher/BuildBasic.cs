@@ -702,8 +702,9 @@ namespace Core
             PlayerSettings.allowedAutorotateToLandscapeRight = true;
             PlayerSettings.allowedAutorotateToPortrait = false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
-            // PlayerSettings.gpuSkinning = true; // 将 Skinning活动 推送到 GPU
-            // PlayerSettings.MTRendering = true; // 多线程渲染
+            PlayerSettings.MTRendering = true; // 多线程渲染 Multithreaded Rendering
+            PlayerSettings.gpuSkinning = true; // 将 Skinning活动 推送到 GPU  Compute SKinning
+            PlayerSettings.stripUnusedMeshComponents = true; // optimize mesh data
             ScriptingImplementation scripting = ScriptingImplementation.IL2CPP;
             // EditorUserBuildSettings.activeBuildTarget
             switch (buildTarget)
