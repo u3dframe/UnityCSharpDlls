@@ -118,17 +118,7 @@ public class UGUIModel : PrefabBasic
         {
             if (m_isUseRTFmt)
             {
-                RenderTextureFormat rtFmt = RenderTextureFormat.Default;
-                if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RGB565))
-                    rtFmt = RenderTextureFormat.RGB565;
-                else if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGB4444))
-                    rtFmt = RenderTextureFormat.ARGB4444;
-                else if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGB32))
-                    rtFmt = RenderTextureFormat.ARGB32;
-                else if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBHalf))
-                    rtFmt = RenderTextureFormat.ARGBHalf;
-                else if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RG16))
-                    rtFmt = RenderTextureFormat.RG16;
+                RenderTextureFormat rtFmt = UtilityHelper.GetRTexFmt(RenderTextureFormat.Default);
                 this._rtTarget = new RenderTexture(this.m_rtWidth, this.m_rtHeight, this.m_rtdepth, rtFmt);
             }
             else
