@@ -175,11 +175,20 @@ namespace Core.Kernel
             this.m_auds.Play();
         }
 
+        void _Pause()
+        {
+            if (this.m_vper == null || this.m_playState == 2)
+                return;
+            this.m_playState = 2;
+            this.m_vper.Pause();
+            this.m_auds.Pause();
+        }
+
         void _Stop()
         {
             if (this.m_vper == null || !this.m_vper.isPlaying)
                 return;
-            this.m_playState = 2;
+            this.m_playState = 3;
             this.m_vper.Stop();
             this.m_auds.Stop();
         }
@@ -223,7 +232,9 @@ namespace Core.Kernel
         void _OnFrameReady(VideoPlayer source, long frameIdx)
         {
             this._ReCFFrameReady(false);
-            this.m_vper.Pause();
+            this._Pause();
+            CancelInvoke("_Play");
+            Invoke("_Play", 0.01f);
         }
 
         void _ExcCF_End()
