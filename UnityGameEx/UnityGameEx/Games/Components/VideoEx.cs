@@ -203,8 +203,10 @@ namespace Core.Kernel
 
         void _ExcCF_Ready()
         {
-            if (null != this.m_cfVdoOnReady)
-                this.m_cfVdoOnReady();
+            Action _cf = this.m_cfVdoOnReady;
+            this.m_cfVdoOnReady = null;
+            if (null != _cf)
+                _cf();
         }
 
         void _OnReachedEnd(VideoPlayer videoPlayer)
@@ -239,8 +241,10 @@ namespace Core.Kernel
 
         void _ExcCF_End()
         {
-            if (null != this.m_cfVdoOnEnd)
-                this.m_cfVdoOnEnd();
+            Action _cf = this.m_cfVdoOnEnd;
+            this.m_cfVdoOnEnd = null;
+            if (null != _cf)
+                _cf();
         }
 
         void _OnErrorReceived(VideoPlayer source, string message)
