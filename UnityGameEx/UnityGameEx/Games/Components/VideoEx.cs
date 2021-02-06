@@ -95,15 +95,25 @@ namespace Core.Kernel
         public Action m_cfVdoOnReady = null;
         public Action m_cfVdoOnEnd = null;
 
+        private UnityEngine.UI.RawImage m_rawImg = null;
+
         override protected void OnCall4Destroy()
         {
             CancelInvoke();
+            this._Stop();
+
+            if (null != this.m_vper)
+                this.m_vper.targetTexture = null;
+            if (null != this.m_rawImg)
+                this.m_rawImg.texture = null;
 
             this.m_cfVdoOnEnd = null;
             this.m_cfVdoOnEnd = null;
 
             RenderTexture _rt = this.m_rtex;
             this.m_rtex = null;
+            base.OnCall4Destroy();
+
             if(null != _rt)
             {
                 if (RenderTexture.active == _rt)
@@ -111,10 +121,8 @@ namespace Core.Kernel
 
                 _rt.Release();
                 // error : Destroying object "TempBuffer 682 1920x1080" is not allowed at this time.
-                // GameObject.DestroyImmediate(_rt);
+                GameObject.DestroyImmediate(_rt);
             }
-
-            base.OnCall4Destroy();
         }
 
         public bool Init(string fp, Action callReady, Action callEnd)
@@ -281,7 +289,9 @@ namespace Core.Kernel
         {
             if (!rmg || !this.Init(fp, callReady, callEnd))
                 return;
-
+            if (null != this.m_rawImg && rmg != this.m_rawImg)
+                this.m_rawImg.texture = null;
+            this.m_rawImg = rmg;
             rmg.texture = this.m_rtex;
             this.m_vper.url = this.m_fpReal;
             this._ReCFFrameReady(true);
