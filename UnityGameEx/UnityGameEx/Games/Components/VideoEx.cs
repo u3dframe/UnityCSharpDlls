@@ -101,7 +101,7 @@ namespace Core.Kernel
 
             this.m_cfVdoOnEnd = null;
             this.m_cfVdoOnEnd = null;
-            
+
             RenderTexture _rt = this.m_rtex;
             this.m_rtex = null;
             if(null != _rt)
@@ -109,7 +109,9 @@ namespace Core.Kernel
                 if (RenderTexture.active == _rt)
                     RenderTexture.active = null;
 
-                GameObject.DestroyImmediate(_rt);
+                _rt.Release();
+                // error : Destroying object "TempBuffer 682 1920x1080" is not allowed at this time.
+                // GameObject.DestroyImmediate(_rt);
             }
 
             base.OnCall4Destroy();
@@ -141,6 +143,7 @@ namespace Core.Kernel
 
             this.m_rtFmt = UtilityHelper.GetRTexFmt(this.m_rtFmt);
             this.m_rtex = RenderTexture.GetTemporary(Screen.width, Screen.height, 0, this.m_rtFmt);
+            this.m_rtex.hideFlags = HideFlags.HideAndDontSave;
 
             this.m_vper = this.m_gobj.GetComponentInChildren<VideoPlayer>(true);
             if (null == this.m_vper)
