@@ -7,10 +7,10 @@ public enum LookType
 }
 
 /// <summary>
-/// ÀàÃû : Æ½»¬³¯ÏòÕß
-/// ×÷Õß : Canyon / ¹¨Ñô»Ô
-/// ÈÕÆÚ : 2015-05-11 09:29
-/// ¹¦ÄÜ : 
+/// ç±»å : å¹³æ»‘æœå‘è€…
+/// ä½œè€… : Canyon / é¾šé˜³è¾‰
+/// æ—¥æœŸ : 2015-05-11 09:29
+/// åŠŸèƒ½ : 
 /// </summary>
 public class SmoothLookAt : MonoBehaviour
 {
