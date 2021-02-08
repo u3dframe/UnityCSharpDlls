@@ -99,6 +99,12 @@ public class InputBaseMgr : GobjLifeListener {
 	public DF_InpVec2 m_lfSlide = null; // 滑动
 	public DF_InpRayHit m_lfRayHit = null; // 单击到物体
 
+    [SerializeField] float _noOpsTime = 0;
+    public int m_fpsFrameRate { get; set; }
+    protected bool m_isOpt { get; set; }
+    [Range(0.1f,0.5f)] public float m_noOpsFpsRate = 0.2f;
+    public float m_noOpsLmtSec = 5 * 60;
+
 	private LayerMask _lay_mask = 1 << 0 | 1 << 1 | 1 << 4;
 	
 	float maxDistance = 0;
@@ -134,21 +140,52 @@ public class InputBaseMgr : GobjLifeListener {
 	}
 	
     virtual protected void Update () {
+        _OnUpdating();
+        _OnUpdatingOpt();
+    }
+
+    void _OnUpdatingOpt()
+    {
+        if (m_fpsFrameRate <= 0)
+            m_fpsFrameRate = Application.targetFrameRate;
+
+        if(m_isOpt)
+        {
+            _noOpsTime = 0f;
+            Application.targetFrameRate = m_fpsFrameRate;
+            return;
+        }
+
+        _noOpsTime += Time.deltaTime;
+        if(_noOpsTime >= this.m_noOpsLmtSec)
+        {
+            _noOpsTime -= this.m_noOpsLmtSec;
+            int _fps = Mathf.CeilToInt(m_fpsFrameRate * m_noOpsFpsRate);
+            _fps = Mathf.Max(_fps, 3);
+            Application.targetFrameRate = _fps;
+        }
+    }
+
+    void _OnUpdating()
+    {
+        m_isOpt = false;
+        if (!m_isRunning)
+            return;
 #if UNITY_EDITOR
 		OnUpdate();
 #endif
-        if ( !m_isRunning )
+        m_isOpt = IsClickInUI;
+        if (!m_isOpt)
             return;
-		
-		if ( !IsClickInUI ){
-            return;
-		}
-		
-		if(Input.touchSupported){
-			_OnUpdateTouch();
-		}else{
-			_OnUpdateMouse();
-		}
+
+        if (Input.touchSupported)
+        {
+            _OnUpdateTouch();
+        }
+        else
+        {
+            _OnUpdateMouse();
+        }
     }
 
     void FixedUpdate()
@@ -299,7 +336,8 @@ public class InputBaseMgr : GobjLifeListener {
 
     protected void _OnUpdateTouch(){
 		count = Input.touchCount;
-		if(count <= 0) return;
+        m_isOpt = count > 0;
+        if (count <= 0) return;
 		_t1 = Input.GetTouch(0);
 		switch(count){
 			case 1:
@@ -361,10 +399,11 @@ public class InputBaseMgr : GobjLifeListener {
 	}
 
     protected void _OnUpdateMouse(){
-		if (Input.GetMouseButtonDown(0)){
+        if (Input.GetMouseButtonDown(0)){
 			_isClick = true;
 			_isSlide = true;
-			isSingleFinger = true;
+            m_isOpt = true;
+            isSingleFinger = true;
 			_v2T1 = Input.mousePosition;
 		}
 
@@ -379,7 +418,8 @@ public class InputBaseMgr : GobjLifeListener {
 		}
 		
 		if(Input.GetMouseButtonUp(0)){
-			_JugdeClick(Input.mousePosition);
+            m_isOpt = true;
+            _JugdeClick(Input.mousePosition);
 		}
 	}
 

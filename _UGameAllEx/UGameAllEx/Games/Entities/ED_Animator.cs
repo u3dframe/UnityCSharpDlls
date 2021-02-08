@@ -15,10 +15,11 @@ public class ED_Animator : Core.Kernel.Beans.ED_Comp
         return Builder<ED_Animator>(uobj);
     }
 
-    public Animator m_curAni { get; private set; }
+    public Animator m_curAni { get; set; }
     protected AnimationClip[] m_clips = null;
     private Dictionary<string,bool> m_dic = null;
     public string m_nameParent { get{if(this.m_parent) return this.m_parent.name; return "";} }
+    private Core.DF_OnInt _m_cfAnimEvent = null;
     
     public ED_Animator() : base()
     {
@@ -48,6 +49,7 @@ public class ED_Animator : Core.Kernel.Beans.ED_Comp
     {
         this.m_curAni = null;
         this.m_dic = null;
+        this._m_cfAnimEvent = null;
         this.CleanAllEvent(true);
 
         base.On_Destroy(obj);
@@ -137,17 +139,72 @@ public class ED_Animator : Core.Kernel.Beans.ED_Comp
         this.m_curAni.Rebind();
     }
 
-    public void PlayAnimator(string stateName,bool isOrder,float speed,int unique,Action callFinished)
+    public void AddAnimationEvent(string clipName,float normarl,int pval)
+    {
+        this.AddAnimationEvent(clipName,normarl,"OnCallAnimEvent",pval);
+    }
+
+    public void RmvAnimationEvent(string clipName)
+    {
+        if(UtilityHelper.IsNullOrEmpty(this.m_clips) || string.IsNullOrEmpty(clipName))
+            return;
+
+        bool _isHasKey = false;
+        if(this.m_dic != null)
+        {
+            List<string> _keys = new List<string>(this.m_dic.Keys);
+            string _key =  null;
+            for (int i = 0; i < _keys.Count; i++)
+            {
+                _key = _keys[i];
+                if(_key.Contains(clipName))
+                {
+                    this.m_dic.Remove(_key);
+                    _isHasKey = true;
+                }
+            }
+        }
+
+        if(!_isHasKey)
+            return;
+        
+        AnimationClip[] _clips = this.m_clips;
+        AnimationClip _clip = null;
+        for (int i = 0; i < _clips.Length; i++)
+        {
+            _clip = _clips[i];
+            if(_clip == null)
+                continue;
+
+            if (_clip.name.Equals(clipName,StringComparison.OrdinalIgnoreCase))
+            {
+                _clip.events = default;
+            }
+        }
+        this.m_curAni.Rebind();
+    }
+
+    public void RmvAllRmvAnimationEvent()
+    {
+        if(this.m_dic != null)
+            this.m_dic.Clear();
+        this.CleanAllEvent(false);
+        if(this.m_curAni)
+            this.m_curAni.Rebind();
+    }
+
+    public void PlayAnimator(string stateName,bool isOrder,float speed,int unique,Core.DF_OnInt cfAnimEvent)
     {
         if(UtilityHelper.IsNullOrEmpty(this.m_clips) || string.IsNullOrEmpty(stateName))
             return;
         
-        this.AddAnimationEvent(stateName,1f,"OnCallAnimEnd",unique);
-        this.m_compGLife.InitAnimEnd(unique,callFinished,true);
+        _m_cfAnimEvent = cfAnimEvent;
+        this.AddAnimationEvent(stateName,1f,unique);
+        this.m_compGLife.ReCFAnimEvent(_OnCallAnimEvent,true);
         if(!isOrder)
             this.m_curAni.StartPlayback();
         this.m_curAni.speed = (isOrder ? 1 : -1) * speed;
-        this.m_curAni.Play(stateName,0,isOrder ? 0 : 1);
+        this.m_curAni.Play(stateName,-1,isOrder ? 0 : 1);
         // this.m_curAni.StopPlayback();
     }
 
@@ -156,5 +213,11 @@ public class ED_Animator : Core.Kernel.Beans.ED_Comp
         if(!this.m_curAni || !this.m_curAni.isActiveAndEnabled)
             return;
         this.m_curAni.Play("None");
+    }
+
+    void _OnCallAnimEvent(int val)
+    {
+        if(_m_cfAnimEvent != null)
+            _m_cfAnimEvent(val);
     }
 }

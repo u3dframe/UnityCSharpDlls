@@ -98,8 +98,7 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
     protected Action m_callHide = null; // 隐藏
     protected event Core.DF_OnNotifyDestry m_onDestroy = null; // 销毁
 
-    public int m_anim_unique { get; private set; }
-    protected Action m_callAnimEnd = null;
+    protected Core.DF_OnInt m_cfAnimEvent = null;
 
     void Awake()
     {
@@ -157,6 +156,7 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         this.m_callStart = null;
         this.m_callShow = null;
         this.m_callHide = null;
+        this.m_cfAnimEvent = null;
         this._m_gobj = null;
         this._m_trsf = null;
         this._gobjID = 0;
@@ -264,29 +264,22 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         this.m_trsf.Translate(x, y, z, Space.World);
     }
 
-    public void InitAnimEnd(int end_unique, Action callEnd, bool isBind)
-    {
-        this.m_anim_unique = end_unique;
-        this.m_callAnimEnd = null;
-        this.ReCallAnimEnd(callEnd, isBind);
-    }
-
-    public void ReCallAnimEnd(Action callEnd, bool isBind)
+    public void ReCFAnimEvent(Core.DF_OnInt callEnd, bool isBind)
     {
         if (callEnd == null)
+        {
+            this.m_cfAnimEvent = null;
             return;
+        }
 
-        this.m_callAnimEnd -= callEnd;
+        this.m_cfAnimEvent -= callEnd;
         if (isBind)
-            this.m_callAnimEnd += callEnd;
+            this.m_cfAnimEvent += callEnd;
     }
 
-    protected void OnCallAnimEnd(int unique)
+    protected void OnCallAnimEvent(int unique)
     {
-        if (this.m_anim_unique != unique)
-            return;
-
-        if (this.m_callAnimEnd != null)
-            this.m_callAnimEnd();
+        if (this.m_cfAnimEvent != null)
+            this.m_cfAnimEvent(unique);
     }
 }

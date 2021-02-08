@@ -255,6 +255,22 @@ public class GHelper : Core.Kernel.ObjEx
         return gobj.AddComponent<T>();
     }
 
+    static public void DestroyAllChild(UObject uobj)
+    {
+        Transform trsf = ToTransform(uobj);
+        if (IsNull(trsf)) return;
+        GameObject gobjChild;
+        while (true)
+        {
+            if (trsf.childCount <= 0)
+                break;
+
+            gobjChild = trsf.GetChild(0).gameObject;
+            GameObject.DestroyImmediate(gobjChild);
+        }
+        trsf.DetachChildren();
+    }
+
     /// <summary>
     /// 递归查找子对象
     /// </summary>
@@ -472,6 +488,24 @@ public class GHelper : Core.Kernel.ObjEx
         var v2 = _r.rect.size;
         w = v2.x;
         h = v2.y;
+    }
+
+    static public void SetRectSize(UObject uobj,float w,float h)
+    {
+        RectTransform _r = ToRectTransform(uobj);
+        if (IsNull(_r)) return;
+        Vector2 v2 = _r.rect.size;
+        Vector2 v2n = new Vector2(w, h);
+        Vector2 deltaSize = v2n - v2;
+        _r.offsetMin = _r.offsetMin - new Vector2(deltaSize.x * _r.pivot.x, deltaSize.y * _r.pivot.y);
+        _r.offsetMax = _r.offsetMax + new Vector2(deltaSize.x * (1f - _r.pivot.x), deltaSize.y * (1f - _r.pivot.y));
+    }
+
+    static public void SetSizeDelta(UObject uobj, float w, float h)
+    {
+        RectTransform _r = ToRectTransform(uobj);
+        if (IsNull(_r)) return;
+        _r.sizeDelta = new Vector2(w, h);
     }
 
     // Relative 相对

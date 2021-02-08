@@ -23,7 +23,7 @@ public class AudioData
     private string m_assetName = null;
 
     public float m_timeDuration { get; private set; }
-    public DF_ToLoadAdo m_cfLoad = null;
+    public DF_ToLoadAdoClip m_cfLoad = null;
 
     private AudioData() { }
     private AudioData(GameObject gobj, bool isNew, bool isMusic, float volume, bool playOnAwake)

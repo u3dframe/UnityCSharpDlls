@@ -56,13 +56,12 @@ public class ED_UIImg : ED_Animator
         base.On_Destroy(obj);
     }
 
-    void OnUnLoadAsset()
+    public void OnUnLoadAsset()
     {
         AssetInfo _asset = this.m_asset;
         this.m_asset = null;
-        if(_asset != null){
+        if(_asset != null)
             _asset.UnLoadAsset();
-        }
     }
 
     public string ReAtals(int nType,string sAtals)
@@ -118,12 +117,9 @@ public class ED_UIImg : ED_Animator
             bool isSameAB = this.m_sAtals.Equals(sAtals);
             bool isSameAsset = this.m_sImg.Equals(sImg);
             if(isSameAB && isSameAsset)
-            {
                 return;
-            }
-
-            this.OnUnLoadAsset();
         }
+        this.OnUnLoadAsset();
         this.m_sAtals = sAtals;
         this.m_sImg = sImg;
         this.m_asset = ResourceManager.LoadSprite(sAtals,sImg,_OnLoadSprite);
@@ -135,7 +131,10 @@ public class ED_UIImg : ED_Animator
             return;
         if(!sprite)
         {
-            Debug.LogErrorFormat( "=== ED_UIImg Load Err ,sAtals = [{0}] , sImg = [{1}]" , this.m_sAtals,this.m_sImg );
+            if(this.m_asset != null)
+                Debug.LogErrorFormat( "=== ED_UIImg Load Err , {0} \n{1}",this.m_asset,this.m_asset.GetAssetBundleInfo() );
+            else
+                Debug.LogErrorFormat( "=== ED_UIImg Load Err ,sAtals = [{0}] , sImg = [{1}]" , this.m_sAtals,this.m_sImg );
             return;
         }
         

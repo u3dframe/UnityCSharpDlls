@@ -84,7 +84,10 @@ namespace Core
 			InitFdRoot(m_resFdRoot);
 			if(Application.isPlaying){
 				GameEntranceEx.Entrance(_OnCFError);
-				LogToNetHelper.shareInstance.Init("http://push.dianyue.com/","client_log");
+				string _url_push_log;
+				_url_push_log =  "http://push.dianyue.com/";
+				// _url_push_log =  "http://140.143.15.163:8085/";
+				LogToNetHelper.shareInstance.Init(_url_push_log,"client_log");
 			}
 
 			CfgPackage.InitPackage(()=>{
@@ -128,7 +131,7 @@ namespace Core
         }
 
         static public bool IsTextInCT(string fn){
-			return fn.EndsWith(".csv") || fn.EndsWith(".minfo") || fn.IndexOf("protos/") != -1;
+			return fn.EndsWith(".csv") || fn.EndsWith(".minfo") || fn.IndexOf("protos/") != -1 || fn.IndexOf("movies/") != -1;
 		}
 
 		static public bool IsUpdateUIRes (string resName)

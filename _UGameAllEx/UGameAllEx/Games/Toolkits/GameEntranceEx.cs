@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Core;
+using Core.Kernel;
 
 /// <summary>
 /// 类名 : 游戏入口扩展
@@ -28,7 +29,7 @@ public static class GameEntranceEx{
     {
         GHelper.Is_App_Quit = false;
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = (UGameFile.m_isEditor || UGameFile.m_isIOS) ? 60 : 30;
         Application.runInBackground = true;
         
         Application.logMessageReceivedThreaded -= _HandleLog;

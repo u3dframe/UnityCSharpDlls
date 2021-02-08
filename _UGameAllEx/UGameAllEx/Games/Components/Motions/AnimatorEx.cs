@@ -263,14 +263,10 @@ public class AnimatorEx : PrefabBasic
 		this.SetAction(aState);
 	}
 
-	public void PlayAction(string stateName,int layer,float normalizedTime){
+	public void PlayAction(string stateName,float normalizedTime = 0, int layer = -1)
+    {
 		if(this.m_animator == null) return;
 		this.m_animator.Update(0);
 		this.m_animator.Play(stateName,layer,normalizedTime);
-	}
-
-	public void StartAction(string stateName){
-		if(this.m_animator == null) return;
-		PlayAction(stateName,0,0);
 	}
 }

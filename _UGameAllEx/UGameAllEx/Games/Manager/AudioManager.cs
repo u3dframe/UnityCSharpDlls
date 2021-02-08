@@ -36,9 +36,9 @@ public class AudioManager : GobjLifeListener
 
     ListDict<AudioData> m_data = new ListDict<AudioData>(false);
 
-    private DF_ToLoadAdo m_cfLoad = null;
+    private DF_ToLoadAdoClip m_cfLoad = null;
 
-    public void Init(DF_ToLoadAdo cfLoad)
+    public void Init(DF_ToLoadAdoClip cfLoad)
     {
         this.m_cfLoad = cfLoad;
         this.m_musicData = AudioData.Builder(this.m_gobj, false, true, this.m_volumeMusic);

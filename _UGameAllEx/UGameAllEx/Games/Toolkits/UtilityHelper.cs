@@ -10,6 +10,27 @@ using UObject = UnityEngine.Object;
 /// </summary>
 public class UtilityHelper : GHelper
 {
+    static public RenderTextureFormat GetRTexFmt(RenderTextureFormat src)
+    {
+        if (src != RenderTextureFormat.Default && SystemInfo.SupportsRenderTextureFormat(src))
+            return src;
+        if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.RGB565))
+            src = RenderTextureFormat.RGB565;
+        else if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGB4444))
+            src = RenderTextureFormat.ARGB4444;
+        else if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGB32))
+            src = RenderTextureFormat.ARGB32;
+        else if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBHalf))
+            src = RenderTextureFormat.ARGBHalf;
+        else if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBFloat))
+            src = RenderTextureFormat.ARGBFloat;
+        else if (SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.Depth))
+            src = RenderTextureFormat.Depth;
+        else
+            src = RenderTextureFormat.Default;
+        return src;
+    }
+
     static public Vector2 ScreenPointToLocalPointInRectangleBy(GameObject parent, Camera uiCamera, Vector2 screenPoint)
     {
         Vector2 _v2 = Vector2.zero;

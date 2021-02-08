@@ -39,13 +39,13 @@ public class UGUIEventListener : EventTrigger
         Drop,
     }
 
-    protected event DF_UGUIV2Bool onMouseEnter;
-    protected event DF_UGUIPos onClick;
-    protected event DF_UGUIPos onBegDrag;
-    protected event DF_UGUI2V2 onDraging;
-    protected event DF_UGUIPos onEndDrag;
-    protected event DF_UGUIPos onDrop;
-    protected event DF_UGUIV2Bool onPress;
+    public event DF_UGUIV2Bool onMouseEnter;
+    public event DF_UGUIPos onClick;
+    public event DF_UGUIPos onBegDrag;
+    public event DF_UGUI2V2 onDraging;
+    public event DF_UGUIPos onEndDrag;
+    public event DF_UGUIPos onDrop;
+    public event DF_UGUIV2Bool onPress;
 
     private Vector2 v2Start;
     bool _isPressed = false, _isCanClick = false;

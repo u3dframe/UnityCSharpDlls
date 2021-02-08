@@ -26,6 +26,7 @@ namespace Core.Kernel
         static public readonly System.Type tpSVC = typeof(ShaderVariantCollection);
         static public readonly System.Type tpTimeline = typeof(UnityEngine.Timeline.TimelineAsset);
         static public readonly System.Type tpSctObj = typeof(ScriptableObject);
+        static public readonly System.Type tpVdoClip = typeof(UnityEngine.Video.VideoClip);
 
         static public readonly string m_strFnt = ".ab_fnt";
         static public readonly string m_strShader = ".ab_shader";
@@ -41,6 +42,7 @@ namespace Core.Kernel
         static public readonly string m_strMat = ".ab_mat";
         static public readonly string m_strLightmap = ".ab_lms";
         static public readonly string m_strScriptable = ".ab_sct";
+        static public readonly string m_strVdoClip = ".vdo";
 
         static public readonly string m_suffix_png = ".png";
         static public readonly string m_suffix_fab = ".prefab";
@@ -164,6 +166,13 @@ namespace Core.Kernel
             if (string.IsNullOrEmpty(abName))
                 return false;
             return abName.EndsWith(m_strScriptable);
+        }
+
+        static public bool IsVdoClipAB(string abName)
+        {
+            if (string.IsNullOrEmpty(abName))
+                return false;
+            return abName.EndsWith(m_strVdoClip);
         }
     }
 }

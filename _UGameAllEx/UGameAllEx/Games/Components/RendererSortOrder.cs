@@ -54,6 +54,8 @@ public class RendererSortOrder : GobjLifeListener
         {
             foreach (RendererMatData item in m_dicAllMats.Values)
             {
+                if (item == null)
+                    continue;
                 item.ClearAll();
             }
         }
@@ -269,14 +271,9 @@ public class RendererSortOrder : GobjLifeListener
         if (!isCan || rer == null || this.m_val_queue == 0) return;
         int _r_o_id = rer.GetInstanceID();
         RendererMatData rmData = null;
-        if (this.m_dicAllMats.ContainsKey(_r_o_id))
-        {
-            rmData = this.m_dicAllMats[_r_o_id];
-        }
+        this.m_dicAllMats.TryGetValue(_r_o_id, out rmData);
         if (rmData == null)
-        {
             return;
-        }
 
         List<Material> _list = rmData.m_allMats;
         int _len_ = _list.Count;

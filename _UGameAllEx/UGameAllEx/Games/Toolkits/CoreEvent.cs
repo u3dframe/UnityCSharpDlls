@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Timeline;
-using System;
+using UnityEngine.Video;
 /// <summary>
 /// 类名 : 定义 通用的 代理事件
 /// 作者 : Canyon / 龚阳辉
@@ -23,12 +23,17 @@ namespace Core
     public delegate void DF_LoadedMaterial(Material mat);
     public delegate void DF_LoadedShader(Shader mat);
 
-    public delegate void DF_LoadedAudioClip(AudioClip clip);
-    public delegate void DF_ToLoadAdo(string abName, string assetName, DF_LoadedAudioClip clip);
+    public delegate void DF_LoadedAdoClip(AudioClip clip);
+    public delegate void DF_ToLoadAdoClip(string abName, string assetName,DF_LoadedAdoClip clip);
+
+    public delegate void DF_LoadedVdoClip(VideoClip clip);
+    public delegate void DF_ToLoadVdoClip(string abName, string assetName, DF_LoadedVdoClip clip);
 
     public delegate void DF_LoadedTimelineAsset(TimelineAsset pa);
     public delegate void DF_OnBool(bool isBl);
-    public delegate void DF_OnStr(string msg);
+    public delegate void DF_OnInt(int val);
+    public delegate void DF_OnFloat(float val);
+    public delegate void DF_OnStr(string val);
     public delegate void DF_OnUpdate(float dt,float unscaledDt);
     public delegate void DF_CurrMax(double curr,double max);
     public delegate void DF_OnState(int state,int preState);

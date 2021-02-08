@@ -8,18 +8,21 @@ using System;
 public class TimelineUtil : ED_Animator
 {
     public PrefabElement m_csEle { get; private set; } // 当前对象
-    public PlayableDirector m_director { get; private set; }                                  // 当前组件（物体上的播放组件）
-    public PlayableAsset m_defAsset { get; private set; }                                        // 资源（编辑的playable文件）
-    public PlayableAsset m_asset { get; private set; }                                        // 资源（编辑的playable文件）
+    public PlayableDirector m_director { get; private set; } // 当前组件（物体上的播放组件）,  duration 第一个持续时间
+    public PlayableAsset m_defAsset { get; private set; } // 默认prefab上面的资源
+    public PlayableAsset m_asset { get; private set; } // 当前资源
     private Dictionary<string, PlayableBinding> bindings;                // PlayableAsset下的所有binding
     private Dictionary<string, Dictionary<string, PlayableAsset>> clips; // binding里的所有clip
 
     public PostProcessLayer m_pLayer{ get;private set; }
     public Transform caster { get; private set; }
     //结束
-    float currDurationTime;    //当前播放时间
-    float timelineDurationTime;//总时间
+    public float m_curTime { get; private set; }   //当前播放时间
+    public float m_allTime { get; private set; }   //总时间
+    public float m_defAllTime { get; private set; }   //总时间
     Action overCallback;
+
+    private List<GameObject> m_newGos = new List<GameObject>();
 
 
     public TimelineUtil() : base()
@@ -37,23 +40,54 @@ public class TimelineUtil : ED_Animator
         m_director = UtilityHelper.GetOrAddPlayableDirector(this.m_gobj);
         if(m_director != null)
             m_defAsset = this.m_director.playableAsset;
-        PrefabElement csEle = this.m_comp as PrefabElement;
-        if (!csEle)
+        m_csEle = this.m_comp as PrefabElement;
+        if (!m_csEle)
             return;
-        m_csEle = csEle;
-        caster = csEle.GetTrsfElement("Caster");
-        m_pLayer = csEle.GetComponent4Element<PostProcessLayer>("Camera");
+        caster = m_csEle.GetTrsfElement("Caster");
+        m_pLayer = m_csEle.GetComponent4Element<PostProcessLayer>("Camera");
         
-        this.SetPosition(0,10000,0);
         this.InitTagets(10);
         this.InitPAsset(m_defAsset);
     }
 
-    public void Init(Action callback,PlayableAsset curAsset = null)
+    public void Init(Action callback,float allTime = 0,PlayableAsset curAsset = null)
     {
+        StopUpdate();
+        m_curTime = 0;
+        if(!this.m_gobj)
+        {
+            Debug.LogError("=== TLU Err,gobj is Null");
+            return;
+        }
+        this.SetPosition(0,10000,0);
+
         //初始数据保存
         this.overCallback = callback;
         InitPAsset(curAsset);
+        this.m_allTime = allTime > 0 ? allTime : this.m_defAllTime;
+        // Debug.LogErrorFormat("=== allTime = [{0}] , m_allTime = [{1}] , defTime = [{2}] , gobj = [{3}]",allTime,this.m_allTime,this.m_defAllTime,this.m_gobj);
+    }
+
+    override protected void On_Destroy(GobjLifeListener obj)
+    {
+        Dispose();
+        m_newGos.Clear();
+        base.On_Destroy(obj);
+    }
+
+    override protected void On_Hide()
+    {
+        List<GameObject> _list = new List<GameObject>(m_newGos);
+        m_newGos.Clear();
+        GameObject _gobj = null;
+        for (int i = 0; i < _list.Count; i++)
+        {
+            _gobj = _list[i];
+            if(!_gobj)
+                continue;
+            GameObject.DestroyImmediate(_gobj);
+        }
+        base.On_Hide();
     }
 
     void InitPAsset(PlayableAsset curAsset)
@@ -101,30 +135,31 @@ public class TimelineUtil : ED_Animator
                     _dic.Add(c.displayName, c.asset as PlayableAsset);
             }
         }
+        
+        m_defAllTime = (this.m_asset != null) ? (float)this.m_asset.duration : 0;
+    }
+
+    public bool IsHasTrack(string trackName)
+    {
+        return bindings != null && !string.IsNullOrEmpty(trackName) && bindings.ContainsKey(trackName);
     }
 
     // 动画和模型进行绑定
     public void SetBinding(string trackName, UnityEngine.Object o)
     {
-        if (o != null && bindings.ContainsKey(trackName))
+        if (o != null && IsHasTrack(trackName))
         {
             UtilityHelper.Get<Animator>(o,true);
             m_director.SetGenericBinding(bindings[trackName].sourceObject, o);
         }
     }
 
-    public bool CanBinding(string trackName)
-    {
-        return bindings.ContainsKey(trackName);
-    }
-
+    
     // 获得动画轨道
     public T GetTrack<T>(string trackName) where T : TrackAsset
     {
-        if (bindings.ContainsKey(trackName))
-        {
+        if (IsHasTrack(trackName))
             return bindings[trackName].sourceObject as T;
-        }
         return null;
     }
 
@@ -179,12 +214,14 @@ public class TimelineUtil : ED_Animator
     // 播放动画
     public void Play()
     {
+        m_curTime = 0;
         m_director.Play();
-        PlayBegin(m_director);
+        this.StartUpdate();
     }
 
     public void Pause()
     {
+        this.StopUpdate();
         m_director.Pause();
     }
 
@@ -195,6 +232,7 @@ public class TimelineUtil : ED_Animator
 
     public void Resume()
     {
+        this.StartUpdate();
         m_director.Resume();
     }
 
@@ -211,6 +249,8 @@ public class TimelineUtil : ED_Animator
     // 清空数据,销毁时调用
     public void Dispose()
     {
+        this.StopUpdate();
+        
         m_csEle = null;
         m_director = null;
         m_defAsset = null;
@@ -222,17 +262,13 @@ public class TimelineUtil : ED_Animator
         clips = null;
         bindings = null;
         overCallback = null;
+
+        m_curTime = 0;
+        m_allTime = 0;
+        m_defAllTime = 0;
     }
 
     #region 播放结束计时
-    //播放开始回调
-    private void PlayBegin(PlayableDirector playable)
-    {
-        currDurationTime = 0;
-        timelineDurationTime = (float)m_director.duration;
-        this.StartUpdate();
-    }
-
     //播放结束回调
     private void PlayOver(PlayableDirector playable)
     {
@@ -251,8 +287,8 @@ public class TimelineUtil : ED_Animator
 
     override public void OnUpdate(float dt, float unscaledDt)
     {
-        currDurationTime += dt;
-        if (currDurationTime >= timelineDurationTime)
+        m_curTime += dt;
+        if (m_curTime >= m_allTime)
         {
             this.PlayOver(m_director);
         }
@@ -261,6 +297,7 @@ public class TimelineUtil : ED_Animator
     public GameObject SetCaster(GameObject obj)
     {
         GameObject a = GameObject.Instantiate(obj, caster);
+        m_newGos.Add(a);
         GHelper.SetLayerAll(a, "CG");
         a.transform.localPosition = Vector3.zero;
         a.transform.localRotation = Quaternion.identity;
@@ -292,6 +329,7 @@ public class TimelineUtil : ED_Animator
             return null;
 
         GameObject obj = GameObject.Instantiate(gobj, _trsf);
+        m_newGos.Add(obj);
         GHelper.SetLayerAll(obj, "CG");
         obj.transform.localPosition = Vector3.zero;
         obj.transform.localRotation = Quaternion.identity;
@@ -309,11 +347,5 @@ public class TimelineUtil : ED_Animator
         if (!m_tages.TryGetValue(_name, out _trsf))
             return;
         _trsf.gameObject.SetActive(isActive);
-    }
-
-    override protected void On_Destroy(GobjLifeListener obj)
-    {
-        Dispose();
-        base.On_Destroy(obj);
     }
 }

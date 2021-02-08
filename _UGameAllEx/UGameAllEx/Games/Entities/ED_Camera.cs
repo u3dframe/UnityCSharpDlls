@@ -16,13 +16,19 @@ public class ED_Camera : ED_Animator
 
     static public void GetUILocPos(Camera cmr,UnityEngine.Object src,Camera uiCmr,UnityEngine.Object uiParent,ref float posX,ref float posY)
     {
+        float _x = posX,_y = posY;
+        posX = 0;
+        posY = 0;
         if (null == cmr || null == uiCmr || uiCmr == cmr)
             return;
         Transform _trsf = UtilityHelper.ToTransform( src );
          if (null == _trsf)
             return;
         GameObject _uiDest = UtilityHelper.ToGObj( uiParent );
-        Vector3 _pos = cmr.WorldToScreenPoint(_trsf.position);
+        Vector3 _p3 = _trsf.position;
+        if(_x != 0 || _y != 0)
+            _p3 += new Vector3(_x,_y,0);
+        Vector3 _pos = cmr.WorldToScreenPoint(_p3);
         Vector2 _ret = UtilityHelper.ScreenPointToLocalPointInRectangleBy( _uiDest,uiCmr,_pos );
         posX = _ret.x;
         posY = _ret.y;

@@ -31,7 +31,6 @@ public class LoopListView3 : EventTrigger
         private readonly LoopListView3 view;
         private float[] data = null;
         private readonly List<float> worldPos = new List<float>() { 0 };
-        private float initWorldPos = 0;
         private float pivot = 0;
         private float lossyScale = 1;
 
@@ -84,17 +83,17 @@ public class LoopListView3 : EventTrigger
             {
                 var total = Length - (view.viewWorldHigh - view.viewWorldLow);
                 var i = GetNearestContentIndexToCenter();
-                return (initWorldPos - worldPos[i]) / total + pivot;
+                return (view.viewWorldLow - worldPos[i]) / total;
             }
             set
             {
                 var total = Length - (view.viewWorldHigh - view.viewWorldLow);
                 var i = GetNearestContentIndexToCenter();
-                toMove = initWorldPos - (value - pivot) * total - worldPos[i];
+                toMove = view.viewWorldLow - value * total - worldPos[i];
             }
         }
 
-        public void SetNormalizedPosition(float value)
+        public void SetNormalizedPositionImmediately(float value)
         {
             normalizedPosition = value;
             WorldMove(toMove);
@@ -137,7 +136,6 @@ public class LoopListView3 : EventTrigger
                 worldPos[0] = position.x - Length * pivot;
                 lossyScale = view.content.lossyScale.x;
             }
-            initWorldPos = worldPos[0];
             CheckLoop();
         }
 
@@ -158,41 +156,48 @@ public class LoopListView3 : EventTrigger
             var nearestContIndex = GetNearestContentIndexToCenter();
             var contentLow = worldPos[nearestContIndex];
             var contentHigh = contentLow + lenWithoutPadding;
-            var spacing = view.contentSpacing * lossyScale;
-            if (nearestContIndex == worldPos.Count - 1 && contentHigh + spacing < viewWorldHigh)  //在high的一边添加content
+            var interval = view.LoopInterval * lossyScale;
+            if (nearestContIndex == worldPos.Count - 1 && contentHigh + interval < viewWorldHigh)  //在high的一边添加content
             {
-                var n = Mathf.FloorToInt((viewWorldLow - contentHigh) / (lenWithoutPadding + spacing));
-                var pos = contentHigh + spacing;
+                var n = Mathf.FloorToInt((viewWorldLow - contentHigh) / (lenWithoutPadding + interval));
+                var pos = contentHigh + interval;
                 if (n > 0)  //离中心最近的content已完全离开视口超过一个content长度
-                    pos += n * (lenWithoutPadding + spacing);
+                    pos += n * (lenWithoutPadding + interval);
                 if (CheckNewContent(pos))
                 {
-                    worldPos.Insert(nearestContIndex + 1, pos);
-                    pos += lenWithoutPadding + spacing;
-                    if (pos < viewWorldHigh && CheckNewContent(pos))  //最多2个content位于视口内
-                        worldPos.Insert(nearestContIndex + 2, pos);
+                    int index = nearestContIndex;
+                    do
+                    {
+                        worldPos.Insert(++index, pos);
+                        pos += lenWithoutPadding + interval;
+                    }
+                    while (pos < viewWorldHigh && CheckNewContent(pos));
                 }
             }
-            if (nearestContIndex == 0 && contentLow - spacing > viewWorldLow)    //在low的一边添加content
+            if (nearestContIndex == 0 && contentLow - interval > viewWorldLow)    //在low的一边添加content
             {
-                var n = Mathf.FloorToInt((contentLow - viewWorldHigh) / (lenWithoutPadding + spacing));
-                var pos = contentLow - spacing - lenWithoutPadding;
+                var n = Mathf.FloorToInt((contentLow - viewWorldHigh) / (lenWithoutPadding + interval));
+                var pos = contentLow - interval - lenWithoutPadding;
                 if (n > 0)
-                    pos -= n * (lenWithoutPadding + spacing);
+                    pos -= n * (lenWithoutPadding + interval);
                 if (CheckNewContent(pos))
                 {
-                    worldPos.Insert(nearestContIndex, pos);
-                    pos -= spacing;
-                    if (pos > viewWorldLow && CheckNewContent(pos - lenWithoutPadding))
-                        worldPos.Insert(nearestContIndex, pos - lenWithoutPadding);
+                    do
+                    {
+                        worldPos.Insert(nearestContIndex, pos);
+                        pos -= interval + lenWithoutPadding;
+                    }
+                    while (pos + lenWithoutPadding > viewWorldLow && CheckNewContent(pos));
                 }
             }
-            //移除完全在视口之外的content
-            worldPos.RemoveAll(pos => pos > viewWorldHigh || (pos + lenWithoutPadding) < viewWorldLow);
+            //移除完全在视口之外的content，但至少保留一个离中心最近的content
+            var nearestPos = worldPos[GetNearestContentIndexToCenter()];
+            worldPos.RemoveAll(pos => pos != nearestPos && (pos > viewWorldHigh || (pos + lenWithoutPadding) < viewWorldLow));
         }
 
         private int GetNearestContentIndexToCenter()
         {
+            //一般来说content数量不会太多，所以直接遍历
             float minDistance = float.MaxValue;
             int ret = -1;
             var halfLen = LengthWithoutPadding / 2;
@@ -393,7 +398,7 @@ public class LoopListView3 : EventTrigger
 
     protected VirtualContent virtualContent;
 
-    protected Rect viewWorldRect;
+    protected Rect viewWorldRect { get { return WorldRect(viewRect); } }
 
     protected float viewWorldLow
     {
@@ -537,6 +542,17 @@ public class LoopListView3 : EventTrigger
     [SerializeField]
     protected bool allowSameItem = false;
 
+    [SerializeField]
+    protected int loopInterval = -1;
+
+    public int LoopInterval
+    {
+        get
+        {
+            return loopInterval < 0 ? contentSpacing : loopInterval;
+        }
+    }
+
     [Range(0.01f, 1f)]
     [SerializeField]
     protected float distanceMinDelta = 0.01f;
@@ -562,8 +578,15 @@ public class LoopListView3 : EventTrigger
     [SerializeField]
     protected int contentSpacing;
 
+    public enum AnchorType
+    {
+        Center,
+        LowerOrLeft,
+        UpperOrRight,
+    }
+
     [SerializeField]
-    protected TextAnchor contentChildAlignment;
+    protected AnchorType contentChildAlignment = AnchorType.Center;
 
     [SerializeField]
     protected Scrollbar scrollbar;
@@ -748,9 +771,21 @@ public class LoopListView3 : EventTrigger
     //强制滑动到目标索引，期间不能控制滑块
     public void MoveToForcibly(int index)
     {
+        if (isForceMoving && currentIndex == index) return;
         StopMovement();
         currentIndex = index;
         isForceMoving = true;
+    }
+
+    protected float autoSpeed = 0;
+    protected float autoWorldSpeed { get { return autoSpeed * (vertical ? content.lossyScale.y : content.lossyScale.x); } }
+    protected bool ignoreControlOnAutoMoving = false;
+
+    public void StartAutoMovement(float speed, bool ignoreControl = false)
+    {
+        if (movementType != MovementType.Unrestricted) return;
+        autoSpeed = speed;
+        ignoreControlOnAutoMoving = ignoreControl;
     }
 
     public void StopMovement()
@@ -761,6 +796,7 @@ public class LoopListView3 : EventTrigger
             isForceMoving = false;
             currentIndex = virtualContent.CalcLocationIndex();
         }
+        autoSpeed = 0;
         worldDragSpeed = 0;
     }
 
@@ -926,6 +962,7 @@ public class LoopListView3 : EventTrigger
         if (visibleItemIndexList.Count == 0) return;
         ListItem it;
         bool isChanged;
+        float maxSizeNotOnLayoutAxis = float.MinValue;
         for (int x = 0; x < visibleItemIndexList.Count; x++)
         {
             var i = visibleItemIndexList[x];
@@ -953,51 +990,78 @@ public class LoopListView3 : EventTrigger
             if (!it.gameObject.activeSelf)
                 it.gameObject.SetActive(true);
             it.gameObject.transform.SetAsLastSibling();
+            var rt = it.gameObject.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0, 1);
+            rt.anchorMax = new Vector2(0, 1);
+            if (vertical)
+                maxSizeNotOnLayoutAxis = Mathf.Max(maxSizeNotOnLayoutAxis, rt.rect.width * rt.localScale.x);
+            else
+                maxSizeNotOnLayoutAxis = Mathf.Max(maxSizeNotOnLayoutAxis, rt.rect.height * rt.localScale.y);
         }
 
         var si = itemList[0].index;
         var ei = itemList[itemList.Count - 1].index;
-        var initPos = contentInitPosition;
+        var contInitPos = contentInitPosition;
         var contScale = content.lossyScale;
         if (vertical)
         {
-            //开启循环或item不在virtual content边缘时，填充spacing而不是padding
-            int bottom = (!loop && ei == itemCount - 1) ? contentPadding.bottom : contentSpacing;
-            int top = (!loop && si == 0) ? contentPadding.top : contentSpacing;
-            contentLayout.padding.left = contentPadding.left;
-            contentLayout.padding.right = contentPadding.right;
-            contentLayout.padding.top = top;
-            contentLayout.padding.bottom = bottom;
-            //ForceRebuildLayoutImmediate()不起作用，调用了依然没刷新content尺寸，先手动计算
-            //LayoutRebuilder.ForceRebuildLayoutImmediate(content);
-            vl -= bottom * contScale.y;
-            //var contHeight = content.rect.height * contScale.y;
-            float contHeight = (bottom + top + contentSpacing * (itemList.Count - 1));
+            var contentWidth = maxSizeNotOnLayoutAxis + contentPadding.left + contentPadding.right;
+            content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, contentWidth);
+            int bottom = ei == itemCount - 1 ? (loop ? LoopInterval : contentPadding.bottom) : contentSpacing;
+            int top = si == 0 ? (loop ? LoopInterval : contentPadding.top) : contentSpacing;
+            float yPos = -top;
             for (int i = 0; i < itemList.Count; i++)
-                contHeight += itemList[i].gameObject.GetComponent<RectTransform>().rect.height;
-            contHeight *= contScale.y;
-            content.position = new Vector3(initPos.x, vl + contHeight * content.pivot.y, initPos.z);
+            {
+                var rt = itemList[i].gameObject.GetComponent<RectTransform>();
+                var rtWidth = rt.rect.width * rt.localScale.x;
+                var rtHeight = rt.rect.height * rt.localScale.y;
+                float x;
+                if (contentChildAlignment == AnchorType.Center)
+                    x = contentPadding.left + maxSizeNotOnLayoutAxis / 2;
+                else if (contentChildAlignment == AnchorType.LowerOrLeft)
+                    x = rtWidth / 2 + contentPadding.left;
+                else
+                    x = contentWidth - rtWidth / 2 - contentPadding.right;
+                x += rtWidth * (rt.pivot.x - 0.5f);
+                rt.anchoredPosition = new Vector2(x, yPos - rtHeight * (1 - rt.pivot.y));
+                var spacing = (loop && itemList[i].index == itemCount - 1) ? LoopInterval : contentSpacing;
+                yPos -= rtHeight + (i < itemList.Count - 1 ? spacing : bottom);
+            }
+            var contentHeight = -yPos;
+            content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, contentHeight);
+            vl -= bottom * contScale.y;
+            content.position = new Vector3(contInitPos.x, vl + contentHeight * contScale.y * content.pivot.y, contInitPos.z);
         }
         else
         {
-            int left = (!loop && si == 0) ? contentPadding.left : contentSpacing;
-            int right = (!loop && ei == itemCount - 1) ? contentPadding.right : contentSpacing;
-            contentLayout.padding.left = left;
-            contentLayout.padding.right = right;
-            contentLayout.padding.top = contentPadding.top;
-            contentLayout.padding.bottom = contentPadding.bottom;
-            //LayoutRebuilder.ForceRebuildLayoutImmediate(content);
-            vl -= left * contScale.x;
-            //var contWidth = content.rect.width * contScale.x;
-            float contWidth = (left + right + contentSpacing * (itemList.Count - 1));
+            var contentHeight = maxSizeNotOnLayoutAxis + contentPadding.top + contentPadding.bottom;
+            content.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, contentHeight);
+            int right = ei == itemCount - 1 ? (loop ? LoopInterval : contentPadding.right) : contentSpacing;
+            int left = si == 0 ? (loop ? LoopInterval : contentPadding.left) : contentSpacing;
+            float xPos = left;
             for (int i = 0; i < itemList.Count; i++)
-                contWidth += itemList[i].gameObject.GetComponent<RectTransform>().rect.width;
-            contWidth *= contScale.x;
-            content.position = new Vector3(vl + contWidth * content.pivot.x, initPos.y, initPos.z);
+            {
+                var rt = itemList[i].gameObject.GetComponent<RectTransform>();
+                var rtWidth = rt.rect.width * rt.localScale.x;
+                var rtHeight = rt.rect.height * rt.localScale.y;
+                float y;
+                if (contentChildAlignment == AnchorType.Center)
+                    y = -contentPadding.top - maxSizeNotOnLayoutAxis / 2;
+                else if (contentChildAlignment == AnchorType.LowerOrLeft)
+                    y = -contentHeight + rtHeight / 2 + contentPadding.bottom;
+                else
+                    y = -rtHeight / 2 - contentPadding.top;
+                y += rtHeight * (rt.pivot.y - 0.5f);
+                rt.anchoredPosition = new Vector2(xPos + rtWidth * rt.pivot.x, y);
+                var spacing = (loop && itemList[i].index == itemCount - 1) ? LoopInterval : contentSpacing;
+                xPos += rtWidth + (i < itemList.Count - 1 ? spacing : right);
+            }
+            var contentWidth = xPos;
+            content.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, contentWidth);
+            vl -= left * contScale.x;
+            content.position = new Vector3(vl + contentWidth * contScale.x * content.pivot.x, contInitPos.y, contInitPos.z);
         }
     }
-
-    private HorizontalOrVerticalLayoutGroup contentLayout;
 
     protected void Awake()
     {
@@ -1008,42 +1072,12 @@ public class LoopListView3 : EventTrigger
     protected void Start()
     {
         if (!Application.IsPlaying(gameObject)) return;
-        viewWorldRect = WorldRect(viewRect);
+        //viewWorldRect = WorldRect(viewRect);
         for (int i = 0; i < itemPrefabs.Count; i++)
         {
             if (itemPrefabs[i] != null)
                 itemPrefabs[i].SetActive(false);
         }
-
-        //借用LayoutGroup和ContentSizeFitter组件布局
-        if (vertical)
-        {
-            contentLayout = content.gameObject.GetComponent<VerticalLayoutGroup>();
-            if (contentLayout == null)
-                contentLayout = content.gameObject.AddComponent<VerticalLayoutGroup>();
-        }
-        else
-        {
-            contentLayout = content.gameObject.GetComponent<HorizontalLayoutGroup>();
-            if (contentLayout == null)
-                contentLayout = content.gameObject.AddComponent<HorizontalLayoutGroup>();
-        }
-        contentLayout.enabled = true;
-        contentLayout.spacing = contentSpacing;
-        contentLayout.childAlignment = contentChildAlignment;
-        contentLayout.childForceExpandWidth = false;
-        contentLayout.childForceExpandHeight = false;
-        contentLayout.childControlWidth = false;
-        contentLayout.childControlHeight = false;
-        contentLayout.childScaleWidth = true;
-        contentLayout.childScaleHeight = true;
-
-        var sizeFilter = content.gameObject.GetComponent<ContentSizeFitter>();
-        if (sizeFilter == null)
-            sizeFilter = content.gameObject.AddComponent<ContentSizeFitter>();
-        sizeFilter.enabled = true;
-        sizeFilter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-        sizeFilter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
     }
 
     protected static float RubberRate(float overStretching, float viewSize)
@@ -1069,13 +1103,18 @@ public class LoopListView3 : EventTrigger
                 currMovingCompletedIndex = currentIndex;
             }
         }
-        else if (isDragging || !isPointerDown)
+        else if (isDragging || !isPointerDown || autoSpeed != 0)
         {
-            float speed;
+            float speed = 0;
             float elasticSpeed = 0;
             if (movementType == MovementType.Elastic)
                 elasticSpeed = CalcElasticSpeed();
-            if (isDragging)
+            if (autoSpeed != 0 && ignoreControlOnAutoMoving)
+            {
+                speed = autoWorldSpeed;
+                worldDragSpeed = 0;
+            }
+            else if (isDragging)
             {
                 var worldDragVelocity = (currPointerPosition - prevPointerPosition) / deltaTime;
                 var newSpeed = vertical ? worldDragVelocity.y : worldDragVelocity.x;
@@ -1091,7 +1130,12 @@ public class LoopListView3 : EventTrigger
             {
                 speed = virtualContent.toMove / deltaTime;
             }
-            else
+            else if (autoSpeed != 0 && !isPointerDown)
+            {
+                speed = autoWorldSpeed;
+                worldDragSpeed = 0;
+            }
+            else if (!isPointerDown)
             {
                 //惯性速度衰减
                 worldDragSpeed *= Mathf.Pow(inertiaDecelerationRate, deltaTime);
@@ -1113,6 +1157,7 @@ public class LoopListView3 : EventTrigger
                 var delta = speed * deltaTime;
                 MoveVirtualContent(delta);
 
+                //计算Elastic运动类型的弹回运动
                 if (!loop && !isDragging && movementType == MovementType.Elastic && elasticSpeed != 0)
                 {
                     var currElasticDis = virtualContent.LowBound - elasticAlignLow;
@@ -1124,16 +1169,17 @@ public class LoopListView3 : EventTrigger
                     }
                 }
 
+                //计算Clamped运动类型的截断
                 if (!loop && movementType == MovementType.Clamped)
                 {
                     var currNormalizedPos = normalizedPosition;
                     var normalizedTotal = virtualContent.Length - viewWorldHigh + viewWorldLow;
                     if (normalizedTotal <= 0)
-                        virtualContent.SetNormalizedPosition(vertical ? content.pivot.y : content.pivot.x);
+                        virtualContent.SetNormalizedPositionImmediately(vertical ? content.pivot.y : content.pivot.x);
                     else if (currNormalizedPos > 1)
-                        virtualContent.SetNormalizedPosition(1);
+                        virtualContent.SetNormalizedPositionImmediately(1);
                     else if (currNormalizedPos < 0)
-                        virtualContent.SetNormalizedPosition(0);
+                        virtualContent.SetNormalizedPositionImmediately(0);
                     else
                         goto NotClamped;
                     if (!isDragging)
@@ -1205,7 +1251,7 @@ public class LoopListView3 : EventTrigger
                     }
                 }
             }
-            else
+            else if (!isPointerDown)
             {
                 if (movementType == MovementType.Unrestricted || movementType == MovementType.Clamped ||
                     movementType == MovementType.Elastic && elasticSpeed == 0)

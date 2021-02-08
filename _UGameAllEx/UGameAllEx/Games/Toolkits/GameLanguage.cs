@@ -15,8 +15,9 @@ public static class GameLanguage
 	static public Type tpSysLanguage = typeof(SystemLanguage);
 	static public DF_LmtLanguage m_cfLmtLanguage = null; // 初始化限定语言
 	static public SystemLanguage m_curLanguage = SystemLanguage.Chinese;
-	
-	static public string keyLanguage
+    static public readonly SystemLanguage m_defLanguage = SystemLanguage.Chinese;
+
+    static public string keyLanguage
 	{
 		get
         {
@@ -84,6 +85,14 @@ public static class GameLanguage
 		get
         {
 			return m_curLanguage.ToString();
+        }
+    }
+
+    static public string strDefLanguage
+    {
+        get
+        {
+            return m_defLanguage.ToString();
         }
     }
 

@@ -20,6 +20,20 @@ public class ED_UIItem : ED_Animator
         public GameObject m_gobj;
         public ED_UIImg m_imgBg;
         public ED_UIImg m_imgIcon;
+
+        public void Clear()
+        {
+            this.m_gobj = null;
+            ED_UIImg _img = this.m_imgBg;
+            this.m_imgBg = null;
+            if(_img != null)
+                _img.Destroy4NoLife();
+            
+            _img = this.m_imgIcon;
+            this.m_imgIcon = null;
+            if(_img != null)
+                _img.Destroy4NoLife();
+        }
     }
 
     public PrefabElement m_csEle { get; private set; } // 当前对象
@@ -128,7 +142,7 @@ public class ED_UIItem : ED_Animator
                     continue;
                 
                 _it = new ItemStar();
-                _it.m_gobj = _csEleTemp.gameObject;
+                _it.m_gobj = _csEleTemp.m_gobj;
                 _img = _csEleTemp.GetComponent4Element<Image>("bg");
                 _it.m_imgBg = ED_UIImg.Builder(_img);
 
@@ -139,6 +153,39 @@ public class ED_UIItem : ED_Animator
         }
 
         this.m_gobjFragment = csEle.GetGobjElement("fragment");
+    }
+
+    override protected void On_Destroy(GobjLifeListener obj)
+    {
+        this.DestroyStars();
+        this.m_csEle = null;
+        this.m_gobjShadow = null;
+        this.m_txtName = null;
+        this.m_txtValue = null;
+        this.m_imgValBg = null;
+        this.m_txtValDesc = null;
+        this.m_txtDesc = null;
+        this.m_txtOrder = null;
+        this.m_gobjOrder = null;
+        this.m_gobjTag = null;
+        this.m_txtTag = null;
+        this.m_imgBg = null;
+        this.m_imgSSR = null;
+        this.m_imgIcon = null;
+        this.m_imgQuality = null;
+        this.m_imgFeatureBg = null;
+        this.m_imgFeatureIcon = null;
+        this.m_gobjEmpty = null;
+        this.m_gobjSelect = null;
+        this.m_gobjLock = null;
+        this.m_gobjTopTag = null;
+        this.m_txtTopTag = null;
+        this.m_gobjMinHero = null;
+        this.m_imgMinHeroIcon = null;
+        this.m_txtMinHero = null;
+        this.m_gobjFragment = null;
+        
+        base.On_Destroy(obj);
     }
 
     public void VwBgImg(string icon)
@@ -173,6 +220,19 @@ public class ED_UIItem : ED_Animator
         _it.m_imgIcon = ED_UIImg.Builder(_img);
         this.m_listStars.Add(_it);
         return _it;
+    }
+
+    void DestroyStars()
+    {
+        int _count = this.m_listStars.Count;
+        ED_UIItem.ItemStar _it = null;
+        for (int i = 0; i < _count; i++)
+        {
+            _it = this.m_listStars[i];
+            if(_it != null)
+                _it.Clear();
+        }
+        this.m_listStars.Clear();
     }
 
     public ED_UIItem.ItemStar GetStar(int nIndex,ref bool isNew)
@@ -210,9 +270,9 @@ public class ED_UIItem : ED_Animator
                 _cs.m_imgBg.SetIcon(sbg,false);
             
             _isBlIcon = _isBl && (i < star);
+            _cs.m_imgIcon.SetActive(_isBlIcon);
             if(_isBlIcon)
                 _cs.m_imgIcon.SetIcon(sicon,false);
-            _cs.m_imgIcon.SetActive(_isBlIcon);
         }
     }
 
@@ -501,38 +561,5 @@ public class ED_UIItem : ED_Animator
         }
 
         this.m_imgIcon.SetSizeDelta( offX,offY );
-    }
-
-    override protected void On_Destroy(GobjLifeListener obj)
-    {
-        this.m_listStars.Clear();
-        this.m_csEle = null;
-        this.m_gobjShadow = null;
-        this.m_txtName = null;
-        this.m_txtValue = null;
-        this.m_imgValBg = null;
-        this.m_txtValDesc = null;
-        this.m_txtDesc = null;
-        this.m_txtOrder = null;
-        this.m_gobjOrder = null;
-        this.m_gobjTag = null;
-        this.m_txtTag = null;
-        this.m_imgBg = null;
-        this.m_imgSSR = null;
-        this.m_imgIcon = null;
-        this.m_imgQuality = null;
-        this.m_imgFeatureBg = null;
-        this.m_imgFeatureIcon = null;
-        this.m_gobjEmpty = null;
-        this.m_gobjSelect = null;
-        this.m_gobjLock = null;
-        this.m_gobjTopTag = null;
-        this.m_txtTopTag = null;
-        this.m_gobjMinHero = null;
-        this.m_imgMinHeroIcon = null;
-        this.m_txtMinHero = null;
-        this.m_gobjFragment = null;
-        
-        base.On_Destroy(obj);
     }
 }

@@ -119,6 +119,8 @@ public class RendererMatData
     {
         if (!this.m_isNewMat && nType != 1)
             return;
+        if (newMat == null)
+            return;
 
         this.m_allMats.Remove(newMat);
         this.m_mats.Remove(newMat);
