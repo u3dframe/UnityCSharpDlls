@@ -116,8 +116,7 @@ namespace TNet
             if (this.socket == null)
                 return false;
 
-            this.socket.Close();
-            return true;
+            return this.socket.Close();
         }
 
         public void Connect(string host, int port, bool isReConnect)

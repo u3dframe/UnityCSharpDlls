@@ -209,11 +209,13 @@ public class SocketClient {
     /// <summary>
     /// 关闭链接
     /// </summary>
-    public void Close() {
-        if (IsConnected()){
+    public bool Close() {
+        bool _isBl = IsConnected();
+        if (_isBl)
           client.Close();
-        } 
+
         client = null;
+        return _isBl;
     }
 
     /// <summary>
