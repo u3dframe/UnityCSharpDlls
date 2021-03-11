@@ -107,8 +107,8 @@ namespace Core.Kernel
 
 		private string _kPkgFiles = "fls_pkg";
 		private string _kLua = "key_lua";
-        
-		private JsonData m_jsonData = null;
+
+        private JsonData m_json = null;
         public string m_strError { get; private set; }
 
 		private CfgVersion(){
@@ -133,8 +133,8 @@ namespace Core.Kernel
         }
 
 		protected virtual void _OnInit(string content){
-            this.m_jsonData = LJsonHelper.ToJData(content);
-			JsonData _jsonData = this.m_jsonData;
+            this.m_json = LJsonHelper.ToJData(content);
+			JsonData _jsonData = this.m_json;
 			if (_jsonData == null)
 				return;
 			this.m_bigVerCode = LJsonHelper.ToStr(_jsonData,_kBigVerCode);
@@ -213,26 +213,26 @@ namespace Core.Kernel
 			UGameFile.CreateFolder (this.m_filePath);
 		
 			try {
-				if(this.m_jsonData == null)
-					this.m_jsonData = LJsonHelper.NewJObj();
-				this.m_jsonData.Clear();
+				if(this.m_json == null)
+					this.m_json = LJsonHelper.NewJObj();
+				this.m_json.Clear();
 				
-				this.m_jsonData[_kBigVerCode] = this.m_bigVerCode;
-				this.m_jsonData[_kResVerCode] = this.m_resVerCode;
-				this.m_jsonData[_kGameVerCode] = this.m_gameVerCode;
-                this.m_jsonData[_kLastResVerCode] = this.m_lastResVerCode;
+				this.m_json[_kBigVerCode] = this.m_bigVerCode;
+				this.m_json[_kResVerCode] = this.m_resVerCode;
+				this.m_json[_kGameVerCode] = this.m_gameVerCode;
+                this.m_json[_kLastResVerCode] = this.m_lastResVerCode;
 
-                this.m_jsonData[_kUrlNewApkIpa] = this.m_urlNewApkIpa;
-				this.m_jsonData[_kUrlNewApkIpa4Chn] = LJsonHelper.ToJson(this.m_lApkIpa);
+                this.m_json[_kUrlNewApkIpa] = this.m_urlNewApkIpa;
+				this.m_json[_kUrlNewApkIpa4Chn] = LJsonHelper.ToJson(this.m_lApkIpa);
 
-				this.m_jsonData[_kUrlFilelist] = this.m_urlFilelist;
-				this.m_jsonData[_kPkgFilelist] = this.m_pkgFilelist;
-				this.m_jsonData[_kCodeFilelist] = this.m_codeFilelist;
+				this.m_json[_kUrlFilelist] = this.m_urlFilelist;
+				this.m_json[_kPkgFilelist] = this.m_pkgFilelist;
+				this.m_json[_kCodeFilelist] = this.m_codeFilelist;
 
-				this.m_jsonData[_kPkgFiles] = this.m_pkgFiles;
-				this.m_jsonData[_kLua] = this.m_keyLua;
+				this.m_json[_kPkgFiles] = this.m_pkgFiles;
+				this.m_json[_kLua] = this.m_keyLua;
 
-                string _cval = this.m_jsonData.ToJson();
+                string _cval = this.m_json.ToJson();
                 UGameFile.WriteFile(this.m_filePath, _cval);
 				return true;
 			} catch(System.Exception ex){

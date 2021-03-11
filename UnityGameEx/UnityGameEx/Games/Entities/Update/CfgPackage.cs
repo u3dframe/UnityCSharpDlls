@@ -28,6 +28,7 @@ namespace Core.Kernel
 
         public bool m_isInit{ get; private set; }
         public string m_content { get; private set; }
+        private JsonData m_json = null;
 
         private CfgPackage(){
 		}
@@ -42,31 +43,46 @@ namespace Core.Kernel
 		}
 
 		protected virtual void _OnInit(string content){
-			JsonData _jsonData = LJsonHelper.ToJData(content);
-			if (_jsonData == null)
+            this.m_json = LJsonHelper.ToJData(content);
+            if (this.m_json == null)
 				return;
-			
-			this.m_platformName = LJsonHelper.ToStr(_jsonData,_kPlatformName);
-			this.m_platformID = LJsonHelper.ToStr(_jsonData,_kPlatformID);
-			this.m_language = LJsonHelper.ToStr(_jsonData,_kLanguage);
-			this.m_urlVersion = LJsonHelper.ToStr(_jsonData,_kUrlVersion);
-			this.m_uprojVer = LJsonHelper.ToStr(_jsonData,_kUprojVer);
-            this.m_isSync2CfgVer = LJsonHelper.ToBool(_jsonData, _kIsSync2CfgVer);
+
+			this.m_platformName = GetStr(_kPlatformName);
+			this.m_platformID = GetStr(_kPlatformID);
+			this.m_language = GetStr(_kLanguage);
+			this.m_urlVersion = GetStr(_kUrlVersion);
+			this.m_uprojVer = GetStr(_kUprojVer);
+            this.m_isSync2CfgVer = GetBool(_kIsSync2CfgVer);
         }
 
-		public void CloneFromOther(CfgPackage other){
-			this.m_platformName = other.m_platformName;
-			this.m_platformID = other.m_platformID;
-			this.m_language = other.m_language;
-			this.m_urlVersion = other.m_urlVersion;
-			this.m_uprojVer = other.m_uprojVer;
-			this.m_content = other.m_content;
-			this.m_isInit = other.m_isInit;
-		}
+        public string GetStr(string key)
+        {
+            return LJsonHelper.ToStr(this.m_json, key);
+        }
+
+        public bool GetBool(string key)
+        {
+            return LJsonHelper.ToBool(this.m_json, key);
+        }
+
+        public int GetInt(string key)
+        {
+            return LJsonHelper.ToInt(this.m_json, key);
+        }
+
+        public long GetLong(string key)
+        {
+            return LJsonHelper.ToLong(this.m_json, key);
+        }
 
         public string ToJson()
         {
-            JsonData jd = LJsonHelper.NewJObj();
+            JsonData jd = this.m_json;
+            if(jd == null)
+            {
+                jd = LJsonHelper.NewJObj();
+                this.m_json = jd;
+            }
             jd[_kPlatformName] = this.m_platformName;
             jd[_kPlatformID] = this.m_platformID;
             jd[_kLanguage] = this.m_language;
@@ -74,6 +90,18 @@ namespace Core.Kernel
             jd[_kUprojVer] = this.m_uprojVer;
             jd[_kIsSync2CfgVer] = this.m_isSync2CfgVer;
             return jd.ToJson();
+        }
+
+        public void CloneFromOther(CfgPackage other)
+        {
+            this.m_platformName = other.m_platformName;
+            this.m_platformID = other.m_platformID;
+            this.m_language = other.m_language;
+            this.m_urlVersion = other.m_urlVersion;
+            this.m_uprojVer = other.m_uprojVer;
+            this.m_content = other.m_content;
+            this.m_isInit = other.m_isInit;
+            this.m_json = other.m_json;
         }
 
         static CfgPackage _instance;
