@@ -75,6 +75,28 @@ namespace Core.Kernel
             return LJsonHelper.ToLong(this.m_json, key);
         }
 
+        public string GetObbPath(string key)
+        {
+            if (UGameFile.m_isEditor || !UGameFile.m_isAndroid)
+                return null;
+            string _cmd = GetStr(key);
+            if (string.IsNullOrEmpty(_cmd))
+                return null;
+            string[] arrs = UGameFile.SplitDivision(_cmd,true);
+            if (UGameFile.IsNullOrEmpty(arrs))
+                return null;
+            int _lens = arrs.Length;
+            if (_lens < 2)
+                return null;
+
+            bool _isStatic = false;
+            if (_lens >= 3)
+                bool.TryParse(arrs[2], out _isStatic);
+            if(_isStatic)
+                return EUP_JavaBridge.shareInstance.CallStatic<string>(arrs[0], arrs[1]);
+            return EUP_JavaBridge.shareInstance.Call<string>(arrs[0], arrs[1]);
+        }
+
         public string ToJson()
         {
             JsonData jd = this.m_json;
