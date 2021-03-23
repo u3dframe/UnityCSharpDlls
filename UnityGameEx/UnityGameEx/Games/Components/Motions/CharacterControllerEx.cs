@@ -115,14 +115,14 @@ public class CharacterControllerEx : AnimatorEx
 		SetRadiusAndHeight(radius,height);
 	}
 
-    protected override void ReBindNodes()
+    protected override void ReBindNodes(bool isChild = false)
     {
         _arrs_nodes = new string[]{
             "heads","shadows","foot","skin",
             "f_head","f_l_hand","f_r_hand","f_mid",
             "f_back","f_l_foot","f_r_foot","f_l_weapon","f_r_weapon"
         };
-        base.ReBindNodes();
+        base.ReBindNodes(isChild);
     }
 
     public CharacterControllerEx InitCCEx(DF_OnUpdate on_up,DF_ASM_MotionLife on_a_enter,DF_ASM_MotionLife on_a_up,DF_ASM_MotionLife on_a_exit){

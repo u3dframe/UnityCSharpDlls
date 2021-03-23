@@ -50,12 +50,12 @@ public class UGUIModel : PrefabBasic
         ReBindNodes();
     }
 
-    protected override void ReBindNodes()
+    protected override void ReBindNodes(bool isChild = false)
     {
         _arrs_nodes = new string[]{
-            "Camera","ModelWrap"
+            "Camera","ModelWrap","ModelNode"
         };
-        base.ReBindNodes();
+        base.ReBindNodes(isChild);
     }
 
     protected override void OnCall4Start()
