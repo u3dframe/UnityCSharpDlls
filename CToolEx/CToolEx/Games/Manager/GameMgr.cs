@@ -2,8 +2,6 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using Core;
-using Messenger = Core.Kernel.Messenger;
-using MsgConst = Core.Kernel.MsgConst;
 
 /// <summary>
 /// 类名 : Update 管理
@@ -87,12 +85,10 @@ public class GameMgr : GobjLifeListener {
 
 	void Update() {
 		_Exc_Up(Time.deltaTime,Time.unscaledDeltaTime);
-        _Exc_UpEnd(Time.deltaTime, Time.unscaledDeltaTime);
     }
 	
 	void LateUpdate() {
 		_Exc_LateUp();
-        _Exc_LateUpEnd();
     }
 
 	/// <summary>
@@ -168,16 +164,6 @@ public class GameMgr : GobjLifeListener {
         {
             Debug.LogErrorFormat("=== ILateUpdate Err = [{0}]", ex);
         }
-    }
-
-    void _Exc_UpEnd(float dt, float unscaledDt)
-    {
-        Messenger.Brocast<float, float>(MsgConst.Msg_MgrUpEnd, dt, unscaledDt);
-    }
-
-    void _Exc_LateUpEnd()
-    {
-        Messenger.Brocast(MsgConst.Msg_MgrLateUpEnd);
     }
 
     static public bool IsInUpdate(IUpdate up)
