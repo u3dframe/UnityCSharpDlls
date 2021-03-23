@@ -196,7 +196,12 @@ public class PrefabBasic : GobjLifeListener {
     }
 
     [ContextMenu("Re Bind Nodes (重新绑定所需节点)")]
-    virtual protected void ReBindNodes()
+    protected void ReNodes()
+    {
+        this.ReBindNodes(true);
+    }
+
+    virtual protected void ReBindNodes(bool isChild = false)
     {
         GHelper.Is_App_Quit = false;
         List<GameObject> list = new List<GameObject>();
@@ -207,22 +212,11 @@ public class PrefabBasic : GobjLifeListener {
             _gobj = m_gobjs[i];
             if (null == _gobj) continue;
             if (!list.Contains(_gobj))
-            {
                 list.Add(_gobj);
-            }
         }
 
-        lens = this.m_trsf.childCount;
-        for (int i = 0; i < lens; i++)
-        {
-            _gobj = this.m_trsf.GetChild(i).gameObject;
-            if (!list.Contains(_gobj))
-            {
-                list.Add(_gobj);
-            }
-        }
-
-        if(_arrs_nodes != null && _arrs_nodes.Length > 0)
+        bool _isHas = this._arrs_nodes != null && this._arrs_nodes.Length > 0;
+        if (_isHas)
         {
             lens = _arrs_nodes.Length;
             for (int i = 0; i < lens; i++)
@@ -230,9 +224,18 @@ public class PrefabBasic : GobjLifeListener {
                 _gobj = GHelper.ChildRecursion(this.m_gobj, _arrs_nodes[i]);
                 if (null == _gobj) continue;
                 if (!list.Contains(_gobj))
-                {
                     list.Add(_gobj);
-                }
+            }
+        }
+
+        if(isChild)
+        {
+            lens = this.m_trsf.childCount;
+            for (int i = 0; i < lens; i++)
+            {
+                _gobj = this.m_trsf.GetChild(i).gameObject;
+                if (!list.Contains(_gobj))
+                    list.Add(_gobj);
             }
         }
 
