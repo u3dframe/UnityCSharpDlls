@@ -14,6 +14,9 @@
         public const string Msg_OnSMMove = "Msg_OnSMMove"; // State Machine Move
         public const string Msg_OnSM_IK = "Msg_OnSM_IK"; // State Machine IK
 
+        public const string Msg_MgrUpEnd = "Msg_MgrUpEnd"; // GameMgr Update End
+        public const string Msg_MgrLateUpEnd = "Msg_MgrLateUpEnd"; // GameMgr LateUpdate End
+
         public const string MSound_Volume = "Msg_OnUp_Volume"; // Musice,Sound up Volume
         public const string MSound_State = "Msg_OnUp_MSState"; // Musice,Sound up Play,Stop
 

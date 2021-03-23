@@ -1,6 +1,5 @@
 using UnityEngine;
 using System;
-// using System.Globalization;
 
 /// <summary>
 /// 类名 : Game Language
@@ -75,7 +74,7 @@ public static class GameLanguage
 			// return EU_Bridge.getCountryCode();
 			return "";
 #else
-			return RegionInfo.CurrentRegion.ToString();
+			return System.Globalization.RegionInfo.CurrentRegion.ToString();
 #endif
         }
     }
