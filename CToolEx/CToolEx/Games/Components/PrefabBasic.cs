@@ -57,7 +57,7 @@ public class PrefabBasic : GobjLifeListener {
 				if(!m_dicName2Gobj.ContainsKey(_tmpName)){
 					m_dicName2Gobj.Add(_tmpName,tmp);
 				}else{
-					Debug.LogError(string.Format("the same name = [{0}] in gameObject.name = [{1}]",_tmpName,tmp.name));
+					Debug.LogError(string.Format("=== the same name = [{0}] in gameObject.name = [{1}]",_tmpName,tmp.name));
 				}
 				
 				_tmpName = GetRelativeName(tmp);
