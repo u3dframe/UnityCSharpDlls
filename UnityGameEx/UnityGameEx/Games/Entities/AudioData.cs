@@ -218,7 +218,7 @@ public class AudioData
         var _tmp = this.m_ainfo;
         this.m_ainfo = null;
         if (_tmp != null)
-            _tmp.UnLoadAsset();
+            _tmp.UnloadAsset();
     }
 
     static public AudioData Builder(GameObject gobj, bool isNew, bool isMusic, float volume, bool playOnAwake)
