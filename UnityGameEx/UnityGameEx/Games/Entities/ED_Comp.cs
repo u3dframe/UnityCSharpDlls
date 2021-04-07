@@ -96,6 +96,7 @@ namespace Core.Kernel.Beans
         Action m_cfShow = null, m_cfHide = null, m_cfDestroy = null;
         protected Vector3 m_startPos = Vector3.zero;
         protected Vector3 m_startLocPos = Vector3.zero;
+        protected Vector2 m_startAnPos = Vector2.zero;
 
         public ED_Cavs m_edCvs { get; private set; }
 
@@ -116,6 +117,7 @@ namespace Core.Kernel.Beans
             this.m_startPos = this.GetCurrPos(false);
             this.m_startLocPos = this.GetCurrPos();
             this.m_isHasMonoLife = this.m_isActiveInView;
+            this.m_startAnPos = this.GetCurrAnPosition(false);
         }
 
         public void InitCallFunc(Action cfDestroy, Action cfShow, Action cfHide)
@@ -375,23 +377,39 @@ namespace Core.Kernel.Beans
                 this.m_trsf.forward = new Vector3(x, y, z);
         }
 
+        public void SetCurrAnPosition(Vector3 pos,bool is3D)
+        {
+            if (!this.m_trsfRect)
+                return;
+            if(is3D)    
+                this.m_trsfRect.anchoredPosition3D = pos;
+            else
+                this.m_trsfRect.anchoredPosition = pos;
+        }
+
+        public Vector3 GetCurrAnPosition(bool is3D)
+        {
+            if (!this.m_trsfRect)
+                return Vector3.zero;
+            if (is3D)
+                return this.m_trsfRect.anchoredPosition3D;
+            else
+                return this.m_trsfRect.anchoredPosition;
+        }
+
         public Vector2 GetAnchoredPosition()
         {
-            if (this.m_trsfRect)
-                return this.m_trsfRect.anchoredPosition;
-            return Vector2.zero;
+            return this.GetCurrAnPosition(false);
         }
 
         public void SetAnchoredPosition(float x, float y)
         {
-            if (this.m_trsfRect)
-                this.m_trsfRect.anchoredPosition = new Vector2(x, y);
+            this.SetCurrAnPosition(new Vector3(x,y,0), false);
         }
 
         public void SetAnchoredPosition3D(float x, float y, float z)
         {
-            if (this.m_trsfRect)
-                this.m_trsfRect.anchoredPosition3D = new Vector3(x, y, z);
+            this.SetCurrAnPosition(new Vector3(x, y, z),true);
         }
 
         public void SetAnchorMin(float x, float y)
@@ -548,8 +566,8 @@ namespace Core.Kernel.Beans
 
         public bool m_isUpByLate { get; set; }
         protected bool m_isSmoothPos { get; private set; }
-        private int m_upPosState = 0;
-        protected float m_jugdePosDis = 0.0025f;
+        private int m_upPosState = 0; // 1 = local pos,2 = world pos,3 = anPos,4 = anPos3D
+        protected float m_jugdePosDis = 0.0009f; // 0.05^2 = 0.0025f
         private Vector3 m_curPos = Vector3.zero;
         private Vector3 m_toPos = Vector3.zero;
         private Vector3 m_diffPos = Vector3.zero;
@@ -594,7 +612,7 @@ namespace Core.Kernel.Beans
             {
                 if(this.m_upPosState != 0)
                 {
-                    this.SetCurrPos();
+                    this.SetPosByUpState();
 
                     this.m_diffPos = this.m_toPos - this.m_curPos;
                     if (this.m_diffPos.sqrMagnitude < this.m_jugdePosDis)
@@ -614,10 +632,37 @@ namespace Core.Kernel.Beans
             }
         }
 
-        protected void SetCurrPos()
+        protected Vector3 GetPosByUpState()
         {
-            bool isLocal = this.m_upPosState == 1;
-            this.SetCurrPos(this.m_curPos, isLocal);
+            switch (this.m_upPosState)
+            {
+                case 1:
+                case 2:
+                    bool isLocal = this.m_upPosState == 1;
+                    return this.GetCurrPos(isLocal);
+                case 3:
+                case 4:
+                    bool is3d = this.m_upPosState == 4;
+                    return this.GetCurrAnPosition(is3d);
+            }
+            return Vector3.zero;
+        }
+
+        protected void SetPosByUpState()
+        {
+            switch (this.m_upPosState)
+            {
+                case 1:
+                case 2:
+                    bool isLocal = this.m_upPosState == 1;
+                    this.SetCurrPos(this.m_curPos, isLocal);
+                    break;
+                case 3:
+                case 4:
+                    bool is3d = this.m_upPosState == 4;
+                    this.SetCurrAnPosition(this.m_curPos, is3d);
+                    break;
+            }
         }
 
         protected void ExcuteCFUpdateEnd()
@@ -652,7 +697,7 @@ namespace Core.Kernel.Beans
             return true;
         }
         
-        public bool IsSmoothPos(float toX, float toY, float toZ, bool isLocal, float smoothTime = 0f, Action callFinish = null)
+        public bool IsSmoothPos(float toX, float toY, float toZ, int nType, float smoothTime = 0f, Action callFinish = null)
         {
             if (!this.m_trsf)
                 return false;
@@ -662,13 +707,13 @@ namespace Core.Kernel.Beans
 
             this.StopAllUpdate();
             this.m_cfUpdate = null;
-            this.m_upPosState = isLocal ? 1 : 2;
+            this.m_upPosState = nType;
             this.m_cfEndUpdate = callFinish;
             this.m_smoothTime = smoothTime;
             this.m_toPos.x = toX;
             this.m_toPos.y = toY;
             this.m_toPos.z = toZ;
-            this.m_curPos = GetCurrPos(isLocal);
+            this.m_curPos = this.GetPosByUpState();
 
             this.m_diffPos = this.m_toPos - this.m_curPos;
             this.m_isSmoothPos = (smoothTime > 0) && (m_diffPos.sqrMagnitude > this.m_jugdePosDis);
@@ -688,16 +733,16 @@ namespace Core.Kernel.Beans
                 this.m_curPos.x = toX;
                 this.m_curPos.y = toY;
                 this.m_curPos.z = toZ;
-                this.SetCurrPos();
+                this.SetPosByUpState();
             }
             return this.m_isSmoothPos;
         }
 
-        public void ToSmoothPos(float toX, float toY, float toZ, bool isLocal, float smoothTime = 0f, Action callFinish = null)
+        public void ToSmoothPos(float toX, float toY, float toZ, int nType, float smoothTime = 0f, Action callFinish = null)
         {
             if (!this.m_trsf)
                 return;
-            bool _isSmoonth = this.IsSmoothPos(toX, toY, toZ, isLocal, smoothTime, callFinish);
+            bool _isSmoonth = this.IsSmoothPos(toX, toY, toZ, nType, smoothTime, callFinish);
             if (_isSmoonth)
                 this.StartCurrUpdate();
             else
