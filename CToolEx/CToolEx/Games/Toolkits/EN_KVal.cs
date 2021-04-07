@@ -38,7 +38,7 @@ namespace Core.Kernel.Beans
             string _k, _v;
             for (int i = 0; i < lens; i++)
             {
-                _cols = UGameFile.Split(_rows[i], spt, true);
+                _cols = UGameFile.Split(_rows[i], spt, false);
                 if (_cols == null || _cols.Length < 1)
                     continue;
                 _k = _cols[0];
