@@ -103,7 +103,7 @@ public class InputBaseMgr : GobjLifeListener {
     public int m_fpsFrameRate { get; set; }
     protected bool m_isOpt { get; set; }
     [Range(0.1f,0.5f)] public float m_noOpsFpsRate = 0.2f;
-    public float m_noOpsLmtSec = 5 * 60;
+    public float m_noOpsLmtSec = 8 * 60;
 
 	private LayerMask _lay_mask = 1 << 0 | 1 << 1 | 1 << 4;
 	

@@ -29,7 +29,7 @@ public static class GameEntranceEx{
     {
         GHelper.Is_App_Quit = false;
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        Application.targetFrameRate = (UGameFile.m_isEditor || UGameFile.m_isIOS) ? 60 : 30;
+        Application.targetFrameRate = (UGameFile.m_isEditor || UGameFile.m_isIOS) ? 60 : 45;
         Application.runInBackground = true;
         
         Application.logMessageReceivedThreaded -= _HandleLog;
