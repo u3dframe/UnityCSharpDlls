@@ -22,22 +22,30 @@ public class UGUIButton : GobjLifeListener {
 	}
 
 	static public bool isFreezedAll = false; // 冻结所有按钮
-	static List<int> exceptInstanceIDs = new List<int>(); // 排除不被冻结的对象
+	static Dictionary<int,bool> exceptInstanceIDs = new Dictionary<int, bool>(); // 排除不被冻结的对象
 
 	static public bool IsInExcept(int intasnceID){
-		return exceptInstanceIDs.Contains(intasnceID);
+        return exceptInstanceIDs.ContainsKey(intasnceID);
 	}
 
 	static public void AddExcept(int intasnceID){
 		if(IsInExcept(intasnceID)) return;
-		exceptInstanceIDs.Add(intasnceID);
+		exceptInstanceIDs.Add(intasnceID,true);
 	}
 
 	static public void RemoveExcept(int intasnceID){
 		exceptInstanceIDs.Remove(intasnceID);
 	}
 
-	int _selfID = 0;
+    static public void ForExceptIDs(Core.DF_OnKVal call)
+    {
+        if (call == null)
+            return;
+
+        foreach (var item in exceptInstanceIDs)
+            call(item.Key, item.Value);
+    }
+
 	Vector3 v3Scale;
 	public bool m_isPressScale = true;
 	[Range(0.5f,1.5f)]
@@ -49,7 +57,6 @@ public class UGUIButton : GobjLifeListener {
 
 	override protected void OnCall4Awake()
     {
-		this._selfID = m_gobj.GetInstanceID ();
         this.v3Scale = m_trsf.localScale;
 
         this.m_evt = UGUIEventListener.Get(m_gobj);
@@ -72,7 +79,7 @@ public class UGUIButton : GobjLifeListener {
 		this.m_onPress = null;
 		this.m_onClick = null;
 		this.m_evt = null;
-		RemoveExcept(this._selfID);
+		RemoveExcept(this.m_gobjID);
 	}
 	
 	void _OnPress(GameObject obj,bool isPress,Vector2 pos)
@@ -92,7 +99,7 @@ public class UGUIButton : GobjLifeListener {
     }
 
 	bool IsFreezedAll(){
-		return isFreezedAll && !IsInExcept(_selfID);
+		return isFreezedAll && !IsInExcept(this.m_gobjID);
 	}
 
 	public void IsSyncScroll(bool isBl){

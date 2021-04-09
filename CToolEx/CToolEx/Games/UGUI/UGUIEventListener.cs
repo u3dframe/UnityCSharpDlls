@@ -26,6 +26,7 @@ public class UGUIEventListener : EventTrigger
     }
 
     static public float maxDistance = 70f;
+    static public float limitTime = 0.2f;
 
     enum SyncEventType
     {
@@ -51,7 +52,7 @@ public class UGUIEventListener : EventTrigger
     bool _isPressed = false, _isCanClick = false;
 
     float press_time = 0, diff_time = 0, dis_curr = 0,
-    limit_time = 0.2f, limit_dis_min = 0.1f * 0.1f, limit_dis_max = 0;
+    limit_dis_min = 0.1f * 0.1f, limit_dis_max = 0;
     bool _isAppQuit = false;
 
     [HideInInspector] public bool m_isPropagation = false; // 是否透传
@@ -150,7 +151,7 @@ public class UGUIEventListener : EventTrigger
         _isCanClick = dis_curr <= limit_dis_min;
         if (!_isCanClick)
         {
-            _isCanClick = dis_curr <= limit_dis_max && diff_time <= limit_time;
+            _isCanClick = dis_curr <= limit_dis_max && diff_time <= limitTime;
         }
 
         v2Start = eventData.position;

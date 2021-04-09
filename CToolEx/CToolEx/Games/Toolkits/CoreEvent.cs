@@ -34,6 +34,7 @@ namespace Core
     public delegate void DF_OnInt(int val);
     public delegate void DF_OnFloat(float val);
     public delegate void DF_OnStr(string val);
+    public delegate void DF_OnKVal(object key,object val);
     public delegate void DF_OnUpdate(float dt,float unscaledDt);
     public delegate void DF_CurrMax(double curr,double max);
     public delegate void DF_OnState(int state,int preState);
