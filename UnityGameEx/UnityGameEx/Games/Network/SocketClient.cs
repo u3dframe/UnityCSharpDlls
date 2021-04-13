@@ -9,6 +9,7 @@ public enum DisType {
     Exception,
     Disconnect,
     ConnectFail,
+    WriteFail,
 }
 
 public class SocketClient {
@@ -49,7 +50,7 @@ public class SocketClient {
         try {
             IPAddress[] address = Dns.GetHostAddresses(host);
             if (address.Length == 0) {
-                OnDisconnected(DisType.ConnectFail,"host invalid");
+                OnDisconnected(DisType.ConnectFail, "ConnectServer--->>>host invalid");
                 return;
             }
             if (address[0].AddressFamily == AddressFamily.InterNetworkV6) {
@@ -63,7 +64,8 @@ public class SocketClient {
             client.NoDelay = true;
             client.BeginConnect(host, port, new AsyncCallback(OnConnect), null);
         } catch (Exception ex) {
-            OnDisconnected(DisType.ConnectFail, ex.Message);
+            string _msg = "ConnectServer--->>>" + ex.Message;
+            OnDisconnected(DisType.ConnectFail, _msg);
         }
     }
 
@@ -77,29 +79,50 @@ public class SocketClient {
             client.GetStream().BeginRead(_bts, 0, MAX_READ, new AsyncCallback(OnRead), null);
             NetworkManager.AddEvent(Protocal.Connect, null);
         } catch (Exception ex) {
-            OnDisconnected(DisType.ConnectFail, ex.Message);
+            string _msg = "OnConnect--->>>" + ex.Message;
+            OnDisconnected(DisType.ConnectFail, _msg);
         }
     }
 
     /// <summary>
     /// 写数据
     /// </summary>
-    void WriteMessage(byte[] message) {
+    void _WriteMessage(byte[] message)
+    {
         MemoryStream ms = null;
-        using (ms = new MemoryStream()) {
-            ms.Position = 0;
-            BinaryWriter writer = new BinaryWriter(ms);
-            // ushort msglen = (ushort)message.Length;
-            // writer.Write(Converter.GetBigEndian(msglen));
-            writer.Write(message);
-            writer.Flush();
-            if (IsConnected()) {
-                byte[] payload = ms.ToArray();
-                outStream.BeginWrite(payload, 0, payload.Length, new AsyncCallback(OnWrite), null);
-            } else {
-                Debug.LogError("client.connected----->>false");
+        using (ms = new MemoryStream())
+        {
+            try
+            {
+                ms.Position = 0;
+                BinaryWriter writer = new BinaryWriter(ms);
+                // ushort msglen = (ushort)message.Length;
+                // writer.Write(Converter.GetBigEndian(msglen));
+                writer.Write(message);
+                writer.Flush();
+                if (IsConnected())
+                {
+                    byte[] payload = ms.ToArray();
+                    outStream.BeginWrite(payload, 0, payload.Length, new AsyncCallback(OnWrite), null);
+                }
+                else
+                {
+                    OnDisconnected(DisType.WriteFail, "_WriteMessage--->>>client not Connected");
+                }
+            }
+            catch (Exception ex)
+            {
+                string _msg = "_WriteMessage--->>>" + ex.Message;
+                OnDisconnected(DisType.WriteFail, _msg);
             }
         }
+    }
+
+    void WriteMessage(byte[] message) {
+        if (IsConnected())
+            _WriteMessage(message);
+        else
+            OnDisconnected(DisType.WriteFail, "WriteMessage--->>>client not Connected");
     }
 
     /// <summary>
@@ -112,7 +135,7 @@ public class SocketClient {
                 bytesRead = client.GetStream().EndRead(asr);
             }
             if (bytesRead < 1) {                //包尺寸有问题，断线处理
-                OnDisconnected(DisType.Disconnect, "bytesRead < 1");
+                OnDisconnected(DisType.Disconnect, "OnRead--->>>bytesRead < 1");
                 return;
             }
             OnReceive(_bts, bytesRead);   //分析数据包内容，抛给逻辑层
@@ -121,7 +144,8 @@ public class SocketClient {
                 client.GetStream().BeginRead(_bts, 0, MAX_READ, new AsyncCallback(OnRead), null);
             }
         } catch (Exception ex) {
-            OnDisconnected(DisType.Exception, ex.Message);
+            string _msg = "OnRead--->>>" + ex.Message;
+            OnDisconnected(DisType.Exception, _msg);
         }
     }
 
@@ -134,10 +158,13 @@ public class SocketClient {
         switch(dis){
             case DisType.Exception:
                 protocal = Protocal.Exception;
-            break;
+                break;
             case DisType.ConnectFail:
                 protocal = Protocal.ConnectFail;
-            break;
+                break;
+            case DisType.WriteFail:
+                protocal = Protocal.Write;
+                break;
         }
         ByteBuffer buffer = ByteBuffer.BuildWriter();
         buffer.WriteString(msg);
@@ -164,9 +191,11 @@ public class SocketClient {
         try {
             outStream.EndWrite(r);
             NetworkManager.AddEvent(Protocal.Write, null);
-        } catch (Exception) {
+        } catch (Exception ex) {
             // 其他非UI主线程不能使用Debug
             // Debug.LogError("OnWrite--->>>" + ex.Message);
+            string _msg = "OnWrite--->>>" + ex.Message;
+            OnDisconnected(DisType.WriteFail,_msg);
         }
     }
 
