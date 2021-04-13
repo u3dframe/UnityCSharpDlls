@@ -21,7 +21,9 @@ namespace TNet
         }
 
         static readonly object m_lockObject = new object();
+        static public bool mIsUseQueue { get; set; }
         static Queue<KeyValuePair<int, ByteBuffer>> mEvents = new Queue<KeyValuePair<int, ByteBuffer>>();
+        static List<KeyValuePair<int, ByteBuffer>> mListEvents = new List<KeyValuePair<int, ByteBuffer>>();
 
         private SocketClient socket = null;
         string lua_func = "Network.OnSocket";
@@ -44,17 +46,8 @@ namespace TNet
         /// </summary>
         override public void OnUpdate(float dt, float unscaledDt)
         {
-            if (mEvents.Count > 0)
-            {
-                while (mEvents.Count > 0)
-                {
-                    KeyValuePair<int, ByteBuffer> _event = mEvents.Dequeue();
-                    // 通知到lua那边
-                    OnCF2Lua(_event.Key, _event.Value);
-                    // 放入对象池				
-                    ByteBuffer.ReBack(_event.Value);
-                }
-            }
+            this.OnCF4UpQueue();
+            this.OnCF4UpList();
         }
 
         /// <summary>
@@ -69,6 +62,7 @@ namespace TNet
         override protected void OnClear()
         {
             mEvents.Clear();
+            mListEvents.Clear();
             socket = null;
         }
 
@@ -78,6 +72,42 @@ namespace TNet
         void OnCF2Lua(int code, ByteBuffer data)
         {
             Core.Kernel.Messenger.Brocast<string, int, ByteBuffer>("OnCF2Lua", lua_func, code, data);
+        }
+
+        void _OnCF4KV(KeyValuePair<int, ByteBuffer> _event)
+        {
+            // 通知到lua那边
+            OnCF2Lua(_event.Key, _event.Value);
+            // 放入对象池				
+            ByteBuffer.ReBack(_event.Value);
+        }
+
+        void OnCF4UpQueue()
+        {
+            if (mEvents.Count > 0)
+            {
+                while (mEvents.Count > 0)
+                {
+                    KeyValuePair<int, ByteBuffer> _event = mEvents.Dequeue();
+                    this._OnCF4KV(_event);
+                }
+            }
+        }
+
+        void OnCF4UpList()
+        {
+            if (mListEvents.Count > 0)
+            {
+                List<KeyValuePair<int, ByteBuffer>> _list = new List<KeyValuePair<int, ByteBuffer>>(mListEvents);
+                int _lens = _list.Count;
+                for (int i = 0; i < _lens; i++)
+                {
+                    KeyValuePair<int, ByteBuffer> _event = _list[i];
+                    mListEvents.Remove(_event);
+
+                    this._OnCF4KV(_event);
+                }
+            }
         }
 
         public NetworkManager InitNet(string host, int port, string luaFunc)
@@ -107,7 +137,10 @@ namespace TNet
         {
             lock (m_lockObject)
             {
-                mEvents.Enqueue(new KeyValuePair<int, ByteBuffer>(code, data));
+                if (mIsUseQueue)
+                    mEvents.Enqueue(new KeyValuePair<int, ByteBuffer>(code, data));
+                else
+                    mListEvents.Add(new KeyValuePair<int, ByteBuffer>(code, data));
             }
         }
 
