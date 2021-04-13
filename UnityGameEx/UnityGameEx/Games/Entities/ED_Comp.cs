@@ -161,6 +161,16 @@ namespace Core.Kernel.Beans
             this.InitComp(comp, cfDestroy, cfShow, cfHide);
         }
 
+        virtual public void InitComp(Component comp)
+        {
+            this.InitComp(comp, null, null, null);
+        }
+
+        virtual public void InitComp(string strComp)
+        {
+            this.InitComp(strComp, null, null, null);
+        }
+
         virtual public void ClearComp()
         {
             this.StopAllUpdate();
