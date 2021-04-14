@@ -10,14 +10,14 @@ using System.Collections.Generic;
 /// </summary>
 public class CanvasEx : GobjLifeListener
 {
-    static public new CanvasEx Get(GameObject gobj, bool isAdd)
+    static public new CanvasEx Get(UnityEngine.Object uobj, bool isAdd)
     {
-        return GHelper.Get<CanvasEx>(gobj, true);
+        return GHelper.Get<CanvasEx>(uobj, true);
     }
 
-    static public new CanvasEx Get(GameObject gobj)
+    static public new CanvasEx Get(UnityEngine.Object uobj)
     {
-        return Get(gobj, true);
+        return Get(uobj, true);
     }
 
     static public CanvasEx GetInParent(UnityEngine.Object uobj)

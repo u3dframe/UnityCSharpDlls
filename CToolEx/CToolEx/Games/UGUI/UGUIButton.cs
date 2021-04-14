@@ -12,13 +12,14 @@ using System.Collections.Generic;
 [AddComponentMenu("UI/UGUIButton")]
 public class UGUIButton : GobjLifeListener {
 	// 取得对象
-	static public new UGUIButton Get(GameObject gobj,bool isAdd){
+	static public new UGUIButton Get(UnityEngine.Object uobj, bool isAdd){
 		
-		return GHelper.Get<UGUIButton>(gobj,isAdd);
+		return GHelper.Get<UGUIButton>(uobj, isAdd);
 	}
 
-	static public new UGUIButton Get(GameObject gobj){
-		return Get(gobj,true);
+	static public new UGUIButton Get(UnityEngine.Object uobj)
+    {
+		return Get(uobj, true);
 	}
 
 	static public bool isFreezedAll = false; // 冻结所有按钮

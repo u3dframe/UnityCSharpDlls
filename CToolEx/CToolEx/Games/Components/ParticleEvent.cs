@@ -7,12 +7,13 @@
 /// 功能 : 向父类发送消息
 /// </summary>
 public class ParticleEvent : GobjLifeListener {
-	static public new ParticleEvent Get(GameObject gobj,bool isAdd){
-		return GHelper.Get<ParticleEvent>(gobj,isAdd);
+	static public new ParticleEvent Get(UnityEngine.Object uobj, bool isAdd){
+		return GHelper.Get<ParticleEvent>(uobj, isAdd);
 	}
 
-	static public new ParticleEvent Get(GameObject gobj){
-		return Get(gobj,true);
+	static public new ParticleEvent Get(UnityEngine.Object uobj)
+    {
+		return Get(uobj, true);
 	}
 
 	void OnBecameInvisible(){

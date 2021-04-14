@@ -14,12 +14,13 @@ public delegate void DF_ASM_SubLife(Animator animator, int stateMachinePathHash,
 [System.Serializable]
 public class AnimatorEx : PrefabBasic
 {
-	static public new AnimatorEx Get(GameObject gobj,bool isAdd){
-		return GHelper.Get<AnimatorEx>(gobj,isAdd);
+	static public new AnimatorEx Get(UnityEngine.Object uobj, bool isAdd){
+		return GHelper.Get<AnimatorEx>(uobj, isAdd);
 	}
 
-	static public new AnimatorEx Get(GameObject gobj){
-		return Get(gobj,true);
+	static public new AnimatorEx Get(UnityEngine.Object uobj)
+    {
+		return Get(uobj, true);
 	}
 
 	public bool m_isUseGID4MsgKey = true;

@@ -20,14 +20,14 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         return GHelper.GetGobjNotDestroy(name);
     }
 
-    static public GobjLifeListener Get(GameObject gobj, bool isAdd)
+    static public GobjLifeListener Get(UnityEngine.Object uobj, bool isAdd)
     {
-        return GHelper.Get<GobjLifeListener>(gobj, isAdd);
+        return GHelper.Get<GobjLifeListener>(uobj, isAdd);
     }
 
-    static public GobjLifeListener Get(GameObject gobj)
+    static public GobjLifeListener Get(UnityEngine.Object uobj)
     {
-        return Get(gobj, true);
+        return Get(uobj, true);
     }
 
     // 自身对象

@@ -12,12 +12,13 @@ using Core.Kernel;
 [AddComponentMenu("UI/UGUIGray")]
 public class UGUIGray : GobjLifeListener {
 	// 取得对象
-	static public new UGUIGray Get(GameObject gobj,bool isAdd){
-		return GHelper.Get<UGUIGray>(gobj,isAdd);
+	static public new UGUIGray Get(UnityEngine.Object uobj, bool isAdd){
+		return GHelper.Get<UGUIGray>(uobj, isAdd);
 	}
 
-	static public new UGUIGray Get(GameObject gobj){
-		return Get(gobj,true);
+	static public new UGUIGray Get(UnityEngine.Object uobj)
+    {
+		return Get(uobj, true);
 	}
 	
 	static Material _matGray;

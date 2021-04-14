@@ -12,12 +12,13 @@ public delegate void DF_ElementForeach(int index,GameObject gobj);
 /// </summary>
 [System.Serializable]
 public class PrefabBasic : GobjLifeListener {
-	static public new PrefabBasic Get(GameObject gobj,bool isAdd){
-		return GHelper.Get<PrefabBasic>(gobj,true);
+	static public new PrefabBasic Get(UnityEngine.Object uobj, bool isAdd){
+		return GHelper.Get<PrefabBasic>(uobj, true);
 	}
 
-	static public new PrefabBasic Get(GameObject gobj){
-		return Get(gobj,true);
+	static public new PrefabBasic Get(UnityEngine.Object uobj)
+    {
+		return Get(uobj, true);
 	}
 	
 	/// <summary>

@@ -8,12 +8,13 @@
 /// </summary>
 public class RendererMatProperty : GobjLifeListener
 {
-    static public new RendererMatProperty Get(GameObject gobj,bool isAdd){
-		return GHelper.Get<RendererMatProperty>(gobj,isAdd);
+    static public new RendererMatProperty Get(UnityEngine.Object uobj, bool isAdd){
+		return GHelper.Get<RendererMatProperty>(uobj, isAdd);
 	}
 
-	static public new RendererMatProperty Get(GameObject gobj){
-		return Get(gobj,true);
+	static public new RendererMatProperty Get(UnityEngine.Object uobj)
+    {
+		return Get(uobj, true);
 	}
 
     MaterialPropertyBlock m_mpb;

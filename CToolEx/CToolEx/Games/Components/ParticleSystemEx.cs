@@ -10,12 +10,14 @@ using System.Collections.Generic;
 /// 修改 : 2020-09-12 09:38 优化
 /// </summary>
 public class ParticleSystemEx : GobjLifeListener {
-	static public new ParticleSystemEx Get(GameObject gobj,bool isAdd){
-		return GHelper.Get<ParticleSystemEx>(gobj,isAdd);
+	static public new ParticleSystemEx Get(UnityEngine.Object uobj, bool isAdd)
+    {
+		return GHelper.Get<ParticleSystemEx>(uobj, isAdd);
 	}
 
-	static public new ParticleSystemEx Get(GameObject gobj){
-		return Get(gobj,true);
+	static public new ParticleSystemEx Get(UnityEngine.Object uobj)
+    {
+		return Get(uobj, true);
 	}
 	
 	List<ParticleSystem> listAll = new List<ParticleSystem>();
