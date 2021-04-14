@@ -15,14 +15,14 @@ public delegate void DF_UGUIV2Bool(GameObject gameObject, bool isBl, Vector2 pos
 /// </summary>
 public class UGUIEventListener : EventTrigger
 {
-    static public UGUIEventListener Get(GameObject gobj, bool isAdd)
+    static public UGUIEventListener Get(UnityEngine.Object uobj, bool isAdd)
     {
-        return GHelper.Get<UGUIEventListener>(gobj, isAdd);
+        return GHelper.Get<UGUIEventListener>(uobj, isAdd);
     }
 
-    static public UGUIEventListener Get(GameObject gobj)
+    static public UGUIEventListener Get(UnityEngine.Object uobj)
     {
-        return Get(gobj, true);
+        return Get(uobj, true);
     }
 
     static public float maxDistance = 70f;
