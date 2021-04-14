@@ -9,14 +9,14 @@ using UnityEngine.UI;
 /// </summary>
 public class UGUIModel : PrefabBasic
 {
-    static public new UGUIModel Get(GameObject gobj, bool isAdd)
+    static public new UGUIModel Get(UnityEngine.Object uobj, bool isAdd)
     {
-        return UtilityHelper.Get<UGUIModel>(gobj, true);
+        return UtilityHelper.Get<UGUIModel>(uobj, true);
     }
 
-    static public new UGUIModel Get(GameObject gobj)
+    static public new UGUIModel Get(UnityEngine.Object uobj)
     {
-        return Get(gobj, true);
+        return Get(uobj, true);
     }
 
     public SmoothFollower m_sfwer { get; private set; }

@@ -193,14 +193,14 @@ public class SceneMapEx : GobjLifeListener
         return _cs;
     }
 
-    static public new SceneMapEx Get(GameObject gobj, bool isAdd)
+    static public new SceneMapEx Get(UnityEngine.Object uobj, bool isAdd)
     {
-        return UtilityHelper.Get<SceneMapEx>(gobj, isAdd);
+        return UtilityHelper.Get<SceneMapEx>(uobj, isAdd);
     }
 
-    static public new SceneMapEx Get(GameObject gobj)
+    static public new SceneMapEx Get(UnityEngine.Object uobj)
     {
-        return Get(gobj, false);
+        return Get(uobj, false);
     }
 
     MSM_UpState m_u_state = MSM_UpState.None;

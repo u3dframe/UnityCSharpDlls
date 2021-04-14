@@ -10,12 +10,13 @@ using UnityEngine.Rendering.PostProcessing;
 public class MainCameraManager : MgrMainCamera
 {
 	// 取得对象
-	static public new MainCameraManager Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<MainCameraManager>(gobj,isAdd);
+	static public new MainCameraManager Get(UnityEngine.Object uobj, bool isAdd){
+		return UtilityHelper.Get<MainCameraManager>(uobj, isAdd);
 	}
 
-	static public new MainCameraManager Get(GameObject gobj){
-		return Get(gobj,true);
+	static public new MainCameraManager Get(UnityEngine.Object uobj)
+    {
+		return Get(uobj, true);
 	}
 	
     public PostProcessLayer m_postLayer { get; private set; }

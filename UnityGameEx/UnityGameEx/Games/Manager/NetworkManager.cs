@@ -26,7 +26,8 @@ namespace TNet
         static List<KeyValuePair<int, ByteBuffer>> mListEvents = new List<KeyValuePair<int, ByteBuffer>>();
 
         private SocketClient socket = null;
-        string lua_func = "Network.OnSocket";
+        string _lua_func = "Network.OnSocket";
+        public string lua_func { get { return _lua_func; } private set { this._lua_func = value; } }
         String m_host = null;
         int m_port = 0;
 

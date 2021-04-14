@@ -9,12 +9,13 @@ using UnityEngine;
 public class MgrMainCamera : MonoBehaviour
 {
 	// 取得对象
-	static public MgrMainCamera Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<MgrMainCamera>(gobj,isAdd);
+	static public MgrMainCamera Get(UnityEngine.Object uobj, bool isAdd){
+		return UtilityHelper.Get<MgrMainCamera>(uobj, isAdd);
 	}
 
-	static public MgrMainCamera Get(GameObject gobj){
-		return Get(gobj,true);
+	static public MgrMainCamera Get(UnityEngine.Object uobj)
+    {
+		return Get(uobj, true);
 	}
 	
     public Transform m_target;

@@ -71,14 +71,14 @@ namespace Core.Kernel
             PlayMovie(fp, Color.black, FullScreenMovieControlMode.Hidden);
         }
 
-        static public new VideoEx Get(GameObject gobj, bool isAdd)
+        static public new VideoEx Get(UnityEngine.Object uobj, bool isAdd)
         {
-            return UtilityHelper.Get<VideoEx>(gobj, isAdd);
+            return UtilityHelper.Get<VideoEx>(uobj, isAdd);
         }
 
-        static public new VideoEx Get(GameObject gobj)
+        static public new VideoEx Get(UnityEngine.Object uobj)
         {
-            return Get(gobj, false);
+            return Get(uobj, false);
         }
 
         public string m_fpath { get; private set; }

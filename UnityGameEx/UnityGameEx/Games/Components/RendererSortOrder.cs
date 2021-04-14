@@ -18,14 +18,14 @@ public class RendererSortOrder : GobjLifeListener
         LayerAndQueue = 3
     }
 
-    static public new RendererSortOrder Get(GameObject gobj, bool isAdd)
+    static public new RendererSortOrder Get(UnityEngine.Object uobj, bool isAdd)
     {
-        return UtilityHelper.Get<RendererSortOrder>(gobj, isAdd);
+        return UtilityHelper.Get<RendererSortOrder>(uobj, isAdd);
     }
 
-    static public new RendererSortOrder Get(GameObject gobj)
+    static public new RendererSortOrder Get(UnityEngine.Object uobj)
     {
-        return Get(gobj, true);
+        return Get(uobj, true);
     }
 
     public SortType m_sType = SortType.LayerAndQueue;

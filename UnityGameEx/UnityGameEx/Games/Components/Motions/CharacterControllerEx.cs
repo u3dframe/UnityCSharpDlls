@@ -12,12 +12,12 @@ using Core;
 [System.Serializable]
 public class CharacterControllerEx : AnimatorEx
 {
-	static public new CharacterControllerEx Get(GameObject gobj,bool isAdd){
-		return UtilityHelper.Get<CharacterControllerEx>(gobj,isAdd);
+	static public new CharacterControllerEx Get(UnityEngine.Object uobj,bool isAdd){
+		return UtilityHelper.Get<CharacterControllerEx>(uobj,isAdd);
 	}
 
-	static public new CharacterControllerEx Get(GameObject gobj){
-		return Get(gobj,true);
+	static public new CharacterControllerEx Get(UnityEngine.Object uobj){
+		return Get(uobj,true);
 	}
 
 	public CharacterController m_c_ctrler = null;
