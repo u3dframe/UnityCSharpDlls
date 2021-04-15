@@ -169,7 +169,7 @@ public class SocketClient {
         ByteBuffer buffer = ByteBuffer.BuildWriter();
         buffer.WriteString(msg);
         NetworkManager.AddEvent(protocal, buffer.ToReader());
-        //Debug.LogError("Connection was closed by the server:>" + msg + " Distype:>" + dis);
+        // Debug.LogErrorFormat("=== OnDisconnected == [{0}] = [{1}] = [{2}]", dis, protocal, msg);
     }
 
     /// <summary>
