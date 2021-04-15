@@ -59,8 +59,8 @@ public class SocketClient {
             else {
                 client = new TcpClient(AddressFamily.InterNetwork);
             }
-            client.SendTimeout = 1000;
-            client.ReceiveTimeout = 1000;
+            client.SendTimeout = 30000;
+            client.ReceiveTimeout = 30000;
             client.NoDelay = true;
             client.BeginConnect(host, port, new AsyncCallback(OnConnect), null);
         } catch (Exception ex) {
