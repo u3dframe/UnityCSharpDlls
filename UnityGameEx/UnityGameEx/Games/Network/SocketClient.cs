@@ -15,8 +15,8 @@ public enum DisType {
 public class SocketClient {
     private TcpClient client = null;
     private NetworkStream outStream = null;
-    private MemoryStream memStream;
-    private BinaryReader reader;
+    //private MemoryStream memStream;
+    //private BinaryReader reader;
 
     private const int MAX_READ = 8192;
     private byte[] _bts = new byte[MAX_READ];
@@ -29,8 +29,8 @@ public class SocketClient {
     /// 注册代理
     /// </summary>
     public void OnRegister() {
-        memStream = new MemoryStream();
-        reader = new BinaryReader(memStream);
+        //memStream = new MemoryStream();
+        //reader = new BinaryReader(memStream);
     }
 
     /// <summary>
@@ -38,8 +38,8 @@ public class SocketClient {
     /// </summary>
     public void OnRemove() {
         this.Close();
-        reader.Close();
-        memStream.Close();
+        //reader.Close();
+        //memStream.Close();
     }
 
     /// <summary>
@@ -153,7 +153,7 @@ public class SocketClient {
     /// 丢失链接
     /// </summary>
     void OnDisconnected(DisType dis, string msg) {
-        Close();   //关掉客户端链接
+        this.Close(); //关掉客户端链接
         int protocal = Protocal.Disconnect;
         switch(dis){
             case DisType.Exception:
@@ -209,13 +209,6 @@ public class SocketClient {
     }
 
     /// <summary>
-    /// 剩余的字节
-    /// </summary>
-    private long RemainingBytes() {
-        return memStream.Length - memStream.Position;
-    }
-
-    /// <summary>
     /// 接收到消息
     /// </summary>
     /// <param name="ms"></param>
@@ -262,7 +255,7 @@ public class SocketClient {
         ByteBuffer.ReBack(buffer);
     }
 
-    public void SendMessage(byte [] msg) {
+    public void SendMessage(byte[] msg) {
         WriteMessage(msg);
     }
 }
