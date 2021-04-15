@@ -25,7 +25,7 @@ namespace TNet
         static Queue<KeyValuePair<int, ByteBuffer>> mEvents = new Queue<KeyValuePair<int, ByteBuffer>>();
         static List<KeyValuePair<int, ByteBuffer>> mListEvents = new List<KeyValuePair<int, ByteBuffer>>();
 
-        private SocketClient socket = null;
+        public SocketClient socket { get; private set; }
         string _lua_func = "Network.OnSocket";
         public string lua_func { get { return _lua_func; } private set { this._lua_func = value; } }
         String m_host = null;
