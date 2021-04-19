@@ -59,8 +59,8 @@ public class SocketClient {
             else {
                 client = new TcpClient(AddressFamily.InterNetwork);
             }
-            client.SendTimeout = 30000;
-            client.ReceiveTimeout = 30000;
+            client.SendTimeout = 1000 * 30;
+            client.ReceiveTimeout = 1000 * 60 * 5;
             client.NoDelay = true;
             client.BeginConnect(host, port, new AsyncCallback(OnConnect), null);
         } catch (Exception ex) {
@@ -235,6 +235,9 @@ public class SocketClient {
         bool _isBl = IsConnected();
         if (_isBl)
           client.Close();
+
+        if (client != null)
+            client.Dispose();
 
         client = null;
         return _isBl;
