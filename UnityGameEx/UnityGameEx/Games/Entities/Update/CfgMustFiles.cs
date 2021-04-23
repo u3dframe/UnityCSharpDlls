@@ -39,23 +39,42 @@ namespace Core.Kernel
 				return;
 			}
 			string[] _vals = content.Split ("\r\n\t".ToCharArray (), System.StringSplitOptions.RemoveEmptyEntries);
-			int _lens = _vals.Length;
-			string _str = null;
-			for (int i = 0; i < _lens; i++) {
-				_str = _vals [i];
-				if (_str.IndexOf (".") == -1) {
-					if (!m_lFolders.Contains (_str)) {
-						m_lFolders.Add (_str);
-					}
-				} else {
-					if (!m_lFiles.Contains (_str)) {
-						m_lFiles.Add (_str);
-					}
-				}
-			}
+            this.Append(_vals);
 		}
 
-		public void CloneFromOther(CfgMustFiles other){
+        public void Append(params string[] vals)
+        {
+            if (vals == null || vals.Length <= 0)
+                return;
+
+            int _lens = vals.Length;
+            string _str = null;
+            for (int i = 0; i < _lens; i++)
+            {
+                _str = vals[i];
+                if (_str.IndexOf(".") == -1)
+                {
+                    if (!m_lFolders.Contains(_str))
+                    {
+                        m_lFolders.Add(_str);
+                    }
+                }
+                else
+                {
+                    if (!m_lFiles.Contains(_str))
+                    {
+                        m_lFiles.Add(_str);
+                    }
+                }
+            }
+        }
+
+        public void Appends(string[] vals)
+        {
+            this.Append(vals);
+        }
+
+        public void CloneFromOther(CfgMustFiles other){
 			this.m_content = other.m_content;
 			this.m_isInit = other.m_isInit;
 			this.m_lFiles = other.m_lFiles;
@@ -87,19 +106,15 @@ namespace Core.Kernel
 			int lens = m_lFolders.Count;
 			for (int i = 0; i < lens; i++) {
 				_str = m_lFolders [i];
-				if (resName.StartsWith (_str))
-					return true;
-				if (resName.Contains(_str))
+				if (resName.StartsWith (_str) || resName.Contains(_str))
 					return true;
 			}
 
 			lens = m_lFiles.Count;
 			for (int i = 0; i < lens; i++) {
 				_str = m_lFiles [i];
-				if (resName.Equals (_str))
+				if (resName.Equals (_str) || resName.EndsWith(_str))
 					return true;
-                if (resName.EndsWith(_str))
-                    return true;
             }
 			return false;
 		}
