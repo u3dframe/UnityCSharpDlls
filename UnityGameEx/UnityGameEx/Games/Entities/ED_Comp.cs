@@ -577,7 +577,7 @@ namespace Core.Kernel.Beans
         public bool m_isUpByLate { get; set; }
         protected bool m_isSmoothPos { get; private set; }
         private int m_upPosState = 0; // 1 = local pos,2 = world pos,3 = anPos,4 = anPos3D
-        protected float m_jugdePosDis = 0.0009f; // 0.05^2 = 0.0025f
+        protected float m_jugdePosDis = 0.0016f; // 0.05^2 = 0.0025f
         private Vector3 m_curPos = Vector3.zero;
         private Vector3 m_toPos = Vector3.zero;
         private Vector3 m_diffPos = Vector3.zero;
