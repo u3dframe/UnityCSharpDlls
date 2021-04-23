@@ -1,1 +1,4 @@
 special_effects/
+post_process/
+skyboxs/
+lightmaps/

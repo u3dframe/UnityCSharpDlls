@@ -8,3 +8,4 @@ shaders/
 skyboxs/
 textures/
 timeline/
+animations/
