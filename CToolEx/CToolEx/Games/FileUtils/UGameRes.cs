@@ -43,6 +43,7 @@ namespace Core.Kernel
         static public readonly string m_strLightmap = ".ab_lms";
         static public readonly string m_strScriptable = ".ab_sct";
         static public readonly string m_strVdoClip = ".vdo";
+        static public readonly string m_strFdAnmt = ".ab_anmt"; // animator,animation的文件夹
 
         static public readonly string m_suffix_png = ".png";
         static public readonly string m_suffix_fab = ".prefab";
@@ -129,50 +130,45 @@ namespace Core.Kernel
             UnLoadOne(obj,false);
         }
 
+        static public bool IsAB(string abName,string defEnd)
+        {
+            if (string.IsNullOrEmpty(abName) || string.IsNullOrEmpty(defEnd))
+                return false;
+            return abName.EndsWith(defEnd);
+        }
+
         static public bool IsSVCAB(string abName)
         {
-            if (string.IsNullOrEmpty(abName))
-                return false;
-            return abName.EndsWith(m_strSVC);
+            return IsAB(abName, m_strSVC);            
         }
 
         static public bool IsShaderAB(string abName){
-            if(string.IsNullOrEmpty(abName))
-                return false;
-            return abName.EndsWith(m_strShader);
+            return IsAB(abName, m_strShader);
         }
 
         static public bool IsMatAB(string abName){
-            if(string.IsNullOrEmpty(abName))
-                return false;
-            return abName.EndsWith(m_strMat);
+            return IsAB(abName, m_strMat);
         }
 
         static public bool IsTex2dAB(string abName){
-            if(string.IsNullOrEmpty(abName))
+            if (string.IsNullOrEmpty(abName))
                 return false;
             return abName.EndsWith(m_strTex2D) || abName.EndsWith(m_strCube);
         }
 
         static public bool IsAudioClipAB(string abName)
         {
-            if (string.IsNullOrEmpty(abName))
-                return false;
-            return abName.EndsWith(m_strAdoClip);
+            return IsAB(abName, m_strAdoClip);
         }
 
         static public bool IsScriptableAB(string abName)
         {
-            if (string.IsNullOrEmpty(abName))
-                return false;
-            return abName.EndsWith(m_strScriptable);
+            return IsAB(abName, m_strScriptable);
         }
 
         static public bool IsVdoClipAB(string abName)
         {
-            if (string.IsNullOrEmpty(abName))
-                return false;
-            return abName.EndsWith(m_strVdoClip);
+            return IsAB(abName, m_strVdoClip);
         }
     }
 }
