@@ -202,6 +202,8 @@ namespace Core.Kernel
 
         private SortABDep m_sort = new SortABDep();
         private ListDict<ABDataDependence> m_dicList = new ListDict<ABDataDependence>(true);
+        private CfgMustFiles m_ignoreFiles;
+        private CfgMustFiles m_mustFiles;
 
         public int Count
         {
@@ -223,38 +225,19 @@ namespace Core.Kernel
             return (_f != null) ? _f.ReABBySVC4Shader() : null;
         }
 
-        void InitIgnoreAndMust()
+        public void InitIgnoreAndMust(bool isForce = false)
         {
-            string fp = string.Format("{0}/Editor/Cfgs/ab_ignore_files.txt", Application.dataPath);
-            string val = null;
-            if (File.Exists(fp))
-                val = File.ReadAllText(fp);
-            List<string> _list_ = new List<string>(ignoreFiles);
-            if (!string.IsNullOrEmpty(val))
-            {
-                string[] _arrs = val.Split("\r\n\t".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries);
-                if(_arrs != null && _arrs.Length > 0)
-                {
-                    _list_.AddRange(_arrs);
-                    ignoreFiles = _list_.ToArray();
-                }
-            }
+            isForce = isForce || this.m_ignoreFiles == null;
+            if (!isForce)
+                return;
 
-            _list_.Clear();
+            string fp = string.Format("{0}/Editor/Cfgs/ab_ignore_files.txt", Application.dataPath);
+            this.m_ignoreFiles = CfgMustFiles.BuilderFp(fp);
+            this.m_ignoreFiles.Appends(ignoreFiles);
+            
             fp = string.Format("{0}/Editor/Cfgs/ab_must_files.txt", Application.dataPath);
-            val = null;
-            if (File.Exists(fp))
-                val = File.ReadAllText(fp);
-            if (!string.IsNullOrEmpty(val))
-            {
-                _list_.AddRange(mustFiles);
-                string[] _arrs = val.Split("\r\n\t".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries);
-                if (_arrs != null && _arrs.Length > 0)
-                {
-                    _list_.AddRange(_arrs);
-                    mustFiles = _list_.ToArray();
-                }
-            }
+            this.m_mustFiles = CfgMustFiles.BuilderFp(fp);
+            this.m_mustFiles.Appends(mustFiles);
         }
 
         static string[] ignoreFiles = {
@@ -278,30 +261,14 @@ namespace Core.Kernel
             // ".fbx",
         };
 
-        static private bool _IsIn(string fp, string[] arrs)
-        {
-            if (arrs == null || arrs.Length <= 0)
-                return false;
-            string fpTolower = fp.ToLower();
-
-            for (int i = 0; i < arrs.Length; i++)
-            {
-                if (fpTolower.Contains(arrs[i]))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         static public bool IsIgnoreFile(string fp)
         {
-            return _IsIn(fp, ignoreFiles);
+            return instance.m_ignoreFiles.IsHas(fp);
         }
 
         static public bool IsMustFile(string fp)
         {
-            return _IsIn(fp, mustFiles);
+            return instance.m_mustFiles.IsHas(fp);
         }
 
         static public void Init(string objAssetPath, bool isMust, string beDeps = "")

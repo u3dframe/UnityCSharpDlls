@@ -129,6 +129,11 @@ public class EL_AssetRes
                     {
                         _DoMake();
                     }
+
+                    if (GUILayout.Button("重新 - 加载配置"))
+                    {
+                        BuildPatcher.ReLoadCfgs();
+                    }
                 }
                 EG_Helper.FEG_EndH();
             }
