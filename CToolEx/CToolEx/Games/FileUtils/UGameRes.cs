@@ -39,6 +39,7 @@ namespace Core.Kernel
         static public readonly string m_strTLine = ".pa";
         static public readonly string m_strFbx = ".ab_fbx";
         static public readonly string m_strAdoClip = ".ado";
+        static public readonly string m_strAnmClip = ".ab_anm";
         static public readonly string m_strMat = ".ab_mat";
         static public readonly string m_strLightmap = ".ab_lms";
         static public readonly string m_strScriptable = ".ab_sct";
