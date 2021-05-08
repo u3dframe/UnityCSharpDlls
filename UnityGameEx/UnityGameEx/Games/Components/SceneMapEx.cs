@@ -312,7 +312,7 @@ public class SceneMapEx : GobjLifeListener
     void _ST_ReLightmap()
     {
         this.m_u_state = MSM_UpState.Finish;
-        this._ReLightmap();
+        // this._ReLightmap();
     }
 
     void _ReLightmap()
