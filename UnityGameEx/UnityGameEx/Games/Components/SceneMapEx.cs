@@ -331,6 +331,12 @@ public class SceneMapEx : GobjLifeListener
         LightmapSettings.lightmaps = _list.ToArray();
     }
 
+    public void ReLightmap()
+    {
+        if(this.m_isDoned)
+            this._ReLightmap();
+    }
+
     void _ClearSLInfo()
     {
         SLInfo _it;

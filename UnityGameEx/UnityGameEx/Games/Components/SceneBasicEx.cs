@@ -46,6 +46,8 @@ public class SceneBasicEx : GobjLifeListener
         if (this.m_smInfo == null)
             return;
 
+        this.m_smInfo.ReLightmap();
+
         JsonData jdRoot = this.m_smInfo.m_mapJdRoot;
         if (jdRoot == null)
             return;
