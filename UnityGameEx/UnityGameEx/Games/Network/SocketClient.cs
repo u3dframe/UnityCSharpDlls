@@ -74,10 +74,19 @@ public class SocketClient {
     /// </summary>
     void OnConnect(IAsyncResult asr) {
         try{
-            client.EndConnect(asr);
-            outStream = client.GetStream();
-            client.GetStream().BeginRead(_bts, 0, MAX_READ, new AsyncCallback(OnRead), null);
-            NetworkManager.AddEvent(Protocal.Connect, null);
+            if(IsConnected())
+            {
+                client.EndConnect(asr);
+                outStream = client.GetStream();
+                client.GetStream().BeginRead(_bts, 0, MAX_READ, new AsyncCallback(OnRead), null);
+                NetworkManager.AddEvent(Protocal.Connect, null);
+            }
+            else
+            {
+                string _msg = "OnConnect--->>> Not";
+                OnDisconnected(DisType.ConnectFail, _msg);
+            }
+            
         } catch (Exception ex) {
             string _msg = "OnConnect--->>>" + ex.Message;
             OnDisconnected(DisType.ConnectFail, _msg);
