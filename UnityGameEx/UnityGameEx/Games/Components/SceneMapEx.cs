@@ -154,8 +154,15 @@ public class SceneMapEx : GobjLifeListener
     }
 	
     static public int m_cursor_map { get; private set; }
-    static public DF_ToLoadTex2D m_cfLoad { get; set; }
+    static DF_ToLoadTex2D _cfLoad = null;
+    static DF_ToLoadCube _cfLoadCube = null;
     static Dictionary<string, SceneMapEx> m_caches = new Dictionary<string, SceneMapEx>();
+
+    static public void ReStatic(DF_ToLoadTex2D toLoadTex, DF_ToLoadCube toLoadCube)
+    {
+        _cfLoad = toLoadTex;
+        _cfLoadCube = toLoadCube;
+    }
 
     static public SceneMapEx GetMSM(string map_key)
     {
@@ -206,8 +213,8 @@ public class SceneMapEx : GobjLifeListener
     MSM_UpState m_u_state = MSM_UpState.None;
     int m_lightmapsMode = 0;
     List<SLInfo> listSLInfos = new List<SLInfo>();
-    string m_ab_rp = null;
-    public Texture2D m_tex2dRP { get; private set; }
+    public string m_ab_rp { get; private set; }
+    public Cubemap m_lrp { get; private set; }
     protected string m_map_key { get; private set; }
     public JsonData m_mapJdRoot { get; private set; }
     public bool m_isDoned { get { return this.m_u_state == MSM_UpState.Finish; } }
@@ -281,16 +288,16 @@ public class SceneMapEx : GobjLifeListener
         {
             _rp = UGameFile.ReSEnd(_rp, UGameFile.m_suffix_light);
             m_ab_rp = _fp_ab;
-            if (m_cfLoad != null)
-                m_cfLoad(_fp_ab, _rp, t2d => {
-                    this.m_tex2dRP = t2d;
+            if (_cfLoadCube != null)
+                _cfLoadCube(m_ab_rp, _rp, cube => {
+                    this.m_lrp = cube;
                 });
             else
-                AssetInfo.abMgr.LoadAsset<Texture2D>(_fp_ab, _rp, aObj => {
+                AssetInfo.abMgr.LoadAsset<Cubemap>(m_ab_rp, _rp, aObj => {
                     AssetInfo ainfo = aObj as AssetInfo;
                     if (ainfo == null)
                         return;
-                    this.m_tex2dRP = ainfo.GetObject<Texture2D>();
+                    this.m_lrp = ainfo.GetObject<Cubemap>();
                 });
         }
 
@@ -304,7 +311,7 @@ public class SceneMapEx : GobjLifeListener
             _c = LJsonHelper.ToStr(_jd, "lightmapColor");
             _d = LJsonHelper.ToStr(_jd, "lightmapDir");
             _s = LJsonHelper.ToStr(_jd, "shadowMask");
-            _loadData_ = new SLInfo(_fp_ab, _c, _d, _s,m_cfLoad);
+            _loadData_ = new SLInfo(_fp_ab, _c, _d, _s,_cfLoad);
             this.listSLInfos.Add(_loadData_);
         }
         if(_nLens > 0)
@@ -373,9 +380,7 @@ public class SceneMapEx : GobjLifeListener
 
     void _ClearSLRP()
     {
-        UGameFile.UnLoadOne(this.m_tex2dRP);
-        this.m_tex2dRP = null;
-
+        this.m_lrp = null;
         string _ab = this.m_ab_rp;
         this.m_ab_rp = null;
         if (!string.IsNullOrEmpty(_ab))

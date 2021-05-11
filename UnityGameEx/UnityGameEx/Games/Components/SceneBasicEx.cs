@@ -21,7 +21,7 @@ public class SceneBasicEx : GobjLifeListener
 
 	public string m_rootRelative = "Scene/";
 	public string m_infoName = "";
-    private SceneMapEx m_smInfo = null;
+    protected SceneMapEx m_smInfo { get; private set; }
 	
     protected override void OnCall4Start()
     {
@@ -145,23 +145,25 @@ public class SceneBasicEx : GobjLifeListener
 		}
 	}
 
-    protected virtual void LoadLRP()
+    virtual protected void LoadLRP()
     {
         if (this.m_smInfo == null)
             return;
 
-        Texture2D _t2d = this.m_smInfo.m_tex2dRP;
-        if (_t2d == null)
+        Cubemap _obj = this.m_smInfo.m_lrp;
+        if (_obj == null)
             return;
-        ReflectionProbe _rp = this.m_trsf.GetComponentInChildren<ReflectionProbe>();
-        if(_rp == null)
+
+        ReflectionProbe _rp = this.m_trsf.GetComponentInChildren<ReflectionProbe>(true);
+        if (_rp == null)
             return;
 
         _rp.mode = ReflectionProbeMode.Custom;
-        _rp.customBakedTexture = _t2d;
+        _rp.customBakedTexture = _obj;
         // _rp.importance = 1;
         // _rp.intensity = 1;
         // _rp.center;
         // _rp.size;
+        _rp.gameObject.SetActive(true);
     }
 }
