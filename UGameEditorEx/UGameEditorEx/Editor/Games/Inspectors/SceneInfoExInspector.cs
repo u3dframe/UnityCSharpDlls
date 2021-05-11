@@ -18,6 +18,7 @@ public class SceneInfoExInspector : Editor
     SceneInfoEx m_obj;
 	// string m_fabName = "";
 	string _fpInAsset4Gbox = "Assets/_Develop/Builds/groudbox/Excludes/gbox.prefab";
+    bool _isSaveRp = true;
 	
     void OnEnable()
     {
@@ -27,6 +28,7 @@ public class SceneInfoExInspector : Editor
     public override void OnInspectorGUI()
     {
         base.DrawDefaultInspector();
+        _isSaveRp = GUILayout.Toggle(_isSaveRp, "包涵 ReflectionProbe-0 ???");
 		if (GUILayout.Button("Save Infos - 保存【场景】信息",EG_Helper.ToOptionH(30))){
 			_SaveInfos();
 		}
@@ -93,11 +95,7 @@ public class SceneInfoExInspector : Editor
 
 		if(jdLmds.Count > 0){
 			jdLm["lmDatas"] = jdLmds;
-
-            string _rp = "ReflectionProbe-0";
-            string _fp = string.Format("{0}{1}{2}/{3}.exr", GameFile.m_appAssetPath, "Scene/Builds/", _fpdir,_rp);
-            if(GameFile.IsFile(_fp))
-                jdLm["rp_exr"] = _rp;
+            this._SaveReflectionProbe(_fpdir,jdLm);
         }
 		jdLm["n_need_load"] = needLoad;
 
@@ -134,7 +132,19 @@ public class SceneInfoExInspector : Editor
 		// m_obj.m_fabName = _fabName;
 	}
 
-	JsonData _SaveFog(){
+    void _SaveReflectionProbe(string rfp , JsonData jdLm)
+    {
+        if (!_isSaveRp || jdLm == null)
+            return;
+
+        string _rp = "ReflectionProbe-0";
+        string _fp = string.Format("{0}{1}{2}/{3}.exr", GameFile.m_appAssetPath, "Scene/Builds/",rfp, _rp);
+        if (GameFile.IsFile(_fp))
+            jdLm["rp_exr"] = _rp;
+    }
+
+
+    JsonData _SaveFog(){
 		JsonData jdFog = NewJObj();
 		jdFog["fog"] = RenderSettings.fog;
 		jdFog["fogMode"] = (int)RenderSettings.fogMode;
