@@ -57,7 +57,8 @@ public class SceneInfoExInspector : Editor
 		JsonData jdLm = NewJObj();
 		jdRoot["info_lms"] = jdLm;
 
-		jdLm["fp_lm"] = "lightmaps/" + sname;
+        string _fpdir = "lightmaps/" + sname;
+        jdLm["fp_lm"] = _fpdir;
 		jdLm["lightmapsMode"] = (int)LightmapSettings.lightmapsMode;
 
 		JsonData jdLmds = NewJArr();
@@ -92,7 +93,12 @@ public class SceneInfoExInspector : Editor
 
 		if(jdLmds.Count > 0){
 			jdLm["lmDatas"] = jdLmds;
-		}
+
+            string _rp = "ReflectionProbe-0.exr";
+            string _fp = string.Format("{0}{1}{2}/{3}", GameFile.m_appAssetPath, "Scene/Builds/", _fpdir,_rp);
+            if(GameFile.IsFile(_fp))
+                jdLm["rp_exr"] = _rp;
+        }
 		jdLm["n_need_load"] = needLoad;
 
 		JsonData jdRLmds = _SaveRenderLightMaps(_nLens);
