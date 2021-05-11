@@ -206,6 +206,8 @@ public class SceneMapEx : GobjLifeListener
     MSM_UpState m_u_state = MSM_UpState.None;
     int m_lightmapsMode = 0;
     List<SLInfo> listSLInfos = new List<SLInfo>();
+    string m_ab_rp = null;
+    public Texture2D m_tex2dRP { get; private set; }
     protected string m_map_key { get; private set; }
     public JsonData m_mapJdRoot { get; private set; }
     public bool m_isDoned { get { return this.m_u_state == MSM_UpState.Finish; } }
@@ -274,6 +276,23 @@ public class SceneMapEx : GobjLifeListener
 
         string _fp = jdLm["fp_lm"].ToString();
         string _fp_ab = _fp + UGameFile.m_strLightmap;
+        string _rp = LJsonHelper.ToStrDef(jdLm, "rp_exr",null);
+        if(!string.IsNullOrEmpty(_rp))
+        {
+            _rp = UGameFile.ReSEnd(_rp, UGameFile.m_suffix_light);
+            m_ab_rp = _fp_ab;
+            if (m_cfLoad != null)
+                m_cfLoad(_fp_ab, _rp, t2d => {
+                    this.m_tex2dRP = t2d;
+                });
+            else
+                AssetInfo.abMgr.LoadAsset<Texture2D>(_fp_ab, _rp, aObj => {
+                    AssetInfo ainfo = aObj as AssetInfo;
+                    if (ainfo == null)
+                        return;
+                    this.m_tex2dRP = ainfo.GetObject<Texture2D>();
+                });
+        }
 
         int _nLens = jdLmds.Count;
         JsonData _jd;
@@ -348,6 +367,21 @@ public class SceneMapEx : GobjLifeListener
                 _it.Clear();
         }
 		this.listSLInfos.Clear();
+
+        this._ClearSLRP();
+    }
+
+    void _ClearSLRP()
+    {
+        UGameFile.UnLoadOne(this.m_tex2dRP);
+        this.m_tex2dRP = null;
+
+        string _ab = this.m_ab_rp;
+        this.m_ab_rp = null;
+        if (!string.IsNullOrEmpty(_ab))
+        {
+            AssetInfo.abMgr.UnLoadAsset(_ab);
+        }
     }
 
     [ContextMenu("Clear Lightmap")]

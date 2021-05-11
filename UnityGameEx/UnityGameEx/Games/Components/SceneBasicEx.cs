@@ -48,6 +48,8 @@ public class SceneBasicEx : GobjLifeListener
 
         this.m_smInfo.ReLightmap();
 
+        this.LoadLRP();
+
         JsonData jdRoot = this.m_smInfo.m_mapJdRoot;
         if (jdRoot == null)
             return;
@@ -142,4 +144,24 @@ public class SceneBasicEx : GobjLifeListener
 			// _gobj.isStatic = true;
 		}
 	}
+
+    protected virtual void LoadLRP()
+    {
+        if (this.m_smInfo == null)
+            return;
+
+        Texture2D _t2d = this.m_smInfo.m_tex2dRP;
+        if (_t2d == null)
+            return;
+        ReflectionProbe _rp = this.m_trsf.GetComponentInChildren<ReflectionProbe>();
+        if(_rp == null)
+            return;
+
+        _rp.mode = ReflectionProbeMode.Custom;
+        _rp.customBakedTexture = _t2d;
+        // _rp.importance = 1;
+        // _rp.intensity = 1;
+        // _rp.center;
+        // _rp.size;
+    }
 }
