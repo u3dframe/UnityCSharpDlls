@@ -94,8 +94,8 @@ public class SceneInfoExInspector : Editor
 		if(jdLmds.Count > 0){
 			jdLm["lmDatas"] = jdLmds;
 
-            string _rp = "ReflectionProbe-0.exr";
-            string _fp = string.Format("{0}{1}{2}/{3}", GameFile.m_appAssetPath, "Scene/Builds/", _fpdir,_rp);
+            string _rp = "ReflectionProbe-0";
+            string _fp = string.Format("{0}{1}{2}/{3}.exr", GameFile.m_appAssetPath, "Scene/Builds/", _fpdir,_rp);
             if(GameFile.IsFile(_fp))
                 jdLm["rp_exr"] = _rp;
         }
