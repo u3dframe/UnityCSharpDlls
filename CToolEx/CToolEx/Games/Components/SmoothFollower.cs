@@ -29,7 +29,8 @@ public class SmoothFollower : SmoothLookAt
 	public float height = 5.0f;
 	public float heightDamping = 1.8f;
 
-	public bool isLerpRotate = false;
+    public bool isSyncRotate = false;
+    public bool isLerpRotate = false;
 	public float rotationDamping = 1.8f;
 
     public bool isSmoothPos = false;
@@ -77,12 +78,19 @@ public class SmoothFollower : SmoothLookAt
 			currentDistance = distance;
         
         _tPos = target.position;
-        if (isLerpRotate)
+        if(isSyncRotate)
         {
             wantedRotationAngle = target.eulerAngles.y;
-            currentRotationAngle = m_trsf.eulerAngles.y;
-            currentRotationAngle = Mathf.LerpAngle(currentRotationAngle, wantedRotationAngle, rotationDamping * _dt);
-            currentRotation = Quaternion.Euler(0, currentRotationAngle, 0);
+            if (isLerpRotate)
+            {
+                currentRotationAngle = m_trsf.eulerAngles.y;
+                currentRotationAngle = Mathf.LerpAngle(currentRotationAngle, wantedRotationAngle, rotationDamping * _dt);
+                currentRotation = Quaternion.Euler(0, currentRotationAngle, 0);
+            }
+            else
+            {
+                currentRotation = Quaternion.Euler(0, wantedRotationAngle, 0);
+            }
         }
         else
         {

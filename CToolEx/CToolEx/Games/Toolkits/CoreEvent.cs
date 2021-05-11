@@ -14,8 +14,9 @@ namespace Core
     public delegate void DF_LoadedTex2D(Texture2D tex);
     public delegate void DF_ToLoadTex2D(string abName, string assetName, DF_LoadedTex2D clip);
 
-    public delegate void DF_LoadedTex2DExt(Texture2D tex,object ext1,object ext2);
-    public delegate void DF_ToLoadTex2DExt(string abName, string assetName, DF_LoadedTex2DExt clip, object ext1, object ext2);
+    // 透传参数的不用了
+    // public delegate void DF_LoadedTex2DExt(Texture2D tex,object ext1,object ext2);
+    // public delegate void DF_ToLoadTex2DExt(string abName, string assetName, DF_LoadedTex2DExt clip, object ext1, object ext2);
 
     public delegate void DF_LoadedCube(Cubemap tex);
     public delegate void DF_ToLoadCube(string abName, string assetName, DF_LoadedCube clip);
