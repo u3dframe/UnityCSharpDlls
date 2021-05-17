@@ -165,7 +165,7 @@ namespace Core.Kernel
             }
         }
 
-        public EM_EnCode m_encodeWordFile = EM_EnCode.XXTEA; // 编码文本文件
+        public EM_EnCode m_encodeWordFile = EM_EnCode.None; // 编码文本文件
 
         // 对象函数
         virtual public string GetFilePath(string fn)
