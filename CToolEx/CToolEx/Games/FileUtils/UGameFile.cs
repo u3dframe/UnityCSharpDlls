@@ -136,6 +136,27 @@ namespace Core.Kernel
             return _ret;
         }
 
+        static public byte[] GetBytes(string fn)
+        {
+            string _fp = curInstance.GetPath(fn);
+            if (File.Exists(_fp))
+            {
+                return File.ReadAllBytes(_fp);
+            }
+
+            string _suffix = Path.GetExtension(fn);
+            int _ind_ = fn.LastIndexOf(_suffix);
+            string _fnNoSuffix = fn.Substring(0, _ind_);
+            TextAsset txtAsset = Resources.Load<TextAsset>(_fnNoSuffix); // 可以不用考虑释放txtAsset
+            byte[] _ret = null;
+            if (txtAsset)
+            {
+                _ret = txtAsset.bytes;
+                Resources.UnloadAsset(txtAsset);
+            }
+            return _ret;
+        }
+
         static public string GetText4Decrypt(string fn)
         {
             string val = GetText(fn);
@@ -226,6 +247,18 @@ namespace Core.Kernel
         virtual public byte[] GetDecryptTextBytes(string fn)
         {
             return GetTextBytes4Decrypt(fn);
+        }
+
+        virtual public byte[] GetDecryptLuaBytes(string fn)
+        {
+            if(IsEnCode())
+            {
+                return GetTextBytes4Decrypt(fn);
+            }
+            else
+            {
+                return GetBytes(fn);
+            }
         }
 
         virtual public Material GetMat(Renderer render,bool isShared = false)
