@@ -120,7 +120,10 @@ public class CharacterControllerEx : AnimatorEx
         _arrs_nodes = new string[]{
             "heads","shadows","foot","skin",
             "f_head","f_l_hand","f_r_hand","f_mid",
-            "f_back","f_l_foot","f_r_foot","f_l_weapon","f_r_weapon"
+            "f_back","f_l_foot","f_r_foot","f_l_weapon","f_r_weapon",
+            "f_node_00","f_node_01","f_node_02","f_node_03","f_node_04",
+            "f_node_05","f_node_06","f_node_07","f_node_08","f_node_09",
+            "f_node_10","f_node_11","f_node_12","f_node_13","f_node_14",
         };
         base.ReBindNodes(isChild);
     }
