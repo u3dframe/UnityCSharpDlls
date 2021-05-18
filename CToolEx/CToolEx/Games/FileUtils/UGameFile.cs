@@ -60,7 +60,7 @@ namespace Core.Kernel
 
         static public string Encrypt(byte[] val, System.Text.Encoding encoding)
         {
-            string _vv = "";
+            string _vv = null;
             if (val != null && val.Length > 0)
             {
                 switch (curInstance.m_encodeWordFile)
