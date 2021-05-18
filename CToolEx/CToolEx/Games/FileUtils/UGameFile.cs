@@ -60,7 +60,7 @@ namespace Core.Kernel
 
         static public string Encrypt(byte[] val, System.Text.Encoding encoding)
         {
-            string _vv = null;
+            string _vv = "";
             if (val != null && val.Length > 0)
             {
                 switch (curInstance.m_encodeWordFile)
@@ -131,12 +131,13 @@ namespace Core.Kernel
             if (txtAsset)
             {
                 _ret = txtAsset.text;
-                Resources.UnloadAsset(txtAsset);
+                UnLoadOne(txtAsset); // Resources.UnloadAsset
             }
             return _ret;
         }
 
-        static public byte[] GetBytes(string fn)
+        // 取得文件流
+        static public byte[] GetTextBytes(string fn)
         {
             string _fp = curInstance.GetPath(fn);
             if (File.Exists(_fp))
@@ -148,13 +149,13 @@ namespace Core.Kernel
             int _ind_ = fn.LastIndexOf(_suffix);
             string _fnNoSuffix = fn.Substring(0, _ind_);
             TextAsset txtAsset = Resources.Load<TextAsset>(_fnNoSuffix); // 可以不用考虑释放txtAsset
-            byte[] _ret = null;
+            byte[] _bts = null;
             if (txtAsset)
             {
-                _ret = txtAsset.bytes;
-                Resources.UnloadAsset(txtAsset);
+                _bts = txtAsset.bytes;
+                UnLoadOne(txtAsset);
             }
-            return _ret;
+            return _bts;
         }
 
         static public string GetText4Decrypt(string fn)
@@ -186,28 +187,6 @@ namespace Core.Kernel
         {
             string _fp = isFilePath ? fn : curInstance.GetFilePath(fn);
             return File.Exists(_fp);
-        }
-
-        // 取得文件流
-        static public byte[] GetTextBytes(string fn)
-        {
-            string _fp = curInstance.GetPath(fn);
-            if (File.Exists(_fp))
-            {
-                return File.ReadAllBytes(_fp);
-            }
-
-            string _suffix = Path.GetExtension(fn);
-            int _ind_ = fn.LastIndexOf(_suffix);
-            string _fnNoSuffix = fn.Substring(0, _ind_);
-            TextAsset txtAsset = Resources.Load<TextAsset>(_fnNoSuffix); // 可以不用考虑释放txtAsset
-            byte[] _bts = null;
-            if (txtAsset)
-            {
-                _bts = txtAsset.bytes;
-                UnLoadOne(txtAsset);
-            }
-            return _bts;
         }
 
         static public string m_fpABManifest
@@ -257,7 +236,7 @@ namespace Core.Kernel
             }
             else
             {
-                return GetBytes(fn);
+                return GetTextBytes(fn);
             }
         }
 
