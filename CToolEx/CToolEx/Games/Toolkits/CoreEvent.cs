@@ -12,14 +12,19 @@ namespace Core
     public delegate void DF_LoadedFab(GameObject gobj);
 
     public delegate void DF_LoadedTex2D(Texture2D tex);
-    public delegate void DF_ToLoadTex2D(string abName, string assetName, DF_LoadedTex2D clip);
+    public delegate void DF_ToLoadTex2D(string abName, string assetName, DF_LoadedTex2D call);
 
     // 透传参数的不用了
     // public delegate void DF_LoadedTex2DExt(Texture2D tex,object ext1,object ext2);
-    // public delegate void DF_ToLoadTex2DExt(string abName, string assetName, DF_LoadedTex2DExt clip, object ext1, object ext2);
+    // public delegate void DF_ToLoadTex2DExt(string abName, string assetName, DF_LoadedTex2DExt call, object ext1, object ext2);
 
     public delegate void DF_LoadedCube(Cubemap tex);
-    public delegate void DF_ToLoadCube(string abName, string assetName, DF_LoadedCube clip);
+    public delegate void DF_ToLoadCube(string abName, string assetName, DF_LoadedCube call);
+
+    public delegate void DF_LoadedLProbes(LightProbes obj);
+    public delegate void DF_ToLoadLProbes(string abName, string assetName, DF_LoadedLProbes call);
+    public delegate void DF_LoadedSctObj(ScriptableObject obj);
+    public delegate void DF_ToLoadSctObj(string abName, string assetName, DF_LoadedSctObj call);
 
     public delegate void DF_LoadedSprite(Sprite sprite);
     public delegate void DF_LoadedAnimator(Animator ator);
@@ -28,10 +33,10 @@ namespace Core
     public delegate void DF_LoadedShader(Shader mat);
 
     public delegate void DF_LoadedAdoClip(AudioClip clip);
-    public delegate void DF_ToLoadAdoClip(string abName, string assetName,DF_LoadedAdoClip clip);
+    public delegate void DF_ToLoadAdoClip(string abName, string assetName,DF_LoadedAdoClip call);
 
     public delegate void DF_LoadedVdoClip(VideoClip clip);
-    public delegate void DF_ToLoadVdoClip(string abName, string assetName, DF_LoadedVdoClip clip);
+    public delegate void DF_ToLoadVdoClip(string abName, string assetName, DF_LoadedVdoClip call);
 
     public delegate void DF_LoadedTimelineAsset(TimelineAsset pa);
     public delegate void DF_OnBool(bool isBl);
