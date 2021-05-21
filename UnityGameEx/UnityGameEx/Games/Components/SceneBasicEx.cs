@@ -79,7 +79,7 @@ public class SceneBasicEx : GobjLifeListener
         RenderSettingsEx.SetFog(fog, mode, fColor, fogDensity, fogStartDistance, fogEndDistance);
 
 
-        if(jdFog["haloStrength"] != null)
+        if(LJsonHelper.IsHas(jdFog, "haloStrength"))
         {
             RenderSettings.haloStrength = LJsonHelper.ToFloat(jdFog, "haloStrength");
             RenderSettings.flareStrength = LJsonHelper.ToFloat(jdFog, "flareStrength");

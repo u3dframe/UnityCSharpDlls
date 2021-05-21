@@ -101,7 +101,22 @@ public static class LJsonHelper {
 		return jdRoot[index];
 	}
 
-	static public string ToStrDef(JsonData jdRoot,string key,string def){
+    static public bool IsHas(JsonData jdRoot, string key)
+    {
+        if (jdRoot == null || !jdRoot.IsObject)
+            return false;
+        return jdRoot.ContainsKey(key);
+    }
+
+    static public bool IsHas(JsonData jdRoot, int index)
+    {
+        if (jdRoot == null || !jdRoot.IsArray)
+            return false;
+        int count = jdRoot.Count;
+        return count > index;
+    }
+
+    static public string ToStrDef(JsonData jdRoot,string key,string def){
 		JsonData jd = ToJData(jdRoot,key);
 		if (jd != null) {
 			return jd.ToString();
