@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using LitJson;
 using Core;
+using Core.Kernel.Beans;
 
 /// <summary>
 /// 类名 : 场景参数数据 的 自定义Inspector界面
@@ -18,7 +19,6 @@ public class SceneInfoExInspector : Editor
     SceneInfoEx m_obj;
 	// string m_fabName = "";
 	string _fpInAsset4Gbox = "Assets/_Develop/Builds/groudbox/Excludes/gbox.prefab";
-    bool _isSaveRp = true;
 	
     void OnEnable()
     {
@@ -28,7 +28,6 @@ public class SceneInfoExInspector : Editor
     public override void OnInspectorGUI()
     {
         base.DrawDefaultInspector();
-        _isSaveRp = GUILayout.Toggle(_isSaveRp, "包涵 ReflectionProbe-0 ???");
 		if (GUILayout.Button("Save Infos - 保存【场景】信息",EG_Helper.ToOptionH(30))){
 			_SaveInfos();
 		}
@@ -55,8 +54,8 @@ public class SceneInfoExInspector : Editor
 		JsonData jdFog = _SaveFog();
 		jdRoot["info_fog"] = jdFog;
 
-		// 烘培 lightmap
-		JsonData jdLm = NewJObj();
+        // 烘培 lightmap
+        JsonData jdLm = NewJObj();
 		jdRoot["info_lms"] = jdLm;
 
         string _fpdir = "lightmaps/" + sname;
@@ -95,7 +94,7 @@ public class SceneInfoExInspector : Editor
 
 		if(jdLmds.Count > 0){
 			jdLm["lmDatas"] = jdLmds;
-            this._SaveReflectionProbe(_fpdir,jdLm);
+            this._SaveReflectionProbe(scene,_fpdir,jdLm);
         }
 		jdLm["n_need_load"] = needLoad;
 
@@ -132,17 +131,115 @@ public class SceneInfoExInspector : Editor
 		// m_obj.m_fabName = _fabName;
 	}
 
-    void _SaveReflectionProbe(string rfp , JsonData jdLm)
+    void _SaveReflectionProbe(Scene scene, string rfp, JsonData jdLm)
     {
-        if (!_isSaveRp || jdLm == null)
+        if (jdLm == null)
             return;
 
-        string _rp = "ReflectionProbe-0";
-        string _fp = string.Format("{0}{1}{2}/{3}.exr", GameFile.m_appAssetPath, "Scene/Builds/",rfp, _rp);
-        if (GameFile.IsFile(_fp))
-            jdLm["rp_exr"] = _rp;
+        JsonData _jdRoot = NewJObj();
+        GameObject[] _rgobjs = scene.GetRootGameObjects();
+        var _list = NewJArr();
+        ReflectionProbe[] _arrs = null;
+        Texture _brake = null;
+        JsonData _jdTemp = null;
+        Vector3 _v3Temp;
+        int _maxL = 0;
+        string _key = null;
+        foreach (var _gobj_ in _rgobjs)
+        {
+            _arrs = _gobj_.GetComponentsInChildren<ReflectionProbe>(true);
+            if (_arrs == null || _arrs.Length <= 0)
+                continue;
+            foreach (var item in _arrs)
+            {
+                _brake = item.bakedTexture;
+                if (_brake != null)
+                {
+                    _jdTemp = NewJObj();
+                    _key = _brake.name;
+
+                    _jdTemp["importance"] = item.importance;
+                    _jdTemp["intensity"] = item.intensity.ToString();
+                    _v3Temp = item.center;
+                    _jdTemp["center_x"] = _v3Temp.x.ToString();
+                    _jdTemp["center_y"] = _v3Temp.y.ToString();
+                    _jdTemp["center_z"] = _v3Temp.z.ToString();
+                    _v3Temp = item.size;
+                    _jdTemp["size_x"] = _v3Temp.x.ToString();
+                    _jdTemp["size_y"] = _v3Temp.y.ToString();
+                    _jdTemp["size_z"] = _v3Temp.z.ToString();
+                    _jdTemp["rp_exr"] = _key;
+                    _jdTemp["g_name"] = item.name;
+                    _v3Temp = item.transform.position;
+                    _jdTemp["pos_x"] = _v3Temp.x.ToString();
+                    _jdTemp["pos_y"] = _v3Temp.y.ToString();
+                    _jdTemp["pos_z"] = _v3Temp.z.ToString();
+
+                    _jdRoot[_key] = _jdTemp;
+                    _list.Add(_key);
+                    _maxL++;
+                }
+            }
+        }
+        bool isHasRP_Environment = (RenderSettings.defaultReflectionMode == UnityEngine.Rendering.DefaultReflectionMode.Skybox) || (RenderSettings.customReflection != null);
+        if (isHasRP_Environment)
+        {
+            _jdTemp = NewJObj();
+            _jdTemp["defaultReflectionResolution"] = RenderSettings.defaultReflectionResolution;
+            _jdTemp["reflectionBounces"] = RenderSettings.reflectionBounces;
+            _jdTemp["reflectionIntensity"] = RenderSettings.reflectionIntensity.ToString();
+            if (RenderSettings.customReflection != null)
+                _key = RenderSettings.customReflection.name;
+            else
+                _key = "ReflectionProbe-" + _maxL;
+            _jdTemp["rp_exr"] = _key;
+
+            _jdRoot[_key] = _jdTemp;
+            _jdRoot["environment"] = _key;
+            _list.Add(_key);
+        }
+        int _lens = _list.Count;
+        if (_lens > 0)
+        {
+            _jdRoot["lens"] = _lens;
+            _jdRoot["list"] = _list;
+            jdLm["reflections"] = _jdRoot;
+        }
     }
 
+    /*
+    void _SaveLightProbes(Scene scene, string rfp, JsonData jdLm)
+    { 
+        string _fn = string.Format("{0}_probes.asset",scene.name);
+        string _fp = string.Format("{0}{1}{2}/{3}", GameFile.m_appAssetPath, "Scene/Builds/", rfp,_fn);
+        if(GameFile.IsFile(_fp))
+            GameFile.DelFile(_fp);
+
+        LightProbes _lprobes = LightmapSettings.lightProbes;
+        bool _isHasProbes = _lprobes != null;
+#if UNITY_2018 || UNITY_2017
+        _isHasProbes = _isHasProbes && (_lprobes.count != 0 || _lprobes.cellCount != 0);
+#else
+        _isHasProbes = _isHasProbes && (_lprobes.bakedProbes != null || _lprobes.bakedProbes.Length != 0);
+#endif
+        if (_isHasProbes)
+        {
+            string _fpAsset = GameFile.Path2AssetsStart(_fp);
+            Object _assetObj = null;
+#if UNITY_2018 || UNITY_2017
+            _assetObj = Instantiate<LightProbes>(_lprobes);
+#else
+            var _ldat = ScriptableObject.CreateInstance(typeof(LProbeData)) as LProbeData;
+            _ldat.lightProbes = _lprobes.bakedProbes;
+            _assetObj = _ldat;
+#endif
+            AssetDatabase.CreateAsset(_assetObj, _fpAsset);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            jdLm["lprobes"] = _fn;
+        }
+    }
+    */
 
     JsonData _SaveFog(){
 		JsonData jdFog = NewJObj();
@@ -157,10 +254,19 @@ public class SceneInfoExInspector : Editor
 		jdFog["fogDensity"] = RenderSettings.fogDensity.ToString();
 		jdFog["fogStartDistance"] = RenderSettings.fogStartDistance.ToString();
 		jdFog["fogEndDistance"] = RenderSettings.fogEndDistance.ToString();
-		return jdFog;
+
+        jdFog["haloStrength"] = RenderSettings.haloStrength.ToString();
+        jdFog["flareStrength"] = RenderSettings.flareStrength.ToString();
+        fColor = RenderSettings.subtractiveShadowColor;
+        jdFog["ssc_r"] = fColor.r.ToString();
+        jdFog["ssc_g"] = fColor.g.ToString();
+        jdFog["ssc_b"] = fColor.b.ToString();
+        jdFog["ssc_a"] = fColor.a.ToString();
+        jdFog["flareFadeSpeed"] = RenderSettings.flareFadeSpeed.ToString();
+        return jdFog;
 	}
 
-	JsonData _SaveRenderLightMaps(int nLmData){
+    JsonData _SaveRenderLightMaps(int nLmData){
 		JsonData jdRLm = NewJObj();
 		if(nLmData <= 0)
 			return jdRLm;
@@ -171,7 +277,8 @@ public class SceneInfoExInspector : Editor
 		GameObject _gobj;
 		string _rrname,_rname;
 		Vector4 _vec4;
-		for (int i = 0; i < _nTemp; i++) {
+        JsonData _jd = null;
+        for (int i = 0; i < _nTemp; i++) {
 			_render = _arrs[i];
 
 			if( null == _render)
@@ -180,7 +287,7 @@ public class SceneInfoExInspector : Editor
 			if(!_gobj.isStatic || _render.lightmapIndex < 0 || nLmData <= _render.lightmapIndex)
 				continue;
 			
-			JsonData _jd = NewJObj();
+			_jd = NewJObj();
 			_jd["lightmapIndex"] = _render.lightmapIndex;
 			_jd["lightProbeUsage"] = (int)_render.lightProbeUsage;
 			_vec4 = _render.lightmapScaleOffset;
@@ -207,7 +314,7 @@ public class SceneInfoExInspector : Editor
 			if(!_gobj.isStatic || _terrain.lightmapIndex < 0 || nLmData <= _terrain.lightmapIndex)
 				continue;
 			
-			JsonData _jd = NewJObj();
+			_jd = NewJObj();
 			_jd["lightmapIndex"] = _terrain.lightmapIndex;
 			_vec4 = _terrain.lightmapScaleOffset;
 			_jd["lmso_x"] = _vec4.x.ToString();
