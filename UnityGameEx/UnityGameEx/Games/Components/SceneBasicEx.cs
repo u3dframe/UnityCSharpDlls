@@ -68,16 +68,30 @@ public class SceneBasicEx : GobjLifeListener
         bool fog = (bool)jdFog["fog"];
 		int mode = (int)jdFog["fogMode"];
 		Color fColor = Color.white;
-		fColor.r = UtilityHelper.Str2Float(jdFog["fc_r"].ToString());
-		fColor.g = UtilityHelper.Str2Float(jdFog["fc_g"].ToString());
-		fColor.b = UtilityHelper.Str2Float(jdFog["fc_b"].ToString());
-		fColor.a = UtilityHelper.Str2Float(jdFog["fc_a"].ToString());
-		float fogDensity = UtilityHelper.Str2Float(jdFog["fogDensity"].ToString());
-        float fogStartDistance = UtilityHelper.Str2Float(jdFog["fogStartDistance"].ToString());
-        float fogEndDistance = UtilityHelper.Str2Float(jdFog["fogEndDistance"].ToString());
+		fColor.r = LJsonHelper.ToFloat(jdFog,"fc_r");
+		fColor.g = LJsonHelper.ToFloat(jdFog,"fc_g");
+		fColor.b = LJsonHelper.ToFloat(jdFog,"fc_b");
+		fColor.a = LJsonHelper.ToFloat(jdFog,"fc_a");
+		float fogDensity = LJsonHelper.ToFloat(jdFog,"fogDensity");
+        float fogStartDistance = LJsonHelper.ToFloat(jdFog,"fogStartDistance");
+        float fogEndDistance = LJsonHelper.ToFloat(jdFog,"fogEndDistance");
 
         RenderSettingsEx.SetFog(fog, mode, fColor, fogDensity, fogStartDistance, fogEndDistance);
-	}
+
+
+        if(jdFog["haloStrength"] != null)
+        {
+            RenderSettings.haloStrength = LJsonHelper.ToFloat(jdFog, "haloStrength");
+            RenderSettings.flareStrength = LJsonHelper.ToFloat(jdFog, "flareStrength");
+            RenderSettings.flareFadeSpeed = LJsonHelper.ToFloat(jdFog, "flareFadeSpeed");
+            fColor.r = LJsonHelper.ToFloat(jdFog, "ssc_r");
+            fColor.g = LJsonHelper.ToFloat(jdFog, "ssc_g");
+            fColor.b = LJsonHelper.ToFloat(jdFog, "ssc_b");
+            fColor.a = LJsonHelper.ToFloat(jdFog, "ssc_a");
+            RenderSettings.subtractiveShadowColor = fColor;
+        }
+
+    }
     
 	void _LoadRenderLightmap(JsonData jdRLm) {
 		if(jdRLm == null)
@@ -110,10 +124,10 @@ public class SceneBasicEx : GobjLifeListener
 			mode = (int)_jd["lightProbeUsage"];
 			_render.lightProbeUsage = (LightProbeUsage) mode;
 
-			_vec4.x = UtilityHelper.Str2Float(_jd["lmso_x"].ToString());
-			_vec4.y = UtilityHelper.Str2Float(_jd["lmso_y"].ToString());
-			_vec4.z = UtilityHelper.Str2Float(_jd["lmso_z"].ToString());
-			_vec4.w = UtilityHelper.Str2Float(_jd["lmso_w"].ToString());
+			_vec4.x = LJsonHelper.ToFloat(_jd,"lmso_x");
+			_vec4.y = LJsonHelper.ToFloat(_jd,"lmso_y");
+			_vec4.z = LJsonHelper.ToFloat(_jd,"lmso_z");
+			_vec4.w = LJsonHelper.ToFloat(_jd,"lmso_w");
 			_render.lightmapScaleOffset = _vec4;
 			// _gobj.isStatic = true;
 		}
@@ -136,10 +150,10 @@ public class SceneBasicEx : GobjLifeListener
 			_gobj.isStatic = true;
 
 			_terrain.lightmapIndex = (int)_jd["lightmapIndex"];
-			_vec4.x = UtilityHelper.Str2Float(_jd["lmso_x"].ToString());
-			_vec4.y = UtilityHelper.Str2Float(_jd["lmso_y"].ToString());
-			_vec4.z = UtilityHelper.Str2Float(_jd["lmso_z"].ToString());
-			_vec4.w = UtilityHelper.Str2Float(_jd["lmso_w"].ToString());
+			_vec4.x = LJsonHelper.ToFloat(_jd,"lmso_x");
+			_vec4.y = LJsonHelper.ToFloat(_jd,"lmso_y");
+			_vec4.z = LJsonHelper.ToFloat(_jd,"lmso_z");
+			_vec4.w = LJsonHelper.ToFloat(_jd,"lmso_w");
 			_terrain.lightmapScaleOffset = _vec4;
 			// _gobj.isStatic = true;
 		}
@@ -149,21 +163,8 @@ public class SceneBasicEx : GobjLifeListener
     {
         if (this.m_smInfo == null)
             return;
-
-        Cubemap _obj = this.m_smInfo.m_lrp;
-        if (_obj == null)
-            return;
-
-        ReflectionProbe _rp = this.m_trsf.GetComponentInChildren<ReflectionProbe>(true);
-        if (_rp == null)
-            return;
-
-        _rp.mode = ReflectionProbeMode.Custom;
-        _rp.customBakedTexture = _obj;
-        // _rp.importance = 1;
-        // _rp.intensity = 1;
-        // _rp.center;
-        // _rp.size;
-        _rp.gameObject.SetActive(true);
+        this.m_smInfo.ReReflEnv();
+        this.m_smInfo.ReReflProbe(this.m_trsf);
+        this.m_smInfo.ReProbes();
     }
 }

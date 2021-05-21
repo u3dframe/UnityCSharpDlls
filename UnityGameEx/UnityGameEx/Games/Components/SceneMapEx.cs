@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 using System.Collections.Generic;
 using LitJson;
 using Core;
@@ -17,6 +18,8 @@ public class SceneMapEx : GobjLifeListener
         None = 0,
         InitSLInfo,
         CheckSLInfo,
+        CheckSLRefl,
+        CheckSLProbes,
         ReLMap,
         Finish,
     }
@@ -139,8 +142,137 @@ public class SceneMapEx : GobjLifeListener
             }
         }
     }
-	
-	static public string ReFname(string fname) {
+
+    class SLInfoBase
+    {
+        public string m_abName { get; protected set; }
+        public string m_asset { get; protected set; }
+        public bool m_isDone { get; protected set; }
+
+        public SLInfoBase(string abName, string assetName)
+        {
+            this.m_abName = abName;
+            this.m_asset = assetName;
+        }
+
+        protected void _OnLoadAsset(AssetBase asset)
+        {
+            this.m_isDone = true;
+            AssetInfo ainfo = asset as AssetInfo;
+            if (ainfo == null)
+                return;
+            this._OnLoadAssetInfo(ainfo);
+        }
+
+        protected virtual void _OnLoadAssetInfo(AssetInfo asset)
+        {
+        }
+
+        public virtual void Clear()
+        {
+            AssetInfo.abMgr.UnLoadAsset(this.m_abName);
+        }
+    }
+
+    class SLInfoReflection : SLInfoBase
+    {
+        protected DF_ToLoadCube m_cfLoad = null;
+        
+        public Cubemap m_obj { get; private set; }
+
+        public SLInfoReflection(string abName, string refl, DF_ToLoadCube cfLoad = null):base(abName,refl)
+        {
+            this.m_cfLoad = cfLoad;
+            this.m_asset = UGameFile.ReSEnd(refl, UGameFile.m_suffix_light);
+            this.DoLoading();
+        }
+
+        public void DoLoading()
+        {
+            string _assetName = this.m_asset;
+            if (this.m_cfLoad != null)
+                this.m_cfLoad(this.m_abName, _assetName, this._OnLoadCubemap);
+            else
+                AssetInfo.abMgr.LoadAsset<Cubemap>(this.m_abName, _assetName, this._OnLoadAsset);
+        }
+
+        override protected void _OnLoadAssetInfo(AssetInfo ainfo)
+        {
+            if (ainfo == null)
+                return;
+
+            Cubemap cube = ainfo.GetObject<Cubemap>();
+            this.LoadedObj(cube);
+        }
+
+        void _OnLoadCubemap(Cubemap cube)
+        {
+            this.LoadedObj(cube);
+        }
+
+        private void LoadedObj(Cubemap cube)
+        {
+            this.m_isDone = true;
+            this.m_obj = cube;
+        }
+
+        override public void Clear()
+        {
+            this.m_obj = null;
+            base.Clear();
+        }
+    }
+
+    class SLInfoProbes : SLInfoBase
+    {
+        protected DF_ToLoadLProbes m_cfLoad = null;
+
+        public LightProbes m_obj { get; private set; }
+
+        public SLInfoProbes(string abName, string assetName, DF_ToLoadLProbes cfLoad = null) : base(abName, assetName)
+        {
+            this.m_cfLoad = cfLoad;
+            this.m_asset = UGameFile.ReSEnd(this.m_asset, UGameFile.m_suffix_scriptable);
+            this.DoLoading();
+        }
+
+        public void DoLoading()
+        {
+            string _assetName = this.m_asset;
+            if (this.m_cfLoad != null)
+                this.m_cfLoad(this.m_abName, _assetName, this._OnLoadLightProbes);
+            else
+                AssetInfo.abMgr.LoadAsset<Cubemap>(this.m_abName, _assetName, this._OnLoadAsset);
+        }
+
+        override protected void _OnLoadAssetInfo(AssetInfo ainfo)
+        {
+            if (ainfo == null)
+                return;
+
+            LightProbes cube = ainfo.GetObject<LightProbes>();
+            this.LoadedObj(cube);
+        }
+
+        void _OnLoadLightProbes(LightProbes cube)
+        {
+            this.LoadedObj(cube);
+        }
+
+        private void LoadedObj(LightProbes cube)
+        {
+            this.m_isDone = true;
+            this.m_obj = cube;
+        }
+
+        override public void Clear()
+        {
+            this.m_obj = null;
+            base.Clear();
+        }
+    }
+
+    static public string ReFname(string fname) {
         if (string.IsNullOrEmpty(fname)) return "";
         if (!fname.StartsWith("maps/")) fname = "maps/" + fname;
         if (!fname.EndsWith(".minfo")) fname += ".minfo";
@@ -156,12 +288,14 @@ public class SceneMapEx : GobjLifeListener
     static public int m_cursor_map { get; private set; }
     static DF_ToLoadTex2D _cfLoad = null;
     static DF_ToLoadCube _cfLoadCube = null;
+    static DF_ToLoadLProbes _cfLoadProbes = null;
     static Dictionary<string, SceneMapEx> m_caches = new Dictionary<string, SceneMapEx>();
 
-    static public void ReStatic(DF_ToLoadTex2D toLoadTex, DF_ToLoadCube toLoadCube)
+    static public void ReStatic(DF_ToLoadTex2D toLoadTex, DF_ToLoadCube toLoadCube, DF_ToLoadLProbes toLoadProbes)
     {
         _cfLoad = toLoadTex;
         _cfLoadCube = toLoadCube;
+        _cfLoadProbes = toLoadProbes;
     }
 
     static public SceneMapEx GetMSM(string map_key)
@@ -213,8 +347,10 @@ public class SceneMapEx : GobjLifeListener
     MSM_UpState m_u_state = MSM_UpState.None;
     int m_lightmapsMode = 0;
     List<SLInfo> listSLInfos = new List<SLInfo>();
-    public string m_ab_rp { get; private set; }
-    public Cubemap m_lrp { get; private set; }
+    protected JsonData m_mapJdRefl { get; private set; }
+    protected bool m_isReflProbe { get; private set; }
+    ListDict<SLInfoReflection> listRefls = new ListDict<SLInfoReflection>(true);
+    SLInfoProbes m_lProbes = null;
     protected string m_map_key { get; private set; }
     public JsonData m_mapJdRoot { get; private set; }
     public bool m_isDoned { get { return this.m_u_state == MSM_UpState.Finish; } }
@@ -242,6 +378,12 @@ public class SceneMapEx : GobjLifeListener
                 break;
             case MSM_UpState.CheckSLInfo:
                 this._ST_CheckSLInfo();
+                break;
+            case MSM_UpState.CheckSLRefl:
+                this._ST_CheckSLRefl();
+                break;
+            case MSM_UpState.CheckSLProbes:
+                this._ST_CheckSLProbes();
                 break;
             case MSM_UpState.ReLMap:
                 this._ST_ReLightmap();
@@ -283,24 +425,6 @@ public class SceneMapEx : GobjLifeListener
 
         string _fp = jdLm["fp_lm"].ToString();
         string _fp_ab = _fp + UGameFile.m_strLightmap;
-        string _rp = LJsonHelper.ToStrDef(jdLm, "rp_exr",null);
-        if(!string.IsNullOrEmpty(_rp))
-        {
-            _rp = UGameFile.ReSEnd(_rp, UGameFile.m_suffix_light);
-            m_ab_rp = _fp_ab;
-            if (_cfLoadCube != null)
-                _cfLoadCube(m_ab_rp, _rp, cube => {
-                    this.m_lrp = cube;
-                });
-            else
-                AssetInfo.abMgr.LoadAsset<Cubemap>(m_ab_rp, _rp, aObj => {
-                    AssetInfo ainfo = aObj as AssetInfo;
-                    if (ainfo == null)
-                        return;
-                    this.m_lrp = ainfo.GetObject<Cubemap>();
-                });
-        }
-
         int _nLens = jdLmds.Count;
         JsonData _jd;
         string _c,_d,_s;
@@ -314,10 +438,39 @@ public class SceneMapEx : GobjLifeListener
             _loadData_ = new SLInfo(_fp_ab, _c, _d, _s,_cfLoad);
             this.listSLInfos.Add(_loadData_);
         }
-        if(_nLens > 0)
+
+        _c = LJsonHelper.ToStr(jdLm, "lprobes");
+        if(!string.IsNullOrEmpty(_c))
+        {
+            this.m_lProbes = new SLInfoProbes(_fp_ab, _c, _cfLoadProbes);
+        }
+
+        JsonData _jdRefls = LJsonHelper.ToJData(jdLm, "reflections");
+        if(_jdRefls != null)
+        {
+            this.m_mapJdRefl = _jdRefls;
+            JsonData jdList = LJsonHelper.ToJData(_jdRefls, "list");
+            int _nLens2 = jdList.Count;
+            string _refl;
+            SLInfoReflection _load_;
+            for (int i = 0; i < _nLens2; i++)
+            {
+                _refl = LJsonHelper.ToStr(jdList, i);
+                if (string.IsNullOrEmpty(_refl))
+                    continue;
+                _load_ = this.GetSLRefl(_refl);
+                if(_load_ == null)
+                {
+                    _load_ = new SLInfoReflection(_fp_ab, _refl, _cfLoadCube);
+                    this.listRefls.Add(_refl, _load_);
+                }
+            }
+        }
+
+        if (_nLens > 0)
             this.m_u_state = MSM_UpState.CheckSLInfo;
         else
-            this.m_u_state = MSM_UpState.ReLMap;
+            this.m_u_state = MSM_UpState.CheckSLRefl;
     }
 
     void _ST_CheckSLInfo()
@@ -332,6 +485,27 @@ public class SceneMapEx : GobjLifeListener
                 _nd++;
         }
         if(_nd >= _count)
+            this.m_u_state = MSM_UpState.CheckSLRefl;
+    }
+
+    void _ST_CheckSLRefl()
+    {
+        SLInfoReflection _it;
+        int _nd = 0;
+        int _count = this.listRefls.m_dic.Count;
+        for (int i = 0; i < _count; i++)
+        {
+            _it = this.listRefls.m_list[i];
+            if (_it == null || _it.m_isDone)
+                _nd++;
+        }
+        if (_nd >= _count)
+            this.m_u_state = MSM_UpState.CheckSLProbes;
+    }
+
+    void _ST_CheckSLProbes()
+    {
+        if (this.m_lProbes == null || this.m_lProbes.m_isDone )
             this.m_u_state = MSM_UpState.ReLMap;
     }
 
@@ -357,10 +531,16 @@ public class SceneMapEx : GobjLifeListener
         LightmapSettings.lightmaps = _list.ToArray();
     }
 
+    SLInfoReflection GetSLRefl(string key)
+    {
+        return this.listRefls.Get(key);
+    }
+
     public void ReLightmap()
     {
-        if(this.m_isDoned)
-            this._ReLightmap();
+        if (!this.m_isDoned)
+            return;
+        this._ReLightmap();
     }
 
     void _ClearSLInfo()
@@ -375,31 +555,154 @@ public class SceneMapEx : GobjLifeListener
         }
 		this.listSLInfos.Clear();
 
-        this._ClearSLRP();
+        this._ClearSLRefls();
+
+        if (this.m_lProbes != null)
+            this.m_lProbes.Clear();
+        this.m_lProbes = null;
     }
 
-    void _ClearSLRP()
+    void _ClearSLRefls()
     {
-        this.m_lrp = null;
-        string _ab = this.m_ab_rp;
-        this.m_ab_rp = null;
-        if (!string.IsNullOrEmpty(_ab))
+        SLInfoReflection _it;
+        int _count = this.listRefls.m_dic.Count;
+        for (int i = 0; i < _count; i++)
         {
-            AssetInfo.abMgr.UnLoadAsset(_ab);
+            _it = this.listRefls.m_list[i];
+            if (_it != null)
+                _it.Clear();
         }
+        this.listRefls.Clear();
     }
 
     [ContextMenu("Clear Lightmap")]
     void _ClearLMap()
     {
+        this._ClearEnvironment();
         this._ClearSLInfo();
+        this._ClearProbes();
         this._ReLightmap();
     }
 	
 	void _ClearJson()
     {
+        if (this.m_mapJdRefl != null)
+            this.m_mapJdRefl.Clear();
+        this.m_mapJdRefl = null;
+
         if (this.m_mapJdRoot != null)
             this.m_mapJdRoot.Clear();
         this.m_mapJdRoot = null;
+    }
+
+    void _ClearEnvironment()
+    {
+        RenderSettings.customReflection = null;
+        RenderSettings.defaultReflectionMode = DefaultReflectionMode.Skybox;
+    }
+
+    public void ReReflEnv()
+    {
+        if (!this.m_isDoned)
+            return;
+
+        this._ClearEnvironment();
+        
+        if (this.m_mapJdRefl == null)
+            return;
+
+        string _rev = LJsonHelper.ToStr(this.m_mapJdRefl, "environment");
+        if(!string.IsNullOrEmpty(_rev))
+        {
+            SLInfoReflection _srefl = this.GetSLRefl(_rev);
+            JsonData _jd = LJsonHelper.ToJData(this.m_mapJdRefl, _rev);
+            if(_srefl != null && _jd != null)
+            {
+                RenderSettings.defaultReflectionMode = DefaultReflectionMode.Custom;
+                RenderSettings.defaultReflectionResolution = LJsonHelper.ToInt(_jd, "defaultReflectionResolution");
+                RenderSettings.reflectionBounces = LJsonHelper.ToInt(_jd, "reflectionBounces");
+                RenderSettings.reflectionIntensity = LJsonHelper.ToFloat(_jd, "reflectionIntensity");
+                RenderSettings.customReflection = _srefl.m_obj;
+            }
+        }
+    }
+
+    public void ReReflProbe(Object uobj)
+    {
+        if (!this.m_isDoned || this.m_isReflProbe)
+            return;
+
+        if (this.m_mapJdRefl == null || UtilityHelper.IsNull(uobj))
+            return;
+
+        this.m_isReflProbe = true;
+        string _rev = LJsonHelper.ToStr(this.m_mapJdRefl, "environment");
+        JsonData jdList = LJsonHelper.ToJData(this.m_mapJdRefl, "list");
+        JsonData jdTemp = null;
+        int _nLens = jdList.Count;
+        string _refl = null;
+
+        GameObject _gobj_ = null;
+        SLInfoReflection _srefl = null;
+        System.Type _tp = typeof(ReflectionProbe);
+        ReflectionProbe _rprobe = null;
+        float _v1 = 0, _v2 = 0, _v3 = 0;
+        for (int i = 0; i < _nLens; i++)
+        {
+            _refl = LJsonHelper.ToStr(jdList, i);
+            if (string.IsNullOrEmpty(_refl) || _rev.Equals(_refl))
+                continue;
+
+            _srefl = this.GetSLRefl(_refl);
+            if (_srefl == null || _srefl.m_obj == null)
+                continue;
+
+            jdTemp = LJsonHelper.ToJData(this.m_mapJdRefl, _refl);
+            if (jdTemp == null)
+                continue;
+            _gobj_ = new GameObject(_refl, _tp);
+            _rprobe = _gobj_.GetComponent<ReflectionProbe>();
+            UtilityHelper.SetParentSyncLayer(_gobj_, uobj, true);
+            _v1 = LJsonHelper.ToFloat(jdTemp, "pos_x");
+            _v2 = LJsonHelper.ToFloat(jdTemp, "pos_y");
+            _v3 = LJsonHelper.ToFloat(jdTemp, "pos_z");
+            _gobj_.transform.position = new Vector3(_v1,_v2,_v3);
+
+            _rprobe.importance = LJsonHelper.ToInt(jdTemp, "importance");
+            _rprobe.intensity = LJsonHelper.ToFloat(jdTemp, "intensity");
+            _v1 = LJsonHelper.ToFloat(jdTemp, "center_x");
+            _v2 = LJsonHelper.ToFloat(jdTemp, "center_y");
+            _v3 = LJsonHelper.ToFloat(jdTemp, "center_z");
+            _rprobe.center = new Vector3(_v1, _v2, _v3);
+            _v1 = LJsonHelper.ToFloat(jdTemp, "size_x");
+            _v2 = LJsonHelper.ToFloat(jdTemp, "size_y");
+            _v3 = LJsonHelper.ToFloat(jdTemp, "size_z");
+            _rprobe.size = new Vector3(_v1, _v2, _v3);
+            _rprobe.mode = ReflectionProbeMode.Custom;
+            _rprobe.customBakedTexture = _srefl.m_obj;
+        }
+    }
+
+    void _ClearProbes()
+    {
+        if (LightmapSettings.lightProbes != null)
+        {
+            LightmapSettings.lightProbes.bakedProbes = null;
+            LightProbes.Tetrahedralize();
+        }
+    }
+
+    public void ReProbes()
+    {
+        if (!this.m_isDoned)
+            return;
+
+        this._ClearProbes();
+
+        if (this.m_lProbes == null)
+            return;
+        LightProbes _lp = this.m_lProbes.m_obj;
+        LightmapSettings.lightProbes = _lp;
+        LightProbes.TetrahedralizeAsync();
     }
 }

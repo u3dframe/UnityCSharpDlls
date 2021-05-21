@@ -46,7 +46,7 @@ public static class RenderSettingsEx
     static public void SetAmbientSkybox(float intensity = 1)
     {
         RenderSettings.ambientMode = AmbientMode.Skybox;
-        RenderSettings.reflectionIntensity = intensity;
+        RenderSettings.ambientIntensity = intensity;
     }
 
     static public Color ReColorIntensity(Color org,float intensity = 0)
@@ -63,8 +63,8 @@ public static class RenderSettingsEx
 
     static public void SetAmbientGradient(Color skyColor, Color eqColor, Color gdColor, float intensity = 0)
     {
-        RenderSettings.ambientIntensity = intensity;
         RenderSettings.ambientMode = AmbientMode.Trilight;
+        RenderSettings.ambientIntensity = intensity;
         RenderSettings.ambientSkyColor = ReColorIntensity(skyColor, intensity);
         RenderSettings.ambientEquatorColor = ReColorIntensity(eqColor, intensity);
         RenderSettings.ambientGroundColor = ReColorIntensity(gdColor, intensity);
@@ -72,8 +72,8 @@ public static class RenderSettingsEx
 
     static public void SetAmbientColor(Color skyColor, float intensity = 0)
     {
-        RenderSettings.ambientIntensity = intensity;
         RenderSettings.ambientMode = AmbientMode.Flat;
+        RenderSettings.ambientIntensity = intensity;
         RenderSettings.ambientLight = ReColorIntensity(skyColor, intensity);
     }
 }

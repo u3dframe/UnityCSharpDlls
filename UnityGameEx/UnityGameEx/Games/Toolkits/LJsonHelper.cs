@@ -166,4 +166,16 @@ public static class LJsonHelper {
         string v = ToStrDef(jdRoot, index, "0");
         return UtilityHelper.Str2Long(v);
     }
+
+    static public float ToFloat(JsonData jdRoot, string key)
+    {
+        string v = ToStrDef(jdRoot, key, "0");
+        return UtilityHelper.Str2Float(v);
+    }
+
+    static public float ToFloat(JsonData jdRoot, int index)
+    {
+        string v = ToStrDef(jdRoot, index, "0");
+        return UtilityHelper.Str2Float(v);
+    }
 }
