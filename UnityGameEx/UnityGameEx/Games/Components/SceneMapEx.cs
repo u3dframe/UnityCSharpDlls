@@ -291,7 +291,7 @@ public class SceneMapEx : GobjLifeListener
     static DF_ToLoadLProbes _cfLoadProbes = null;
     static Dictionary<string, SceneMapEx> m_caches = new Dictionary<string, SceneMapEx>();
 
-    static public void ReStatic(DF_ToLoadTex2D toLoadTex, DF_ToLoadCube toLoadCube, DF_ToLoadLProbes toLoadProbes)
+    static public void ReStatic(DF_ToLoadTex2D toLoadTex, DF_ToLoadCube toLoadCube, DF_ToLoadLProbes toLoadProbes = null)
     {
         _cfLoad = toLoadTex;
         _cfLoadCube = toLoadCube;
