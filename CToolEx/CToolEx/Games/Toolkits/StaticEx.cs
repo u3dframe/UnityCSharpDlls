@@ -60,7 +60,7 @@ public static class StaticEx {
         
         Shader _sd = material.shader;
         if(_sd != null && !string.IsNullOrEmpty(_sd.name)){
-            _sd = UGameFile.curInstance.FindShader(_sd.name);
+            _sd = UGameFile.SFindShader(_sd.name);
             if(_sd != null){
                 material.shader = _sd;
             }
@@ -256,10 +256,9 @@ public static class StaticEx {
         Shader shader = material.shader;
         if(null == shader) return;
         if (!"UI/Default".Equals(shader.name,StringComparison.OrdinalIgnoreCase)) {
-            Shader _sd = UGameFile.curInstance.FindShader(shader.name);
-            if(_sd != null){
+            Shader _sd = UGameFile.SFindShader(shader.name);
+            if(_sd != null)
                 material.shader = _sd;
-            }
         }
     }
 

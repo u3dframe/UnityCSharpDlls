@@ -26,7 +26,7 @@ public class UGUIGray : GobjLifeListener {
 		get{
 			if (_matGray == null)
             {
-				Shader shader = UGameFile.curInstance.FindShader("Custom/ui_default_multifunctional");
+				Shader shader = UGameFile.SFindShader("Custom/ui_default_multifunctional");
 				if(shader != null){
 					_matGray = new Material(shader);
 					_matGray.SetInt("_IsGray",1);

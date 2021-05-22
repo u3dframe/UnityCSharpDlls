@@ -189,6 +189,11 @@ namespace Core.Kernel
             return File.Exists(_fp);
         }
 
+        static public Shader SFindShader(string shaderName)
+        {
+            return curInstance.FindShader(shaderName);
+        }
+
         static public string m_fpABManifest
         {
             get
