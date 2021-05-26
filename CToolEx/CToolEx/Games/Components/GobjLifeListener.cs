@@ -100,6 +100,7 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
 
     protected Core.DF_OnInt m_cfAnimEvent = null;
 
+
     void Awake()
     {
         this._isAlive = true;
@@ -157,6 +158,7 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         this.m_callShow = null;
         this.m_callHide = null;
         this.m_cfAnimEvent = null;
+        this.m_cfMsg = null;
         this._m_gobj = null;
         this._m_trsf = null;
         this._gobjID = 0;
@@ -281,5 +283,28 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
     {
         if (this.m_cfAnimEvent != null)
             this.m_cfAnimEvent(unique);
+    }
+
+    protected Core.DF_OnKVal m_cfMsg = null;
+    public void OnlyOnceCallMsg(int btype, Core.DF_OnKVal call = null)
+    {
+        if (btype == 0)
+        {
+            this.m_cfMsg = null;
+            return;
+        }
+
+        if (call == null)
+            return;
+
+        this.m_cfMsg -= call;
+        if (btype == 1)
+            this.m_cfMsg += call;
+    }
+
+    protected void OnCallMsg(object mkey, object mval)
+    {
+        if (this.m_cfMsg != null)
+            this.m_cfMsg(mkey, mval);
     }
 }

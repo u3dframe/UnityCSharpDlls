@@ -103,6 +103,7 @@ namespace Core.Kernel
             //设置超时 链接超时返回 且isNetworkError为true
             request.timeout = 59;
             request.certificateHandler = (vcert != null) ? vcert : WebVerifyCert.NoVCert;
+            request.useHttpContinue = false;
             yield return request.SendWebRequest();
             //结果回传给具体实现
             if (request.isHttpError || request.isNetworkError)
