@@ -22,7 +22,7 @@ public class SceneBasicEx : GobjLifeListener
 	public string m_rootRelative = "Scene/";
 	public string m_infoName = "";
     protected SceneMapEx m_smInfo { get; private set; }
-	
+
     protected override void OnCall4Start()
     {
         base.OnCall4Start();
@@ -57,43 +57,47 @@ public class SceneBasicEx : GobjLifeListener
         // fog
         JsonData _jd = LJsonHelper.ToJData(jdRoot, "info_fog");
         this._LoadFog(_jd);
+        this._LoadRSOther(_jd);
+
         _jd = LJsonHelper.ToJData(jdRoot, "info_lms", "rlmDatas");
         this._LoadRenderLightmap(_jd);
     }
 
-	void _LoadFog(JsonData jdFog) {
-		if(jdFog == null)
+	void _LoadFog(JsonData jdObj) {
+		if(jdObj == null)
 			return;
 
-        bool fog = (bool)jdFog["fog"];
-		int mode = (int)jdFog["fogMode"];
+        bool fog = (bool)jdObj["fog"];
+		int mode = (int)jdObj["fogMode"];
 		Color fColor = Color.white;
-		fColor.r = LJsonHelper.ToFloat(jdFog,"fc_r");
-		fColor.g = LJsonHelper.ToFloat(jdFog,"fc_g");
-		fColor.b = LJsonHelper.ToFloat(jdFog,"fc_b");
-		fColor.a = LJsonHelper.ToFloat(jdFog,"fc_a");
-		float fogDensity = LJsonHelper.ToFloat(jdFog,"fogDensity");
-        float fogStartDistance = LJsonHelper.ToFloat(jdFog,"fogStartDistance");
-        float fogEndDistance = LJsonHelper.ToFloat(jdFog,"fogEndDistance");
+		fColor.r = LJsonHelper.ToFloat(jdObj,"fc_r");
+		fColor.g = LJsonHelper.ToFloat(jdObj,"fc_g");
+		fColor.b = LJsonHelper.ToFloat(jdObj,"fc_b");
+		fColor.a = LJsonHelper.ToFloat(jdObj,"fc_a");
+		float fogDensity = LJsonHelper.ToFloat(jdObj,"fogDensity");
+        float fogStartDistance = LJsonHelper.ToFloat(jdObj,"fogStartDistance");
+        float fogEndDistance = LJsonHelper.ToFloat(jdObj,"fogEndDistance");
 
         RenderSettingsEx.SetFog(fog, mode, fColor, fogDensity, fogStartDistance, fogEndDistance);
-
-
-        if(LJsonHelper.IsHas(jdFog, "haloStrength"))
-        {
-            RenderSettings.haloStrength = LJsonHelper.ToFloat(jdFog, "haloStrength");
-            RenderSettings.flareStrength = LJsonHelper.ToFloat(jdFog, "flareStrength");
-            RenderSettings.flareFadeSpeed = LJsonHelper.ToFloat(jdFog, "flareFadeSpeed");
-            fColor.r = LJsonHelper.ToFloat(jdFog, "ssc_r");
-            fColor.g = LJsonHelper.ToFloat(jdFog, "ssc_g");
-            fColor.b = LJsonHelper.ToFloat(jdFog, "ssc_b");
-            fColor.a = LJsonHelper.ToFloat(jdFog, "ssc_a");
-            RenderSettings.subtractiveShadowColor = fColor;
-        }
-
     }
-    
-	void _LoadRenderLightmap(JsonData jdRLm) {
+
+    void _LoadRSOther(JsonData jdObj)
+    {
+        if (!LJsonHelper.IsHas(jdObj, "haloStrength"))
+            return;
+
+        RenderSettings.haloStrength = LJsonHelper.ToFloat(jdObj, "haloStrength");
+        RenderSettings.flareStrength = LJsonHelper.ToFloat(jdObj, "flareStrength");
+        RenderSettings.flareFadeSpeed = LJsonHelper.ToFloat(jdObj, "flareFadeSpeed");
+        Color fColor = Color.white;
+        fColor.r = LJsonHelper.ToFloat(jdObj, "ssc_r");
+        fColor.g = LJsonHelper.ToFloat(jdObj, "ssc_g");
+        fColor.b = LJsonHelper.ToFloat(jdObj, "ssc_b");
+        fColor.a = LJsonHelper.ToFloat(jdObj, "ssc_a");
+        RenderSettings.subtractiveShadowColor = fColor;
+    }
+
+    void _LoadRenderLightmap(JsonData jdRLm) {
 		if(jdRLm == null)
 			return;
 		
@@ -116,9 +120,12 @@ public class SceneBasicEx : GobjLifeListener
 			_rname = StrRight(_rrname,this.m_rootRelative);
 			_jd = LJsonHelper.ToJData(jdRLm,_rname);
 
-			if(_jd == null)
-				continue;
-			_gobj.isStatic = true;
+            if (_jd == null)
+            {
+                this.OnCallMsg(_rrname, _rname);
+                continue;
+            }
+            _gobj.isStatic = true;
 
 			_render.lightmapIndex = (int)_jd["lightmapIndex"];
 			mode = (int)_jd["lightProbeUsage"];
@@ -146,7 +153,10 @@ public class SceneBasicEx : GobjLifeListener
 			_jd = LJsonHelper.ToJData(jdRLm,_rname);
 
 			if(_jd == null)
+            {
+                this.OnCallMsg(_rrname, _rname);
 				continue;
+            }
 			_gobj.isStatic = true;
 
 			_terrain.lightmapIndex = (int)_jd["lightmapIndex"];

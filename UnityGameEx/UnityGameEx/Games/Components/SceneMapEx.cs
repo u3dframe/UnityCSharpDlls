@@ -529,6 +529,7 @@ public class SceneMapEx : GobjLifeListener
         }
         LightmapSettings.lightmapsMode = (LightmapsMode)this.m_lightmapsMode;
         LightmapSettings.lightmaps = _list.ToArray();
+        this.OnCallMsg(this.m_lightmapsMode, _list.Count);
     }
 
     SLInfoReflection GetSLRefl(string key)
@@ -576,11 +577,18 @@ public class SceneMapEx : GobjLifeListener
     }
 
     [ContextMenu("Clear Lightmap")]
+    void _ClearLightmap()
+    {
+        this._ClearEnvironment();
+        this._ClearProbes();
+        ClearLightMap();
+    }
+
     void _ClearLMap()
     {
         this._ClearEnvironment();
-        this._ClearSLInfo();
         this._ClearProbes();
+        this._ClearSLInfo();
         this._ReLightmap();
     }
 	
