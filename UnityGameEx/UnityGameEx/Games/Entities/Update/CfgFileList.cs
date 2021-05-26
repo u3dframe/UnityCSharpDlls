@@ -156,7 +156,7 @@ namespace Core.Kernel
 
                 UGameFile.CreateFolder (this.m_filePath);
 
-				using (FileStream stream = new FileStream (this.m_filePath, FileMode.Create)) {
+				using (FileStream stream = new FileStream (this.m_filePath, FileMode.OpenOrCreate)) {
 					using (StreamWriter writer = new StreamWriter (stream)) {
 						if(string.IsNullOrEmpty(this.m_content)){
 							for (int i = 0; i < m_lFiles.Count; i++) {
