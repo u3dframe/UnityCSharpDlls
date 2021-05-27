@@ -37,12 +37,6 @@ public class DelayExcute : Core.Kernel.Beans.ED_Basic
 		}
 	}
 	
-	public new DelayExcute RegUpdate(bool isUp)
-	{
-        base.RegUpdate( isUp );
-        return this;
-	}
-	
 	public DelayExcute Start()
 	{
         this.StartUpdate();
