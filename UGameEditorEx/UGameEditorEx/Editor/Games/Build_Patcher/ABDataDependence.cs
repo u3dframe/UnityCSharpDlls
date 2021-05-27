@@ -248,8 +248,8 @@ namespace Core.Kernel
             ".txt",
             ".dll",
             "README",
-            "LightingData.asset",
-            "ReflectionProbe-0.exr",
+            //"LightingData.asset",
+            //"ReflectionProbe-0.exr",
         };
 
         static string[] mustFiles = {
