@@ -248,7 +248,7 @@ namespace Core.Kernel
             ".txt",
             ".dll",
             "README",
-            //"LightingData.asset",
+            "LightingData.asset", // == UnityEditor.LightingDataAsset
             //"ReflectionProbe-0.exr",
         };
 
