@@ -22,16 +22,16 @@ public class SceneBasicEx : GobjLifeListener
 	public string m_rootRelative = "Scene/";
 	public string m_infoName = "";
     protected SceneMapEx m_smInfo { get; private set; }
-
-    protected override void OnCall4Start()
-    {
-        base.OnCall4Start();
-        this.LoadInfos();
-    }
+    float __delayLoad = 0.07f;
+    public float m_delayLoad { get { return __delayLoad; } set { __delayLoad = value; } }
+    DelayExcute m_delay = null;
 
     protected override void OnClear()
     {
         this.m_smInfo = null;
+        if (this.m_delay != null)
+            this.m_delay.Stop(true);
+        this.m_delay = null;
         base.OnClear();
     }
 
@@ -42,18 +42,28 @@ public class SceneBasicEx : GobjLifeListener
 	[ContextMenu("Load Infos")]
 	public void LoadInfos ()
 	{
-        this.m_smInfo = SceneMapEx.GetMSM(this.m_infoName);
+        if (this.m_smInfo == null)
+            this.m_smInfo = SceneMapEx.GetMSM(this.m_infoName);
+
         if (this.m_smInfo == null)
             return;
-
         this.m_smInfo.ReLightmap();
-
         this.LoadLRP();
 
+        if (this.m_delay == null)
+            this.m_delay = new DelayExcute(m_delayLoad, null);
+        this.m_delay.Stop(true);
+        this.m_delay.Init(m_delayLoad,this._ReLoad).Start();
+    }
+
+    void _ReLoad()
+    {
+        if (this.m_smInfo == null)
+            return;
         JsonData jdRoot = this.m_smInfo.m_mapJdRoot;
         if (jdRoot == null)
             return;
-
+        
         // fog
         JsonData _jd = LJsonHelper.ToJData(jdRoot, "info_fog");
         this._LoadFog(_jd);
@@ -77,7 +87,6 @@ public class SceneBasicEx : GobjLifeListener
 		float fogDensity = LJsonHelper.ToFloat(jdObj,"fogDensity");
         float fogStartDistance = LJsonHelper.ToFloat(jdObj,"fogStartDistance");
         float fogEndDistance = LJsonHelper.ToFloat(jdObj,"fogEndDistance");
-
         RenderSettingsEx.SetFog(fog, mode, fColor, fogDensity, fogStartDistance, fogEndDistance);
     }
 
@@ -109,6 +118,7 @@ public class SceneBasicEx : GobjLifeListener
 		Vector4 _vec4 = Vector4.zero;
 		JsonData _jd;
 		int mode;
+        bool isBl = false;
 		for (int i = 0; i < _nTemp; i++) {
 			_render = _arrs[i];
 
@@ -119,10 +129,9 @@ public class SceneBasicEx : GobjLifeListener
 			_rrname = UtilityHelper.RelativeName(_gobj);
 			_rname = StrRight(_rrname,this.m_rootRelative);
 			_jd = LJsonHelper.ToJData(jdRLm,_rname);
-
-            if (_jd == null)
+            isBl = (_jd == null);
+            if (isBl)
             {
-                this.OnCallMsg(_rrname, _rname);
                 continue;
             }
             _gobj.isStatic = true;
@@ -151,10 +160,9 @@ public class SceneBasicEx : GobjLifeListener
 			_rrname = UtilityHelper.RelativeName(_gobj);
 			_rname = StrRight(_rrname,this.m_rootRelative);
 			_jd = LJsonHelper.ToJData(jdRLm,_rname);
-
-			if(_jd == null)
+            isBl = (_jd == null);
+            if (isBl)
             {
-                this.OnCallMsg(_rrname, _rname);
 				continue;
             }
 			_gobj.isStatic = true;
