@@ -695,7 +695,8 @@ namespace Core
                 PlayerSettings.bundleVersion = bundleVersion;
 
             int cur = -1, pre = 0;
-            if (!string.IsNullOrEmpty(bundleVersionCode))
+            bool _is_verCode = !string.IsNullOrEmpty(bundleVersionCode);
+            if (_is_verCode)
                 int.TryParse(bundleVersionCode, out cur);
 
             PlayerSettings.allowedAutorotateToLandscapeLeft = true;
@@ -726,7 +727,7 @@ namespace Core
                     PlayerSettings.Android.androidTVCompatibility = true;
                     PlayerSettings.Android.androidIsGame = true;
                     pre = PlayerSettings.Android.bundleVersionCode;
-                    if (cur <= pre)
+                    if (!_is_verCode && cur <= pre)
                         cur = pre + 1;
                     // if (isAddBVer && _is_ver && !_pre_ver.StartsWith(bundleVersion))
                     //     cur = 1;
@@ -740,7 +741,7 @@ namespace Core
                         PlayerSettings.SetScriptingBackend(BuildTargetGroup.iOS, ScriptingImplementation.IL2CPP);
 
                     int.TryParse(PlayerSettings.iOS.buildNumber, out pre);
-                    if (cur <= pre)
+                    if (!_is_verCode && cur <= pre)
                         cur = pre + 1;
                     // if (isAddBVer && _is_ver && !_pre_ver.StartsWith(bundleVersion))
                     //     cur = 1;
@@ -753,7 +754,7 @@ namespace Core
             {
                 if (_is_ver)
                 {
-                    bundleVersion = bundleVersion + "." + cur;
+                    // bundleVersion = bundleVersion + "." + cur;
                     PlayerSettings.bundleVersion = bundleVersion;
                 }
                 else
