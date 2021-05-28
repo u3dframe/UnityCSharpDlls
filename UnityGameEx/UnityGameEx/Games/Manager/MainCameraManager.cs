@@ -29,14 +29,6 @@ public class MainCameraManager : MgrMainCamera
             this.m_postLayer = UtilityHelper.Get<PostProcessLayer>(this.m_camera);
             this.m_postVolume = UtilityHelper.Get<PostProcessVolume>(this.m_camera);
         }
-        this.EnablePPLayer(false);
-    }
-
-    public void EnablePPLayer(bool isEnabled)
-    {
-        if (this.m_postLayer == null)
-            return;
-        this.m_postLayer.enabled = isEnabled;
     }
 
     public void SetPPVolume(PostProcessProfile pppfile)
@@ -44,6 +36,5 @@ public class MainCameraManager : MgrMainCamera
         if (this.m_postVolume == null)
             return;
         this.m_postVolume.profile = pppfile;
-        this.EnablePPLayer(pppfile != null);
     }
 }
