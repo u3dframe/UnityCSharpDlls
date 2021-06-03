@@ -229,24 +229,26 @@ public class UGUIEventListener : EventTrigger
             return;
 
         bool isDo = false;
+        Transform trsfCurrent = current?.transform;
         for (int i = 0; i < lens; i++)
         {
             gobj = results[i].gameObject;
-            if (current != gobj)
+            if (!gobj || !gobj.activeInHierarchy || current == gobj)
+                continue;
+            if(trsfCurrent != null && GHelper.IsInParentRecursion(gobj, trsfCurrent))
+                continue;
+
+            do
             {
-                do
-                {
-                    isDo = ExecuteEvents.Execute(gobj, data, function); // 执行脚本事件,如果没脚本，只有 Raycast 永远是 False
-                    if (isDo)
-                        break;
+                isDo = ExecuteEvents.Execute(gobj, data, function); // 执行脚本事件,如果没脚本，只有 Raycast 永远是 False
+                if (isDo)
+                    break;
 
-                    if (gobj.transform.parent == null)
-                        break;
-                    gobj = gobj.transform.parent.gameObject;
-                } while (!isDo);
-
-                break; //只转发给第一个响应
-            }
+                if (gobj.transform.parent == null)
+                    break;
+                gobj = gobj.transform.parent.gameObject;
+            } while (!isDo);
+            break; //只转发给第一个响应
         }
     }
 

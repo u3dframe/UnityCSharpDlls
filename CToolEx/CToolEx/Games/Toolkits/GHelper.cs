@@ -161,6 +161,15 @@ public class GHelper : Core.Kernel.ObjEx
         return trsf.parent == trsfParent;
     }
 
+    static public bool IsInParentRecursion(UObject uobj, UObject uobjParent)
+    {
+        Transform trsf = ToTransform(uobj);
+        if (IsNull(trsf)) return false;
+        Transform trsfParent = ToTransform(uobjParent);
+        if (trsf.parent == trsfParent) return true;
+        return IsInParentRecursion(trsf.parent,trsfParent);
+    }
+
     static public bool IsInLayerMask(UObject uobj, LayerMask layerMask)
     {
         // 根据Layer数值进行移位获得用于运算的Mask值
