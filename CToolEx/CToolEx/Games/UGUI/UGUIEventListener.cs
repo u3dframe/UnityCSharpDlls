@@ -25,7 +25,7 @@ public class UGUIEventListener : EventTrigger
         return Get(uobj, true);
     }
 
-    static public float maxDistance = 70f;
+    static public float maxDistance = 50f;
     static public float limitTime = 0.2f;
 
     enum SyncEventType
@@ -51,18 +51,17 @@ public class UGUIEventListener : EventTrigger
     private Vector2 v2Start;
     bool _isPressed = false, _isCanClick = false;
 
-    float press_time = 0, diff_time = 0, dis_curr = 0,
+    float press_time = 0, diff_time = 0, dis_curr = 0, preMaxDistance = 0,
     limit_dis_min = 0.1f * 0.1f, limit_dis_max = 0;
     bool _isAppQuit = false;
 
     [HideInInspector] public bool m_isPropagation = false; // 是否透传
     [HideInInspector] public bool m_isSyncScroll = true;
     public ScrollRect m_sclParent { get; set; }
-    
+
     void Awake()
     {
-        this.limit_dis_max = maxDistance * maxDistance;
-        m_sclParent = GHelper.GetInParent<ScrollRect>(transform,true);
+        m_sclParent = GHelper.GetInParent<ScrollRect>(transform, true);
     }
 
     void OnDisable()
@@ -151,6 +150,11 @@ public class UGUIEventListener : EventTrigger
         _isCanClick = dis_curr <= limit_dis_min;
         if (!_isCanClick)
         {
+            if(this.preMaxDistance != maxDistance)
+            {
+                this.preMaxDistance = maxDistance;
+                this.limit_dis_max = maxDistance * maxDistance;
+            }
             _isCanClick = dis_curr <= limit_dis_max && diff_time <= limitTime;
         }
 
@@ -159,7 +163,6 @@ public class UGUIEventListener : EventTrigger
         if (!_isCanClick) return;
         if (onClick != null)
             onClick(gameObject, eventData.position);
-        PropagationFirst(eventData, ExecuteEvents.submitHandler);
         PropagationFirst(eventData, ExecuteEvents.pointerClickHandler);
     }
 
@@ -215,41 +218,59 @@ public class UGUIEventListener : EventTrigger
             onDrop(gameObject, eventData.position);
     }
 
+    Dictionary<object, float> m_delay_propagation = new Dictionary<object, float>();
     public void PropagationFirst<T>(PointerEventData data, ExecuteEvents.EventFunction<T> function) where T : IEventSystemHandler
     {
         if (!this.m_isPropagation)
             return;
 
+        float _d = -1f;
+        float _curr = Time.unscaledTime;
+        if (!m_delay_propagation.TryGetValue(function,out _d))
+            m_delay_propagation.Add(function, _curr);
+        if (_d > _curr)
+            return;
+        m_delay_propagation[function] = _curr + limitTime + 0.05f;
         // 参考 http://www.xuanyusong.com/archives/4241 
+        GameObject current = data.pointerCurrentRaycast.gameObject, gobj = null;
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(data, results);
-        GameObject current = data.pointerCurrentRaycast.gameObject, gobj;
         int lens = results.Count;
         if (lens <= 0)
             return;
 
-        bool isDo = false;
-        Transform trsfCurrent = current?.transform;
+        Transform trsf = current?.transform;
         for (int i = 0; i < lens; i++)
         {
             gobj = results[i].gameObject;
             if (!gobj || !gobj.activeInHierarchy || current == gobj)
-                continue;
-            if(trsfCurrent != null && GHelper.IsInParentRecursion(gobj, trsfCurrent))
-                continue;
-
-            do
             {
-                isDo = ExecuteEvents.Execute(gobj, data, function); // 执行脚本事件,如果没脚本，只有 Raycast 永远是 False
-                if (isDo)
-                    break;
+                gobj = null;
+                continue;
+            }
 
-                if (gobj.transform.parent == null)
-                    break;
-                gobj = gobj.transform.parent.gameObject;
-            } while (!isDo);
-            break; //只转发给第一个响应
+            if(trsf != null && GHelper.IsInParentRecursion(gobj, trsf))
+            {
+                gobj = null;
+                continue;
+            }
+            break;
         }
+        if (gobj == null)
+            return;
+
+        bool isDo = false;
+        do
+        {
+            isDo = ExecuteEvents.Execute(gobj, data, function); // 执行脚本事件,如果没脚本，只有 Raycast 永远是 False
+            if(!isDo)
+            {
+                trsf = gobj.transform.parent;
+                if (trsf == null)
+                    break;
+                gobj = trsf.gameObject;
+            }
+        } while (!isDo);
     }
 
     void OnDestroy()
