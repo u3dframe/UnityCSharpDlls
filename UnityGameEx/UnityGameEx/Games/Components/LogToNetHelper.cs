@@ -170,7 +170,8 @@ public class LogToNetHelper:MonoBehaviour
         request.timeout = 59;
         yield return request.SendWebRequest();
         data.sendCount++;
-        if (request.isHttpError || request.isNetworkError)
+        // if (request.isHttpError || request.isNetworkError)
+        if (request.result == UnityWebRequest.Result.ProtocolError)
         {
             if (data.sendCount < 3)
             {
