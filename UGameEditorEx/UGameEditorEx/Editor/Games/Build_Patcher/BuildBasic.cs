@@ -706,6 +706,7 @@ namespace Core
             PlayerSettings.MTRendering = true; // 多线程渲染 Multithreaded Rendering
             PlayerSettings.gpuSkinning = true; // 将 Skinning活动 推送到 GPU  Compute SKinning
             PlayerSettings.stripUnusedMeshComponents = true; // optimize mesh data
+            PlayerSettings.graphicsJobs = true; // 把渲染线程的任务分配到工作线程
             ScriptingImplementation scripting = ScriptingImplementation.IL2CPP;
             // EditorUserBuildSettings.activeBuildTarget
             switch (buildTarget)
