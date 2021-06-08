@@ -106,7 +106,8 @@ namespace Core.Kernel
             request.useHttpContinue = false;
             yield return request.SendWebRequest();
             //结果回传给具体实现
-            if (request.isHttpError || request.isNetworkError)
+            // if (request.isHttpError || request.isNetworkError)
+            if (request.result == UnityWebRequest.Result.ProtocolError)
             {
                 if (callFunc != null)
                 {
