@@ -19,7 +19,7 @@ public class FBXImporter : AssetPostprocessor
             importer.globalScale = 1.0f;
             importer.meshCompression = ModelImporterMeshCompression.Off;
             // importer.isReadable = false;
-#if UNITY_2019
+#if UNITY_2019 || UNITY_2020
             // importer.meshOptimizationFlags = MeshOptimizationFlags.Everything;
             importer.animationCompression = ModelImporterAnimationCompression.Optimal;
             importer.materialImportMode = ModelImporterMaterialImportMode.None;
