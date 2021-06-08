@@ -1,0 +1,10 @@
+"com.unity.postprocessing": "3.0.3",
+"com.unity.timeline": "1.5.5",
+"com.unity.ugui": "1.0.0",
+Assembly-CSharp.dll
+来源 ： Library\ScriptAssemblies
+
+如果ugui不行，就使用下面的地址的
+来源 ： Editor\Data\Resources\PackageManager\ProjectTemplates\libcache\com.unity.template.3d-5.0.4\\ScriptAssemblies
+
+UnityEditor.dll 由于2020的默认是 release 所以，该文件就需要 Editor\Data\Managed\UnityEditor.dll 替换 Editor\Data\Managed\UnityEngine\UnityEditor.dll

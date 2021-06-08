@@ -1,0 +1,8 @@
+"com.unity.postprocessing": "2.3.0",
+"com.unity.ugui": "1.0.0",
+"com.unity.timeline": "1.2.13",
+Assembly-CSharp.dll
+全部来源 ： Library\ScriptAssemblies
+
+如果ugui不行，就使用下面的地址的
+Editor\Data\Resources\PackageManager\ProjectTemplates\libcache\com.unity.template.3d-4.2.8\ScriptAssemblies
