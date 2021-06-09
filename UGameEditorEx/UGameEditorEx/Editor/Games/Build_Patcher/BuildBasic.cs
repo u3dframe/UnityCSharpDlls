@@ -721,8 +721,8 @@ namespace Core
                     PlayerSettings.Android.forceInternetPermission = true;
                     PlayerSettings.Android.forceSDCardPermission = true;
                     PlayerSettings.Android.targetArchitectures = AndroidArchitecture.All;
-                    PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel19;
-                    PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
+                    //PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel19;
+                    //PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
                     PlayerSettings.legacyClampBlendShapeWeights = true;
                     PlayerSettings.SetApiCompatibilityLevel(BuildTargetGroup.Android, ApiCompatibilityLevel.NET_Standard_2_0);
                     PlayerSettings.Android.androidTVCompatibility = true;
