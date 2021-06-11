@@ -12,7 +12,8 @@ using Core.Kernel;
 [System.Serializable]
 public class RendererMatData
 {
-    private int m_rerID = -1;
+    public string m_rerName { get; private set; }
+    public int m_rerID { get; private set; }
     Renderer m_currRer = null;
     bool m_isNewMat = false;
     bool m_isEditor = false;
@@ -43,6 +44,7 @@ public class RendererMatData
         this.m_currRer = rer;
         this.m_isNewMat = isNewMat;
         this.m_rerID = this.m_currRer.GetInstanceID();
+        this.m_rerName = rer.name;
 
         Material _mat_ = StaticEx.GetMat(rer);
         if (isNewMat && !m_isEditor)

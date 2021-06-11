@@ -153,7 +153,7 @@ public class CharacterControllerEx : AnimatorEx
         return this;
     }
 
-    public void ChgSkinMat(Material newMat,int nType)
+    public void ChgSkinMat(Material newMat,int nType,string oneName = null)
     {
         var _arrs = this.m_skinDatas;
         this.m_skinDatas = null;
@@ -161,6 +161,7 @@ public class CharacterControllerEx : AnimatorEx
             return;
 
         RendererMatData _itData;
+        bool _isEmptyName = string.IsNullOrEmpty(oneName);
         for (int i = 0; i < _arrs.Length; i++)
         {
             _itData = _arrs[i];
@@ -169,7 +170,7 @@ public class CharacterControllerEx : AnimatorEx
 
             if (nType == 99)
                 _itData.ClearAll();
-            else
+            else if(_isEmptyName || oneName.Contains(_itData.m_rerName))
                 _itData.ChangeMat(newMat, nType);
         }
 
