@@ -288,8 +288,8 @@ namespace Core.Kernel
 
             if (this.m_uwr.isDone)
             {
-                // if (this.m_uwr.isHttpError || this.m_uwr.isNetworkError)
-                if (this.m_uwr.result == UnityWebRequest.Result.ProtocolError)
+                if (this.m_uwr.isHttpError || this.m_uwr.isNetworkError)
+                // if (this.m_uwr.result == UnityWebRequest.Result.ProtocolError)
                 {
                     this.m_downState = EM_DownLoad.Error_LoadDown;
                     this.m_strError = this.m_uwr.error;
