@@ -59,8 +59,8 @@ public class SocketClient {
             else {
                 client = new TcpClient(AddressFamily.InterNetwork);
             }
-            client.SendTimeout = 1000;
-            client.ReceiveTimeout = 1000;
+            client.SendTimeout = 1000 * 2;
+            client.ReceiveTimeout = 1000 * 2;
             client.NoDelay = true;
             client.BeginConnect(host, port, new AsyncCallback(OnConnect), null);
         } catch (Exception ex) {
@@ -74,10 +74,19 @@ public class SocketClient {
     /// </summary>
     void OnConnect(IAsyncResult asr) {
         try{
-            client.EndConnect(asr); // 原本是没该函数的
-            outStream = client.GetStream();
-            client.GetStream().BeginRead(_bts, 0, MAX_READ, new AsyncCallback(OnRead), null);
-            NetworkManager.AddEvent(Protocal.Connect, null);
+            if(IsConnected())
+            {
+                client.EndConnect(asr);
+                outStream = client.GetStream();
+                client.GetStream().BeginRead(_bts, 0, MAX_READ, new AsyncCallback(OnRead), null);
+                NetworkManager.AddEvent(Protocal.Connect, null);
+            }
+            else
+            {
+                string _msg = "OnConnect--->>> Not";
+                OnDisconnected(DisType.ConnectFail, _msg);
+            }
+            
         } catch (Exception ex) {
             string _msg = "OnConnect--->>>" + ex.Message;
             OnDisconnected(DisType.ConnectFail, _msg);
@@ -282,6 +291,9 @@ public class SocketClient {
         bool _isBl = IsConnected();
         if (_isBl)
           client.Close();
+
+        if (client != null)
+            client.Dispose();
 
         client = null;
         return _isBl;
