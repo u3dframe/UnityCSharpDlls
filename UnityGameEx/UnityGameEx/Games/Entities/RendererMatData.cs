@@ -12,11 +12,52 @@ using Core.Kernel;
 [System.Serializable]
 public class RendererMatData
 {
+    static Dictionary<int, RendererMatData> CacheAll = new Dictionary<int, RendererMatData>();
+
+    static public bool IsMatInRenderer(Renderer rer)
+    {
+        if (rer == null)
+            return false;
+        bool isHas = (rer.sharedMaterial != null);
+        if (!isHas)
+        {
+            Material[] _mats_ = rer.sharedMaterials;
+            if (_mats_ != null && _mats_.Length > 0)
+            {
+                int _len = _mats_.Length;
+                for (int i = 0; i < _len; i++)
+                {
+                    if (_mats_[i] != null)
+                    {
+                        isHas = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return isHas;
+    }
+
+    static public RendererMatData Builder(Renderer rer, bool isNewMat)
+    {
+        bool isHasMat = IsMatInRenderer(rer);
+        if (!isHasMat)
+            return null;
+        RendererMatData _it = null;
+        if (!CacheAll.TryGetValue(rer.GetInstanceID(), out _it))
+            _it = new RendererMatData(rer, isNewMat);
+        return _it;
+    }
+
+    static public RendererMatData BuilderNew(Renderer rer)
+    {
+        return Builder(rer, true);
+    }
+
     public string m_rerName { get; private set; }
     public int m_rerID { get; private set; }
     Renderer m_currRer = null;
     bool m_isNewMat = false;
-    bool m_isEditor = false;
     public List<Material> m_allMats { get; private set; }
     public List<Material> m_mats { get; private set; }
 
@@ -39,7 +80,8 @@ public class RendererMatData
 
         CacheAll.Remove(this.m_rerID);
 
-        this.m_isEditor = UGameFile.m_isEditor;
+        bool _isEditor = UGameFile.m_isEditor;
+        isNewMat = isNewMat || _isEditor;
         this.ClearMat();
         this.m_currRer = rer;
         this.m_isNewMat = isNewMat;
@@ -47,7 +89,7 @@ public class RendererMatData
         this.m_rerName = rer.name;
 
         Material _mat_ = StaticEx.GetMat(rer);
-        if (isNewMat && !m_isEditor)
+        if (isNewMat)
         {
             _mat_ = UtilityHelper.NewMat(_mat_);
             if (_mat_ != null)
@@ -66,9 +108,7 @@ public class RendererMatData
                 _mat_ = _mats_[j];
                 if (isNewMat)
                 {
-                    if (!m_isEditor)
-                        _mat_ = UtilityHelper.NewMat(_mat_);
-
+                    _mat_ = UtilityHelper.NewMat(_mat_);
                     if (_mat_ != null)
                         this.m_mats.Add(_mat_);
                 }
@@ -97,7 +137,7 @@ public class RendererMatData
 
     void ClearMat()
     {
-        bool isNew = this.m_isNewMat || this.m_isEditor;
+        bool isNew = this.m_isNewMat;
         List<Material> _list = null;
         if (isNew)
         {
@@ -148,45 +188,39 @@ public class RendererMatData
         this.m_currRer.materials = this.m_mats.ToArray();
     }
 
-    static Dictionary<int, RendererMatData> CacheAll = new Dictionary<int, RendererMatData>();
-
-    static public bool IsMatInRenderer(Renderer rer)
+    public bool EnableKeyword(string key)
     {
-        if (rer == null)
-            return false;
-        bool isHas = (rer.sharedMaterial != null);
-        if (!isHas)
+        int _lens = this.m_allMats.Count;
+        Material _mat = null;
+        bool isChg = false;
+        for (int j = 0; j < _lens; j++)
         {
-            Material[] _mats_ = rer.sharedMaterials;
-            if (_mats_ != null && _mats_.Length > 0)
-            {
-                int _len = _mats_.Length;
-                for (int i = 0; i < _len; i++)
-                {
-                    if (_mats_[i] != null)
-                    {
-                        isHas = true;
-                        break;
-                    }
-                }
-            }
+            _mat = this.m_allMats[j];
+            if (_mat == null)
+                continue;
+            _mat.EnableKeyword(key);
+            if (_mat.IsKeywordEnabled(key))
+                isChg = true;
         }
-        return isHas;
+        return isChg;
     }
 
-    static public RendererMatData Builder(Renderer rer, bool isNewMat)
+    public bool DisableKeyword(string key)
     {
-        bool isHasMat = IsMatInRenderer(rer);
-        if (!isHasMat)
-            return null;
-        RendererMatData _it = null;
-        if (!CacheAll.TryGetValue(rer.GetInstanceID(), out _it))
-            _it = new RendererMatData(rer, isNewMat);
-        return _it;
-    }
-
-    static public RendererMatData BuilderNew(Renderer rer)
-    {
-        return Builder(rer, true);
+        int _lens = this.m_allMats.Count;
+        Material _mat = null;
+        bool isChg = false;
+        bool _isEnabled = false;
+        for (int j = 0; j < _lens; j++)
+        {
+            _mat = this.m_allMats[j];
+            if (_mat == null)
+                continue;
+            _isEnabled = _mat.IsKeywordEnabled(key);
+            _mat.DisableKeyword(key);
+            if (_isEnabled && !_mat.IsKeywordEnabled(key))
+                isChg = true;
+        }
+        return isChg;
     }
 }
