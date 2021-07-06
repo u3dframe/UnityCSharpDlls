@@ -147,7 +147,7 @@ public class CharacterControllerEx : AnimatorEx
                 this.m_skinDatas = new RendererMatData[arrs.Length];
                 for (int i = 0; i < arrs.Length; i++)
                 {
-                    this.m_skinDatas[i] = RendererMatData.BuilderNew(arrs[i]);
+                    this.m_skinDatas[i] = RendererMatData.Builder(arrs[i],false);
                 }
             }
         }
@@ -178,8 +178,30 @@ public class CharacterControllerEx : AnimatorEx
         if (nType != 99)
             this.m_skinDatas = _arrs;
     }
-    
-	protected void CMove(Vector3 v3Add){
+
+    public void EnabledSkinMatKey(string key,bool isEnabled = true)
+    {
+        if (string.IsNullOrEmpty(key))
+            return;
+
+        var _arrs = this.m_skinDatas;
+        if (_arrs == null || _arrs.Length <= 0)
+            return;
+
+        RendererMatData _itData;
+        for (int i = 0; i < _arrs.Length; i++)
+        {
+            _itData = _arrs[i];
+            if (_itData == null)
+                continue;
+            if (isEnabled)
+                _itData.EnableKeyword(key);
+            else
+                _itData.DisableKeyword(key);
+        }
+    }
+
+    protected void CMove(Vector3 v3Add){
 		if(this.m_c_ctrler == null) return;
 		this.m_c_ctrler.Move(v3Add);
 	}
