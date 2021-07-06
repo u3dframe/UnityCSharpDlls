@@ -133,8 +133,9 @@ public class CharacterControllerEx : AnimatorEx
 		this.m_evt_smEnter += on_a_enter;
 		this.m_evt_smUpdate += on_a_up;
 		this.m_evt_smExit += on_a_exit;
-        return this.ReSkinRer();
-	}
+        // return this.ReSkinRer(); // 可能会导致 Object reference not set to an instance of an object.
+        return this;
+    }
 
     public CharacterControllerEx ReSkinRer()
     {
