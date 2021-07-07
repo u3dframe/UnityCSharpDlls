@@ -21,9 +21,19 @@ public class RendererMatProperty : GobjLifeListener
     [HideInInspector] public Renderer[] m_renderers;
     int m_lensRender = 0;
     Color m_color = Color.white;
+    bool _isInit = false;
 
-    override protected void OnCall4Start()
+    protected override void OnCall4Awake()
     {
+        base.OnCall4Awake();
+        this._Init();
+    }
+
+    private void _Init()
+    {
+        if (_isInit)
+            return;
+        _isInit = true;
         m_mpb = new MaterialPropertyBlock();
         ReInitRenderers();
     }
@@ -36,7 +46,8 @@ public class RendererMatProperty : GobjLifeListener
     }
 
     public void SetInt(string key,int val){
-        if(this.m_lensRender <= 0)
+        this._Init();
+        if (this.m_lensRender <= 0)
             return;
         
         Renderer _rer_;
@@ -53,6 +64,7 @@ public class RendererMatProperty : GobjLifeListener
     }
 
     public void SetFloat(string key,float val){
+        this._Init();
         if(this.m_lensRender <= 0)
             return;
         
@@ -78,7 +90,8 @@ public class RendererMatProperty : GobjLifeListener
     }
 
     public void SetColor(string key,float r,float g,float b,float a){
-        if(this.m_lensRender <= 0)
+        this._Init();
+        if (this.m_lensRender <= 0)
             return;
         
         m_color.a = CalcColor(a);
@@ -103,7 +116,8 @@ public class RendererMatProperty : GobjLifeListener
     }
     
     public void SetMatrix(string key,Matrix4x4 val){
-        if(this.m_lensRender <= 0)
+        this._Init();
+        if (this.m_lensRender <= 0)
             return;
         
         Renderer _rer_;
@@ -120,7 +134,8 @@ public class RendererMatProperty : GobjLifeListener
     }
 
     public void SetTexture(string key,Texture val){
-        if(this.m_lensRender <= 0)
+        this._Init();
+        if (this.m_lensRender <= 0)
             return;
         
         Renderer _rer_;
@@ -137,7 +152,8 @@ public class RendererMatProperty : GobjLifeListener
     }
 
     public void SetVector(string key,Vector4 val){
-        if(this.m_lensRender <= 0)
+        this._Init();
+        if (this.m_lensRender <= 0)
             return;
         
         Renderer _rer_;
