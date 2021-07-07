@@ -276,7 +276,7 @@ namespace Core.Kernel.Beans
             return GHelper.Clone(this.m_gobj);
         }
 
-        public bool DestroyObj(bool isImmediate)
+        public bool DestroyObj(bool isImmediate,float dt = 0.0f)
         {
             GameObject _gobj = this.m_gobj;
             bool _isBl = _gobj != null && !!_gobj;
@@ -285,7 +285,7 @@ namespace Core.Kernel.Beans
                 if (isImmediate)
                     GameObject.DestroyImmediate(_gobj);
                 else
-                    GameObject.Destroy(_gobj);
+                    GameObject.Destroy(_gobj, dt);
             }
             return _isBl;
         }
