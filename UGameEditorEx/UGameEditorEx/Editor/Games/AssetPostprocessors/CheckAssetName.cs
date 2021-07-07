@@ -9,12 +9,13 @@ using System.IO;
 /// </summary>
 public class CheckAssetName : AssetPostprocessor
 {
-    static bool IsExcludes(string str)
+    static bool IsExcludesBig(string str)
     {
         str = str.ToLower();
         bool _isExc = !str.EndsWith(".prefab");
         bool _isExc2 = str.EndsWith(".cs") || str.EndsWith(".meta") || str.EndsWith(".shader") || str.EndsWith(".tga") || str.EndsWith(".fbx") || str.EndsWith(".rendertexture") || str.Contains("/lightmaps/") || (str.Contains("/skyboxs/") && !str.EndsWith(".mat"));
-        return _isExc && _isExc2;
+        bool _isExc3 = str.Contains("/spines/");
+        return _isExc && (_isExc2 || _isExc3);
     }
 
     static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
@@ -44,7 +45,7 @@ public class CheckAssetName : AssetPostprocessor
                 {
                     UnityEngine.Debug.LogErrorFormat("=== filename has space(空格), fp = [{0}],fn = [{1}]", _fpStr, _fn);
                 }
-                else if (!IsExcludes(_fpStr) && !_fn.Equals(_fnTower))
+                else if (!IsExcludesBig(_fpStr) && !_fn.Equals(_fnTower))
                 {
                     UnityEngine.Debug.LogErrorFormat("=== filename has Upper(大写), fp = [{0}],fn = [{1}]", _fpStr, _fn);
                 }
