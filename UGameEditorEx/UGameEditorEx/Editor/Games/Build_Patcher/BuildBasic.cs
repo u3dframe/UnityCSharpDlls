@@ -705,8 +705,8 @@ namespace Core
             PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.stripUnusedMeshComponents = true; // optimize mesh data
             // PlayerSettings.MTRendering = true; // 多线程渲染 Multithreaded Rendering
-            // PlayerSettings.gpuSkinning = true; // 将 Skinning活动 推送到 GPU  Compute SKinning
-            // PlayerSettings.graphicsJobs = true; // 把渲染线程的任务分配到工作线程
+            // PlayerSettings.gpuSkinning = true; // 将 Skinning活动 推送到 GPU Compute SKinning(Compute SKinning*选中)
+            // PlayerSettings.graphicsJobs = true; // 把渲染线程的任务分配到工作线程(引起 Vulkan 渲染Crash)
             ScriptingImplementation scripting = ScriptingImplementation.IL2CPP;
             // EditorUserBuildSettings.activeBuildTarget
             switch (buildTarget)
