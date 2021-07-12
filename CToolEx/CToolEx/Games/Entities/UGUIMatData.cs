@@ -11,6 +11,13 @@
     [System.Serializable]
     public class UGUIMatData
     {
+        static public UGUIMatData Builder(MaskableGraphic graphic, bool isNewMat)
+        {
+            if (!graphic)
+                return null;
+            return new UGUIMatData(graphic, isNewMat);
+        }
+
         public MaskableGraphic m_graphic = null;
         public Material m_mat = null;
         public Material m_newMat = null;
@@ -61,11 +68,64 @@
             }
         }
 
-        static public UGUIMatData Builder(MaskableGraphic graphic, bool isNewMat)
+        public bool EnableKeyword(string key)
         {
-            if (!graphic)
-                return null;
-            return new UGUIMatData(graphic, isNewMat);
+            Material _mat = this.m_newMat;
+            if (_mat == null)
+                _mat = this.m_mat;
+            bool isChg = false;
+            if (_mat != null)
+            {
+                _mat.EnableKeyword(key);
+                if (_mat.IsKeywordEnabled(key))
+                    isChg = true;
+            }
+            return isChg;
+        }
+
+        public bool DisableKeyword(string key)
+        {
+            Material _mat = this.m_newMat;
+            if (_mat == null)
+                _mat = this.m_mat;
+            bool isChg = false;
+            if (_mat != null)
+            {
+                bool _isEnabled = _mat.IsKeywordEnabled(key);
+                _mat.DisableKeyword(key);
+                if (_isEnabled && !_mat.IsKeywordEnabled(key))
+                    isChg = true;
+            }
+            return isChg;
+        }
+
+        public void SetProperty(int type, string name, object value)
+        {
+            Material _mat = this.m_newMat;
+            if (_mat == null)
+                _mat = this.m_mat;
+            if (_mat != null)
+                _mat.SetProperty(type, name, value);
+        }
+
+        public void SetProperty(string name, Color value)
+        {
+            SetProperty(0, name, value);
+        }
+
+        public void SetProperty(string name, Vector4 value)
+        {
+            SetProperty(1, name, value);
+        }
+
+        public void SetProperty(string name, float value)
+        {
+            SetProperty(2, name, value);
+        }
+
+        public void SetProperty(string name, Texture value)
+        {
+            SetProperty(4, name, value);
         }
     }
 }

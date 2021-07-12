@@ -274,20 +274,26 @@ public static class StaticEx {
         }
     }
 
-    static public void SetProperty(this UnityEngine.UI.MaskableGraphic graphic, int type, string name, object value)
+    static public UGUIMatData GetUGUIMatData(this UnityEngine.UI.MaskableGraphic graphic,bool isAdd)
     {
-        if(null == graphic) return;
-        Material material = graphic.material;
-        if(null == material) return;
+        if (null == graphic || null == graphic.material) return null;
         GobjLifeListener glife = GobjLifeListener.Get(graphic.gameObject);
         UGUIMatData udata = glife.m_obj1 as UGUIMatData;
-        if(udata == null){
-            udata = UGUIMatData.Builder(graphic,true);
-        }
-        if(udata != null){
-            material = udata.m_newMat;
-        }
-        SetProperty(material,type,name,value);
+        if (isAdd && udata == null)
+            udata = UGUIMatData.Builder(graphic, true);
+        return udata;
+    }
+
+    static public UGUIMatData GetUGUIMatData(this UnityEngine.UI.MaskableGraphic graphic)
+    {
+        return GetUGUIMatData(graphic,false);
+    }
+
+    static public void SetProperty(this UnityEngine.UI.MaskableGraphic graphic, int type, string name, object value)
+    {
+        UGUIMatData udata = GetUGUIMatData(graphic,true);
+        if (udata != null)
+            udata.SetProperty(type, name, value);
     }
 
     static public void SetProperty(this UnityEngine.UI.MaskableGraphic graphic,string name, float value){
