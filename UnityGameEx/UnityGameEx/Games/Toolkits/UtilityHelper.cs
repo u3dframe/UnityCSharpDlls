@@ -10,6 +10,22 @@ using UObject = UnityEngine.Object;
 /// </summary>
 public class UtilityHelper : GHelper
 {
+    static public int sd_width { get; private set; }
+    static public int sd_height { get; private set; }
+    static public void ReResolution(float rate = 0.5f)
+    {
+        if (sd_width == 0)
+        {
+            sd_width = Screen.currentResolution.width;
+            sd_height = Screen.currentResolution.height;
+        }
+        rate = Mathf.Max(rate, 0.4f);
+        rate = Mathf.Min(rate, 1.0f);
+        int width = (int)(sd_width * rate);
+        int height = (int)(sd_height * rate);
+        Screen.SetResolution(width, height, true);
+    }
+
     static public RenderTextureFormat GetRTexFmt(RenderTextureFormat src)
     {
         if (src != RenderTextureFormat.Default && SystemInfo.SupportsRenderTextureFormat(src))
