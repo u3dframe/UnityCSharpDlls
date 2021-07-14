@@ -14,7 +14,7 @@ public class CheckAssetName : AssetPostprocessor
         str = str.ToLower();
         bool _isExc = !str.EndsWith(".prefab");
         bool _isExc2 = str.EndsWith(".cs") || str.EndsWith(".meta") || str.EndsWith(".shader") || str.EndsWith(".tga") || str.EndsWith(".fbx") || str.EndsWith(".rendertexture") || str.Contains("/lightmaps/") || (str.Contains("/skyboxs/") && !str.EndsWith(".mat"));
-        bool _isExc3 = str.Contains("/spines/");
+        bool _isExc3 = str.Contains("/spines/") || str.Contains("_Atlas.asset") || str.Contains("_SkeletonData.asset");
         return _isExc && (_isExc2 || _isExc3);
     }
 
