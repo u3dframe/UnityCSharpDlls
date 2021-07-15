@@ -26,6 +26,14 @@ public class FBXImporter : AssetPostprocessor
 #else
             importer.importMaterials = false;
 #endif
+            //模型优化
+            // importer.optimizeMesh = true;
+            importer.optimizeMeshPolygons = true;
+            importer.optimizeMeshVertices = true;
+            importer.optimizeGameObjects = true;
+            importer.animationRotationError = 1.0f;
+            importer.animationPositionError = 1.0f;
+            importer.animationScaleError = 1.0f;
         }
     }
 
@@ -174,25 +182,35 @@ public class FBXImporter : AssetPostprocessor
 
     static public bool HandlerAnimationClip(AnimationClip theAnimation,bool isRvScale = true, string assetPath = "")
     {
+        bool _isOkey = false;
         try
         {
             //去除scale曲线
+            if(isRvScale)
+            {
+                foreach (EditorCurveBinding theCurveBinding in AnimationUtility.GetCurveBindings(theAnimation))
+                {
+                    string name = theCurveBinding.propertyName.ToLower();
+                    if (name.Contains("scale"))
+                    {
+                        AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, null);
+                    }
+                }
+            }
+            
             foreach (EditorCurveBinding theCurveBinding in AnimationUtility.GetCurveBindings(theAnimation))
             {
-                string name = theCurveBinding.propertyName.ToLower();
-                if (isRvScale && name.Contains("scale"))
-                {
-                    AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, null);
-                    continue;
-                }
-
                 // 浮点数精度压缩到 - f3
                 AnimationCurve curve = AnimationUtility.GetEditorCurve(theAnimation, theCurveBinding);
+                if (curve == null || curve.keys == null)
+                    continue;
+
+                Keyframe[] keyFrames = curve.keys;
                 Keyframe key;
                 string _tmp;
-                for (int ii = 0; ii < curve.length; ++ii)
+                for (int ii = 0; ii < keyFrames.Length; ++ii)
                 {
-                    key = curve[ii];
+                    key = keyFrames[ii];
                     _tmp = key.value.ToString("f3");
                     key.value = float.Parse(_tmp);
 
@@ -208,15 +226,17 @@ public class FBXImporter : AssetPostprocessor
                     _tmp = key.outWeight.ToString("f3");
                     key.outWeight = float.Parse(_tmp);
                 }
-                AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, curve);
-                return curve.length > 0;
+                curve.keys = keyFrames;
+                _isOkey = _isOkey || keyFrames.Length > 0;
+                theAnimation.SetCurve(theCurveBinding.path, theCurveBinding.type, theCurveBinding.propertyName, curve);
+                //AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, curve);
             }
         }
         catch (System.Exception e)
         {
             Debug.LogErrorFormat("HandleAnimationClip Failed !!! animationPath : {0} error: {1}", assetPath, e);
         }
-        return false;
+        return _isOkey;
     }
 
     // [MenuItem("Assets/Tools/Re - Import All Fbx")]
