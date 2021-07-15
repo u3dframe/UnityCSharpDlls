@@ -9,46 +9,13 @@ using Core.Kernel;
 /// 功能 : Screen , Application , SystemInfo
 /// </summary>
 public static class GameEntranceEx{
-
-    static public DF_OnError cfuncError = null;
-
     static public void Entrance( DF_OnError callError )
     {
-        if (!Application.isPlaying)
+        if (!GameAppEx.Entrance(callError))
         {
-            Application.logMessageReceivedThreaded -= _HandleLog;
             return;
         }
-
-        cfuncError = callError;
-        _InitAppPars();
         _InitMgrsPreUpload();
-    }
-
-    static void _InitAppPars()
-    {
-        GHelper.Is_App_Quit = false;
-        Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        Application.targetFrameRate = (UGameFile.m_isEditor || UGameFile.m_isIOS) ? 60 : 45;
-        Application.runInBackground = true;
-        
-        Application.logMessageReceivedThreaded -= _HandleLog;
-        Application.logMessageReceivedThreaded += _HandleLog;
-    }
-
-    static void _HandleLog(string logString, string stackTrace, LogType type)
-    {
-        bool isException = type == LogType.Exception;
-        if (isException || type == LogType.Error)
-        {
-            string _error = string.Format("=== [{0}] = [{1}]", logString, stackTrace);
-            try
-            {
-                if (cfuncError != null)
-                    cfuncError(isException,_error);
-            } catch {
-            }
-        }
     }
 
     static void _InitMgrsPreUpload()

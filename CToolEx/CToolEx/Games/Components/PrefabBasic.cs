@@ -286,6 +286,31 @@ public class PrefabBasic : GobjLifeListener {
         }
     }
 
+    [ContextMenu("Append Transform's First Childs")]
+    void AppendAllFirstChilds()
+    {
+        GHelper.Is_App_Quit = false;
+        GameObject __gobj = null;
+        List<GameObject> list = new List<GameObject>();
+        if(m_gobjs != null)
+        {
+            foreach (var item in m_gobjs)
+            {
+                if (item != null)
+                    list.Add(item);
+            }
+        }
+
+        int lens = this.m_trsf.childCount;
+        for (int i = 0; i < lens; i++)
+        {
+            __gobj = this.m_trsf.GetChild(i).gameObject;
+            if (!list.Contains(__gobj))
+                list.Add(__gobj);
+        }
+        m_gobjs = list.ToArray();
+    }
+
     /*
     [ContextMenu("PrintDicKeys")]
     void PrintDicKeys()

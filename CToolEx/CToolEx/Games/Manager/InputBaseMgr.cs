@@ -100,9 +100,8 @@ public class InputBaseMgr : GobjLifeListener {
 	public DF_InpRayHit m_lfRayHit = null; // 单击到物体
 
     [SerializeField] float _noOpsTime = 0;
-    public int m_fpsFrameRate { get; set; }
     protected bool m_isOpt { get; set; }
-    [Range(0.1f,0.5f)] public float m_noOpsFpsRate = 0.2f;
+    [Range(0.1f,0.5f)] public float m_noOpsFpsRate = 0.25f;
     public float m_noOpsLmtSec = 10 * 60;
 
 	private LayerMask _lay_mask = 1 << 0 | 1 << 1 | 1 << 4;
@@ -146,13 +145,10 @@ public class InputBaseMgr : GobjLifeListener {
 
     void _OnUpdatingOpt()
     {
-        if (m_fpsFrameRate <= 0)
-            m_fpsFrameRate = Application.targetFrameRate;
-
         if(m_isOpt)
         {
             _noOpsTime = 0f;
-            Application.targetFrameRate = m_fpsFrameRate;
+            GameAppEx.SetFrameRateByRate(1);
             return;
         }
 
@@ -160,9 +156,7 @@ public class InputBaseMgr : GobjLifeListener {
         if(_noOpsTime >= this.m_noOpsLmtSec)
         {
             _noOpsTime -= this.m_noOpsLmtSec;
-            int _fps = Mathf.CeilToInt(m_fpsFrameRate * m_noOpsFpsRate);
-            _fps = Mathf.Max(_fps, 3);
-            Application.targetFrameRate = _fps;
+            GameAppEx.SetFrameRateByRate(m_noOpsFpsRate);
         }
     }
 
