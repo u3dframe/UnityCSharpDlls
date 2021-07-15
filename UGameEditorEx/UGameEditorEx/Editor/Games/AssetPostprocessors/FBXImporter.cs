@@ -31,9 +31,9 @@ public class FBXImporter : AssetPostprocessor
             importer.optimizeMeshPolygons = true;
             importer.optimizeMeshVertices = true;
             importer.optimizeGameObjects = true;
-            importer.animationRotationError = 1.0f;
-            importer.animationPositionError = 1.0f;
-            importer.animationScaleError = 1.0f;
+            // importer.animationRotationError = 1.0f;
+            // importer.animationPositionError = 1.0f;
+            // importer.animationScaleError = 1.0f;
         }
     }
 
@@ -220,16 +220,18 @@ public class FBXImporter : AssetPostprocessor
                     _tmp = key.outTangent.ToString("f3");
                     key.outTangent = float.Parse(_tmp);
 
+                    /*
                     _tmp = key.inWeight.ToString("f3");
                     key.inWeight = float.Parse(_tmp);
 
                     _tmp = key.outWeight.ToString("f3");
                     key.outWeight = float.Parse(_tmp);
+                    */
                 }
                 curve.keys = keyFrames;
-                _isOkey = _isOkey || keyFrames.Length > 0;
                 theAnimation.SetCurve(theCurveBinding.path, theCurveBinding.type, theCurveBinding.propertyName, curve);
                 //AnimationUtility.SetEditorCurve(theAnimation, theCurveBinding, curve);
+                _isOkey = true;
             }
         }
         catch (System.Exception e)
