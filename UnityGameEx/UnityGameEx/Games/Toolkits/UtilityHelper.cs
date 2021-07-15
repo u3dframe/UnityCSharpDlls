@@ -10,6 +10,8 @@ using UObject = UnityEngine.Object;
 /// </summary>
 public class UtilityHelper : GHelper
 {
+    static public int SDWidth { get { return GameAppEx.sd_width; } }
+    static public int SDHeight { get { return GameAppEx.sd_height; } }
     static public void ReResolution(float rate = 0.5f)
     {
         GameAppEx.ReResolution(rate);
