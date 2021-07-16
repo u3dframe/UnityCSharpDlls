@@ -126,7 +126,7 @@ public class SmoothFollower : SmoothLookAt
 
 	public void ReSetPars(Transform target,float distance,float height,float lookAtHeight,bool isLerpDistance,bool isLerpHeight,bool isLerpRotate){
 		this.target = target;
-		this.v3Offset.y = lookAtHeight;
+		this.m_lookAtHeight = lookAtHeight;
 		this.distance = distance;
 		this.height = height;
 		this.isLerpDistance = isLerpDistance;
@@ -137,7 +137,7 @@ public class SmoothFollower : SmoothLookAt
 	public void ReSetDHL(float distance,float height,float lookAtHeight){
 		this.distance = distance;
 		this.height = height;
-        this.v3Offset.y = lookAtHeight;
+        this.m_lookAtHeight = lookAtHeight;
 	}
 
 	public void SetTarget(Transform target){

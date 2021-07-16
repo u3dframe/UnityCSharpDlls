@@ -29,9 +29,10 @@ public class SmoothLookAt : MonoBehaviour
     public bool isUpByLate = false;
     public bool isRunningAt = false;
     public bool m_smoothAt = false;
-    [HideInInspector] public float dampingAt = 2.2f; // 6
-    public Vector3 v3Offset = Vector3.zero;
-    [HideInInspector] public Vector3 v3Target = Vector3.zero;
+    public float dampingAt = 2.2f; // 6
+    public float m_lookAtHeight = 0f;
+    public Vector3 v3OffsetAngle = Vector3.zero;
+    public Vector3 v3Target = Vector3.zero; // [HideInInspector] 
     private Transform _trsf = null;
     protected Transform m_trsf { get { if (_trsf == null) _trsf = transform; return _trsf; } }
 
@@ -73,28 +74,31 @@ public class SmoothLookAt : MonoBehaviour
     void _LookTrsf()
     {
         if (!target) return;
-        Vector3 _pos = target.position + v3Offset;
-        this._LookVec3(_pos);
+        this._LookVec3(target.position);
     }
 
     void _LookVec3(Vector3 dest)
     {
+        dest.y += m_lookAtHeight;
         if (m_smoothAt)
         {
+            var _r = Quaternion.Euler(v3OffsetAngle);
+            dest = dest + _r * Vector3.forward;
             var rotation = Quaternion.LookRotation(dest - m_trsf.position);
             m_trsf.rotation = Quaternion.Slerp(m_trsf.rotation, rotation, Time.deltaTime * dampingAt);
             return;
         }
         m_trsf.LookAt(dest);
+        m_trsf.Rotate(v3OffsetAngle, Space.World);
     }
 
     public void LookAt(Object target,float ox,float oy,float oz,bool smoothAt = true, bool upLate = false)
     {
         Transform _t = GHelper.ToTransform(target);
         this.target = _t;
-        this.v3Offset.x = ox;
-        this.v3Offset.y = oy;
-        this.v3Offset.z = oz;
+        this.v3OffsetAngle.x = ox;
+        this.v3OffsetAngle.y = oy;
+        this.v3OffsetAngle.z = oz;
         this.m_smoothAt = smoothAt;
         this.isUpByLate = upLate;
         this.m_lookType = LookType.Trsf;
