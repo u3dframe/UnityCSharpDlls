@@ -30,7 +30,7 @@ public class SmoothLookAt : MonoBehaviour
     public bool isRunningAt = false;
     public bool m_smoothAt = false;
     [HideInInspector] public float dampingAt = 2.2f; // 6
-    [HideInInspector] public Vector3 v3Offset = Vector3.zero;
+    public Vector3 v3Offset = Vector3.zero;
     [HideInInspector] public Vector3 v3Target = Vector3.zero;
     private Transform _trsf = null;
     protected Transform m_trsf { get { if (_trsf == null) _trsf = transform; return _trsf; } }
