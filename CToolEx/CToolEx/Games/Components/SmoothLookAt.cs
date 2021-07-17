@@ -32,7 +32,7 @@ public class SmoothLookAt : MonoBehaviour
     public float dampingAt = 2.2f; // 6
     public float m_lookAtHeight = 0f;
     public Vector3 v3OffsetAngle = Vector3.zero;
-    public Vector3 v3Target = Vector3.zero; // [HideInInspector] 
+    [HideInInspector] public Vector3 v3Target = Vector3.zero;
     private Transform _trsf = null;
     protected Transform m_trsf { get { if (_trsf == null) _trsf = transform; return _trsf; } }
 

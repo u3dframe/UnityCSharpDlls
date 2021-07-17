@@ -78,23 +78,15 @@ public class SmoothFollower : SmoothLookAt
 			currentDistance = distance;
         
         _tPos = target.position;
-        if(isSyncRotate)
+        currentRotation = zeroRotation;
+        if (isSyncRotate)
         {
             wantedRotationAngle = target.eulerAngles.y;
             if (isLerpRotate)
-            {
-                currentRotationAngle = m_trsf.eulerAngles.y;
-                currentRotationAngle = Mathf.LerpAngle(currentRotationAngle, wantedRotationAngle, rotationDamping * _dt);
-                currentRotation = Quaternion.Euler(0, currentRotationAngle, 0);
-            }
+                currentRotationAngle = Mathf.LerpAngle(m_trsf.eulerAngles.y, wantedRotationAngle, rotationDamping * _dt);
             else
-            {
-                currentRotation = Quaternion.Euler(0, wantedRotationAngle, 0);
-            }
-        }
-        else
-        {
-            currentRotation = zeroRotation;
+                currentRotationAngle = wantedRotationAngle;
+            currentRotation = Quaternion.Euler(0, currentRotationAngle, 0);
         }
         _symbolDistance = isBackDistance ? -1 : 1;
         _fPos = _tPos + currentRotation * Vector3.forward * currentDistance * _symbolDistance;
