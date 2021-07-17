@@ -38,12 +38,14 @@ public class AnimatorEx : PrefabBasic
 
 	public event DF_ASM_MotionLife m_evt_smEnter = null;
     public event DF_ASM_MotionLife m_evt_smUpdate = null;
+    public event DF_ASM_MotionLife m_evt_smLoop = null;
     public event DF_ASM_MotionLife m_evt_smExit = null;
     public event DF_ASM_MotionLife m_evt_smMove = null;
     public event DF_ASM_MotionLife m_evt_smIK = null;
 
     public event DF_ASM_SubLife m_evt_subEnter = null;
     public event DF_ASM_SubLife m_evt_subExit = null;
+    private int _lastLoop = 0;
 
     override protected void OnCall4Awake(){
 		this.csAlias = "ANI_Ex";
@@ -65,7 +67,8 @@ public class AnimatorEx : PrefabBasic
 		this._s_behaviours = null;
 		this.m_evt_smEnter = null;
 		this.m_evt_smUpdate = null;
-		this.m_evt_smExit = null;
+        this.m_evt_smLoop = null;
+        this.m_evt_smExit = null;
 		this.m_evt_smMove = null;
 		this.m_evt_smIK = null;
 		this.m_evt_subEnter = null;
@@ -173,9 +176,13 @@ public class AnimatorEx : PrefabBasic
 		}
 	}
 
-	void _Exc_SM_Call(DF_ASM_MotionLife cfunc,Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+    void _Exc_SM_Call(DF_ASM_MotionLife cfunc, Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
+        this._Exc_SM_Call(cfunc, animator, stateInfo, layerIndex, this.m_actionState);
+    }
+
+	void _Exc_SM_Call(DF_ASM_MotionLife cfunc,Animator animator, AnimatorStateInfo stateInfo, int layerIndex,int pars1) {
 		if(cfunc != null)
-			cfunc(animator,stateInfo,layerIndex,this.m_actionState);
+			cfunc(animator,stateInfo,layerIndex, pars1);
 	}
 
 	void _Exc_Sub_Call(DF_ASM_SubLife cfunc,Animator animator , int stateMachinePathHash) {
@@ -185,12 +192,19 @@ public class AnimatorEx : PrefabBasic
 
 	void _CF_SM_Enter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
 		if(animator != this.m_animator) return;
+        this._lastLoop = 0;
 		_Exc_SM_Call(m_evt_smEnter,animator,stateInfo,layerIndex);
 	}
 
 	void _CF_SM_Update(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
 		if(animator != this.m_animator) return;
 		_Exc_SM_Call(m_evt_smUpdate,animator,stateInfo,layerIndex);
+        int loop = (int)stateInfo.normalizedTime;
+        if(loop != this._lastLoop)
+        {
+            this._lastLoop = loop;
+            _Exc_SM_Call(m_evt_smLoop, animator, stateInfo, layerIndex,loop);
+        }
 	}
 
 	void _CF_SM_Exit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex){
