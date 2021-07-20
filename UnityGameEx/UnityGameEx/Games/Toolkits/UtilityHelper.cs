@@ -83,6 +83,22 @@ public class UtilityHelper : GHelper
         pZ = _v3.z;
     }
 
+    static public Vector3 ToVec3ByDistance(Vector3 src,Vector3 dest,float distance)
+    {
+        Vector3 _ret = (dest - src).normalized;
+        _ret = src + _ret * distance;
+        return _ret;
+    }
+
+    static public Vector3 ToVec3ByDistance(UObject src, UObject dest, float distance)
+    {
+        Transform _src = ToTransform(src);
+        Transform _dest = ToTransform(dest);
+        if (_src == null || _dest == null)
+            return Vector3.forward * distance;
+        return ToVec3ByDistance(_src.position, _dest.position, distance);
+    }
+
     static public Camera GetOrAddCamera(UObject uobj)
     {
         return Get<Camera>(uobj, true);
