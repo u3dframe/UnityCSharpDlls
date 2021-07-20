@@ -99,6 +99,16 @@ public class UtilityHelper : GHelper
         return ToVec3ByDistance(_src.position, _dest.position, distance);
     }
 
+    static public void SetDestPositionByDistance(UObject src, UObject dest, float distance)
+    {
+        Transform _src = ToTransform(src);
+        Transform _dest = ToTransform(dest);
+        if (_src == null || _dest == null)
+            return;
+        Vector3 _v3 = ToVec3ByDistance(_src.position, _dest.position, distance);
+        _dest.position = _v3;
+    }
+
     static public Camera GetOrAddCamera(UObject uobj)
     {
         return Get<Camera>(uobj, true);
