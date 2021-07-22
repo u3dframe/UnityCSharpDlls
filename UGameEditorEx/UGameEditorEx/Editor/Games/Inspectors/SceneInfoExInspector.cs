@@ -18,8 +18,9 @@ public class SceneInfoExInspector : Editor
 {
     SceneInfoEx m_obj;
 	// string m_fabName = "";
-	string _fpInAsset4Gbox = "Assets/_Develop/Builds/groudbox/Excludes/gbox.prefab";
-	
+	string _fpInAsset4Gbox = "Assets/_Develop/Builds/groudbox/gbox.prefab";
+    string _fpInAsset4Gbox2 = "Assets/_Develop/Builds/groudbox/Excludes/gbox.prefab";
+
     void OnEnable()
     {
         m_obj = target as SceneInfoEx;
@@ -112,7 +113,12 @@ public class SceneInfoExInspector : Editor
 
 		GameObject gobjBox = UtilityHelper.ChildRecursion(m_obj.gameObject,"gbox");
 		if(!gobjBox){
-			GameObject _obj = AssetDatabase.LoadAssetAtPath(_fpInAsset4Gbox, typeof(GameObject)) as GameObject;
+            string _fpInAsset = _fpInAsset4Gbox;
+            string _fp = GameFile.m_dirDataNoAssets + _fpInAsset;
+            if(!GameFile.IsExistsFile(_fp,true))
+                _fpInAsset = _fpInAsset4Gbox2;
+
+            GameObject _obj = AssetDatabase.LoadAssetAtPath(_fpInAsset, typeof(GameObject)) as GameObject;
 			if(_obj){
         		gobjBox = GameObject.Instantiate(_obj,m_obj.transform,false) as GameObject;
 				gobjBox.name = "gbox";
