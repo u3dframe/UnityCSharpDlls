@@ -245,7 +245,7 @@ public class PrefabBasic : GobjLifeListener {
     }
 
     [ContextMenu("Re-Rmv Empty")]
-    void ReSizeList()
+    protected void ReSizeList()
     {
         GHelper.Is_App_Quit = false;
         List<GameObject> list = new List<GameObject>();
@@ -264,7 +264,7 @@ public class PrefabBasic : GobjLifeListener {
     }
 
     [ContextMenu("Re-Rmv Empty(This and Childs)")]
-    void ReSizeListAll()
+    protected void ReSizeListAll()
     {
         GHelper.Is_App_Quit = false;
         PrefabBasic[] arrs = this.m_gobj.GetComponentsInChildren<PrefabBasic>(true);
@@ -275,7 +275,7 @@ public class PrefabBasic : GobjLifeListener {
     }
 
     [ContextMenu("Re-Bind Transform's First Childs")]
-    void ReBindAllFirstChilds()
+    protected void ReBindAllFirstChilds()
     {
         GHelper.Is_App_Quit = false;
         int lens = this.m_trsf.childCount;
@@ -287,7 +287,7 @@ public class PrefabBasic : GobjLifeListener {
     }
 
     [ContextMenu("Append Transform's First Childs")]
-    void AppendAllFirstChilds()
+    protected void AppendAllFirstChilds()
     {
         GHelper.Is_App_Quit = false;
         GameObject __gobj = null;
