@@ -4,7 +4,7 @@
 /// 类名 : 正6变形布局
 /// 作者 : Canyon / 龚阳辉
 /// 日期 : 2021-07-22 19:52
-/// 功能 : 平铺布局
+/// 功能 : 平铺布局，临时绑定在父节点对象上，使用完毕后，移除删掉
 /// </summary>
 public class HexagonLayout : MonoBehaviour
 {
