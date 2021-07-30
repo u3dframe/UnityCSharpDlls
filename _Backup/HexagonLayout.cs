@@ -9,7 +9,7 @@
 public class HexagonLayout : MonoBehaviour
 {
 	public float edgeSize = 0.9f;// 正六边形边长 = 半径的
-	public int column = 10; // 列数
+	public int column = 8; // 列数
 	public int row = 19; // 行数
 	
 	[ContextMenu("Re-ReView")]
