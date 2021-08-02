@@ -105,6 +105,22 @@ namespace Core.Kernel
             }
         }
 
+        static public void WriteLines(string fp, string[] lines)
+        {
+            DelFile(fp);
+            CreateFolder(fp);
+            File.WriteAllLines(fp, lines);
+        }
+
+        static public string[] GetLines(string fp)
+        {
+            if (IsFile(fp))
+            {
+                return File.ReadAllLines(fp);
+            }
+            return null;
+        }
+
         // 取得文件字节
         static public byte[] GetFileBytes (string fp)
 		{
@@ -123,8 +139,8 @@ namespace Core.Kernel
 			return "";
 		}
 
-		// 取得目录下面的文件夹
-		static public string[] GetFns4Folders (string fn)
+        // 取得目录下面的文件夹
+        static public string[] GetFns4Folders (string fn)
 		{
 			try {
 				return Directory.GetDirectories (fn);

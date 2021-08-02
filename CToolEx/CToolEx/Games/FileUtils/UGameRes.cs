@@ -45,6 +45,7 @@ namespace Core.Kernel
         static public readonly string m_strScriptable = ".ab_sct";
         static public readonly string m_strVdoClip = ".vdo";
         static public readonly string m_strFdAnmt = ".ab_anmt"; // animator,animation的文件夹
+        static public readonly string m_strFdDef = ".ab_fd"; // 默认文件夹后缀名
 
         static public readonly string m_suffix_png = ".png";
         static public readonly string m_suffix_fab = ".prefab";
