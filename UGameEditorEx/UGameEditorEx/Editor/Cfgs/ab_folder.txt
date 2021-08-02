@@ -1,2 +1,2 @@
 lightmaps/
-animations/
+animations/ui/
