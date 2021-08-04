@@ -11,17 +11,17 @@ using System.Collections;
 /// </summary>
 public class FPSDisplay : MonoBehaviour
 {
-	float deltaTime = 0.0f;
-    [SerializeField,Range(0.02f,0.05f)] float hsRate = 0.023f;
-    [SerializeField] Color tCol = new Color(1,0,100/255f,1);
-	GUIStyle style = new GUIStyle();
+    float deltaTime = 0.0f;
+    [SerializeField, Range(0.02f, 0.05f)] float hsRate = 0.023f;
+    [SerializeField] Color tCol = new Color(1, 0, 100 / 255f, 1);
+    GUIStyle style = new GUIStyle();
 
     int frames;
-    float duration,bestDuration = float.MaxValue, worstDuration;
-    [SerializeField,Range(0.1f, 2f)] float sampleDuration = 1f;
+    float duration, bestDuration = float.MaxValue, worstDuration;
+    [SerializeField, Range(0.1f, 2f)] float sampleDuration = 1f;
     float _c_f, _c_d, _c_b, _c_w;
     void Update()
-	{
+    {
         float frameDuration = Time.unscaledDeltaTime;
         deltaTime += (frameDuration - deltaTime) * 0.1f;
 
@@ -47,24 +47,24 @@ public class FPSDisplay : MonoBehaviour
         }
     }
 
-	void OnGUI()
-	{
-		int w = Screen.width, h = Screen.height;
+    void OnGUI()
+    {
+        int w = Screen.width, h = Screen.height;
         int _h = (int)(h * hsRate) + 1;
         int _cw = w / 4;
-        Rect rect = new Rect(0, 0,_cw, _h);
-		style.alignment = TextAnchor.UpperLeft;
-		style.fontSize = _h;
-		style.normal.textColor = tCol;
-		float msec = deltaTime * 1000.0f;
-		float fps = 1.0f / deltaTime;
-		string text = string.Format("{0:0.0} ms  ,  ({1:0.} fps)", msec, fps);
-		GUI.Label(rect, text, style);
+        Rect rect = new Rect(0, 0, _cw, _h);
+        style.alignment = TextAnchor.UpperLeft;
+        style.fontSize = _h;
+        style.normal.textColor = tCol;
+        float msec = deltaTime * 1000.0f;
+        float fps = 1.0f / deltaTime;
+        string text = string.Format("{0:0.0} ms  ,  ({1:0.} fps)", msec, fps);
+        GUI.Label(rect, text, style);
 
         msec = 1f / _c_b;
         fps = _c_f / _c_d;
         float worst = 1f / _c_w;
-        text = string.Format("fps (best = {0:0.} , {1:0.} , worst = {2:0.}) ;  ms ({3:0.} , {4:0.} , {5:0.});", msec, fps, worst, 1000f* _c_b, 1000f * _c_d / _c_f,1000f * _c_w);
+        text = string.Format("best({3:0.0} ms,{0:0.} fps)  avg({4:0.0} ms,{1:0.} fps)  worst({5:0.0} ms,{2:0.} fps)", msec, fps, worst, 1000f * _c_b, 1000f * _c_d / _c_f, 1000f * _c_w);
         rect = new Rect(_cw, 0, _cw * 3, _h);
         GUI.Label(rect, text, style);
     }
