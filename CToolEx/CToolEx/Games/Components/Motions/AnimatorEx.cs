@@ -203,7 +203,7 @@ public class AnimatorEx : PrefabBasic
         if(loop != this._lastLoop)
         {
             this._lastLoop = loop;
-            _Exc_SM_Call(m_evt_smLoop, animator, stateInfo, layerIndex,loop);
+            _Exc_SM_Call(m_evt_smLoop, animator, stateInfo,this.m_actionState, loop);
         }
 	}
 
