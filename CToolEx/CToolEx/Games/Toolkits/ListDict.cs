@@ -7,29 +7,29 @@
 /// 功能 : 大部分字典操作需要list
 /// </summary>
 public class ListDict<T> {
-    public Dictionary<string, T> m_dic = null; // 字典
+    public Dictionary<object, T> m_dic = null; // 字典
     public List<T> m_list = null; // 列表
 
     public ListDict(bool isList){
-        m_dic = new Dictionary<string, T>();
+        m_dic = new Dictionary<object, T>();
         if(isList){
             m_list = new List<T>();
         }
     }
 
-    public T Get(string key){
+    public T Get(object key){
         if(m_dic.ContainsKey(key)){
             return m_dic[key];
         }
         return default(T);
     }
 
-    public bool Remove(string key){
+    public bool Remove(object key){
         T it = Remove4Get(key);
         return it != null;
     }
 
-    public T Remove4Get(string key){
+    public T Remove4Get(object key){
         if(m_dic.ContainsKey(key)){
             T it = m_dic[key];
             m_dic.Remove(key);
@@ -42,7 +42,7 @@ public class ListDict<T> {
         return default(T);
     }
 
-    public bool Add(string key,T it){
+    public bool Add(object key,T it){
         if(m_dic.ContainsKey(key) || it == null){
             return false;
         }
@@ -54,7 +54,7 @@ public class ListDict<T> {
         return true;
     }
 
-    public bool ContainsKey(string key)
+    public bool ContainsKey(object key)
     {
         return m_dic.ContainsKey(key);
     }
