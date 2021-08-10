@@ -129,15 +129,14 @@ public class AudioManager : GobjLifeListener
             return null;
 
         int _id = gobj.GetInstanceID();
-        string _key = _id.ToString();
-        AudioData _dt_ = this.m_data.Get(_key);
+        AudioData _dt_ = this.m_data.Get(_id);
         if (_dt_ == null)
         {
             GobjLifeListener glife = GobjLifeListener.Get(gobj);
             glife.OnlyOnceCallDetroy(this._OnNotifyDestry);
 
             _dt_ = AudioData.BuilderSound(gobj, false, this.m_volumeSound);
-            this.m_data.Add(_key, _dt_);
+            this.m_data.Add(_id, _dt_);
         }
         return _dt_;
     }
@@ -164,7 +163,7 @@ public class AudioManager : GobjLifeListener
 
     void _OnNotifyDestry(GobjLifeListener gLife)
     {
-        int _id = gLife.gameObject.GetInstanceID();
-        this.m_data.Remove(_id.ToString());
+        int _id = gLife.m_gobjID;
+        this.m_data.Remove(_id);
     }
 }
