@@ -24,6 +24,8 @@ public class AudioData
 
     public float m_timeDuration { get; private set; }
     public DF_ToLoadAdoClip m_cfLoad = null;
+    private int m_nTagType = 0;
+    private ListDict<AssetInfo> m_assets = new ListDict<AssetInfo>(true);
 
     private AudioData() { }
     private AudioData(GameObject gobj, bool isNew, bool isMusic, float volume, bool playOnAwake)
@@ -54,47 +56,70 @@ public class AudioData
         return this;
     }
 
-    public AudioData LoadAsset(string abName, string assetName)
+    public AudioData LoadAsset(string abName, string assetName,int tagType)
     {
         if (this.m_audio)
         {
             this.m_abName = abName;
             this.m_assetName = assetName;
-            this.ClearAssets();
+            this.m_nTagType = tagType;
+
+            string _key = string.Format("{0}@@{1}", abName, assetName);
+            AssetInfo _info = this.m_assets.Get(_key);
+            if(_info != null)
+            {
+                if(_info.isHasObj)
+                    this.OnLoadAsset(_info);
+                return this;
+            }
             if (this.m_cfLoad != null)
             {
                 this.m_cfLoad(abName, assetName, OnLoadAdoClip);
+                _info = AssetInfo.abMgr.GetAssetInfo<AudioClip>(abName, assetName);
             }
             else
             {
-                this.m_ainfo = AssetInfo.abMgr.LoadAsset<AudioClip>(abName, assetName, OnLoadAsset);
+                _info = AssetInfo.abMgr.LoadAsset<AudioClip>(abName, assetName, OnLoadAsset);
             }
+
+            if(_info != null)
+                m_assets.Add(_key, _info);
         }
 
         return this;
     }
 
-    public AudioData LoadAsset(string abName)
+    public AudioData LoadAsset(string abName, int tagType)
     {
         string assetName = UGameFile.GetFileNameNoSuffix(abName);
-        return LoadAsset(abName, assetName);
+        return LoadAsset(abName, assetName, tagType);
+    }
+
+    bool isAutoPlay()
+    {
+        return this.m_nTagType == 1 || this.m_nTagType == 3;
+    }
+
+    bool isUnloadLast()
+    {
+        return this.m_nTagType == 2 || this.m_nTagType == 3;
     }
 
     void OnLoadAsset(AssetBase asset)
     {
         if (asset == null)
-        {
             return;
-        }
 
-        AudioClip clip = this.m_ainfo.GetObject<AudioClip>();
-        this.PlayClip(clip, this.m_isBreak);
+        this.OnLoadAdoClip(null);
     }
 
     void OnLoadAdoClip(AudioClip clip)
     {
+        if (this.isUnloadLast())
+            this.ClearCurrAssets(true);
         this.m_ainfo = AssetInfo.abMgr.GetAssetInfo<AudioClip>(this.m_abName, this.m_assetName);
-        this.PlayClip(clip, this.m_isBreak);
+        if (this.isAutoPlay())
+            this.PlayClip();
     }
 
     void OnNotifyDestry(GobjLifeListener gLife)
@@ -140,7 +165,7 @@ public class AudioData
         this.m_audio.volume = volume;
     }
 
-    public void Play()
+    private void Play()
     {
         if (this.m_notiyState != 1)
         {
@@ -197,10 +222,21 @@ public class AudioData
         this.Play();
     }
 
+    public void PlayClip()
+    {
+        if (this.m_ainfo == null)
+        {
+            this.m_nTagType = 1;
+            return;
+        }
+        AudioClip _clip = this.m_ainfo.GetObject<AudioClip>();
+        this.PlayClip(_clip, this.m_isBreak);
+    }
+
     public void RePlay()
     {
         this.Stop();
-        this.Play();
+        this.PlayClip();
     }
 
     void ClearAll()
@@ -210,15 +246,31 @@ public class AudioData
         this.m_audio = null;
         this.m_playState = 0;
         this.m_isBreak = false;
+        this.m_nTagType = 0;
         this.ClearAssets();
     }
 
-    void ClearAssets()
+    void ClearCurrAssets(bool isUnload)
     {
-        var _tmp = this.m_ainfo;
+        AssetInfo _tmp = this.m_ainfo;
         this.m_ainfo = null;
-        if (_tmp != null)
+        if (isUnload && _tmp != null)
             _tmp.UnloadAsset();
+    }
+
+    public void ClearAssets()
+    {
+        this.ClearCurrAssets(false);
+        var infos = new System.Collections.Generic.List<AssetInfo>(this.m_assets.m_list);
+        this.m_assets.Clear();
+        int lens = infos.Count;
+        AssetInfo _tmp = null;
+        for (int i = 0; i < lens; i++)
+        {
+            _tmp = infos[i];
+            if (_tmp != null)
+                _tmp.UnloadAsset();
+        }
     }
 
     static public AudioData Builder(GameObject gobj, bool isNew, bool isMusic, float volume, bool playOnAwake)

@@ -71,6 +71,12 @@ public class AudioManager : GobjLifeListener
         Messenger.Brocast<bool, float>(MsgConst.MSound_Volume, false, this.m_volumeSound);
     }
 
+    public void SetVolume(float val)
+    {
+        this.SetMusicVolume(val);
+        this.SetSoundVolume(val);
+    }
+
     public void SetMusicState(bool isClose)
     {
         if (this.m_isCloseMusic == isClose)
@@ -91,39 +97,69 @@ public class AudioManager : GobjLifeListener
 
     public void PlayMusic(string abName)
     {
-        this.m_musicData.LoadAsset(abName);
+        this.m_musicData.LoadAsset(abName,3);
     }
 
     public void PlaySound(string abName)
     {
-        this.m_soundData.LoadAsset(abName);
+        this.m_soundData.LoadAsset(abName,3);
     }
 
     public void PlaySoundBreak(string abName)
     {
-        this.m_soundDataBreak.LoadAsset(abName);
+        this.m_soundDataBreak.LoadAsset(abName,3);
     }
 
-    public AudioData PlaySound(GameObject gobj, string abName)
+    public AudioData GetAudioData(int ntype)
+    {
+        switch (ntype)
+        {
+            case 1:
+                return this.m_soundData;
+            case 2:
+                return this.m_soundDataBreak;
+            default:
+                return this.m_musicData;
+        }
+    }
+
+    public AudioData GetAudioData(GameObject gobj)
     {
         if (!gobj)
             return null;
 
         int _id = gobj.GetInstanceID();
-        AudioData _dt_ = this.m_data.Get(_id.ToString());
+        string _key = _id.ToString();
+        AudioData _dt_ = this.m_data.Get(_key);
         if (_dt_ == null)
         {
             GobjLifeListener glife = GobjLifeListener.Get(gobj);
             glife.OnlyOnceCallDetroy(this._OnNotifyDestry);
 
             _dt_ = AudioData.BuilderSound(gobj, false, this.m_volumeSound);
-        }
-
-        if(_dt_ != null)
-        {
-            _dt_.LoadAsset(abName);
+            this.m_data.Add(_key, _dt_);
         }
         return _dt_;
+    }
+
+    public AudioData DoAudio(GameObject gobj, string abName,int nTagType)
+    {
+        if (!gobj)
+            return null;
+        AudioData _dt_ = this.GetAudioData(gobj);
+        if (_dt_ != null)
+            _dt_.LoadAsset(abName, nTagType);
+        return _dt_;
+    }
+
+    public AudioData PlaySound(GameObject gobj, string abName)
+    {
+        return this.DoAudio(gobj, abName, 1);
+    }
+
+    public AudioData PreLoad(GameObject gobj, string abName)
+    {
+        return this.DoAudio(gobj, abName,0);
     }
 
     void _OnNotifyDestry(GobjLifeListener gLife)
