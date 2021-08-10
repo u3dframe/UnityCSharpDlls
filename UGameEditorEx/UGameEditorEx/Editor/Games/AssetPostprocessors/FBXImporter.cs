@@ -275,7 +275,7 @@ public class FBXImporter : AssetPostprocessor
         }
     }
 
-    [MenuItem("Assets/Tools/Re - Optimization Anim Clip")]
+    // [MenuItem("Assets/Tools/Re - Optimization Anim Clip")]
     static void ReAnimClipOptimization()
     {
         AnimationClip[] arrs = Selection.GetFiltered<AnimationClip>(SelectionMode.Assets | SelectionMode.DeepAssets);
