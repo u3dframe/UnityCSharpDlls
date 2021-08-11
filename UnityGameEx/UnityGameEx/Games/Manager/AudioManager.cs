@@ -27,7 +27,6 @@ public class AudioManager : GobjLifeListener
 
     AudioData m_musicData;
     AudioData m_soundData;
-    AudioData m_soundDataBreak;
 
     [Range(0f, 1f)] [SerializeField] float m_volumeMusic = 1f;
     [Range(0f, 1f)] [SerializeField] float m_volumeSound = 1f;
@@ -41,16 +40,11 @@ public class AudioManager : GobjLifeListener
     public void Init(DF_ToLoadAdoClip cfLoad)
     {
         this.m_cfLoad = cfLoad;
-        this.m_musicData = AudioData.Builder(this.m_gobj, false, true, this.m_volumeMusic);
-        this.m_musicData.m_cfLoad = this.m_cfLoad;
-        this.m_musicData.m_isBreak = true;
+        int _st = this.m_isCloseMusic ? 2 : 1;
+        this.m_musicData = AudioData.Builder(this.m_gobj, false, true, this.m_volumeMusic).SyncSetting(_st,cfLoad);
 
-        this.m_soundData = AudioData.BuilderSound(this.m_gobj, true, this.m_volumeSound);
-        this.m_soundData.m_cfLoad = this.m_cfLoad;
-        this.m_musicData.m_isBreak = true;
-
-        this.m_soundDataBreak = AudioData.BuilderSound(this.m_gobj, true, this.m_volumeSound);
-        this.m_soundDataBreak.m_cfLoad = this.m_cfLoad;
+        _st = this.m_isCloseSound ? 2 : 1;
+        this.m_soundData = AudioData.BuilderSound(this.m_gobj, true, this.m_volumeSound).SyncSetting(_st, cfLoad);
     }
 
     public void SetMusicVolume(float val)
@@ -95,19 +89,24 @@ public class AudioManager : GobjLifeListener
         Messenger.Brocast<bool, int>(MsgConst.MSound_State, false, isClose ? 2 : 1);
     }
 
+    public void PlayMusic(string abName,int tagType)
+    {
+        this.m_musicData.LoadAsset(abName, tagType);
+    }
+
     public void PlayMusic(string abName)
     {
-        this.m_musicData.LoadAsset(abName,3);
+        this.PlayMusic(abName,3);
+    }
+
+    public void PlaySound(string abName, int tagType)
+    {
+        this.m_soundData.LoadAsset(abName, tagType);
     }
 
     public void PlaySound(string abName)
     {
-        this.m_soundData.LoadAsset(abName,3);
-    }
-
-    public void PlaySoundBreak(string abName)
-    {
-        this.m_soundDataBreak.LoadAsset(abName,3);
+        this.PlaySound(abName, 3);
     }
 
     public AudioData GetAudioData(int ntype)
@@ -116,8 +115,6 @@ public class AudioManager : GobjLifeListener
         {
             case 1:
                 return this.m_soundData;
-            case 2:
-                return this.m_soundDataBreak;
             default:
                 return this.m_musicData;
         }
@@ -135,7 +132,8 @@ public class AudioManager : GobjLifeListener
             GobjLifeListener glife = GobjLifeListener.Get(gobj);
             glife.OnlyOnceCallDetroy(this._OnNotifyDestry);
 
-            _dt_ = AudioData.BuilderSound(gobj, false, this.m_volumeSound);
+            int _st = this.m_isCloseSound ? 2 : 1;
+            _dt_ = AudioData.BuilderSound(gobj, false, this.m_volumeSound).SyncSetting(_st, this.m_cfLoad);
             this.m_data.Add(_id, _dt_);
         }
         return _dt_;
