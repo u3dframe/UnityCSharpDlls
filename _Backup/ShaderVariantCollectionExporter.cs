@@ -40,8 +40,10 @@ public static class ShaderVariantCollectionExporter
 
         if (!string.IsNullOrEmpty(fpSave))
             _SVCPath = fpSave;
-        var _arrs2 = Directory.GetFiles(fpDir, "*.*", SearchOption.AllDirectories)
-                .Where(s => s.ToLower().EndsWith(".mat")).ToArray();
+        // var _arrs2 = Directory.GetFiles(fpDir, "*.*", SearchOption.AllDirectories)
+        //         .Where(s => s.ToLower().EndsWith(".mat")).ToArray();
+
+        var _arrs2 = AssetDatabase.FindAssets("t:Material"); // t:Material t:Shader
 
         var materials = new List<Material>();
         var shaderDict = new Dictionary<Shader, List<Material>>();
@@ -51,7 +53,7 @@ public static class ShaderVariantCollectionExporter
         Material _mat;
         for (int j = 0; j < _arrs2.Length; j++)
         {
-            _pIt = _arrs2[j];
+            _pIt = AssetDatabase.GUIDToAssetPath(_arrs2[j]);
             _pIt = _pIt.Substring(_pIt.LastIndexOf("Assets"));
             _mat = AssetDatabase.LoadAssetAtPath<Material>(_pIt);
             if (_mat != null)
@@ -192,6 +194,6 @@ public static class ShaderVariantCollectionExporter
     }
 	
     static private readonly Stopwatch _elapsedTime = new Stopwatch();
-    private const int WaitTimeBeforeSave = 1000;
+    private const int WaitTimeBeforeSave = 20000;
     static private string _SVCPath = "Assets/ShaderVariantCollection.shadervariants";
 }
