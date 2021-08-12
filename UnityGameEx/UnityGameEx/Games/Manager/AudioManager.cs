@@ -90,6 +90,12 @@ public class AudioManager : GobjLifeListener
         Messenger.Brocast<bool, int>(MsgConst.MSound_State, false, isClose ? 2 : 1);
     }
 
+    public void SetAudioState(bool isClose)
+    {
+        this.SetMusicState(isClose);
+        this.SetSoundState(isClose);
+    }
+
     public void PlayMusic(string abName,int tagType)
     {
         this.m_musicData.LoadAsset(abName, tagType);
