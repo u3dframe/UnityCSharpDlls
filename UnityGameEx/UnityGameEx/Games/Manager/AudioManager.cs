@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Core;
 using Core.Kernel;
+using UObject = UnityEngine.Object;
 
 /// <summary>
 /// 类名 : 声音播放管理器
@@ -94,19 +95,9 @@ public class AudioManager : GobjLifeListener
         this.m_musicData.LoadAsset(abName, tagType);
     }
 
-    public void PlayMusic(string abName)
-    {
-        this.PlayMusic(abName,3);
-    }
-
     public void PlaySound(string abName, int tagType)
     {
         this.m_soundData.LoadAsset(abName, tagType);
-    }
-
-    public void PlaySound(string abName)
-    {
-        this.PlaySound(abName, 1);
     }
 
     public AudioData GetAudioData(int ntype)
@@ -120,11 +111,12 @@ public class AudioManager : GobjLifeListener
         }
     }
 
-    public AudioData GetAudioData(GameObject gobj)
+    public AudioData GetAudioData(UObject uobj)
     {
-        if (!gobj)
+        if (UtilityHelper.IsNull(uobj))
             return null;
 
+        GameObject gobj = UtilityHelper.ToGObj(uobj);
         int _id = gobj.GetInstanceID();
         AudioData _dt_ = this.m_data.Get(_id);
         if (_dt_ == null)
@@ -139,24 +131,14 @@ public class AudioManager : GobjLifeListener
         return _dt_;
     }
 
-    public AudioData DoAudio(GameObject gobj, string abName,int nTagType)
+    public AudioData PlayAudio(UObject uobj, string abName,int nTagType)
     {
-        if (!gobj)
+        if (UtilityHelper.IsNull(uobj))
             return null;
-        AudioData _dt_ = this.GetAudioData(gobj);
+        AudioData _dt_ = this.GetAudioData(uobj);
         if (_dt_ != null)
             _dt_.LoadAsset(abName, nTagType);
         return _dt_;
-    }
-
-    public AudioData PlaySound(GameObject gobj, string abName)
-    {
-        return this.DoAudio(gobj, abName, 1);
-    }
-
-    public AudioData PreLoad(GameObject gobj, string abName)
-    {
-        return this.DoAudio(gobj, abName,0);
     }
 
     void _OnNotifyDestry(GobjLifeListener gLife)
