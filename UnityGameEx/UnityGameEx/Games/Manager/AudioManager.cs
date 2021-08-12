@@ -106,7 +106,7 @@ public class AudioManager : GobjLifeListener
 
     public void PlaySound(string abName)
     {
-        this.PlaySound(abName, 3);
+        this.PlaySound(abName, 1);
     }
 
     public AudioData GetAudioData(int ntype)
