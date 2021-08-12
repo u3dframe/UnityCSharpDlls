@@ -20,7 +20,6 @@
   <ItemGroup>
     <Compile Remove="Editor\Games\AssetPostprocessors\ImportTexture.cs" />
     <Compile Remove="Editor\Games\Build_Patcher\BuildTools.cs" />
-    <Compile Remove="Editor\Games\Commands\CMDAssets.cs" />
     <Compile Remove="Editor\Games\MCheat.cs" />
   </ItemGroup>
 
