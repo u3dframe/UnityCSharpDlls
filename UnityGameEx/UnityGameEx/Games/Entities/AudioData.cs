@@ -260,15 +260,15 @@ public class AudioData
 
     void OnNotifyVolume(bool isMusic, float volume)
     {
+        // Debug.LogErrorFormat("=== OnNotifyVolume = [{0}] = [{1}] = [{2}] = [{3}] ", isMusic,this.m_isMusic,volume,this.m_volume);
         if (this.m_isMusic != isMusic)
             return;
-
         this.SetVolume(volume);
     }
 
     public void SetVolume(float volume)
     {
-        if (this.m_audio == null || this.m_volume != volume)
+        if (this.m_audio == null || this.m_volume == volume)
         {
             return;
         }

@@ -22,7 +22,6 @@ public class AudioManager : GobjLifeListener
                 GameObject _gobj = GameMgr.mgrGobj2;
                 _instance = UtilityHelper.Get<AudioManager>(_gobj, true);
                 _instance.csAlias = "AudioMgr";
-                _instance.InitAudio();
             }
             return _instance;
         }
@@ -43,8 +42,9 @@ public class AudioManager : GobjLifeListener
     string _keyCache = "ado_info";
     public string m_keyCache { get { return _keyCache; } set { if(!string.IsNullOrEmpty(value)) _keyCache = value; } }
 
-    public void Init(DF_ToLoadAdoClip cfLoad)
+    public void Init(string crcDataPath,DF_ToLoadAdoClip cfLoad)
     {
+        this.InitAudio(crcDataPath);
         this.m_cfLoad = cfLoad;
         int _st = this.m_isCloseMusic ? 2 : 1;
         this.m_musicData = AudioData.Builder(this.m_gobj, true, true, this.m_volumeMusic).SyncSetting(_st,cfLoad);
@@ -57,11 +57,14 @@ public class AudioManager : GobjLifeListener
         this.m_uisoundData = AudioData.BuilderSound(_music, true, this.m_volumeSound).SyncSetting(_st, cfLoad);
     }
 
-    private void InitAudio()
+    private void InitAudio(string crcDataPath)
     {
-        if (!UPlayerPrefs.HasKey(m_keyCache))
+        if(string.IsNullOrEmpty(crcDataPath))
+            crcDataPath = CRCClass.GetCRCContent( UGameFile.m_dirDataNoAssets);
+        string _key = string.Format("{0}_{1}", m_keyCache, crcDataPath);
+        if (!UPlayerPrefs.HasKey(_key))
             return;
-        string _v = UPlayerPrefs.GetString("m_keyCache");
+        string _v = UPlayerPrefs.GetString(_key);
         var _arrs = _v.Split('_');
         bool isMusic = true, isSound = true;
         float music = 1, sound = 1;
@@ -73,6 +76,7 @@ public class AudioManager : GobjLifeListener
             isSound = "1".Equals(_arrs[2]);
             float.TryParse(_arrs[3], out sound);
         }
+        // Debug.LogErrorFormat("=== InitAudio = [{0}] = [{1}] = [{2}] = [{3}] ", isMusic,music,isSound,sound);
         this.InitAudio(isMusic, music, isSound, sound);
     }
 
