@@ -20,9 +20,11 @@ public class CtrlCamera : MonoBehaviour
 		return Get(uobj, true);
 	}
     static int _tget = 0;
+    [SerializeField] Transform m_fwer;
     public Transform m_target;
     public Camera m_camera;
 	public SmoothFollower m_follower { get;private set; }
+    public AudioListener m_adoLner;
   
 	[SerializeField] float m_offsetW = 300;
 	[SerializeField] float m_offsetH = 300;
@@ -37,14 +39,21 @@ public class CtrlCamera : MonoBehaviour
         if (this.m_isInited)
             return;
         this.m_isInited = true;
+        GameObject _gobj = this.gameObject;
+        if (!m_adoLner)
+            m_adoLner = _gobj.GetComponentInChildren<AudioListener>(true);
+
         if (!m_camera)
-            this.m_camera = UtilityHelper.Get<Camera>(this.gameObject, false);
+            this.m_camera = UtilityHelper.Get<Camera>(_gobj, false);
         if (!m_camera)
             return;
 
+        if (!m_fwer)
+            m_fwer = m_camera.transform;
+
         if (!m_target)
         {
-            var _gobj = new GameObject("__Target_" + (_tget++));
+            _gobj = new GameObject("__Target_" + (_tget++));
             this.m_target = _gobj.transform;
         }
         
@@ -54,9 +63,9 @@ public class CtrlCamera : MonoBehaviour
 
     protected void InitFollower(bool isRunning)
     {
-        if (!m_camera)
+        if (!m_fwer)
             return;
-        this.m_follower = SmoothFollower.Get(this.m_camera.gameObject, true);
+        this.m_follower = SmoothFollower.Get(this.m_fwer, true);
         this.m_follower.target = this.m_target;
         this.m_follower.isUpByLate = true;
         this.m_follower.isRunning = isRunning;
@@ -79,5 +88,11 @@ public class CtrlCamera : MonoBehaviour
         if (this.m_skybox == null)
             return;
         this.m_skybox.material = mat;
+    }
+
+    public void EnableAdoListener(bool isEnable)
+    {
+        if (this.m_adoLner)
+            this.m_adoLner.enabled = isEnable;
     }
 }
