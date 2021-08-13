@@ -323,7 +323,7 @@ public class AudioData
             return;
         }
 
-        if (this.m_playState != 0 && !isBreak && this.m_audio.isPlaying)
+        if (!isBreak && this.m_playState != 0 && this.m_audio.isPlaying)
         {
             return;
         }
