@@ -332,13 +332,19 @@ public class GHelper : Core.Kernel.ObjEx
         return Child(trsf.parent, subnode);
     }
 
+    static public GameObject NewGobj(string name,UObject parent)
+    {
+        GameObject gobj = new GameObject(name);
+        SetParentSyncLayer(gobj, parent, true);
+        return gobj;
+    }
+
     static public GameObject GetGobj(string name, bool isNew, bool isNoDestroy)
     {
         GameObject gobj = GameObject.Find(name);
         if (isNew && IsNull(gobj))
-        {
-            gobj = new GameObject(name);
-        }
+            gobj = NewGobj(name,null);
+
         if (isNoDestroy) GameObject.DontDestroyOnLoad(gobj);
         return gobj;
     }
