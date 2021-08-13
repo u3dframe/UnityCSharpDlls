@@ -60,6 +60,8 @@ public class AudioData
 
         public bool isHasObj()
         {
+            if (this.m_clip != null)
+                return true;
             return this.m_ainfo != null && this.m_ainfo.isHasObj;
         }
 
@@ -90,6 +92,7 @@ public class AudioData
 
     private string _key_loading = null;
     private AudioInfo m_curAsset = null;
+    private int m_curTagType = 0;
 
     public float m_timeDuration { get; private set; }
     private float m_timeRemainder = 0;
@@ -134,18 +137,29 @@ public class AudioData
         return this;
     }
 
+    bool isAutoPlay()
+    {
+        return this.m_curTagType == 1 || this.m_curTagType == 3;
+    }
+
     public AudioData LoadAsset(string abName, string assetName,int tagType)
     {
         if (this.m_audio)
         {
             string _key = string.Format("{0}@@{1}", abName, assetName);
             this._key_loading = _key;
+            this.m_curTagType = tagType;
 
             AudioInfo _info = this.m_assets.Get(_key);
             if(_info != null)
             {
                 if(_info.isHasObj())
-                    this.OnLoadAsset(_info.m_ainfo);
+                {
+                    if(_info.m_ainfo != null)
+                        this.OnLoadAsset(_info.m_ainfo);
+                    else
+                        this.OnLoadAdoClip(null);
+                }
                 return this;
             }
             _info = new AudioInfo(abName, assetName, tagType);
@@ -191,11 +205,20 @@ public class AudioData
                 this.m_assets.Remove(this._key_loading);
             }
         }
-        // Debug.LogErrorFormat("=== OnLoadAdoClip = [{0}] = [{1}] = [{2}] = [{3}] ", _last, _info, this._key_loading, clip);
-        if (_info != null && _info.isAutoPlay())
+
+        if(clip != null)
         {
-            _info.SetClip(clip);
-            this.PlayClip();
+            string _key = string.Format("audios/{0}.ado@@{0}",clip.name);
+            AudioInfo _cInfo = this.m_assets.Get(_key);
+            if(_cInfo != null)
+                _cInfo.SetClip(clip);
+        }
+        
+        // Debug.LogErrorFormat("=== OnLoadAdoClip = [{0}] = [{1}] = [{2}] = [{3}] ", _last, _info, this._key_loading, clip);
+        if (_info != null)
+        {
+            if(_info.isAutoPlay() || isAutoPlay())
+                this.PlayClip();
         }
     }
 
