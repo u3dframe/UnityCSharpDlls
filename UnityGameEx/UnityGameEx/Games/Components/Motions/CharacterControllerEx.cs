@@ -34,6 +34,7 @@ public class CharacterControllerEx : AnimatorEx
 	}
 	private Vector3 m_v3Scale = Vector3.one;
     public RendererMatData[] m_skinDatas { get; private set; }
+    public AudioData m_audioData { get; private set; }
 
     override protected void Update (){
 		base.Update();
@@ -63,6 +64,8 @@ public class CharacterControllerEx : AnimatorEx
 			this.m_c_ctrler = this.m_gobj.GetComponentInChildren<CharacterController>(true);
         this.ReRHeight();
         this.ReSkinRer();
+        // 加入音效
+        m_audioData = AudioManager.instance.GetAudioData(this.m_gobj);
     }
 
 	override protected void OnCall4Show(){
