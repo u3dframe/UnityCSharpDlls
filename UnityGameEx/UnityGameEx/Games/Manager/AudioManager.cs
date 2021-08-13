@@ -2,6 +2,7 @@
 using Core;
 using Core.Kernel;
 using UObject = UnityEngine.Object;
+using UPlayerPrefs = UnityEngine.PlayerPrefs;
 
 /// <summary>
 /// 类名 : 声音播放管理器
@@ -21,6 +22,7 @@ public class AudioManager : GobjLifeListener
                 GameObject _gobj = GameMgr.mgrGobj2;
                 _instance = UtilityHelper.Get<AudioManager>(_gobj, true);
                 _instance.csAlias = "AudioMgr";
+                _instance.InitAudio();
             }
             return _instance;
         }
@@ -28,6 +30,7 @@ public class AudioManager : GobjLifeListener
 
     AudioData m_musicData;
     AudioData m_soundData;
+    AudioData m_uisoundData;
 
     [Range(0f, 1f)] [SerializeField] float m_volumeMusic = 1f;
     [Range(0f, 1f)] [SerializeField] float m_volumeSound = 1f;
@@ -37,15 +40,48 @@ public class AudioManager : GobjLifeListener
     ListDict<AudioData> m_data = new ListDict<AudioData>(false);
 
     private DF_ToLoadAdoClip m_cfLoad = null;
+    string _keyCache = "ado_info";
+    public string m_keyCache { get { return _keyCache; } set { if(!string.IsNullOrEmpty(value)) _keyCache = value; } }
 
     public void Init(DF_ToLoadAdoClip cfLoad)
     {
         this.m_cfLoad = cfLoad;
         int _st = this.m_isCloseMusic ? 2 : 1;
-        this.m_musicData = AudioData.Builder(this.m_gobj, false, true, this.m_volumeMusic).SyncSetting(_st,cfLoad);
+        this.m_musicData = AudioData.Builder(this.m_gobj, true, true, this.m_volumeMusic).SyncSetting(_st,cfLoad);
 
+        GameObject _music = UtilityHelper.NewGobj("_sound", this.m_gobj);
         _st = this.m_isCloseSound ? 2 : 1;
-        this.m_soundData = AudioData.BuilderSound(this.m_gobj, true, this.m_volumeSound).SyncSetting(_st, cfLoad);
+        this.m_soundData = AudioData.BuilderSound(_music, true, this.m_volumeSound).SyncSetting(_st, cfLoad);
+
+        _music = UtilityHelper.NewGobj("_sound_ui", this.m_gobj);
+        this.m_uisoundData = AudioData.BuilderSound(_music, true, this.m_volumeSound).SyncSetting(_st, cfLoad);
+    }
+
+    private void InitAudio()
+    {
+        if (!UPlayerPrefs.HasKey(m_keyCache))
+            return;
+        string _v = UPlayerPrefs.GetString("m_keyCache");
+        var _arrs = _v.Split('_');
+        bool isMusic = true, isSound = true;
+        float music = 1, sound = 1;
+        int lens = _arrs.Length;
+        if(lens >= 4)
+        {
+            isMusic = "1".Equals(_arrs[0]);
+            float.TryParse(_arrs[1], out music);
+            isSound = "1".Equals(_arrs[2]);
+            float.TryParse(_arrs[3], out sound);
+        }
+        this.InitAudio(isMusic, music, isSound, sound);
+    }
+
+    public void InitAudio(bool isMusic,float music,bool isSound,float sound)
+    {
+        this.SetMusicState(!isMusic);
+        this.SetMusicVolume(music);
+        this.SetSoundState(!isSound);
+        this.SetSoundVolume(sound);
     }
 
     public void SetMusicVolume(float val)
@@ -104,6 +140,11 @@ public class AudioManager : GobjLifeListener
     public void PlaySound(string abName, int tagType)
     {
         this.m_soundData.LoadAsset(abName, tagType);
+    }
+
+    public void PlayUISound(string abName, int tagType)
+    {
+        this.m_uisoundData.LoadAsset(abName, tagType);
     }
 
     public AudioData GetAudioData(int ntype)
