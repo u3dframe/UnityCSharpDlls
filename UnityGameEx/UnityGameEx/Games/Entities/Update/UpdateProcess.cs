@@ -27,6 +27,8 @@ namespace Core.Kernel
         string m_obbPath = null;
         public CompareFiles m_compare { get; private set; }
         int n_appfull_down = 0;
+        List<ResInfo> m_lNdDown4AppFull = new List<ResInfo>();
+        List<ResInfo> m_lDownError4AppFull = new List<ResInfo>();
 
         override public void OnUpdate(float dt, float unscaledDt) {
             switch (this.m_state)
@@ -379,8 +381,6 @@ namespace Core.Kernel
                 return;
             }
 
-            this.n_appfull_down = 0;
-
             string url = _cfgVer.m_urlFilelist;
             string proj = _cfgVer.m_pkgFiles;
             List<ResInfo> _list = new List<ResInfo>(_cfgFlDef.m_data.m_list);
@@ -396,14 +396,28 @@ namespace Core.Kernel
                 if(!_isNdDown)
                     continue;
 
-                this.n_appfull_down++;
-                _info.DownReady(url, proj, _CFNetAppFull, EM_Asset.Bytes, 1).DownStart();
+                _info.DownReady(url, proj, _CFNetAppFull, EM_Asset.Bytes, 1);
+                this.m_lNdDown4AppFull.Add(_info);
+                ++this.n_appfull_down;
             }
 
-            if (this.n_appfull_down <= 0)
+            int _lens = this.n_appfull_down;
+            if (_lens <= 0)
                 this._SetState(EM_Process.Completed);
             else
                 this._SetStatePre(EM_Process.WaitCommand);
+
+            if (_lens > 0)
+            {
+                int _min = Mathf.Min(_lens, 5);
+                var _subList = this.m_lNdDown4AppFull.GetRange(0, _min);
+                for (int i = 0; i < _min; i++)
+                {
+                    _info = _subList[i];
+                    this.m_lNdDown4AppFull.Remove(_info);
+                    _info.DownStartCheckCode();
+                }
+            }
         }
 
         void _CFNetAppFull(int state, ResInfo dlFile)
@@ -411,15 +425,29 @@ namespace Core.Kernel
             bool isSuccess = state == (int)EM_SucOrFails.Success;
             if (isSuccess)
             {
-                this.n_appfull_down--;
+                --this.n_appfull_down;
                 if (this.n_appfull_down <= 0)
+                {
                     this._SetState(EM_Process.Completed);
+                }
+                else
+                {
+                    ResInfo dlFile2 = this.m_lNdDown4AppFull[0];
+                    this.m_lNdDown4AppFull.Remove(dlFile2);
+                    dlFile2.DownStartCheckCode();
+                }
             }
             else
             {
-                dlFile.ReDownReady(_CFNetAppFull).DownStart();
-                this._SetState(EM_Process.Error_AppFull);
-                Debug.LogErrorFormat("=== AppFull Down error = [{0}]", dlFile.m_strError);
+                lock (this.m_lDownError4AppFull)
+                {
+                    // if(!this.m_lDownError4AppFull.Contains(dlFile))
+                    dlFile.ReDownReady(_CFNetAppFull);
+                    this.m_lDownError4AppFull.Add(dlFile);
+                    // dlFile.ReDownReady(_CFNetAppFull).DownStart();
+                    this._SetState(EM_Process.Error_AppFull);
+                    Debug.LogErrorFormat("=== AppFull Down error = [{0}]", dlFile.m_strError);
+                }
             }
         }
 
@@ -635,6 +663,19 @@ namespace Core.Kernel
                     this._SetState(EM_Process.SaveVersion);
                     break;
                 case EM_Process.Error_AppFull:
+                    lock (this.m_lDownError4AppFull)
+                    {
+                        this.m_state = EM_Process.WaitCommand;
+                        this.m_preState = EM_Process.CheckAppFull;
+
+                        var _list = new List<ResInfo>(this.m_lDownError4AppFull);
+                        this.m_lDownError4AppFull.Clear();
+                        int _lens = _list.Count;
+                        for (int i = 0; i < _lens; i++)
+                        {
+                            _list[i].DownStartCheckCode();
+                        }
+                    }
                     break;
                 case EM_Process.Error_NeedDownApkIpa:
                     break;
