@@ -168,10 +168,10 @@ namespace TNet {
 
         public ByteBuffer ToReader(){
             if(m_isCurWrite){
-                this.Clear(false);
                 if(reader == null) {
                     reader = new BinaryReader(stream);
                 }
+                this.Clear(false);
             }
             return this;
         }
