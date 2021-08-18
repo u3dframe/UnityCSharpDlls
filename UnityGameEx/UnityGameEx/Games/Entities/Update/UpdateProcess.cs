@@ -16,6 +16,7 @@ namespace Core.Kernel
         bool m_isValidVersion = true, m_isUnZip = true;
         Action m_cfFinish = null;
         DF_OnState m_cfChgState = null;
+        DF_OnUpdate m_cfProgress = null;
         Queue<string> m_zipIndexs = new Queue<string>();
         EM_Process m_state = EM_Process.None;
         EM_Process m_preState = EM_Process.None;
@@ -26,6 +27,7 @@ namespace Core.Kernel
         public int m_nSize { get; private set; }
         string m_obbPath = null;
         public CompareFiles m_compare { get; private set; }
+        ResInfo _downVerOrFList = null;
         int n_appfull_down = 0;
         List<ResInfo> m_lNdDown4AppFull = new List<ResInfo>();
         List<ResInfo> m_lDownError4AppFull = new List<ResInfo>();
@@ -73,6 +75,14 @@ namespace Core.Kernel
                     _ST_SaveVersion();
                     break;
             }
+
+            /*
+            var _curInfo = this._downVerOrFList;
+            if (_curInfo != null)
+            {
+                this._ExcuteProgress(_curInfo.m_wwwProgress);
+            }
+            */
         }
 
         void _ExcCompleted()
@@ -80,6 +90,7 @@ namespace Core.Kernel
             var _fun = this.m_cfFinish;
             this.m_cfFinish = null;
             this.m_cfChgState = null;
+            this.m_cfProgress = null;
             if (_fun != null)
                 _fun();
         }
@@ -95,6 +106,17 @@ namespace Core.Kernel
             this._SetState(state, isCall);
         }
 
+        void _ExcuteProgress(float cur,float size = 1.0f)
+        {
+            var _cfCall = this.m_cfProgress;
+            if (_cfCall == null)
+                return;
+            float min = Mathf.Min(cur, size);
+            float max = min == cur ? size : cur;
+            if (max <= 0) max = 1.0f;
+            _cfCall(min,max);
+        }
+
         void _OnGC(bool isIMM = false)
         {
             if (!isIMM)
@@ -103,10 +125,11 @@ namespace Core.Kernel
                 GC.Collect();
         }
 
-        public UpdateProcess Init(Action callComplete, DF_OnState callStateChange = null,string obbPath = null,bool isUnZip = true,bool isValidVer = true)
+        public UpdateProcess Init(Action callComplete, DF_OnState callStateChange = null, DF_OnUpdate callProgress = null, string obbPath = null,bool isUnZip = true,bool isValidVer = true)
         {
             this.m_cfChgState = callStateChange;
             this.m_cfFinish = callComplete;
+            this.m_cfProgress = callProgress;
             this.m_obbPath = obbPath;
             this.m_isValidVersion = isValidVer;
             this.m_isUnZip = isUnZip;
@@ -231,6 +254,7 @@ namespace Core.Kernel
             ZipState state = this.unzip.m_zipState;
             this.nCurr += state.m_nZipedFileCount - this.nZipCurr;
             this.nZipCurr = state.m_nZipedFileCount;
+            this._ExcuteProgress(this.nCurr, this.m_nSize);
             // if (this.m_nSize <= 0)
             //     this.m_nSize = state.m_nAllFileCount;
 
@@ -285,6 +309,7 @@ namespace Core.Kernel
                         this.nZipCurr = 0;
                         this.nCurr = 0;
                         this.m_nSize = this.unzip.m_zipState.m_nAllFileCount;
+                        this._ExcuteProgress(this.nCurr, this.m_nSize);
                     }
                     else
                     {
@@ -472,12 +497,13 @@ namespace Core.Kernel
             string url = CfgPackage.instance.m_urlVersion;
             string proj = CfgPackage.instance.m_uprojVer;
             string fn = CfgVersion.m_defFileName;
-            ResInfo _info = new ResInfo(url, proj,fn, _CFNetVersion, EM_Asset.Text);
-            _info.DownStart();
+            _downVerOrFList = new ResInfo(url, proj,fn, _CFNetVersion, EM_Asset.Text);
+            _downVerOrFList.DownStart();
         }
 
         void _CFNetVersion(int state, ResInfo dlFile)
         {
+            _downVerOrFList = null;
             bool isSuccess = state == (int)EM_SucOrFails.Success;
             if (isSuccess)
             {
@@ -516,12 +542,13 @@ namespace Core.Kernel
             string proj = cfg.m_pkgFilelist;
             string fn = CfgFileList.m_defFileName;
 
-            ResInfo _info = new ResInfo(url, proj, fn, _CFNetFileList, EM_Asset.Text);
-            _info.DownStartCheckCode();
+            _downVerOrFList = new ResInfo(url, proj, fn, _CFNetFileList, EM_Asset.Text);
+            _downVerOrFList.DownStartCheckCode();
         }
 
         void _CFNetFileList(int state, ResInfo dlFile)
         {
+            _downVerOrFList = null;
             bool isSuccess = state == (int)EM_SucOrFails.Success;
             if (isSuccess)
             {

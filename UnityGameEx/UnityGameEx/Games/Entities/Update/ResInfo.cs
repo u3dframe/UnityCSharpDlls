@@ -177,7 +177,7 @@ namespace Core.Kernel
         UnityWebRequest m_uwr = null;
         string m_realUrl = "";
         public string m_strError { get; private set; }
-        float m_wwwProgress = 0; // 下载进度
+        public float m_wwwProgress { get; private set; } // 下载进度
         float m_timeout = 5;
         float m_curtime = 0;
         public int m_nLogError { get; set; } // 0-不打印,1-每次错误打印,2-只打印最后一次
