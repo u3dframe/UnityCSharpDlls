@@ -419,7 +419,7 @@ namespace Core.Kernel
             {
                 dlFile.ReDownReady(_CFNetAppFull).DownStart();
                 this._SetState(EM_Process.Error_AppFull);
-                Debug.LogErrorFormat("=== AppFull Down error = [{1}]", dlFile.m_strError);
+                Debug.LogErrorFormat("=== AppFull Down error = [{0}]", dlFile.m_strError);
             }
         }
 
@@ -475,7 +475,7 @@ namespace Core.Kernel
             else
             {
                 this._SetState(EM_Process.Error_DownVer);
-                Debug.LogErrorFormat("=== Down Version error = [{1}]", dlFile.m_strError);
+                Debug.LogErrorFormat("=== Down Version error = [{0}]", dlFile.m_strError);
             }
         }
 
@@ -507,7 +507,7 @@ namespace Core.Kernel
             else
             {
                 this._SetState(EM_Process.Error_DownFileList);
-                Debug.LogErrorFormat("=== Down Filelist error = [{1}]", dlFile.m_strError);
+                Debug.LogErrorFormat("=== Down Filelist error = [{0}]", dlFile.m_strError);
             }
         }
 
@@ -557,7 +557,7 @@ namespace Core.Kernel
             {
                 EM_Process _c = (EM_Process)this.m_compare.m_iState;
                 this._SetStatePre(_c, true);
-                Debug.LogErrorFormat("=== CompareFiles Down Filelist error = [{1}]", this.m_compare.m_strError);
+                Debug.LogErrorFormat("=== CompareFiles Down Filelist error = [{0}]", this.m_compare.m_strError);
             }
         }
 
@@ -572,7 +572,7 @@ namespace Core.Kernel
             else
             {
                 this._SetStatePre(EM_Process.Error_SaveFList,true);
-                Debug.LogErrorFormat("=== Save Filelist error = [{1}]", this.m_compare.m_strError);
+                Debug.LogErrorFormat("=== Save Filelist error = [{0}]", this.m_compare.m_strError);
             }
         }
 
@@ -586,7 +586,7 @@ namespace Core.Kernel
             else
             {
                 this._SetStatePre(EM_Process.Error_SaveVer,true);
-                Debug.LogErrorFormat("=== Save Version error = [{1}]",cfg.m_strError);
+                Debug.LogErrorFormat("=== Save Version error = [{0}]",cfg.m_strError);
             }
         }
 

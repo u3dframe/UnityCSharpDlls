@@ -153,21 +153,27 @@ namespace Core.Kernel
 					// UGameFile.curInstance.DeleteFile(this.m_filePath,true);
 					return false;
 				}
-
+                UGameFile.DeleteFile(this.m_filePath, true);
                 UGameFile.CreateFolder (this.m_filePath);
-
-				using (FileStream stream = new FileStream (this.m_filePath, FileMode.OpenOrCreate)) {
-					using (StreamWriter writer = new StreamWriter (stream)) {
-						if(string.IsNullOrEmpty(this.m_content)){
-							for (int i = 0; i < m_lFiles.Count; i++) {
-								writer.WriteLine (m_lFiles [i].ToString ());
-							}
-						}else{
-							writer.Write (this.m_content);
-						}
-					}
-				}
-				return true;
+                // UGameFile.WriteText(this.m_filePath + ".back", this.m_content, true);
+                if (string.IsNullOrEmpty(this.m_content))
+                {
+                    using (FileStream stream = new FileStream(this.m_filePath, FileMode.Create))
+                    {
+                        using (StreamWriter writer = new StreamWriter(stream))
+                        {
+                            for (int i = 0; i < m_lFiles.Count; i++)
+                            {
+                                writer.WriteLine(m_lFiles[i].ToString());
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    UGameFile.WriteText(this.m_filePath, this.m_content, true);
+                }
+                return true;
 			} catch{
 			}
 			return false;

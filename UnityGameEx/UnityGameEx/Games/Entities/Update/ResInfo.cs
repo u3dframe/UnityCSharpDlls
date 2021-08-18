@@ -262,6 +262,10 @@ namespace Core.Kernel
                     case EM_Asset.AssetBundle:
                         _down = new DownloadHandlerAssetBundle(this.m_realUrl, 0);
                         break;
+                    case EM_Asset.Bytes:
+                    case EM_Asset.Text:
+                        _down = new DownloadHandlerBuffer();
+                        break;
                 }
 
                 if(_down != null)
@@ -413,11 +417,11 @@ namespace Core.Kernel
                     this.m_downState = EM_DownLoad.Completed;
                 }
             }
-            bool isHas = this.m_callFunc != null;
+            var _call = this.m_callFunc;
             this.m_callFunc = null;
-            if (isHas)
+            if (_call != null)
             {
-                this.m_callFunc((int)emState,this);
+                _call((int)emState, this);
             }
         }
 
@@ -451,6 +455,7 @@ namespace Core.Kernel
 
         public ResInfo DownStart()
         {
+            this.m_downState = EM_DownLoad.Init;
             this.StartUpdate();
             return this;
         }
