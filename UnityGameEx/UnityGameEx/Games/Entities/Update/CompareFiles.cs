@@ -332,7 +332,7 @@ namespace Core.Kernel
                     this.m_keys.RemoveAt(0);
                     _tmp = this.m_updates[_key];
                     this.m_updates.Remove(_key);
-                    _tmp.DownStart();
+                    _tmp.DownStartCheckCode();
                     this.m_lDowning.Add(_tmp);
                 }
             }
@@ -344,7 +344,8 @@ namespace Core.Kernel
             bool isSuccess = state == (int)EM_SucOrFails.Success;
             if (isSuccess)
             {
-                CfgFileList.instanceDown.Save2Downed(dlFile);
+                bool _isMust = (dlFile != null) && (dlFile.m_isMustFile || CfgMustFiles.instance.IsMust(dlFile.m_curName));
+                CfgFileList.instanceDown.Save2Downed(dlFile, _isMust);
             }
             else
             {

@@ -227,8 +227,8 @@ namespace Core.Kernel
 		/// <summary>
 		/// 保存到已下载文件夹里面
 		/// </summary>
-		public void Save2Downed(ResInfo info){
-			if (this.Remove (info)) {
+		public void Save2Downed(ResInfo info,bool isMust = false){
+			if (this.Remove (info) || isMust) {
 				instanceDowned.Add (info);
 				instanceDowned.SaveByTContent ();
 			}

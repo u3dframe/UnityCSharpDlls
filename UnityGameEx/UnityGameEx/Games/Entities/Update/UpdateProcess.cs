@@ -489,8 +489,7 @@ namespace Core.Kernel
             string fn = CfgFileList.m_defFileName;
 
             ResInfo _info = new ResInfo(url, proj, fn, _CFNetFileList, EM_Asset.Text);
-            _info.m_isCheckCompareCode = true;
-            _info.DownStart();
+            _info.DownStartCheckCode();
         }
 
         void _CFNetFileList(int state, ResInfo dlFile)
@@ -597,12 +596,16 @@ namespace Core.Kernel
                 case EM_Process.Error_NoNet:
                     this._SetState(EM_Process.CheckNet);
                     break;
-                case EM_Process.Error_NotEnoughMemory:
                 case EM_Process.Error_DF_EmptyUrl:
+                case EM_Process.Error_DF_ExcuteCall:
+                case EM_Process.Error_NotEnoughMemory:
                 case EM_Process.Error_DF_TimeOut:
                 case EM_Process.Error_DF_LoadDown:
                 case EM_Process.Error_DF_NotMatchCode:
-                case EM_Process.Error_DF_ExcuteCall:
+                    if (this.m_compare != null)
+                    {
+                        this.m_compare.ReDownFile();
+                    }
                     this._SetState(EM_Process.CompareFileList);
                     break;
                 case EM_Process.Error_LoadZipList:

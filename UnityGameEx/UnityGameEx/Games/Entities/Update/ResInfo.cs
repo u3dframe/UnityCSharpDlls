@@ -460,6 +460,12 @@ namespace Core.Kernel
             return this;
         }
 
+        public ResInfo DownStartCheckCode()
+        {
+            this.m_isCheckCompareCode = true;
+            return this.DownStart();
+        }
+
         public ResInfo ReDownReady(DF_LDownFile callFunc = null)
         {
             return this.DownReady(this.m_url, this.m_resPackage, callFunc, this.m_assetType, this.m_nWrite, this.m_nLogError);
