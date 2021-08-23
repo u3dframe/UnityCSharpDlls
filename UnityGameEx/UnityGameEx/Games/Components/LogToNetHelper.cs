@@ -33,6 +33,7 @@ public class LogToNetHelper:MonoBehaviour
 
             int _lens = kvs.Length;
             object _k,_v;
+            string _kstr, _vstr;
             for (int i = 0; i < _lens; i += 2)
             {
                 if (i + 1 >= _lens)
@@ -44,8 +45,10 @@ public class LogToNetHelper:MonoBehaviour
                 _v = kvs[i + 1];
                 if (_v == null)
                     continue;
-
-                this.m_kvs.Add(_k.ToString(), _v.ToString());
+                _kstr = _k.ToString();
+                _vstr = _v.ToString();
+                if (!this.m_kvs.ContainsKey(_kstr))
+                    this.m_kvs.Add(_kstr, _vstr);
             }
 
             if (!this.m_kvs.ContainsKey("p_deviceName"))
@@ -77,6 +80,17 @@ public class LogToNetHelper:MonoBehaviour
 
             if (!this.m_kvs.ContainsKey("p_create_local_time"))
                 this.m_kvs.Add("p_create_local_time", DateTime.Now.ToString("yyMMddHHmmss"));
+        }
+
+        public void Init(Dictionary<string, string> _kvs)
+        {
+            if (_kvs == null)
+                return;
+            foreach (var key in _kvs.Keys)
+            {
+                if (!this.m_kvs.ContainsKey(key))
+                    this.m_kvs.Add(key, _kvs[key]);
+            }
         }
 
         public void Clear()
@@ -111,7 +125,8 @@ public class LogToNetHelper:MonoBehaviour
     bool m_isRunning = false;
     [Range(1,20)] public int m_everyMax = 5;
     public bool m_isSendJson = true;
-    
+    Dictionary<string, string> m_kvMusts = new Dictionary<string, string>();// 常用必发参数
+
     public LogToNetHelper Init(string url,string proj,bool isSendJson = true)
     {
         this.m_url = url;
@@ -247,6 +262,7 @@ public class LogToNetHelper:MonoBehaviour
 
         LogNetData _data = _NewData();
         _data.Init(this.m_url, this.m_proj, k_subject, subject, k_step, step.ToString(), k_msg, body);
+        _data.Init(this.m_kvMusts);
         _AddQueue(_data);
     }
 
@@ -261,6 +277,7 @@ public class LogToNetHelper:MonoBehaviour
             url = this.m_url;
         LogNetData _data = _NewData();
         _data.Init(url,proj,kvs);
+        _data.Init(this.m_kvMusts);
         _AddQueue(_data);
     }
 
@@ -278,5 +295,31 @@ public class LogToNetHelper:MonoBehaviour
     {
         // process
         SendParams(this.m_url, "client_log_user", k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6);
+    }
+
+    public void InitMustKvs(params object[] kvs)
+    {
+        if (kvs == null)
+            return;
+
+        int _lens = kvs.Length;
+        object _k, _v;
+        string _kstr, _vstr;
+        for (int i = 0; i < _lens; i += 2)
+        {
+            if (i + 1 >= _lens)
+                break;
+
+            _k = kvs[i];
+            if (_k == null)
+                continue;
+            _v = kvs[i + 1];
+            if (_v == null)
+                continue;
+            _kstr = _k.ToString();
+            _vstr = _v.ToString();
+            if (!this.m_kvMusts.ContainsKey(_kstr))
+                this.m_kvMusts.Add(_kstr, _vstr);
+        }
     }
 }
