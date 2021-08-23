@@ -297,6 +297,11 @@ public class LogToNetHelper:MonoBehaviour
         SendParams(this.m_url, "client_log_user", k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6);
     }
 
+    public void ClearMustKvs()
+    {
+        this.m_kvMusts.Clear();
+    }
+
     public void InitMustKvs(params object[] kvs)
     {
         if (kvs == null)
