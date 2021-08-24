@@ -323,7 +323,9 @@ public class LogToNetHelper:MonoBehaviour
                 continue;
             _kstr = _k.ToString();
             _vstr = _v.ToString();
-            if (!this.m_kvMusts.ContainsKey(_kstr))
+            if (this.m_kvMusts.ContainsKey(_kstr))
+                this.m_kvMusts[_kstr] = _vstr;
+            else
                 this.m_kvMusts.Add(_kstr, _vstr);
         }
     }
