@@ -26,21 +26,21 @@ public static class ShaderVariantCollectionExporter
     [MenuItem("Tools/Shader/Export GameSVC")]
     static void Export2()
     {
-        ExportSVC("Assets/_Develop/Builds/all_svc.shadervariants");
+        ExportSVC("Assets/_Develop/Builds/all_svc.shadervariants","_Develop/");
     }
 
     /// <summary>
     /// fpSave 以 Assets 开头的要保存的SVC文件的地址
     /// fpDir 是 Assets 资源查找路径地址
     /// </summary>
-    static public void ExportSVC(string fpSave = null, string fpDir = null, bool isLog = false)
+    static public void ExportSVC(string fpSave = null, string rootDir = null, bool isLog = false, string fpDir = null)
     {
 		Debug.LogFormat("=== ExportSVC T0 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
-        if (string.IsNullOrEmpty(fpDir))
-            fpDir = Application.dataPath;
-
-        if (!string.IsNullOrEmpty(fpSave))
+		if (!string.IsNullOrEmpty(fpSave))
             _SVCPath = fpSave;
+		
+        // if (string.IsNullOrEmpty(fpDir))
+        //    fpDir = Application.dataPath;
         // var _arrs2 = Directory.GetFiles(fpDir, "*.*", SearchOption.AllDirectories)
         //         .Where(s => s.ToLower().EndsWith(".mat")).ToArray();
 
@@ -52,10 +52,15 @@ public static class ShaderVariantCollectionExporter
         List<Material> _list = null;
         string _pIt;
         Material _mat;
+		bool _isCheckRoot = !string.IsNullOrEmpty(rootDir);
         for (int j = 0; j < _arrs2.Length; j++)
         {
             _pIt = AssetDatabase.GUIDToAssetPath(_arrs2[j]);
             _pIt = _pIt.Substring(_pIt.LastIndexOf("Assets"));
+			_pIt = _pIt.Replace('\\', '/');
+			if(_isCheckRoot && !_pIt.Contains(rootDir))
+				continue;
+			
             _mat = AssetDatabase.LoadAssetAtPath<Material>(_pIt);
             if (_mat != null)
             {
