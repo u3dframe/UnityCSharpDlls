@@ -35,6 +35,7 @@ public static class ShaderVariantCollectionExporter
     /// </summary>
     static public void ExportSVC(string fpSave = null, string fpDir = null, bool isLog = false)
     {
+		Debug.LogFormat("=== ExportSVC T0 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
         if (string.IsNullOrEmpty(fpDir))
             fpDir = Application.dataPath;
 
@@ -76,7 +77,7 @@ public static class ShaderVariantCollectionExporter
                     materials.Add(_mat);
             }
         }
-
+		Debug.LogFormat("=== ExportSVC T1 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
         ProcessMaterials(materials);
 
         if (isLog)
@@ -99,14 +100,12 @@ public static class ShaderVariantCollectionExporter
         {
             EditorApplication.update -= EditorUpdate;
 			EditorApplication.isPlaying = true;
-            Debug.LogFormat("=== Update Time1 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
-            System.Threading.Thread.Sleep(5000);
-            Debug.LogFormat("=== Update Time2 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
-            object _obj = InvokeInternalStaticMethod(typeof(ShaderUtil), "GetCurrentShaderVariantCollectionVariantCount");
-            Debug.LogFormat("=== Update CurrSVC_VariantCount = [{0}]", _obj);
-            InvokeInternalStaticMethod(typeof(ShaderUtil), "SaveCurrentShaderVariantCollection", _SVCPath);
-            _obj = InvokeInternalStaticMethod(typeof(ShaderUtil), "GetCurrentShaderVariantCollectionShaderCount");
-            Debug.LogFormat("=== Update CurrSVC_ShaderCount = [{0}]", _obj);
+            System.Threading.Thread.Sleep(15000);
+            object _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionVariantCount");
+            Debug.LogFormat("=== Update CurrSVC_VariantCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
+            InvokeInternalStaticMethod(TP_CSU, "SaveCurrentShaderVariantCollection", _SVCPath);
+            _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionShaderCount");
+            Debug.LogFormat("=== Update CurrSVC_ShaderCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
             _elapsedTime.Stop();
             _elapsedTime.Reset();
             EditorApplication.isPlaying = false;
@@ -116,9 +115,9 @@ public static class ShaderVariantCollectionExporter
     static private void ProcessMaterials(List<Material> materials)
     {
         EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
-        InvokeInternalStaticMethod(typeof(ShaderUtil), "ClearCurrentShaderVariantCollection");
-        object _obj = InvokeInternalStaticMethod(typeof(ShaderUtil), "GetCurrentShaderVariantCollectionShaderCount");
-        Debug.LogFormat("=== CurrSVC_ShaderCount = [{0}]", _obj);
+        InvokeInternalStaticMethod(TP_CSU, "ClearCurrentShaderVariantCollection");
+        object _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionShaderCount");
+        Debug.LogFormat("=== CurrSVC_ShaderCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
         
         int totalMaterials = materials.Count;
 
@@ -163,8 +162,12 @@ public static class ShaderVariantCollectionExporter
             {
                 x++;
             }
+			if(i > 0 && i % 5 == 0){
+				System.Threading.Thread.Sleep(20);
+			}
         }
-
+		
+		Debug.LogFormat("=== ExportSVC T3 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
         _elapsedTime.Stop();
         _elapsedTime.Reset();
         _elapsedTime.Start();
@@ -183,6 +186,19 @@ public static class ShaderVariantCollectionExporter
 
     static private object InvokeInternalStaticMethod(System.Type type, string method, params object[] parameters)
     {
+        try
+        {
+            return _InvokeInternalStaticMethod(type,method,parameters);
+        }
+        catch (System.Exception ex)
+        {
+			Debug.LogErrorFormat("=== {0}.{1} err = \n{2}", type,method,ex);
+        }
+        return null;
+    }
+
+    static private object _InvokeInternalStaticMethod(System.Type type, string method, params object[] parameters)
+    {
         var methodInfo = type.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Static);
         if (methodInfo == null)
         {
@@ -193,6 +209,7 @@ public static class ShaderVariantCollectionExporter
         return methodInfo.Invoke(null, parameters);
     }
 	
+	static private System.Type TP_CSU = typeof(ShaderUtil);
     static private readonly Stopwatch _elapsedTime = new Stopwatch();
     private const int WaitTimeBeforeSave = 20000;
     static private string _SVCPath = "Assets/ShaderVariantCollection.shadervariants";
