@@ -47,7 +47,7 @@ public class CheckAssetName : AssetPostprocessor
                 }
                 else if (!IsExcludesBig(_fpStr) && !_fn.Equals(_fnTower))
                 {
-                    UnityEngine.Debug.LogErrorFormat("=== filename has Upper(大写), fp = [{0}],fn = [{1}]", _fpStr, _fn);
+                    UnityEngine.Debug.LogWarningFormat("=== filename has Upper(大写), fp = [{0}],fn = [{1}]", _fpStr, _fn);
                 }
             }
         }
@@ -56,8 +56,10 @@ public class CheckAssetName : AssetPostprocessor
     [MenuItem("Tools/Check AllRes Format(检查所有资源的命名)")]
     static public void ReCheckAll()
     {
+        EditorUtility.DisplayProgressBar("Check AllRes", "Doing ... ...", 0.1f);
         string _fd = BuildPatcher.m_appAssetPath;
         string[] files = Directory.GetFiles(_fd, "*.*", SearchOption.AllDirectories);
         CheckAllAssets(files);
+        EditorUtility.ClearProgressBar();
     }
 }
