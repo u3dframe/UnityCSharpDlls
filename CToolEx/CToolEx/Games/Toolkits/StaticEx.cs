@@ -59,10 +59,12 @@ public static class StaticEx {
         if(null == material) return;
         
         Shader _sd = material.shader;
+        int _rq = material.renderQueue;
         if(_sd != null && !string.IsNullOrEmpty(_sd.name)){
             _sd = UGameFile.SFindShader(_sd.name);
             if(_sd != null){
                 material.shader = _sd;
+                material.renderQueue = _rq;
             }
         }
     }
@@ -254,11 +256,15 @@ public static class StaticEx {
         Material material = img.material;
         if(null == material) return;
         Shader shader = material.shader;
-        if(null == shader) return;
+        if (null == shader) return;
+        int _rq = material.renderQueue;
         if (!"UI/Default".Equals(shader.name,StringComparison.OrdinalIgnoreCase)) {
             Shader _sd = UGameFile.SFindShader(shader.name);
             if(_sd != null)
+            {
                 material.shader = _sd;
+                material.renderQueue = _rq;
+            }
         }
     }
 
