@@ -670,13 +670,15 @@ namespace Core
             var _sb = new System.Text.StringBuilder();
             string _guid = null;
             string _assetPath = null;
+            UObject _uobj;
             for (int i = 0; i < guids.Length; i++)
             {
                 _guid = guids[i];
                 if (string.IsNullOrEmpty(_guid))
                     continue;
                 _assetPath = AssetDatabase.GUIDToAssetPath(_guid);
-                _sb.AppendFormat("=== guid = [{0}], assetPath = [{1}]", _guid,_assetPath).AppendLine();
+                _uobj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(_assetPath);
+                _sb.AppendFormat("=== guid = [{0}], assetPath = [{1}] , type = [{2}]", _guid,_assetPath, _uobj.GetType()).AppendLine();
             }
             string _v = _sb.ToString();
             _sb.Length = 0;

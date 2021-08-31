@@ -65,6 +65,8 @@
     </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>..\..\UnityDlls\2019.3.7\Unity.TextMeshPro.dll</HintPath>
+      <EmbedInteropTypes></EmbedInteropTypes>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Unity.Timeline">
       <HintPath>..\..\UnityDlls\2019.3.7\Unity.Timeline.dll</HintPath>
