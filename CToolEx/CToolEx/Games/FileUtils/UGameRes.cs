@@ -3,6 +3,7 @@ using System.IO;
 
 namespace Core.Kernel
 {
+    using TMPro; // Unity.TextMeshPro
     using UObject = UnityEngine.Object;
     using UResources = UnityEngine.Resources;
 
@@ -27,8 +28,10 @@ namespace Core.Kernel
         static public readonly System.Type tpTimeline = typeof(UnityEngine.Timeline.TimelineAsset);
         static public readonly System.Type tpSctObj = typeof(ScriptableObject);
         static public readonly System.Type tpVdoClip = typeof(UnityEngine.Video.VideoClip);
+        static public readonly System.Type tpFontTMP = typeof(TMP_FontAsset);
 
         static public readonly string m_strFnt = ".ab_fnt";
+        static public readonly string m_strFntTMP = ".ab_fnttmp";
         static public readonly string m_strShader = ".ab_shader";
         static public readonly string m_strUI = ".ui";
         static public readonly string m_strFab = ".fab";

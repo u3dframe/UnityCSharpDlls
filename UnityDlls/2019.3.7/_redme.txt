@@ -6,3 +6,6 @@ Assembly-CSharp.dll
 
 如果ugui不行，就使用下面的地址的
 Editor\Data\Resources\PackageManager\ProjectTemplates\libcache\com.unity.template.3d-4.2.8\ScriptAssemblies
+
+Unity.TextMeshPro 版本是 2.0.1
+"com.unity.textmeshpro": "2.0.1",
