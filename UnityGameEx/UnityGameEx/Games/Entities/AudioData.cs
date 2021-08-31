@@ -83,6 +83,23 @@ public class AudioData
         }
     }
 
+    static public AudioData Builder(GameObject gobj, bool isNew, bool isMusic, float volume, bool playOnAwake)
+    {
+        if (!gobj)
+            return null;
+        return new AudioData(gobj, isNew, isMusic, volume, playOnAwake);
+    }
+
+    static public AudioData Builder(GameObject gobj, bool isNew, bool isMusic, float volume)
+    {
+        return Builder(gobj, isNew, isMusic, volume, false);
+    }
+
+    static public AudioData BuilderSound(GameObject gobj, bool isNew, float volume)
+    {
+        return Builder(gobj, isNew, false, volume);
+    }
+
     private bool m_isMusic = false;
     private float m_volume = 1f;
     private AudioSource m_audio = null;
@@ -95,8 +112,7 @@ public class AudioData
     private int m_curTagType = 0;
 
     public float m_timeDuration { get; private set; }
-    private float m_timeRemainder = 0;
-    private float m_endTime = 0;
+    private float m_timeRemainder = 0,m_speed = 1;
     private GobjLifeListener m_glife = null;
     private DF_ToLoadAdoClip m_cfLoad = null;
     private ListDict<AudioInfo> m_assets = new ListDict<AudioInfo>(true);
@@ -240,7 +256,6 @@ public class AudioData
                 {
                     this.Play();
 
-                    this.m_endTime = this.m_timeRemainder + Time.unscaledTime;
                     m_glife.StopCoroutine(_IEnAdoEnd());
                     m_glife.StartCoroutine(_IEnAdoEnd());
                 }
@@ -288,6 +303,8 @@ public class AudioData
             return;
         }
         this.m_playState = 1;
+        this.m_audio.time = 0;
+        this.m_audio.timeSamples = 0;
         this.m_audio.Play();
     }
 
@@ -312,8 +329,6 @@ public class AudioData
         this.m_audio.Pause();
 
         m_glife.StopCoroutine(_IEnAdoEnd());
-        float _dt = this.m_endTime - Time.unscaledTime;
-        this.m_timeRemainder = _dt;
     }
 
     public void PlayClip(AudioClip clip, bool isBreak)
@@ -337,7 +352,6 @@ public class AudioData
             this.m_timeDuration += clip.length;
             this.Play();
         }
-        this.m_endTime = this.m_timeDuration + Time.unscaledTime;
         this.m_timeRemainder = this.m_timeDuration;
         m_glife.StopCoroutine(_IEnAdoEnd());
         m_glife.StartCoroutine(_IEnAdoEnd());
@@ -347,9 +361,10 @@ public class AudioData
     {
         if (this.m_playState != 1)
             yield break;
-
-        float _dt = this.m_endTime - Time.unscaledTime;
-        this.m_timeRemainder = _dt;
+        float _ct = this.m_audio.timeSamples;
+        float _dt = this.m_timeDuration - _ct;
+        float _absSpeed = this.m_speed < 0 ? -this.m_speed : this.m_speed;
+        this.m_timeRemainder = (_absSpeed == 0) ? _dt : _dt / _absSpeed;
         if (_dt > 0.02f)
             yield return new WaitForSecondsRealtime(_dt);
         else if (_dt > 0f)
@@ -389,6 +404,9 @@ public class AudioData
         this.m_glife = null;
         this.m_audio = null;
         this.m_playState = 0;
+        this.m_timeDuration = 0;
+        this.m_timeRemainder = 0;
+        this.m_speed = 1;
         this.m_isBreak = false;
         this.ClearAssets();
     }
@@ -416,20 +434,18 @@ public class AudioData
         }
     }
 
-    static public AudioData Builder(GameObject gobj, bool isNew, bool isMusic, float volume, bool playOnAwake)
+    public void SetSpeed(float speed)
     {
-        if (!gobj)
-            return null;
-        return new AudioData(gobj, isNew, isMusic, volume, playOnAwake);
-    }
-
-    static public AudioData Builder(GameObject gobj, bool isNew, bool isMusic, float volume)
-    {
-        return Builder(gobj, isNew, isMusic, volume, false);
-    }
-
-    static public AudioData BuilderSound(GameObject gobj, bool isNew, float volume)
-    {
-        return Builder(gobj, isNew, false, volume);
+        if (this.m_audio)
+        {
+            float _pre = this.m_audio.pitch;
+            this.m_audio.pitch = speed;
+            if(_pre != speed)
+            {
+                this.m_speed = speed;
+                m_glife.StopCoroutine(_IEnAdoEnd());
+                m_glife.StartCoroutine(_IEnAdoEnd());
+            }
+        }
     }
 }
