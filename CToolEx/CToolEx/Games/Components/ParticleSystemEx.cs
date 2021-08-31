@@ -36,8 +36,9 @@ public class ParticleSystemEx : GobjLifeListener {
 	public bool m_isUseControlPause = true;
 	public bool isPause = false;
 	public float scale = 1f,speedRate = 1f,startSize = -1f;
+    public bool isIgnoreTimeScale = false;
 
-	ParticleSystem.MainModule mainModule;
+    ParticleSystem.MainModule mainModule;
 	ParticleSystem.MinMaxCurve minMaxCurve;
 	ParticleSystem.ShapeModule shapeModule;
     ParticleSystem.VelocityOverLifetimeModule velocityLifetime;
@@ -65,8 +66,10 @@ public class ParticleSystemEx : GobjLifeListener {
 		if (!isUpdate) {
 			return;
 		}
-		
-		if (tStartSize != startSize) {
+
+        this._UpUnscaledTime();
+
+        if (tStartSize != startSize) {
 			SetStartSize(startSize);
 		}
 
@@ -285,7 +288,7 @@ public class ParticleSystemEx : GobjLifeListener {
 			if(_isPause){
 				ps.Pause();
 			}else{
-				ps.Play();
+				ps.Play(false);
 			}
 		}
 
@@ -314,11 +317,50 @@ public class ParticleSystemEx : GobjLifeListener {
 			}
 		}
 	}
-		
-	/// <summary>
-	/// 设置速度倍率 - 在原始速度的基础上的倍率
-	/// </summary>
-	public void SetSpeedRate(float speedRate){
+
+    public void RePlay(bool isIgnoreTimeScale)
+    {
+        int _lens = lens;
+        ParticleSystem ps;
+        for (int i = 0; i < _lens; i++)
+        {
+            ps = listAll[i];
+            mainModule = ps.main;
+            mainModule.useUnscaledTime = isIgnoreTimeScale;
+            ps.Simulate(0, false, true);
+            ps.Play(false);
+        }
+
+        _lens = m_listAni.Count;
+        Animator ani;
+        for (int i = 0; i < _lens; i++)
+        {
+            ani = m_listAni[i];
+            ani.updateMode = isIgnoreTimeScale ? AnimatorUpdateMode.UnscaledTime : AnimatorUpdateMode.Normal;
+            ani.Update(0);
+        }
+
+        _lens = m_listAnm.Count;
+        Animation anm;
+        for (int i = 0; i < _lens; i++)
+        {
+            anm = m_listAnm[i];
+            foreach (AnimationState state in anm)
+            {
+                state.normalizedTime = 0;
+            }
+            if (isIgnoreTimeScale)
+                anm.Sample();
+            else
+                anm.Play();
+        }
+        this.isIgnoreTimeScale = isIgnoreTimeScale;
+    }
+
+    /// <summary>
+    /// 设置速度倍率 - 在原始速度的基础上的倍率
+    /// </summary>
+    public void SetSpeedRate(float speedRate){
 		if (speedRate < 0) {
 			return;
 		}
@@ -331,7 +373,7 @@ public class ParticleSystemEx : GobjLifeListener {
 		for (int i = 0; i < _lens; i++) {
 			ps = listAll[i];
             ps.Clear();
-			vList = dicDefaultScale[ps.GetInstanceID()];
+            vList = dicDefaultScale[ps.GetInstanceID()];
 
 			mainModule = ps.main;
 			minMaxCurve = mainModule.startSpeed;
@@ -380,7 +422,57 @@ public class ParticleSystemEx : GobjLifeListener {
 		}
 	}
 
-	[ContextMenu("Pause ParticleSystem")]
+    public void SetIgnoreTimeScale(bool isIgnoreTimeScale)
+    {
+        bool _isChg = this.isIgnoreTimeScale != isIgnoreTimeScale;
+        if(_isChg)
+        {
+            int _lens = lens;
+            ParticleSystem ps;
+            for (int i = 0; i < _lens; i++)
+            {
+                ps = listAll[i];
+                mainModule = ps.main;
+                mainModule.useUnscaledTime = isIgnoreTimeScale;
+            }
+
+            _lens = m_listAni.Count;
+            Animator ani;
+            for (int i = 0; i < _lens; i++)
+            {
+                ani = m_listAni[i];
+                if (ani != null)
+                    ani.updateMode = isIgnoreTimeScale ? AnimatorUpdateMode.UnscaledTime : AnimatorUpdateMode.Normal;
+            }
+        }
+        this.isIgnoreTimeScale = isIgnoreTimeScale;
+    }
+
+    void _UpUnscaledTime()
+    {
+        if (!this.isIgnoreTimeScale)
+            return;
+        float _dt = Time.unscaledDeltaTime;
+        int _lens = lens;
+        _lens = m_listAnm.Count;
+        Animation anm;
+        float _ctime = -1;
+        for (int i = 0; i < _lens; i++)
+        {
+            anm = m_listAnm[i];
+            foreach (AnimationState state in anm)
+            {
+                if(anm.IsPlaying(state.name))
+                {
+                    _ctime = state.normalizedTime * state.length + _dt;
+                    state.normalizedTime = _ctime  / state.length;
+                }
+            }
+            anm.Sample();
+        }
+    }
+
+    [ContextMenu("Pause ParticleSystem")]
 	void Pause(){
 		ChangePauseState(true);
 	}
@@ -389,4 +481,10 @@ public class ParticleSystemEx : GobjLifeListener {
 	void Regain(){
 		ChangePauseState(false);
 	}
+
+    [ContextMenu("Change Ignore TimeScale")]
+    void ChangeIgnoreTimeScale()
+    {
+        this.SetIgnoreTimeScale(!this.isIgnoreTimeScale);
+    }
 }
