@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Editor\Games\AssetPostprocessors\CheckAssetName.cs" />
     <Compile Remove="Editor\Games\AssetPostprocessors\ImportTexture.cs" />
     <Compile Remove="Editor\Games\Build_Patcher\BuildTools.cs" />
     <Compile Remove="Editor\Games\Commands\CMDMenu.cs" />
