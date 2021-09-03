@@ -48,7 +48,7 @@ namespace Core.Art
                     }
                     else if (!IsExcludesBig(_fpStr) && !_fn.Equals(_fnTower))
                     {
-                        UnityEngine.Debug.LogErrorFormat("=== filename has Upper(大写), fp = [{0}],fn = [{1}]", _fpStr, _fn);
+                    	UnityEngine.Debug.LogWarningFormat("=== filename has Upper(大写), fp = [{0}],fn = [{1}]", _fpStr, _fn);
                     }
                 }
             }
@@ -57,9 +57,11 @@ namespace Core.Art
         [MenuItem("Assets/Tools_Art/Check AllRes Format(检查所有资源的命名)")]
         static public void ReCheckAll()
         {
+        	EditorUtility.DisplayProgressBar("Check AllRes", "Doing ... ...", 0.1f);
             string _fd = UnityEngine.Application.dataPath;
             string[] files = Directory.GetFiles(_fd, "*.*", SearchOption.AllDirectories);
             CheckAllAssets(files);
-        }
+        	EditorUtility.ClearProgressBar();
+		}
     }
 }
