@@ -290,9 +290,11 @@ public class GHelper : Core.Kernel.ObjEx
         if (trsf.name.Equals(subnode)) return trsf;
         int lens = trsf.childCount;
         Transform _ret = null;
+        Transform _cur = null;
         for (int i = 0; i < lens; i++)
         {
-            _ret = ChildRecursionTrsf(trsf.GetChild(i), subnode);
+            _cur = trsf.GetChild(i);
+            _ret = ChildRecursionTrsf(_cur, subnode);
             if (_ret != null)
                 return _ret;
         }
