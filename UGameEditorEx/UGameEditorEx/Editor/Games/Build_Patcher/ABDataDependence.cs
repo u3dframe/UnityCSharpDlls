@@ -84,7 +84,7 @@ namespace Core.Kernel
         public int GetBeUsedCount()
         {
             if (m_isMustAB)
-                return 99999999;
+                return 999999999;
 
             return m_nBeUsed;
         }
@@ -99,7 +99,10 @@ namespace Core.Kernel
         public void AddBeDeps(string beDeps)
         {
             if (!m_lBeDeps.Contains(beDeps))
+            {
                 m_lBeDeps.Add(beDeps);
+                this.m_nBeUsed++;
+            }
         }
 
         public List<ABDataDependence> ReABBySVC4Shader()
@@ -307,7 +310,6 @@ namespace Core.Kernel
             
             if (!string.IsNullOrEmpty(beDeps)) {
                 _data.AddBeDeps(beDeps);
-                _data.m_nBeUsed++;
             }
 
             if(!_isHas) {

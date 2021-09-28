@@ -41,6 +41,11 @@ namespace Core.Kernel{
 				Rect rect = new Rect(pos,size);
 				vwWindow.position = rect;
 				vwWindow.minSize = size;
+
+                EditorApplication.wantsToQuit += delegate () {
+                    OnClearSWindow();
+                    return true;
+                };
 			}
 			catch (System.Exception)
 			{
