@@ -588,7 +588,7 @@ namespace Core
             EditorUtility.ClearProgressBar();
         }
 
-        static public void BuildAllResource()
+        static public void BuildAllResource(bool isBuildAB = true, bool isTip = false)
         { // async
             ClearAllABNames(true);
             AssetDatabase.Refresh();
@@ -610,7 +610,7 @@ namespace Core
                     AnalyseDir4Deps(one);
                 }
             }
-            BuildNow(true, false);
+            BuildNow(isBuildAB, isTip);
         }
 
         static public bool IsInParams(string cur, params string[] strs)

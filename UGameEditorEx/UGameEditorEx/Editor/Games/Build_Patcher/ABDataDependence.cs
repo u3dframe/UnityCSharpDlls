@@ -313,7 +313,14 @@ namespace Core.Kernel
             }
 
             if(!_isHas) {
+                ABDataDependence _idate = null;
                 foreach (var item in _data.m_lDependences) {
+                    _idate = GetData(item);
+                    if(_idate != null)
+                    {
+                        _idate.AddBeDeps(resPath);
+                        continue;
+                    }
                     Init(item, false, resPath);
                 }
             }
