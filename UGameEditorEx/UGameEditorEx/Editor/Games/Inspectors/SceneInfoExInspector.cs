@@ -111,7 +111,8 @@ public class SceneInfoExInspector : Editor
 		string fp = string.Format("{0}{1}{2}.prefab",GameFile.m_appAssetPath,"Scene/Builds/prefabs/maps/",_fabName);
 		GameFile.CreateFolder(fp);
 
-		GameObject gobjBox = UtilityHelper.ChildRecursion(m_obj.gameObject,"gbox");
+        GameObject _go_ = m_obj.gameObject;
+        GameObject gobjBox = UtilityHelper.ChildRecursion(_go_, "gbox");
 		if(!gobjBox){
             string _fpInAsset = _fpInAsset4Gbox;
             string _fp = GameFile.m_dirDataNoAssets + _fpInAsset;
@@ -125,15 +126,25 @@ public class SceneInfoExInspector : Editor
 			}
 		}
 		UtilityHelper.SetLayerAll(gobjBox,"Ground");
-		
-		PrefabElement csEle = UtilityHelper.Get<PrefabElement>(m_obj.gameObject,true);
+
+        PrefabElement csEle = UtilityHelper.Get<PrefabElement>(_go_, true);
 		GameObject[] m_gobjs = new GameObject[2];
-		m_gobjs[0] = UtilityHelper.ChildRecursion(m_obj.gameObject,"MainCamera");
+		m_gobjs[0] = UtilityHelper.ChildRecursion(_go_, "MainCamera");
 		m_gobjs[1] = gobjBox;
 		csEle.SetChildGobjs(m_gobjs);
-		GameFile.CreateFab(m_obj.gameObject,fp,false);
 
-		UnityEditor.AssetDatabase.Refresh();
+        Transform _trsf_ = _go_.transform;
+        var _qs_ = UtilityHelper.Get<Core.Kernel.EU_GQScene>(_go_, true);
+        if (!_qs_.m_rootLight)
+            _qs_.m_rootLight = _trsf_.Find("Lights");
+        if (!_qs_.m_rootLight)
+            _qs_.m_rootLight = _trsf_.Find("Offset/Lights");
+        if (!_qs_.m_rootLight)
+            _qs_.m_rootLight = _trsf_.Find("Offset/Scene/Lights");
+
+        GameFile.CreateFab(_go_, fp,false);
+
+        UnityEditor.AssetDatabase.Refresh();
 		// m_obj.m_fabName = _fabName;
 	}
 
