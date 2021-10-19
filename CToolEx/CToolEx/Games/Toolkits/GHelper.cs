@@ -367,17 +367,36 @@ public class GHelper : Core.Kernel.ObjEx
     }
 
     //设置子物体显示隐藏（不包括父物体本身）
-    static public void SetChildActive(UObject uobj, bool isActive)
+    static public void SetChildActiveCurr(UObject uobj, string subnode, bool isActiveCurr, bool isAcitveOther)
     {
         Transform trsf = ToTransform(uobj);
         if (IsNull(trsf)) return;
+        Transform trsfCurr = null;
+        if (!string.IsNullOrEmpty(subnode))
+            trsfCurr = trsf.Find(subnode);
+
         int lens = trsf.childCount;
+        Transform _tf_;
         GameObject _go_;
         for (int i = 0; i < lens; i++)
         {
-            _go_ = trsf.GetChild(i).gameObject;
-            _go_.SetActive(isActive);
+            _tf_ = trsf.GetChild(i);
+            _go_ = _tf_.gameObject;
+            if (_tf_ == trsfCurr)
+                _go_.SetActive(isActiveCurr);
+            else
+                _go_.SetActive(isAcitveOther);
         }
+    }
+
+    static public void SetChildActiveCurr(UObject uobj, string subnode, bool isActive)
+    {
+        SetChildActiveCurr(uobj, subnode, isActive, !isActive);
+    }
+
+    static public void SetChildActive(UObject uobj, bool isActive)
+    {
+        SetChildActiveCurr(uobj, null, isActive, isActive);
     }
 
     static public Transform GetParent(UObject uobj)
@@ -560,11 +579,6 @@ public class GHelper : Core.Kernel.ObjEx
         if (IsNull(org))
             return null;
         return new Material(org);
-    }
-
-    static public void SetMaxFrame(int maxFrame)
-    {
-        Application.targetFrameRate = maxFrame;
     }
 
     static public bool IsGLife(object obj)

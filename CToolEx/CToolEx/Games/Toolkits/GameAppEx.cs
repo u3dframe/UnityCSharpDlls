@@ -10,7 +10,7 @@ using Core.Kernel;
 /// 修改 : 2021-07-14 18:40
 /// </summary>
 public static class GameAppEx{
-    static public int fpsFrameRate { get; set; }
+    static public int fpsFrameRate { get; private set; }
     static public DF_OnError cfuncError = null;
 
     static public bool Entrance( DF_OnError callError )
@@ -31,7 +31,7 @@ public static class GameAppEx{
     {
         GHelper.Is_App_Quit = false;
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
-        fpsFrameRate = (UGameFile.m_isEditor || UGameFile.m_isIOS) ? 60 : 45;
+        fpsFrameRate = 60;
         Application.targetFrameRate = fpsFrameRate;
         Application.runInBackground = true;
         
