@@ -25,7 +25,7 @@ namespace Core.Kernel
             int _nPropLimit = 2;
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN
 		_nPropLimit = 2;
-#elif UNITY_STANDALONE_OSX || UNITY_IPHONE
+#elif UNITY_STANDALONE_OSX || UNITY_IOS
 		_nPropLimit = 1;
 #elif UNITY_ANDROID
             _nPropLimit = 4;
