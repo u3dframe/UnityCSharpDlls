@@ -121,7 +121,7 @@ namespace Core
             return tbPlayer.ContainsKey(key);
         }
 
-        public static void SetString(string key, string value, bool shouldFlush = false)
+        public static void SetString(string key, string value, bool shouldFlush = true)
         {
             if (!tbPlayer.ContainsKey(key))
             {
@@ -138,7 +138,7 @@ namespace Core
             }
         }
 
-        public static void SetInt(string key, int value, bool shouldFlush = false)
+        public static void SetInt(string key, int value, bool shouldFlush = true)
         {
             string valueString = System.Convert.ToBase64String(BitConverter.GetBytes(value));
             if (!tbPlayer.ContainsKey(key))
@@ -156,7 +156,7 @@ namespace Core
             }
         }
 
-        public static void SetFloat(string key, float value, bool shouldFlush = false)
+        public static void SetFloat(string key, float value, bool shouldFlush = true)
         {
             string valueString = System.Convert.ToBase64String(BitConverter.GetBytes(value));
             if (!tbPlayer.ContainsKey(key))
@@ -172,10 +172,9 @@ namespace Core
             {
                 Flush();
             }
-
         }
 
-        public static void SetBool(string key, bool value, bool shouldFlush = false)
+        public static void SetBool(string key, bool value, bool shouldFlush = true)
         {
             if (!tbPlayer.ContainsKey(key))
             {
@@ -192,7 +191,7 @@ namespace Core
             }
         }
 
-        public static void SetLong(string key, long value, bool shouldFlush = false)
+        public static void SetLong(string key, long value, bool shouldFlush = true)
         {
             if (!tbPlayer.ContainsKey(key))
             {
@@ -494,6 +493,11 @@ namespace Core
             hashTableChanged = true;
             serializedInput = inputString;
             Deserialize();
+            Flush();
+        }
+
+        public static void Save()
+        {
             Flush();
         }
     }
