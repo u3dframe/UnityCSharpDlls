@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using CPPrefs = Core.PlayerPrefs;
 
 /// <summary>
 /// 类名 : Game Language
@@ -39,8 +40,8 @@ public static class GameLanguage
 		get
         {
 			string key = keyLanguage;
-			if(PlayerPrefs.HasKey(key)){
-				string _lg = PlayerPrefs.GetString(key);
+			if(CPPrefs.HasKey(key)){
+				string _lg = CPPrefs.GetString(key);
 				return EnumEx.Str2Enum<SystemLanguage>(tpSysLanguage,_lg);
 			}
 			return systemLanguage;
@@ -135,7 +136,7 @@ public static class GameLanguage
 	static public void Set(SystemLanguage sLg)
 	{
 		m_curLanguage = ToLmtLanguage(sLg);
-		PlayerPrefs.SetString(keyLanguage, strCurLanguage);
+        CPPrefs.SetString(keyLanguage, strCurLanguage);
 	}
 	
 	static public bool Set(string language)
