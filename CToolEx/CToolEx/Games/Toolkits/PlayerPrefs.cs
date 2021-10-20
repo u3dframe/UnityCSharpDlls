@@ -330,8 +330,9 @@ namespace Core
                     File.Delete(_pf1);
                 if (File.Exists(_pf2))
                     File.Delete(_pf2);
+                if (string.IsNullOrEmpty(output))
+                    return;
                 string _pf = _isEncode ? _pf1 : _pf2;
-
                 StreamWriter fileWriter = null;
                 fileWriter = File.CreateText(_pf);
                 fileWriter.Write(output);
