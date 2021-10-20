@@ -2,7 +2,7 @@
 using Core;
 using Core.Kernel;
 using UObject = UnityEngine.Object;
-using UPlayerPrefs = UnityEngine.PlayerPrefs;
+using CPPrefs = Core.PlayerPrefs;
 
 /// <summary>
 /// 类名 : 声音播放管理器
@@ -62,9 +62,10 @@ public class AudioManager : GobjLifeListener
         if(string.IsNullOrEmpty(crcDataPath))
             crcDataPath = CRCClass.GetCRCContent( UGameFile.m_dirDataNoAssets);
         string _key = string.Format("{0}_{1}", m_keyCache, crcDataPath);
-        if (!UPlayerPrefs.HasKey(_key))
+        _key = m_keyCache;
+        if (!CPPrefs.HasKey(_key))
             return;
-        string _v = UPlayerPrefs.GetString(_key);
+        string _v = CPPrefs.GetString(_key);
         var _arrs = _v.Split('_');
         bool isMusic = true, isSound = true;
         float music = 1, sound = 1;
