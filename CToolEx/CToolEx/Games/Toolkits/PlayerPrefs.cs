@@ -121,7 +121,7 @@ namespace Core
             return tbPlayer.ContainsKey(key);
         }
 
-        public static void SetString(string key, string value, bool shouldFlush = true)
+        public static void SetString(string key, string value, bool shouldFlush = false)
         {
             if (!tbPlayer.ContainsKey(key))
             {
@@ -138,7 +138,7 @@ namespace Core
             }
         }
 
-        public static void SetInt(string key, int value, bool shouldFlush = true)
+        public static void SetInt(string key, int value, bool shouldFlush = false)
         {
             string valueString = System.Convert.ToBase64String(BitConverter.GetBytes(value));
             if (!tbPlayer.ContainsKey(key))
@@ -156,7 +156,7 @@ namespace Core
             }
         }
 
-        public static void SetFloat(string key, float value, bool shouldFlush = true)
+        public static void SetFloat(string key, float value, bool shouldFlush = false)
         {
             string valueString = System.Convert.ToBase64String(BitConverter.GetBytes(value));
             if (!tbPlayer.ContainsKey(key))
@@ -174,7 +174,7 @@ namespace Core
             }
         }
 
-        public static void SetBool(string key, bool value, bool shouldFlush = true)
+        public static void SetBool(string key, bool value, bool shouldFlush = false)
         {
             if (!tbPlayer.ContainsKey(key))
             {
@@ -191,7 +191,7 @@ namespace Core
             }
         }
 
-        public static void SetLong(string key, long value, bool shouldFlush = true)
+        public static void SetLong(string key, long value, bool shouldFlush = false)
         {
             if (!tbPlayer.ContainsKey(key))
             {
