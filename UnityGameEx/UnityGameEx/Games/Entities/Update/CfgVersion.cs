@@ -201,7 +201,16 @@ namespace Core.Kernel
 		public CfgVersion LoadDefault4EDT(){
 			LoadDefault ();
 			m_lastResVerCode = m_resVerCode;
-			RefreshResVerCode ();
+            int _gVc = 0;
+            bool _isOkey = true;
+            if(!string.IsNullOrEmpty(m_gameVerCode))
+                _isOkey = int.TryParse(m_gameVerCode, out _gVc);
+            if (_isOkey)
+            {
+                _gVc++;
+                m_gameVerCode = _gVc.ToString();
+            }
+            RefreshResVerCode ();
             return this;
 		}
 		
