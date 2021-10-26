@@ -155,9 +155,10 @@ public class UGUIEventListener : EventTrigger
                 this.preMaxDistance = maxDistance;
                 this.limit_dis_max = maxDistance * maxDistance;
             }
-            _isCanClick = dis_curr <= limit_dis_max && diff_time <= limitTime;
+            _isCanClick = dis_curr <= limit_dis_max;
         }
 
+        _isCanClick = _isCanClick && diff_time <= limitTime;
         v2Start = eventData.position;
         diff_time = 0;
         if (!_isCanClick) return;
