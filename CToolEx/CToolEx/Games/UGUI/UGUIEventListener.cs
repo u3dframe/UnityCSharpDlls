@@ -47,6 +47,7 @@ public class UGUIEventListener : EventTrigger
     public event DF_UGUIPos onEndDrag;
     public event DF_UGUIPos onDrop;
     public event DF_UGUIV2Bool onPress;
+    public bool isHasOnPressCall{ get; set; }
 
     private Vector2 v2Start;
     bool _isPressed = false, _isCanClick = false;
@@ -157,8 +158,8 @@ public class UGUIEventListener : EventTrigger
             }
             _isCanClick = dis_curr <= limit_dis_max;
         }
-
-        _isCanClick = _isCanClick && diff_time <= limitTime;
+        if(isHasOnPressCall)
+            _isCanClick = _isCanClick && diff_time <= limitTime;
         v2Start = eventData.position;
         diff_time = 0;
         if (!_isCanClick) return;

@@ -110,4 +110,9 @@ public class UGUIButton : GobjLifeListener {
 	public void IsPropagation(bool isBl){
 		this.m_evt.m_isPropagation = isBl;
 	}
+
+    public void IsHasOnPressCall(bool isBl)
+    {
+        this.m_evt.isHasOnPressCall = isBl;
+    }
 }
