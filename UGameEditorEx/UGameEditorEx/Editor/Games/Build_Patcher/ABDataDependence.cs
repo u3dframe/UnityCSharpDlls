@@ -2,12 +2,11 @@
 using UnityEditor;
 using System.Collections.Generic;
 using System.Text;
-using System.IO;
 using LitJson;
 
 namespace Core.Kernel
 {
-
+    using UObject = UnityEngine.Object;
     /// <summary>
     /// 类名 : AB数据关系
     /// 作者 : Canyon / 龚阳辉
@@ -36,7 +35,7 @@ namespace Core.Kernel
             InitDeps(objAssetPath, isMust);
         }
 
-        public ABDataDependence(Object obj, bool isMust)
+        public ABDataDependence(UObject obj, bool isMust)
         {
             InitDeps(obj, isMust);
         }
@@ -44,11 +43,11 @@ namespace Core.Kernel
         public void InitDeps(string objAssetPath, bool isMust)
         {
             // 相对于objAssetPath;
-            Object obj = AssetDatabase.LoadAssetAtPath<Object>(objAssetPath);
+            UObject obj = AssetDatabase.LoadAssetAtPath<UObject>(objAssetPath);
             InitDeps(obj, isMust);
         }
 
-        public void InitDeps(Object obj, bool isMust)
+        public void InitDeps(UObject obj, bool isMust)
         {
             if (obj == null)
             {
@@ -143,6 +142,8 @@ namespace Core.Kernel
                 _data = MgrABDataDependence.GetData(_bfile);
                 if (_data == null)
                     MgrABDataDependence.Init(_bfile, false, this.m_res);
+                else
+                    _data.AddBeDeps(this.m_res);
             }
         }
         public void CheckCurrBeDeps() {
@@ -333,10 +334,10 @@ namespace Core.Kernel
         static public void Init(string objAssetPath, bool isMust, string beDeps = "")
         {
             // 相对于objAssetPath;
-            Object obj = null;
+            UObject obj = null;
             try
             {
-                obj = AssetDatabase.LoadAssetAtPath<Object>(objAssetPath);
+                obj = AssetDatabase.LoadAssetAtPath<UObject>(objAssetPath);
             }
             catch (System.Exception ex)
             {
@@ -345,7 +346,7 @@ namespace Core.Kernel
             Init(obj, isMust, beDeps);
         }
 
-        static public void Init(Object obj, bool isMust, string beDeps = "")
+        static public void Init(UObject obj, bool isMust, string beDeps = "")
         {
             if (obj == null)
             {
@@ -402,7 +403,7 @@ namespace Core.Kernel
             return instance.m_dicList.Get(key);
         }
 
-        static public ABDataDependence GetData(Object obj)
+        static public ABDataDependence GetData(UObject obj)
         {
             if (obj == null)
                 return null;
@@ -413,11 +414,11 @@ namespace Core.Kernel
 
         static public int GetCount(string objAssetPath)
         {
-            Object obj = AssetDatabase.LoadAssetAtPath<Object>(objAssetPath);
+            UObject obj = AssetDatabase.LoadAssetAtPath<UObject>(objAssetPath);
             return GetCount(obj);
         }
 
-        static public int GetCount(Object obj)
+        static public int GetCount(UObject obj)
         {
             if (obj == null)
                 return -1;
@@ -446,8 +447,17 @@ namespace Core.Kernel
         }
 
         // [MenuItem("Tools/Deps/ReLoadDeps", false, 33)]
-        static public void ReLoadDeps()
+        //static void _ReLoadDeps()
+        //{
+        //    ReLoadDeps(true);
+        //}
+
+        static bool _isLoaded = false;
+        static public void ReLoadDeps(bool isIsRelead = false)
         {
+            if (_isLoaded && !isIsRelead)
+                return;
+            _isLoaded = true;
             ClearDeps();
             // Core/Kernel/Editor/Build_Patcher/
             string _fp = string.Format("{0}_deps.json", BuildPatcher.m_dirDataNoAssets);
