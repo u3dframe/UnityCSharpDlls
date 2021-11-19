@@ -18,6 +18,7 @@ namespace Core.Kernel
     public class ABDataDependence
     {
         public string m_res = "";
+        public string m_guid = "";
         public bool m_isMustAB = false;
         public int m_nBeUsed = 0;
         public List<string> m_lDependences = new List<string>();
@@ -56,6 +57,7 @@ namespace Core.Kernel
             this.m_isMustAB = isMust;
 
             this.m_res = AssetDatabase.GetAssetPath(obj);
+            this.m_guid = AssetDatabase.AssetPathToGUID(this.m_res);
             if (MgrABDataDependence.IsIgnoreFile(this.m_res))
             {
                 this.m_isMustAB = false;
@@ -101,7 +103,60 @@ namespace Core.Kernel
             if (!m_lBeDeps.Contains(beDeps))
             {
                 m_lBeDeps.Add(beDeps);
-                this.m_nBeUsed++;
+                ++this.m_nBeUsed;
+            }
+        }
+
+        public void RmvBeDeps(string beDeps)
+        {
+            if (m_lBeDeps.Contains(beDeps))
+            {
+                m_lBeDeps.Remove(beDeps);
+                --this.m_nBeUsed;
+            }
+        }
+
+        public void CheckCurrDeps()
+        {
+            string _bfile = null;
+            ABDataDependence _data = null;
+            int _lens = m_lDependences.Count;
+            for (int i = _lens - 1; i >= 0; --i)
+            {
+                _bfile = m_lDependences[i];
+                _data = MgrABDataDependence.GetData(_bfile);
+                if (_data != null)
+                {
+                    _data.RmvBeDeps(this.m_res);
+                }
+            }
+
+            this.m_lDependences.Clear();
+            string[] deps = AssetDatabase.GetDependencies(this.m_res, false);
+            _lens = (deps != null) ? deps.Length : 0;
+            for (int i = _lens - 1; i >= 0; --i)
+            {
+                _bfile = deps[i];
+                if (!this.m_lDependences.Contains(_bfile))
+                    this.m_lDependences.Add(_bfile);
+
+                _data = MgrABDataDependence.GetData(_bfile);
+                if (_data == null)
+                    MgrABDataDependence.Init(_bfile, false, this.m_res);
+            }
+        }
+        public void CheckCurrBeDeps() {
+            string _bfile = null;
+            ABDataDependence _data = null;
+            int _lens = this.m_lBeDeps.Count;
+            for (int i = _lens - 1; i >= 0; --i)
+            {
+                _bfile = this.m_lBeDeps[i];
+                _data = MgrABDataDependence.GetData(_bfile);
+                if (_data == null || !_data.m_lDependences.Contains(this.m_res))
+                {
+                    this.RmvBeDeps(_bfile);
+                }
             }
         }
 
@@ -197,6 +252,7 @@ namespace Core.Kernel
                 if (_instance == null){
                     _instance = new MgrABDataDependence();
                     _instance.InitIgnoreAndMust();
+                    ClearDeps();
                     ReLoadDeps();
                 }
                 return _instance;
@@ -405,11 +461,25 @@ namespace Core.Kernel
                 foreach(string key in _jd.Keys)
                 {
                     _val = _jd[key].ToJson();
-                    if(!BuildPatcher.IsExistsInAssets(key))
+                    if(!BuildPatcher.IsExistsInAssets(key)) // 自身是否存在
                         continue;
                     
                     _obj = JsonMapper.ToObject<ABDataDependence>(_val);
-                    instance.m_dicList.Add(key,_obj);
+                    instance.m_dicList.Add(key,_obj); 
+                }
+
+                var list = instance.m_dicList.m_list;
+                int lens = list.Count;
+                for (int i = lens - 1; i >= 0; --i)
+                {
+                    _obj = list[i];
+                    _obj.CheckCurrDeps(); // 检测资源 依赖
+                }
+
+                for (int i = lens - 1; i >= 0; --i)
+                {
+                    _obj = list[i];
+                    _obj.CheckCurrBeDeps(); // 检测资源 被依赖
                 }
             }
         }
