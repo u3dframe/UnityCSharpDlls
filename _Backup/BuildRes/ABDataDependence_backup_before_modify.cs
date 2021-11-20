@@ -8,59 +8,43 @@ namespace Core.Kernel
 {
     using UObject = UnityEngine.Object;
 
-    public static class ABDepsHelper
-    {
-        static public long CurrMaxId = 0;
-        static public bool IsYAML = true;
-        static public string fnOAsset = "_foassets.json";
-        static public string fnDeps = "_fdeps.json";
-    }
-
     /// <summary>
-    /// 类名 : 资源原始数据 OriginAsset
+    /// 类名 : 资源原始数据
     /// 作者 : Canyon / 龚阳辉
     /// 日期 : 2021-11-14 09:40
     /// 功能 : 将字符串，去掉重复
     /// </summary>
-    public class OrgAsset
+    public class OriginAsset
     {
+        static public long CurrMaxId = 0;
         public long m_id = 0;
-        private string m_res = "";
+        public string m_res = "";
         public string m_guid = "";
 
         private UObject _uobj = null;
         private string _strYAML = null;
 
-        public OrgAsset() { }
-        public OrgAsset(string assetPath) {
-            this.Init(assetPath);
-        }
-        public OrgAsset(UObject uobj)
-        {
-            this.Init(uobj);
-        }
+        public OriginAsset() { }
 
         bool _IsCanYAML(string assetPath)
         {
-            if (!ABDepsHelper.IsYAML || string.IsNullOrEmpty(assetPath))
+            if (string.IsNullOrEmpty(assetPath))
                 return false;
             assetPath = assetPath.ToLower();
-            return assetPath.EndsWith(".prefab") || assetPath.EndsWith(".mat");
+            if (assetPath.EndsWith(".prefab") || assetPath.EndsWith(".mat"))
+                return true;
+            return false;
         }
 
         public bool IsYAML()
         {
-            if (string.IsNullOrEmpty(this._strYAML))
+            if (string.IsNullOrEmpty(_strYAML))
                 return this._IsCanYAML(this.m_res);
             return true;
         }
 
         public void InitParts()
         {
-            if(string.IsNullOrEmpty(this.m_res))
-            {
-                this.m_res = AssetDatabase.GUIDToAssetPath(this.m_guid);
-            }
             this._uobj = AssetDatabase.LoadAssetAtPath<UObject>(this.m_res);
             if (this._IsCanYAML(this.m_res))
             {
@@ -77,9 +61,9 @@ namespace Core.Kernel
             if (!BuildPatcher.IsExistsInAssets(objAssetPath)) // 自身是否存在
                 return;
 
-            this.m_id = (++ABDepsHelper.CurrMaxId);
+            this.m_id = (++CurrMaxId);
             this.m_res = objAssetPath;
-            this.m_guid = AssetDatabase.AssetPathToGUID(objAssetPath);
+            this.m_guid = AssetDatabase.AssetPathToGUID(this.m_res);
             this.InitParts();
         }
 
@@ -92,23 +76,6 @@ namespace Core.Kernel
             string _assetPath = AssetDatabase.GetAssetPath(obj);
             this.Init(_assetPath);
         }
-
-        public bool IsGUIDInYAML(string guid)
-        {
-            if (string.IsNullOrEmpty(this._strYAML) || string.IsNullOrEmpty(guid))
-                return false;
-            return this._strYAML.Contains(guid);
-        }
-
-        public string GetRes()
-        {
-            return this.m_res;
-        }
-
-        public string ToJson()
-        {
-            return JsonMapper.ToJson(this);
-        }
     }
 
     /// <summary>
@@ -120,12 +87,13 @@ namespace Core.Kernel
     /// </summary>
     public class ABDataDependence
     {
-        public long m_oaid = 0;
+        public string m_res = "";
+        public string m_guid = "";
         public bool m_isMustAB = false;
         public int m_nBeUsed = 0;
-        public List<long> m_lDependences = new List<long>();
+        public List<string> m_lDependences = new List<string>();
         // 被谁引用了?
-        public List<long> m_lBeDeps = new List<long>();
+        public List<string> m_lBeDeps = new List<string>();
         public string m_abName = "";
         public string m_abSuffix = "";
         public bool m_isShader { get; private set; }
@@ -158,77 +126,31 @@ namespace Core.Kernel
             }
             this.m_isMustAB = isMust;
 
-            string assetPath = AssetDatabase.GetAssetPath(obj);
-
-            OrgAsset _oaObj = MgrABDataDependence.GetOAsset(assetPath);
-            this.m_oaid = _oaObj.m_id;
-
-            if (MgrABDataDependence.IsIgnoreFile(assetPath))
+            this.m_res = AssetDatabase.GetAssetPath(obj);
+            this.m_guid = AssetDatabase.AssetPathToGUID(this.m_res);
+            if (MgrABDataDependence.IsIgnoreFile(this.m_res))
             {
                 this.m_isMustAB = false;
                 this.m_nBeUsed = -999999999;
                 return;
             }
 
-            if (MgrABDataDependence.IsMustFile(assetPath))
+            if (MgrABDataDependence.IsMustFile(this.m_res))
                 this.m_isMustAB = true;
 
             System.Type _objType = obj.GetType();
             this.m_isShader = BuildPatcher.IsSameClass(_objType, BuildPatcher.tpShader);
             this.m_isShaderSVC = BuildPatcher.IsSameClass(_objType, BuildPatcher.tpSVC);
 
-            this._RecordDeps(assetPath);
-        }
-
-        void _RecordDeps(string curAssetPath)
-        {
-            this.m_lDependences.Clear();
-            string[] deps = AssetDatabase.GetDependencies(curAssetPath, false);
+            string[] deps = AssetDatabase.GetDependencies(m_res, false);
             if (deps == null || deps.Length <= 0)
                 return;
 
-            OrgAsset _oaObj = null;
             foreach (var item in deps)
             {
-                _oaObj = MgrABDataDependence.GetOrNewAsset(item);
-                if (!m_lDependences.Contains(_oaObj.m_id))
-                    m_lDependences.Add(_oaObj.m_id);
+                if (!m_lDependences.Contains(item))
+                    m_lDependences.Add(item);
             }
-        }
-
-        public void RecordBeDeps()
-        {
-            var _res = this.GetCurrRes();
-            ABDataDependence _beData = null;
-            OrgAsset _oaObj = null;
-            foreach (var item in this.m_lDependences)
-            {
-                _beData = MgrABDataDependence.GetData(item);
-                if (_beData != null)
-                    _beData.AddBeDeps(this.m_oaid);
-                else
-                {
-                    _oaObj = MgrABDataDependence.GetOAsset(item);
-                    MgrABDataDependence.Init(_oaObj.GetRes(), false,_res);
-                }
-            }
-        }
-
-        public OrgAsset GetOAsset()
-        {
-            return MgrABDataDependence.GetOAsset(this.m_oaid);
-        }
-
-        public string GetCurrRes()
-        {
-            OrgAsset _oaObj = this.GetOAsset();
-            return _oaObj?.GetRes();
-        }
-
-        public string GetCurrGUID()
-        {
-            OrgAsset _oaObj = this.GetOAsset();
-            return _oaObj?.m_guid;
         }
 
         public int GetBeUsedCount()
@@ -246,36 +168,16 @@ namespace Core.Kernel
             return 0;
         }
 
-        public void AddBeDeps(long beDeps)
+        public void AddBeDeps(string beDeps)
         {
-            var _oaObj = MgrABDataDependence.GetOAsset(beDeps);
-            if (_oaObj == null)
-                return;
-            bool _isYM = _oaObj.IsYAML();
-            bool _isAdd = !_isYM;
-            if (_isYM)
-            {
-                var _cur = this.GetOAsset();
-                _isAdd = _oaObj.IsGUIDInYAML(_cur.m_guid);
-            }
-
-            if (_isAdd && !m_lBeDeps.Contains(beDeps))
+            if (!m_lBeDeps.Contains(beDeps))
             {
                 m_lBeDeps.Add(beDeps);
                 ++this.m_nBeUsed;
             }
         }
 
-        public void AddBeDeps(string beDeps)
-        {
-            var oaItem = MgrABDataDependence.GetOAsset(beDeps);
-            if (oaItem != null)
-            {
-                this.AddBeDeps(oaItem.m_id);
-            }
-        }
-
-        public void RmvBeDeps(long beDeps)
+        public void RmvBeDeps(string beDeps)
         {
             if (m_lBeDeps.Contains(beDeps))
             {
@@ -284,46 +186,48 @@ namespace Core.Kernel
             }
         }
 
-        public void RmvBeDeps(string beDeps)
-        {
-            var oaItem = MgrABDataDependence.GetOAsset(beDeps);
-            if (oaItem != null)
-            {
-                this.RmvBeDeps(oaItem.m_id);
-            }
-        }
-
         public void CheckCurrDeps()
         {
-            long _oaID = -1;
+            string _bfile = null;
             ABDataDependence _data = null;
             int _lens = m_lDependences.Count;
             for (int i = _lens - 1; i >= 0; --i)
             {
-                _oaID = m_lDependences[i];
-                _data = MgrABDataDependence.GetData(_oaID);
+                _bfile = m_lDependences[i];
+                _data = MgrABDataDependence.GetData(_bfile);
                 if (_data != null)
-                    _data.RmvBeDeps(this.m_oaid);
+                {
+                    _data.RmvBeDeps(this.m_res);
+                }
             }
 
-            var _strRes = this.GetCurrRes();
-            this._RecordDeps(_strRes);
-            this.RecordBeDeps();
-        }
+            this.m_lDependences.Clear();
+            string[] deps = AssetDatabase.GetDependencies(this.m_res, false);
+            _lens = (deps != null) ? deps.Length : 0;
+            for (int i = _lens - 1; i >= 0; --i)
+            {
+                _bfile = deps[i];
+                if (!this.m_lDependences.Contains(_bfile))
+                    this.m_lDependences.Add(_bfile);
 
+                _data = MgrABDataDependence.GetData(_bfile);
+                if (_data == null)
+                    MgrABDataDependence.Init(_bfile, false, this.m_res);
+                else
+                    _data.AddBeDeps(this.m_res);
+            }
+        }
         public void CheckCurrBeDeps() {
-            long _oaID = -1;
-            OrgAsset _oaObj = null;
+            string _bfile = null;
             ABDataDependence _data = null;
             int _lens = this.m_lBeDeps.Count;
             for (int i = _lens - 1; i >= 0; --i)
             {
-                _oaID = this.m_lBeDeps[i];
-                _oaObj = MgrABDataDependence.GetOAsset(_oaID);
-                _data = MgrABDataDependence.GetData(_oaID);
-                if (_oaObj == null || _data == null || !_data.m_lDependences.Contains(this.m_oaid))
+                _bfile = this.m_lBeDeps[i];
+                _data = MgrABDataDependence.GetData(_bfile);
+                if (_data == null || !_data.m_lDependences.Contains(this.m_res))
                 {
-                    this.RmvBeDeps(_oaID);
+                    this.RmvBeDeps(_bfile);
                 }
             }
         }
@@ -337,14 +241,10 @@ namespace Core.Kernel
                 return null;
             List<ABDataDependence> ret = new List<ABDataDependence>();
             ABDataDependence _it_ = null;
-            OrgAsset _oaObj = null;
-            long _oaID = -1;
             for (int i = 0; i < _lens; i++)
             {
-                _oaID = this.m_lDependences[i];
-                _oaObj = MgrABDataDependence.GetOAsset(_oaID);
-                _it_ = MgrABDataDependence.GetData(_oaID);
-                if (_it_ == null || _oaObj == null || _oaObj.GetRes().Contains("/PostProcessing/"))
+                _it_ = MgrABDataDependence.GetData(this.m_lDependences[i]);
+                if (_it_ == null || _it_.m_res.Contains("/PostProcessing/"))
                     continue;
                 _it_.ReAB(this.m_abName, this.m_abSuffix);
                 ret.Add(_it_);
@@ -361,10 +261,7 @@ namespace Core.Kernel
         override public string ToString()
         {
             StringBuilder _builder = new StringBuilder();
-            var _strRes = this.GetCurrRes();
-            _builder.AppendFormat("m_oaid = [{0}]", this.m_oaid);
-            _builder.AppendLine();
-            _builder.AppendFormat("m_res = [{0}]", _strRes);
+            _builder.AppendFormat("m_res = [{0}]", m_res);
             _builder.AppendLine();
             _builder.AppendFormat("m_isMustAB = [{0}]", m_isMustAB);
             _builder.AppendLine();
@@ -427,6 +324,7 @@ namespace Core.Kernel
                 if (_instance == null){
                     _instance = new MgrABDataDependence();
                     _instance.InitIgnoreAndMust();
+                    ClearDeps();
                     ReLoadDeps();
                 }
                 return _instance;
@@ -434,8 +332,6 @@ namespace Core.Kernel
         }
 
         private SortABDep m_sort = new SortABDep();
-        private ListDict<OrgAsset> m_dicOAsset = new ListDict<OrgAsset>(false);
-        private ListDict<string> m_dicId2Key = new ListDict<string>(false);
         private ListDict<ABDataDependence> m_dicList = new ListDict<ABDataDependence>(true);
         private CfgMustFiles m_ignoreFiles;
         private CfgMustFiles m_mustFiles;
@@ -531,14 +427,13 @@ namespace Core.Kernel
             if (IsIgnoreFile(resPath))
                 return;
 
-            OrgAsset _oaObj = GetOrNewAsset(resPath);
-            ABDataDependence _data = GetData(_oaObj.m_id);
+            ABDataDependence _data = GetData(resPath);
             bool _isHas = _data != null;
             if (_isHas) {
                 _data.InitDeps(obj,isMust);
             } else {
                 _data = new ABDataDependence(obj, isMust);
-                instance.m_dicList.Add(_oaObj.m_id, _data);
+                instance.m_dicList.Add(resPath, _data);
             }
             
             if (!string.IsNullOrEmpty(beDeps)) {
@@ -546,7 +441,16 @@ namespace Core.Kernel
             }
 
             if(!_isHas) {
-                _data.RecordBeDeps();
+                ABDataDependence _idate = null;
+                foreach (var item in _data.m_lDependences) {
+                    _idate = GetData(item);
+                    if(_idate != null)
+                    {
+                        _idate.AddBeDeps(resPath);
+                        continue;
+                    }
+                    Init(item, false, resPath);
+                }
             }
         }
 
@@ -565,40 +469,9 @@ namespace Core.Kernel
             return instance.ReABBySVC4Shader();
         }
 
-        static public OrgAsset GetOAsset(string key)
-        {
-            return instance.m_dicOAsset.Get(key);
-        }
-
-        static public OrgAsset GetOrNewAsset(string assetPath)
-        {
-            OrgAsset _oaObj = GetOAsset(assetPath);
-            if (_oaObj == null)
-            {
-                _oaObj = new OrgAsset(assetPath);
-                instance.m_dicOAsset.Add(assetPath, _oaObj);
-                instance.m_dicId2Key.Add(_oaObj.m_id, assetPath);
-            }
-            return _oaObj;
-        }
-
-        static public OrgAsset GetOAsset(long id)
-        {
-            string key = instance.m_dicId2Key.Get(id);
-            return GetOAsset(key);
-        }
-
-        static public ABDataDependence GetData(long key)
-        {
-            return instance.m_dicList.Get(key);
-        }
-
         static public ABDataDependence GetData(string key)
         {
-            OrgAsset _oaObj = GetOAsset(key);
-            if(_oaObj != null)
-                return instance.m_dicList.Get(_oaObj.m_id);
-            return null;
+            return instance.m_dicList.Get(key);
         }
 
         static public ABDataDependence GetData(UObject obj)
@@ -631,21 +504,13 @@ namespace Core.Kernel
         // [MenuItem("Tools/Deps/ClearDeps")]
         static public void ClearDeps()
         {
-            instance.m_dicOAsset.Clear();
-            instance.m_dicId2Key.Clear();
             instance.m_dicList.Clear();
-            ABDepsHelper.CurrMaxId = 0;
         }
 
         // [MenuItem("Tools/Deps/SaveDeps", false, 31)]
         static public void SaveDeps()
         {
-            string _fp1 = string.Format("{0}{1}", BuildPatcher.m_dirDataNoAssets, ABDepsHelper.fnOAsset);
-            var _obj1 = instance.m_dicOAsset.m_dic;
-            string _v1 = JsonMapper.ToJson(_obj1);
-            BuildPatcher.WriteText(_fp1,_v1, true);
-
-            string _fp = string.Format("{0}{1}", BuildPatcher.m_dirDataNoAssets, ABDepsHelper.fnDeps);
+            string _fp = string.Format("{0}_deps.json", BuildPatcher.m_dirDataNoAssets);
             var _obj = instance.m_dicList.m_dic;
             string _v = JsonMapper.ToJson(_obj);
             BuildPatcher.WriteText(_fp,_v,true);
@@ -665,52 +530,23 @@ namespace Core.Kernel
                 return;
             _isLoaded = true;
             ClearDeps();
-
-            string _fp1 = string.Format("{0}{1}", BuildPatcher.m_dirDataNoAssets, ABDepsHelper.fnOAsset);
-            string _v1 = BuildPatcher.GetText4File(_fp1);
-            if (!string.IsNullOrEmpty(_v1))
-            {
-                JsonData _jd = JsonMapper.ToObject<JsonData>(_v1);
-                string _val = null;
-                OrgAsset _oaObj = null;
-                foreach (string key in _jd.Keys)
-                {
-                    _val = _jd[key].ToJson();
-                    if (!BuildPatcher.IsExistsInAssets(key)) // 自身是否存在
-                        continue;
-
-                    _oaObj = JsonMapper.ToObject<OrgAsset>(_val);
-                    _oaObj.InitParts();
-                    if (_oaObj.m_id > ABDepsHelper.CurrMaxId)
-                        ABDepsHelper.CurrMaxId = _oaObj.m_id;
-                    instance.m_dicOAsset.Add(key, _oaObj);
-                    instance.m_dicId2Key.Add(_oaObj.m_id, key);
-                }
-            }
-
             // Core/Kernel/Editor/Build_Patcher/
-            string _fp = string.Format("{0}{1}", BuildPatcher.m_dirDataNoAssets, ABDepsHelper.fnDeps);
+            string _fp = string.Format("{0}_deps.json", BuildPatcher.m_dirDataNoAssets);
             string _v = BuildPatcher.GetText4File(_fp);
             
             if (!string.IsNullOrEmpty(_v))
             {
                 JsonData _jd = JsonMapper.ToObject<JsonData>(_v);
                 string _val = null;
-                OrgAsset _oaObj = null;
                 ABDataDependence _obj = null;
-                long _oaID = -1;
                 foreach(string key in _jd.Keys)
                 {
                     _val = _jd[key].ToJson();
-                    // if(!BuildPatcher.IsExistsInAssets(key)) // 自身是否存在
-                    //    continue;
-                    if (!long.TryParse(key, out _oaID))
+                    if(!BuildPatcher.IsExistsInAssets(key)) // 自身是否存在
                         continue;
-                    _oaObj = GetOAsset(_oaID);
-                    if (_oaObj == null)
-                        continue;
+                    
                     _obj = JsonMapper.ToObject<ABDataDependence>(_val);
-                    instance.m_dicList.Add(_oaID, _obj); 
+                    instance.m_dicList.Add(key,_obj); 
                 }
 
                 var list = instance.m_dicList.m_list;
@@ -764,7 +600,7 @@ namespace Core.Kernel
                 }
             }
             string _v = builder.ToString();
-            string _fp = string.Format("{0}_{1}{2}", BuildPatcher.m_dirDataNoAssets, limitCount, ABDepsHelper.fnDeps);
+            string _fp = string.Format("{0}_deps.json", BuildPatcher.m_dirDataNoAssets);
             BuildPatcher.WriteText(_fp, _v,true);
         }
     }

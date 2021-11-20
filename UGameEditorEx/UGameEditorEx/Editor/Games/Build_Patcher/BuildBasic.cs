@@ -300,13 +300,15 @@ namespace Core
             float count = MgrABDataDependence.GetCount();
             int curr = 0;
             List<ABDataDependence> _list = MgrABDataDependence.GetCurrList();
+            string _strRes = null;
             foreach (var item in _list)
             {
                 curr++;
                 if (item.GetBeUsedCount() > 1)
                 {
-                    EditorUtility.DisplayProgressBar(string.Format("ReBindABName m_dic - ({0}/{1})", curr, count), item.m_res, (curr / count));
-                    _ReBindABName(item.m_res);
+                    _strRes = item.GetCurrRes();
+                    EditorUtility.DisplayProgressBar(string.Format("ReBindABName m_dic - ({0}/{1})", curr, count), _strRes, (curr / count));
+                    _ReBindABName(_strRes);
                 }
             }
 
@@ -315,7 +317,8 @@ namespace Core
             {
                 foreach (var item in _list)
                 {
-                    SetABInfo(item.m_res, item.m_abName, item.m_abSuffix);
+                    _strRes = item.GetCurrRes();
+                    SetABInfo(_strRes, item.m_abName, item.m_abSuffix);
                 }
             }
             AssetDatabase.RemoveUnusedAssetBundleNames();
