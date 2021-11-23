@@ -18,7 +18,7 @@ public class ListDict<T> {
     }
 
     public T Get(object key){
-        if(m_dic.ContainsKey(key)){
+        if(this.ContainsKey(key)){
             return m_dic[key];
         }
         return default(T);
@@ -30,7 +30,7 @@ public class ListDict<T> {
     }
 
     public T Remove4Get(object key){
-        if(m_dic.ContainsKey(key)){
+        if(this.ContainsKey(key)){
             T it = m_dic[key];
             m_dic.Remove(key);
 
@@ -43,7 +43,7 @@ public class ListDict<T> {
     }
 
     public bool Add(object key,T it){
-        if(m_dic.ContainsKey(key) || it == null){
+        if(null == key || this.ContainsKey(key) || it == null){
             return false;
         }
         m_dic.Add(key,it);
@@ -56,7 +56,7 @@ public class ListDict<T> {
 
     public bool ContainsKey(object key)
     {
-        return m_dic.ContainsKey(key);
+        return null != key && m_dic.ContainsKey(key);
     }
 
     public int Count()

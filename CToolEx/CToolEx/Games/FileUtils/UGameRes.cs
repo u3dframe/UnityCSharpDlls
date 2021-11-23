@@ -56,7 +56,8 @@ namespace Core.Kernel
         static public readonly string m_suffix_mat = ".mat";
         static public readonly string m_suffix_shader = ".shader";
         static public readonly string m_suffix_scriptable = ".asset";
-        
+        static public readonly string m_suffix_svc = ".shadervariants";
+
         /// <summary>
         /// 路径转为以 Assets/ 开头的
         /// </summary>
