@@ -143,7 +143,8 @@ namespace Core
             foreach (var item in EL_Path.files)
             {
                 _tmp = Path2AssetsStart(item);
-                AnalyseFile4Deps(Load4Develop(_tmp));
+                //AnalyseFile4Deps(Load4Develop(_tmp));
+                AnalyseFile4Deps(_tmp);
                 curr++;
                 EditorUtility.DisplayProgressBar(string.Format("{0} - ({1}/{2})", strObjPath, curr, count), _tmp, (curr / count));
             }
@@ -154,11 +155,16 @@ namespace Core
         public static void AnalyseFile4Deps(UObject obj)
         {
             string strObjPath = GetPath(obj);
+            AnalyseFile4Deps(strObjPath);
+        }
+
+        public static void AnalyseFile4Deps(string assetPath)
+        {
             bool isMust = false;
-            if (!IsInBuild(strObjPath, ref isMust))
+            if (!IsInBuild(assetPath, ref isMust))
                 return;
 
-            MgrABDataDependence.Init(obj, isMust);
+            MgrABDataDependence.Init(assetPath, isMust);
         }
 
         static public void ClearObjABName(string abname)

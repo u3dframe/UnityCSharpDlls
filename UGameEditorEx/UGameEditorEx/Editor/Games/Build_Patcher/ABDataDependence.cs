@@ -28,7 +28,7 @@ namespace Core.Kernel
         private string m_res = "";
         public string m_guid = "";
 
-        private UObject _uobj = null;
+        // private UObject _uobj = null;
         private string _strYAML = null;
 
         public OrgAsset() { }
@@ -61,7 +61,7 @@ namespace Core.Kernel
             {
                 this.m_res = AssetDatabase.GUIDToAssetPath(this.m_guid);
             }
-            this._uobj = AssetDatabase.LoadAssetAtPath<UObject>(this.m_res);
+            // this._uobj = AssetDatabase.LoadAssetAtPath<UObject>(this.m_res);
             if (this._IsCanYAML(this.m_res))
             {
                 // _filePath
@@ -143,22 +143,9 @@ namespace Core.Kernel
             InitDeps(obj, isMust);
         }
 
-        public void InitDeps(string objAssetPath, bool isMust)
+        public void InitDeps(string assetPath, bool isMust)
         {
-            // 相对于objAssetPath;
-            UObject obj = AssetDatabase.LoadAssetAtPath<UObject>(objAssetPath);
-            InitDeps(obj, isMust);
-        }
-
-        public void InitDeps(UObject obj, bool isMust)
-        {
-            if (obj == null)
-            {
-                return;
-            }
             this.m_isMustAB = isMust;
-
-            string assetPath = AssetDatabase.GetAssetPath(obj);
 
             OrgAsset _oaObj = MgrABDataDependence.GetOAsset(assetPath);
             this.m_oaid = _oaObj.m_id;
@@ -173,11 +160,21 @@ namespace Core.Kernel
             if (MgrABDataDependence.IsMustFile(assetPath))
                 this.m_isMustAB = true;
 
-            System.Type _objType = obj.GetType();
-            this.m_isShader = BuildPatcher.IsSameClass(_objType, BuildPatcher.tpShader);
-            this.m_isShaderSVC = BuildPatcher.IsSameClass(_objType, BuildPatcher.tpSVC);
+            string _toLower = assetPath.ToLower();
+            this.m_isShader = BuildPatcher.IsAPEndShader(_toLower);
+            this.m_isShaderSVC = BuildPatcher.IsAPEndSVC(_toLower);
 
             this._RecordDeps(assetPath);
+        }
+
+        public void InitDeps(UObject obj, bool isMust)
+        {
+            if (obj == null)
+            {
+                return;
+            }
+            string assetPath = AssetDatabase.GetAssetPath(obj);
+            this.InitDeps(assetPath, isMust);
         }
 
         void _RecordDeps(string curAssetPath)
@@ -417,6 +414,13 @@ namespace Core.Kernel
         }
     }
 
+    /// <summary>
+    /// 类名 : 管理AB数据关系
+    /// 作者 : Canyon / 龚阳辉
+    /// 日期 : 2018-03-12 14:28
+    /// 功能 : 
+    /// 修订 : 2020-03-26 10:35
+    /// </summary>
     public class MgrABDataDependence
     {
         static private MgrABDataDependence _instance = null;
@@ -506,38 +510,29 @@ namespace Core.Kernel
             return instance.m_mustFiles.IsHas(fp);
         }
 
-        static public void Init(string objAssetPath, bool isMust, string beDeps = "")
-        {
-            // 相对于objAssetPath;
-            UObject obj = null;
-            try
-            {
-                obj = AssetDatabase.LoadAssetAtPath<UObject>(objAssetPath);
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogErrorFormat("== path = [{0}],error = {1}", objAssetPath, ex);
-            }
-            Init(obj, isMust, beDeps);
-        }
-
         static public void Init(UObject obj, bool isMust, string beDeps = "")
         {
             if (obj == null)
-            {
                 return;
-            }
             string resPath = AssetDatabase.GetAssetPath(obj);
-            if (IsIgnoreFile(resPath))
+            Init(resPath, isMust, beDeps);
+        }
+
+        static public void Init(string objAssetPath, bool isMust, string beDeps = "")
+        {
+            if (string.IsNullOrEmpty(objAssetPath) || !BuildPatcher.IsExistsInAssets(objAssetPath)) // 自身是否存在
                 return;
 
-            OrgAsset _oaObj = GetOrNewAsset(resPath);
+            if (IsIgnoreFile(objAssetPath))
+                return;
+
+            OrgAsset _oaObj = GetOrNewAsset(objAssetPath);
             ABDataDependence _data = GetData(_oaObj.m_id);
             bool _isHas = _data != null;
             if (_isHas) {
-                _data.InitDeps(obj,isMust);
+                _data.InitDeps(objAssetPath, isMust);
             } else {
-                _data = new ABDataDependence(obj, isMust);
+                _data = new ABDataDependence(objAssetPath, isMust);
                 instance.m_dicList.Add(_oaObj.m_id, _data);
             }
             
@@ -567,6 +562,8 @@ namespace Core.Kernel
 
         static public OrgAsset GetOAsset(string key)
         {
+            if (string.IsNullOrEmpty(key))
+                return null;
             return instance.m_dicOAsset.Get(key);
         }
 
@@ -612,8 +609,10 @@ namespace Core.Kernel
 
         static public int GetCount(string objAssetPath)
         {
-            UObject obj = AssetDatabase.LoadAssetAtPath<UObject>(objAssetPath);
-            return GetCount(obj);
+            ABDataDependence _data = GetData(objAssetPath);
+            if (_data == null)
+                return -1;
+            return _data.GetBeUsedCount();
         }
 
         static public int GetCount(UObject obj)
@@ -621,11 +620,8 @@ namespace Core.Kernel
             if (obj == null)
                 return -1;
 
-            ABDataDependence _data = GetData(obj);
-            if (_data == null)
-                return 0;
-
-            return _data.GetBeUsedCount();
+            string resPath = AssetDatabase.GetAssetPath(obj);
+            return GetCount(resPath);
         }
 
         // [MenuItem("Tools/Deps/ClearDeps")]
