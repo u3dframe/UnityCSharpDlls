@@ -136,24 +136,34 @@ namespace Core.Kernel
             UnLoadOne(obj,false);
         }
 
-        static public bool IsAB(string abName,string defEnd)
+        static public bool IsEndSuffix(string src,string defEnd)
         {
-            if (string.IsNullOrEmpty(abName) || string.IsNullOrEmpty(defEnd))
+            if (string.IsNullOrEmpty(src) || string.IsNullOrEmpty(defEnd))
                 return false;
-            return abName.EndsWith(defEnd);
+            return src.EndsWith(defEnd);
+        }
+
+        static public bool IsAPEndShader(string assetPath)
+        {
+            return IsEndSuffix(assetPath, m_suffix_shader);
+        }
+
+        static public bool IsAPEndSVC(string assetPath)
+        {
+            return IsEndSuffix(assetPath, m_suffix_svc);
         }
 
         static public bool IsSVCAB(string abName)
         {
-            return IsAB(abName, m_strSVC);            
+            return IsEndSuffix(abName, m_strSVC);            
         }
 
         static public bool IsShaderAB(string abName){
-            return IsAB(abName, m_strShader);
+            return IsEndSuffix(abName, m_strShader);
         }
 
         static public bool IsMatAB(string abName){
-            return IsAB(abName, m_strMat);
+            return IsEndSuffix(abName, m_strMat);
         }
 
         static public bool IsTex2dAB(string abName){
@@ -164,17 +174,17 @@ namespace Core.Kernel
 
         static public bool IsAudioClipAB(string abName)
         {
-            return IsAB(abName, m_strAdoClip);
+            return IsEndSuffix(abName, m_strAdoClip);
         }
 
         static public bool IsScriptableAB(string abName)
         {
-            return IsAB(abName, m_strScriptable);
+            return IsEndSuffix(abName, m_strScriptable);
         }
 
         static public bool IsVdoClipAB(string abName)
         {
-            return IsAB(abName, m_strVdoClip);
+            return IsEndSuffix(abName, m_strVdoClip);
         }
     }
 }
