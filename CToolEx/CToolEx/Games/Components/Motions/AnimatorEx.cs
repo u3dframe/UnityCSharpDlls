@@ -248,7 +248,23 @@ public class AnimatorEx : PrefabBasic
 		this.m_animator.speed = this.m_actionSpeed;
 	}
 
-	public void SetParameter4Int(string key,int value){
+    public bool IsHasParameter(string pkey)
+    {
+        if (this.m_animator == null || string.IsNullOrEmpty(pkey)) return false;
+        var _arrPars = this.m_animator.parameters;
+        if(_arrPars == null || _arrPars.Length <= 0) return false;
+        AnimatorControllerParameter _ap;
+        int _lens = _arrPars.Length;
+        for (int i = 0; i < _lens; i++)
+        {
+            _ap = _arrPars[i];
+            if (pkey.Equals(_ap.name))
+                return true;
+        }
+        return false;
+    }
+
+    public void SetParameter4Int(string key,int value){
 		if(this.m_animator == null) return;
 		this.m_animator.SetInteger(key,value);
 	}

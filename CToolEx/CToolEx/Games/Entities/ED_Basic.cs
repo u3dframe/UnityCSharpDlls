@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using System.Collections.Generic;
 namespace Core.Kernel.Beans
 {
     /// <summary>
@@ -12,6 +13,47 @@ namespace Core.Kernel.Beans
     [Serializable]
     public class ED_Basic : CustomYieldInstruction, IUpdate, ILateUpdate
     {
+        static Dictionary<Type, Queue<ED_Basic>> m_caches = new Dictionary<Type, Queue<ED_Basic>>();
+        static protected T GetCache<T>() where T : ED_Basic
+        {
+            Type _tp = typeof(T);
+            Queue<ED_Basic> _que = null;
+            if (!m_caches.TryGetValue(_tp, out _que))
+            {
+                _que = new Queue<ED_Basic>();
+                m_caches.Add(_tp, _que);
+            }
+            if (_que.Count <= 0)
+                return null;
+            return (T)_que.Dequeue();
+        }
+
+        static protected void AddCache(ED_Basic entity)
+        {
+            if (entity == null || GHelper.Is_App_Quit)
+                return;
+
+            Type _tp = entity.GetType();
+            Queue<ED_Basic> _que = null;
+            if (!m_caches.TryGetValue(_tp, out _que))
+            {
+                _que = new Queue<ED_Basic>();
+                m_caches.Add(_tp, _que);
+            }
+
+            if (!_que.Contains(entity))
+                _que.Enqueue(entity);
+        }
+        /*
+        static public T GetOrNew<T>() where T : ED_Basic, new()
+        {
+            T ret = GetCache<T>();
+            if (ret == null)
+                ret = new T();
+            return ret;
+        }
+        */
+
         public override bool keepWaiting
         {
             get

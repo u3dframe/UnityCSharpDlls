@@ -8,6 +8,15 @@
 [Serializable]
 public class DelayExcute : Core.Kernel.Beans.ED_Basic
 {
+    static public DelayExcute Builder(float delayTime, Action callBack)
+    {
+        DelayExcute ret = GetCache<DelayExcute>();
+        if (ret == null)
+            ret = new DelayExcute(delayTime,callBack);
+        return ret;
+    }
+
+    public bool m_isAutoCache = true;
 	public bool m_isUnscaled = false;
 	private float m_delayTime = 0.1f;
 	private float _curDelayTime = 0f;
@@ -31,6 +40,9 @@ public class DelayExcute : Core.Kernel.Beans.ED_Basic
 			this.RegUpdate(false);
 			Action _call = this.m_call;
 			this.m_call = null;
+            if (m_isAutoCache)
+                AddCache(this);
+
 			if(_call != null){
 				_call();
 			}
