@@ -13,38 +13,6 @@ namespace Core.Kernel.Beans
     /// </summary>
     public class ED_Comp : ED_Basic
     {
-        static Dictionary<Type, Queue<ED_Comp>> m_caches = new Dictionary<Type, Queue<ED_Comp>>();
-        static T GetCache<T>() where T : ED_Comp
-        {
-            Type _tp = typeof(T);
-            Queue<ED_Comp> _que = null;
-            if(!m_caches.TryGetValue(_tp,out _que))
-            {
-                _que = new Queue<ED_Comp>();
-                m_caches.Add(_tp, _que);
-            }
-            if (_que.Count <= 0)
-                return null;
-            return (T)_que.Dequeue();
-        }
-
-        static protected void AddCache(ED_Comp entity)
-        {
-            if (entity == null || GHelper.Is_App_Quit)
-                return;
-
-            Type _tp = entity.GetType();
-            Queue<ED_Comp> _que = null;
-            if (!m_caches.TryGetValue(_tp, out _que))
-            {
-                _que = new Queue<ED_Comp>();
-                m_caches.Add(_tp, _que);
-            }
-
-            if(!_que.Contains(entity))
-                _que.Enqueue(entity);
-        }
-
         static public T Builder<T>(UObject uobj) where T : ED_Comp,new()
         {
             GameObject _go = GHelper.ToGObj(uobj);
@@ -550,10 +518,10 @@ namespace Core.Kernel.Beans
         {
             var _call = this.m_cfDestroy;
             this.ClearComp();
+            AddCache(this);
+
             if (_call != null)
                 _call();
-
-            AddCache(this);
         }
 
         virtual protected void On_Show()
