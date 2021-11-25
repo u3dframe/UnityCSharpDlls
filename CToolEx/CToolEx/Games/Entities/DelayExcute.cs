@@ -12,7 +12,9 @@ public class DelayExcute : Core.Kernel.Beans.ED_Basic
     {
         DelayExcute ret = GetCache<DelayExcute>();
         if (ret == null)
-            ret = new DelayExcute(delayTime,callBack);
+            ret = new DelayExcute(delayTime, callBack);
+        else
+            ret.Init(delayTime, callBack);
         return ret;
     }
 
