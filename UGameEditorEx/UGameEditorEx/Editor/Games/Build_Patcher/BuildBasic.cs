@@ -357,11 +357,13 @@ namespace Core
 
         static public void DoBuild(bool isCheckABSpace, bool isTip = true)
         {
-            if (isCheckABSpace && IsHasSpace())
+            string _vSpace = null;
+            if (isCheckABSpace && _IsHasSpace(ref _vSpace))
             {
                 EditorUtility.ClearProgressBar();
-                EditorUtility.DisplayDialog("提示", "[原始资源]名有空格，请查看输出打印!!!", "确定");
-                return;
+                // EditorUtility.DisplayDialog("提示", "[原始资源]名有空格，请查看输出打印!!!", "确定");
+                // return;
+                throw new System.Exception(_vSpace); // 空格 打包异常抛出
             }
 
             EditorUtility.DisplayProgressBar("DoBuild", "Start DoBuild ...", 0.0f);
@@ -523,20 +525,37 @@ namespace Core
         // [MenuItem("Tools/Check Has Space ABName")]
         static public bool IsHasSpace()
         {
+            string _vSpace = null;
+            return _IsHasSpace(ref _vSpace);
+        }
+        static protected bool _IsHasSpace(ref string vSpace)
+        {
             AssetDatabase.RemoveUnusedAssetBundleNames();
             string[] arrs = AssetDatabase.GetAllAssetBundleNames();
             int count = arrs.Length;
             string strName = null;
             bool _isRet = false;
+            System.Text.StringBuilder _builder = new System.Text.StringBuilder();
+            bool _isFirst = true;
             for (int i = 0; i < count; i++)
             {
                 strName = arrs[i];
                 if (strName.Contains(" "))
                 {
                     _isRet = true;
-                    Debug.LogErrorFormat("====== this has space,ab name = [{0}]", strName);
+                    if (_isFirst)
+                    {
+                        _builder.AppendLine("====== this has space,ab name = ");
+                        _isFirst = false;
+                    }
+                    _builder.Append(strName).AppendLine(",");
                 }
             }
+            vSpace = _builder.ToString();
+            _builder.Clear();
+            _builder.Length = 0;
+            if (!string.IsNullOrEmpty(vSpace))
+                vSpace += "===============";
             return _isRet;
         }
 
