@@ -108,7 +108,9 @@ public class ParticleSystemEx : GobjLifeListener {
         ParticleSystem.VelocityOverLifetimeModule _pvolm;
         for (int i = 0; i < lens; i++) {
 			ps = listAll[i];
-			key = ps.GetInstanceID();
+            if (ps == null || !ps)
+                continue;
+            key = ps.GetInstanceID();
 			vList = new List<float>();
 
 			_pmm = ps.main;
@@ -214,6 +216,8 @@ public class ParticleSystemEx : GobjLifeListener {
         ParticleSystem.MinMaxCurve _pmin;
         for (int i = 0; i < lens; i++) {
 			ps = listAll[i];
+            if (ps == null || !ps)
+                continue;
 			_pmm = ps.main;
 			_pmin = _pmm.startSize;
 			_pmin.constantMax = size;
@@ -238,6 +242,8 @@ public class ParticleSystemEx : GobjLifeListener {
         ParticleSystem.VelocityOverLifetimeModule _pvolm;
         for (int i = 0; i < lens; i++) {
 			ps = listAll[i];
+            if (ps == null || !ps)
+                continue;
             ps.Clear();
 			vList = dicDefaultScale[ps.GetInstanceID()];
 
@@ -330,6 +336,8 @@ public class ParticleSystemEx : GobjLifeListener {
         for (int i = 0; i < _lens; i++)
         {
             ps = listAll[i];
+            if (ps == null || !ps)
+                continue;
             _pmm = ps.main;
             _pmm.useUnscaledTime = isIgnoreTimeScale;
             ps.Simulate(0, false, true);
@@ -380,6 +388,8 @@ public class ParticleSystemEx : GobjLifeListener {
         ParticleSystem.ShapeModule _psm;
         for (int i = 0; i < _lens; i++) {
 			ps = listAll[i];
+            if (ps == null || !ps)
+                continue;
             ps.Clear();
             vList = dicDefaultScale[ps.GetInstanceID()];
 
@@ -441,6 +451,8 @@ public class ParticleSystemEx : GobjLifeListener {
             for (int i = 0; i < _lens; i++)
             {
                 ps = listAll[i];
+                if (ps == null || !ps)
+                    continue;
                 _pmm = ps.main;
                 _pmm.useUnscaledTime = isIgnoreTimeScale;
             }
