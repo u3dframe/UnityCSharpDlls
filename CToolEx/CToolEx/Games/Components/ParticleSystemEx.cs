@@ -38,11 +38,6 @@ public class ParticleSystemEx : GobjLifeListener {
 	public float scale = 1f,speedRate = 1f,startSize = -1f;
     public bool isIgnoreTimeScale = false;
 
-    ParticleSystem.MainModule mainModule;
-	ParticleSystem.MinMaxCurve minMaxCurve;
-	ParticleSystem.ShapeModule shapeModule;
-    ParticleSystem.VelocityOverLifetimeModule velocityLifetime;
-	
 	List<Animator> m_listAni = new List<Animator>();
 	Dictionary<int,float> m_dicAniSpeed = new Dictionary<int,float>();
 
@@ -108,47 +103,50 @@ public class ParticleSystemEx : GobjLifeListener {
 		int key;
 		List<float> vList;
 		Vector3 _v3 = Vector3.zero;
-		for (int i = 0; i < lens; i++) {
+        ParticleSystem.MainModule _pmm;
+        ParticleSystem.ShapeModule _psm;
+        ParticleSystem.VelocityOverLifetimeModule _pvolm;
+        for (int i = 0; i < lens; i++) {
 			ps = listAll[i];
 			key = ps.GetInstanceID();
 			vList = new List<float>();
 
-			mainModule = ps.main;
-			curTime = mainModule.startDelayMultiplier + mainModule.duration;
+			_pmm = ps.main;
+			curTime = _pmm.startDelayMultiplier + _pmm.duration;
 
 			// 大小
-			vList.Add(mainModule.startSize.constantMin); // 0
-			vList.Add(mainModule.startSize.constantMax);
-			vList.Add(mainModule.gravityModifier.constantMin);
-			vList.Add(mainModule.gravityModifier.constantMax);
+			vList.Add(_pmm.startSize.constantMin); // 0
+			vList.Add(_pmm.startSize.constantMax);
+			vList.Add(_pmm.gravityModifier.constantMin);
+			vList.Add(_pmm.gravityModifier.constantMax);
 
 			// 速度
-			vList.Add(mainModule.startSpeed.constantMin);
-			vList.Add(mainModule.startSpeed.constantMax);
-			vList.Add(mainModule.simulationSpeed);
+			vList.Add(_pmm.startSpeed.constantMin);
+			vList.Add(_pmm.startSpeed.constantMax);
+			vList.Add(_pmm.simulationSpeed);
 
 			// 处理shape的
-			shapeModule = ps.shape;
-			vList.Add(shapeModule.randomDirectionAmount);// 7
-			vList.Add(shapeModule.sphericalDirectionAmount);
-			vList.Add(shapeModule.angle);
-			vList.Add(shapeModule.arc);
-			vList.Add(shapeModule.arcSpread);
+			_psm = ps.shape;
+			vList.Add(_psm.randomDirectionAmount);// 7
+			vList.Add(_psm.sphericalDirectionAmount);
+			vList.Add(_psm.angle);
+			vList.Add(_psm.arc);
+			vList.Add(_psm.arcSpread);
 
-			_v3 = shapeModule.scale;
+			_v3 = _psm.scale;
 			vList.Add(_v3.x); // 12
 			vList.Add(_v3.y);
 			vList.Add(_v3.z);
-			vList.Add(shapeModule.radius);
-			vList.Add(shapeModule.arcSpeed.constantMin); // 16
-			vList.Add(shapeModule.arcSpeed.constantMax);
-			vList.Add(shapeModule.arcSpeed.curveMultiplier);
-			vList.Add(shapeModule.arcSpeedMultiplier); // 19
+			vList.Add(_psm.radius);
+			vList.Add(_psm.arcSpeed.constantMin); // 16
+			vList.Add(_psm.arcSpeed.constantMax);
+			vList.Add(_psm.arcSpeed.curveMultiplier);
+			vList.Add(_psm.arcSpeedMultiplier); // 19
 
-            velocityLifetime = ps.velocityOverLifetime;
-            vList.Add(velocityLifetime.xMultiplier);//20
-            vList.Add(velocityLifetime.yMultiplier);
-            vList.Add(velocityLifetime.zMultiplier);
+            _pvolm = ps.velocityOverLifetime;
+            vList.Add(_pvolm.xMultiplier);//20
+            vList.Add(_pvolm.yMultiplier);
+            vList.Add(_pvolm.zMultiplier);
 
 			dicDefaultScale.Add(key,vList);
 
@@ -212,12 +210,14 @@ public class ParticleSystemEx : GobjLifeListener {
 		this.tStartSize = size;
 		this.startSize = size;
 		ParticleSystem ps;
-		for (int i = 0; i < lens; i++) {
+        ParticleSystem.MainModule _pmm;
+        ParticleSystem.MinMaxCurve _pmin;
+        for (int i = 0; i < lens; i++) {
 			ps = listAll[i];
-			mainModule = ps.main;
-			minMaxCurve = mainModule.startSize;
-			minMaxCurve.constantMax = size;
-			mainModule.startSize = minMaxCurve;
+			_pmm = ps.main;
+			_pmin = _pmm.startSize;
+			_pmin.constantMax = size;
+			_pmm.startSize = _pmin;
 		}
 	}
 
@@ -232,41 +232,45 @@ public class ParticleSystemEx : GobjLifeListener {
 		ParticleSystem ps;
 		List<float> vList;
 		Vector3 _v3 = Vector3.zero;
-		for (int i = 0; i < lens; i++) {
+        ParticleSystem.MainModule _pmm;
+        ParticleSystem.MinMaxCurve _pmin;
+        ParticleSystem.ShapeModule _psm;
+        ParticleSystem.VelocityOverLifetimeModule _pvolm;
+        for (int i = 0; i < lens; i++) {
 			ps = listAll[i];
             ps.Clear();
 			vList = dicDefaultScale[ps.GetInstanceID()];
 
-			mainModule = ps.main;
+			_pmm = ps.main;
 
-			minMaxCurve = mainModule.startSize;
-			minMaxCurve.constantMin = _scale * (vList[0]);
-			minMaxCurve.constantMax = _scale * (vList[1]);
-			mainModule.startSize = minMaxCurve;
+			_pmin = _pmm.startSize;
+			_pmin.constantMin = _scale * (vList[0]);
+			_pmin.constantMax = _scale * (vList[1]);
+			_pmm.startSize = _pmin;
 
-			minMaxCurve = mainModule.gravityModifier;
-			minMaxCurve.constantMin = _scale * (vList[2]);
-			minMaxCurve.constantMax = _scale * (vList[3]);
-			mainModule.gravityModifier = minMaxCurve;
+			_pmin = _pmm.gravityModifier;
+			_pmin.constantMin = _scale * (vList[2]);
+			_pmin.constantMax = _scale * (vList[3]);
+			_pmm.gravityModifier = _pmin;
 
-			minMaxCurve = mainModule.startSpeed;
-			minMaxCurve.constantMin = _scale * (vList[4]);
-			minMaxCurve.constantMax = _scale * (vList[5]);
-			mainModule.startSpeed = minMaxCurve;
+			_pmin = _pmm.startSpeed;
+			_pmin.constantMin = _scale * (vList[4]);
+			_pmin.constantMax = _scale * (vList[5]);
+			_pmm.startSpeed = _pmin;
 			
-			shapeModule = ps.shape;
-			shapeModule.angle = _scale * (vList[9]);
-			shapeModule.arc = _scale * (vList[10]);
+			_psm = ps.shape;
+			_psm.angle = _scale * (vList[9]);
+			_psm.arc = _scale * (vList[10]);
 			_v3.x = _scale * (vList[12]);
 			_v3.y = _scale * (vList[13]);
 			_v3.z = _scale * (vList[14]);
-			shapeModule.scale = _v3;
-			shapeModule.radius = _scale * (vList[15]);
+			_psm.scale = _v3;
+			_psm.radius = _scale * (vList[15]);
 
-			velocityLifetime = ps.velocityOverLifetime;
-            velocityLifetime.xMultiplier = _scale * (vList[20]);
-            velocityLifetime.yMultiplier = _scale * (vList[21]);
-            velocityLifetime.zMultiplier = _scale * (vList[22]);
+			_pvolm = ps.velocityOverLifetime;
+            _pvolm.xMultiplier = _scale * (vList[20]);
+            _pvolm.yMultiplier = _scale * (vList[21]);
+            _pvolm.zMultiplier = _scale * (vList[22]);
 		}
 	}
 
@@ -322,11 +326,12 @@ public class ParticleSystemEx : GobjLifeListener {
     {
         int _lens = lens;
         ParticleSystem ps;
+        ParticleSystem.MainModule _pmm;
         for (int i = 0; i < _lens; i++)
         {
             ps = listAll[i];
-            mainModule = ps.main;
-            mainModule.useUnscaledTime = isIgnoreTimeScale;
+            _pmm = ps.main;
+            _pmm.useUnscaledTime = isIgnoreTimeScale;
             ps.Simulate(0, false, true);
             ps.Play(false);
         }
@@ -370,26 +375,29 @@ public class ParticleSystemEx : GobjLifeListener {
 		int _lens = lens;
 		ParticleSystem ps;
 		List<float> vList;
-		for (int i = 0; i < _lens; i++) {
+        ParticleSystem.MainModule _pmm;
+        ParticleSystem.MinMaxCurve _pmin;
+        ParticleSystem.ShapeModule _psm;
+        for (int i = 0; i < _lens; i++) {
 			ps = listAll[i];
             ps.Clear();
             vList = dicDefaultScale[ps.GetInstanceID()];
 
-			mainModule = ps.main;
-			minMaxCurve = mainModule.startSpeed;
-			minMaxCurve.constantMin = speedRate * (vList[4]);
-			minMaxCurve.constantMax = speedRate * (vList[5]);
-			mainModule.startSpeed = minMaxCurve;
+			_pmm = ps.main;
+			_pmin = _pmm.startSpeed;
+			_pmin.constantMin = speedRate * (vList[4]);
+			_pmin.constantMax = speedRate * (vList[5]);
+			_pmm.startSpeed = _pmin;
 			
-			mainModule.simulationSpeed = speedRate * (vList[6]);
+			_pmm.simulationSpeed = speedRate * (vList[6]);
 
-			shapeModule = ps.shape;
-			minMaxCurve = shapeModule.arcSpeed;
-			minMaxCurve.constantMin = speedRate * (vList[16]);
-			minMaxCurve.constantMax = speedRate * (vList[17]);
-			minMaxCurve.curveMultiplier = speedRate * (vList[18]);
-			shapeModule.arcSpeed = minMaxCurve;
-			shapeModule.arcSpeedMultiplier = speedRate * (vList[19]);
+			_psm = ps.shape;
+			_pmin = _psm.arcSpeed;
+			_pmin.constantMin = speedRate * (vList[16]);
+			_pmin.constantMax = speedRate * (vList[17]);
+			_pmin.curveMultiplier = speedRate * (vList[18]);
+			_psm.arcSpeed = _pmin;
+			_psm.arcSpeedMultiplier = speedRate * (vList[19]);
 		}
 
 		_lens = m_listAni.Count;
@@ -429,11 +437,12 @@ public class ParticleSystemEx : GobjLifeListener {
         {
             int _lens = lens;
             ParticleSystem ps;
+            ParticleSystem.MainModule _pmm;
             for (int i = 0; i < _lens; i++)
             {
                 ps = listAll[i];
-                mainModule = ps.main;
-                mainModule.useUnscaledTime = isIgnoreTimeScale;
+                _pmm = ps.main;
+                _pmm.useUnscaledTime = isIgnoreTimeScale;
             }
 
             _lens = m_listAni.Count;
