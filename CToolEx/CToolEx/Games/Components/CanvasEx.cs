@@ -12,7 +12,7 @@ public class CanvasEx : GobjLifeListener
 {
     static public new CanvasEx Get(UnityEngine.Object uobj, bool isAdd)
     {
-        return GHelper.Get<CanvasEx>(uobj, true);
+        return GHelper.Get<CanvasEx>(uobj, isAdd);
     }
 
     static public new CanvasEx Get(UnityEngine.Object uobj)
