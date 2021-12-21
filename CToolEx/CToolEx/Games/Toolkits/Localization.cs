@@ -17,6 +17,7 @@ static public class Localization
     static string mLanguage = null;
     static EN_KVal mCurr = null;
     static public System.Action onLocalize; // 语言改变时候的通知
+    static public bool mIsLogErr = true;
 
     /// <summary>
     /// Name of the currently active language.
@@ -84,7 +85,8 @@ static public class Localization
             ReLangueInfo(vRef);
             return true;
         }
-        Debug.LogErrorFormat("==== Localization not has language = [{0}],SrcLanuage = [{1}] ", vRef, val);
+        if(mIsLogErr)
+            Debug.LogErrorFormat("==== Localization not has language = [{0}],SrcLanuage = [{1}] ", vRef, val);
         return false;
     }
 
@@ -104,7 +106,8 @@ static public class Localization
         if (mLanguage == null) mLanguage = language;
         if (mLanguage == null)
         {
-            Debug.LogError("No localization data present");
+            if (mIsLogErr)
+                Debug.LogError("No localization data present");
             return null;
         }
 
