@@ -236,18 +236,42 @@ namespace Core
             _ReBindABName(obj);
         }
 
+        static string m_strNotRmvEmptyComp = "Editor/Cfgs/not_rmv_empty_comp_fab.txt";
+        static CfgMustFiles _cfgNREC = null;
+        static CfgMustFiles m_cfgNREC
+        {
+            get
+            {
+                if (_cfgNREC == null)
+                {
+                    string fp = string.Concat(m_dirData, m_strNotRmvEmptyComp);
+                    _cfgNREC = CfgMustFiles.BuilderFp(fp);
+                }
+                return _cfgNREC;
+            }
+        }
+        static public void ReCfgNREC(string fn, bool isForce = false)
+        {
+            bool isEmpty = string.IsNullOrEmpty(fn);
+            bool isSame = m_strNotRmvEmptyComp.Equals(fn);
+            bool isOkey = !(isEmpty || isSame);
+            isForce = isForce || isOkey;
+            if (!isForce)
+                return;
+
+            _cfgNREC = null;
+            if (isOkey)
+                m_strNotRmvEmptyComp = fn;
+            _cfgNREC = m_cfgNREC;
+        }
+
         static void _HandlerEmpty(UObject obj)
         {
             if (obj is GameObject)
             {
                 GameObject gobj = obj as GameObject;
-                bool isNoEmpty = gobj.name.StartsWith("tl_");
-                if (!isNoEmpty)
-                {
-                    string fp = GetPath(gobj);
-                    isNoEmpty = fp.Contains("/timeline/");
-                }
 
+                bool isNoEmpty = m_cfgNREC.IsHas(gobj.name);
                 if (isNoEmpty)
                     return;
 
