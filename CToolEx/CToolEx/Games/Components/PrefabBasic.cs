@@ -50,14 +50,15 @@ public class PrefabBasic : GobjLifeListener {
 		
 		GameObject tmp = null;
 		string _tmpName = "";
-		for(int i = 0; i < m_gobjs.Length;i++)
+        bool _isEditor = Core.Kernel.UGameFile.m_isEditor;
+        for (int i = 0; i < m_gobjs.Length;i++)
 		{
 			tmp = m_gobjs[i];
 			if(tmp){
 				_tmpName = tmp.name;
 				if(!m_dicName2Gobj.ContainsKey(_tmpName)){
 					m_dicName2Gobj.Add(_tmpName,tmp);
-				}else{
+				}else if(_isEditor){
 					Debug.LogError(string.Format("=== the same name = [{0}] in gameObject.name = [{1}]",_tmpName,tmp.name));
 				}
 				
