@@ -47,6 +47,8 @@ public class CanvasEx : GobjLifeListener
         m_caches.Remove(gobjID);
     }
 
+    static public PrefabBasic m_uiroot { get;set; }
+
     public bool m_isInited { get; private set; }
     public CanvasEx m_cvsRoot { get; private set; }
     public Canvas m_cvs { get; private set; }
@@ -98,7 +100,19 @@ public class CanvasEx : GobjLifeListener
 
         sortingOrder = this.m_orderBase * 1000;
 
-        CanvasEx csParent = GetInParent(this.m_trsf);
+        CanvasEx csParent = null;
+        if (!"Default".Equals(_sname))
+        {
+            int _lid = SortingLayer.NameToID(_sname);
+            if (m_uiroot != null && m_uiroot && SortingLayer.IsValid(_lid))
+            {
+                csParent = m_uiroot.GetComponent4Element<CanvasEx>(_sname);
+            }
+        }
+
+        if(csParent == null)
+            csParent = GetInParent(this.m_trsf);
+
         if (csParent != null && csParent != this)
         {
             sortingOrder += csParent.m_sortOrder;
