@@ -1,2 +1,5 @@
 lightmaps/
 animations/ui/
+spines/_scenes/
+spines/uispines/
+fbxs/

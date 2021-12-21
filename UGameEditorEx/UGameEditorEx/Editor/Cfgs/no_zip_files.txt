@@ -11,3 +11,4 @@ spines/
 textures/
 timeline/
 animations/
+audios/

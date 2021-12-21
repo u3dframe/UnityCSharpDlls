@@ -2,3 +2,6 @@ special_effects/
 post_process/
 skyboxs/
 lightmaps/
+spines/
+audios/
+fbxs/
