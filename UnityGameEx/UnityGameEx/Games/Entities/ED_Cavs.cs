@@ -39,7 +39,7 @@ public class ED_Cavs : Core.Kernel.Beans.ED_Comp
             for (int i = 0; i < this.m_nLens; i++)
             {
                 _cvs = _arrs[i];
-                this.m_cvsCurrs[i] = CanvasEx.Get(_cvs.gameObject, false);
+                this.m_cvsCurrs[i] = CanvasEx.Get(_cvs.gameObject);
             }
         }
         this.ReInit(-1);
