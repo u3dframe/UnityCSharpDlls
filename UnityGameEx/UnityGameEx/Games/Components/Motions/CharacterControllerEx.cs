@@ -174,6 +174,34 @@ public class CharacterControllerEx : AnimatorEx
 
             if (nType == 99)
                 _itData.ClearAll();
+            else if (nType == 98)
+            {
+                if (_isEmptyName || oneName.Contains(_itData.m_rerName))
+                {
+                    _itData.SetEnabled(true);
+                }
+            }
+            else if (nType == 97)
+            {
+                if (_isEmptyName || oneName.Contains(_itData.m_rerName))
+                {
+                    _itData.SetEnabled(false);
+                }
+            }
+            else if (nType == 96)
+            {
+                if (_isEmptyName || oneName.Contains(_itData.m_rerName))
+                {
+                    _itData.SetActive(true);
+                }
+            }
+            else if (nType == 95)
+            {
+                if (_isEmptyName || oneName.Contains(_itData.m_rerName))
+                {
+                    _itData.SetActive(false);
+                }
+            }
             else if(_isEmptyName || oneName.Contains(_itData.m_rerName))
                 _itData.ChangeMat(newMat, nType);
         }

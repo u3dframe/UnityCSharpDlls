@@ -223,4 +223,19 @@ public class RendererMatData
         }
         return isChg;
     }
+
+    public void SetEnabled(bool isBl)
+    {
+        if (!this.m_currRer)
+            return;
+        this.m_currRer.enabled = isBl;
+    }
+
+    public void SetActive(bool isBl)
+    {
+        if (!this.m_currRer)
+            return;
+        GameObject gobj = this.m_currRer.gameObject;
+        gobj.SetActive(isBl);
+    }
 }
