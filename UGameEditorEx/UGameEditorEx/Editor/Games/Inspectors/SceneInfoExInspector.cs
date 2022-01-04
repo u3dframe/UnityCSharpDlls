@@ -127,11 +127,11 @@ public class SceneInfoExInspector : Editor
 		}
 		UtilityHelper.SetLayerAll(gobjBox,"Ground");
 
-        PrefabElement csEle = UtilityHelper.Get<PrefabElement>(_go_, true);
-		GameObject[] m_gobjs = new GameObject[2];
-		m_gobjs[0] = UtilityHelper.ChildRecursion(_go_, "MainCamera");
-		m_gobjs[1] = gobjBox;
-		csEle.SetChildGobjs(m_gobjs);
+        string[] _nodes = {
+            "MainCamera","gbox","Lights","Scene","Effects","Probes",
+            "victory_hide","victory_show","victory_camera","victory_location"
+        };
+        this._ReBindNode4PrefabElement(_go_, _nodes);
 
         Transform _trsf_ = _go_.transform;
         var _qs_ = UtilityHelper.Get<Core.Kernel.EU_GQScene>(_go_, true);
@@ -147,6 +147,29 @@ public class SceneInfoExInspector : Editor
         UnityEditor.AssetDatabase.Refresh();
 		// m_obj.m_fabName = _fabName;
 	}
+
+    void _ReBindNode4PrefabElement(GameObject _go_, string[] _nodes)
+    {
+        PrefabElement csEle = UtilityHelper.Get<PrefabElement>(_go_, true);
+        var list2 = new System.Collections.Generic.HashSet<GameObject>();
+        foreach (Transform item in _go_.transform)
+        {
+            list2.Add(item.gameObject);
+        }
+
+        GameObject _gobj = null;
+        foreach (var item in _nodes)
+        {
+            _gobj = UtilityHelper.ChildRecursion(this.m_obj.gameObject, item);
+            if (null == _gobj) continue;
+            list2.Add(_gobj);
+        }
+
+        var list = new System.Collections.Generic.List<GameObject>();
+        list.AddRange(list2);
+        GameObject[] gobjs = list.ToArray();
+        csEle.SetChildGobjs(gobjs);
+    }
 
     void _SaveReflectionProbe(Scene scene, string rfp, JsonData jdLm)
     {
