@@ -21,6 +21,57 @@ using UPPrefs = UnityEngine.PlayerPrefs;
 /// </summary>
 public class BuildTools : BuildPatcher
 {
+	static bool CleanUpPlayableBind(UnityEngine.Playables.PlayableDirector playable) {
+        Dictionary<UnityEngine.Object, UnityEngine.Object> bindings = new Dictionary<UnityEngine.Object, UnityEngine.Object>();
+        foreach (var pb in playable.playableAsset.outputs){
+            var key = pb.sourceObject;
+            var value = playable.GetGenericBinding(key);
+            if (key != null && value != null && !bindings.ContainsKey(key)){
+                bindings.Add(key, value);
+            }else{
+                Debug.LogErrorFormat("===err== [{0}] = [{1}] , [{0}] = [{1}]",key,value,key == null,value == null);
+            }
+        }
+        int lens = bindings.Count;
+        
+        var dirSO = new UnityEditor.SerializedObject(playable);
+        var sceneBindings = dirSO.FindProperty("m_SceneBindings");
+        for (var i = sceneBindings.arraySize - 1; i >= 0; i--)
+        {
+            var binding = sceneBindings.GetArrayElementAtIndex(i);
+            var key = binding.FindPropertyRelative("key");
+            if (key.objectReferenceValue == null || !bindings.ContainsKey(key.objectReferenceValue))
+                sceneBindings.DeleteArrayElementAtIndex(i);
+        }
+        dirSO.ApplyModifiedProperties();
+        return lens > 0;
+    }
+
+    [MenuItem("Tools/CleanUpPlayableBind",false,50)]
+    static public void CMD_CleanUpPlayableBind(){
+        string[] searchInFolders = {
+            "Assets/_Develop/Characters/Builds/timeline"
+        };
+        string[] _tes = AssetDatabase.FindAssets("t:Prefab",searchInFolders);
+        string _assetPath;
+        GameObject _gobj;
+        UnityEngine.Playables.PlayableDirector playable;
+        bool _isChg = false;
+        bool _isCur = false;
+        for (int i = 0; i < _tes.Length; i++)
+        {
+            _assetPath = AssetDatabase.GUIDToAssetPath(_tes[i]);
+            _gobj = AssetDatabase.LoadAssetAtPath<GameObject>(_assetPath);
+            playable = _gobj.GetComponentInChildren<UnityEngine.Playables.PlayableDirector>(true);
+            _isCur = CleanUpPlayableBind(playable);
+            _isChg = _isChg || _isCur;
+        }
+        if(_isChg){
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
+    }
+	
 	static bool _CheckTimeline(){
         bool _isChg = false;
         string[] searchInFolders = {
