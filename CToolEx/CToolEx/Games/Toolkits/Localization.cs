@@ -85,7 +85,7 @@ static public class Localization
             ReLangueInfo(vRef);
             return true;
         }
-        if(mIsLogErr)
+        if (mIsLogErr)
             Debug.LogErrorFormat("==== Localization not has language = [{0}],SrcLanuage = [{1}] ", vRef, val);
         return false;
     }
@@ -121,7 +121,7 @@ static public class Localization
                     return _en.Get(key);
             }
         }
-        
+
         if (Exists(key))
             return mCurr.Get(key);
         return key;
@@ -143,38 +143,27 @@ static public class Localization
         return key;
     }
 
-    static public string FormatMoreStr(string key, params object[] parameters)
-    {
-        return FormatMoreStr(null, true, key, parameters);
-    }
-
     static public string Format(string key, object obj1, object obj2 = null, object obj3 = null, object obj4 = null, object obj5 = null, object obj6 = null)
     {
-        return FormatMoreStr(key, obj1, obj2, obj3, obj4, obj5, obj6);
-    }
-
-    static public string Format(string tagName, bool isCsv, string key, object obj1, object obj2 = null, object obj3 = null, object obj4 = null, object obj5 = null, object obj6 = null)
-    {
-        return FormatMoreStr(tagName, isCsv, key, obj1, obj2, obj3, obj4, obj5, obj6);
-    }
-
-    static public string FormatMoreInt(string tagName, bool isCsv, int key, params object[] parameters)
-    {
-        return FormatMoreStr(tagName, isCsv, key.ToString(), parameters);
-    }
-
-    static public string FormatMoreInt(int key, params object[] parameters)
-    {
-        return FormatMoreInt(null, true, key, parameters);
+        return FormatMoreStr(null, true, key, obj1, obj2, obj3, obj4, obj5, obj6);
     }
 
     static public string Format(int key, object obj1, object obj2 = null, object obj3 = null, object obj4 = null, object obj5 = null, object obj6 = null)
     {
-        return FormatMoreInt(key, obj1, obj2, obj3, obj4, obj5, obj6);
+        return FormatMoreStr(null, true, key.ToString(), obj1, obj2, obj3, obj4, obj5, obj6);
     }
 
-    static public string Format(string tagName, bool isCsv, int key, object obj1, object obj2 = null, object obj3 = null, object obj4 = null, object obj5 = null, object obj6 = null)
+    static public string SetOrFormat(string tagName, bool isCsv, string key, object obj1 = null, object obj2 = null, object obj3 = null, object obj4 = null, object obj5 = null, object obj6 = null)
     {
-        return FormatMoreInt(tagName, isCsv, key, obj1, obj2, obj3, obj4, obj5, obj6);
+        if (obj1 != null)
+            return FormatMoreStr(tagName, isCsv, key, obj1, obj2, obj3, obj4, obj5, obj6);
+        return Get(key, tagName, isCsv);
+    }
+
+    static public string SetOrFormat(string tagName, bool isCsv, int key, object obj1 = null, object obj2 = null, object obj3 = null, object obj4 = null, object obj5 = null, object obj6 = null)
+    {
+        if (obj1 != null)
+            return FormatMoreStr(tagName, isCsv, key.ToString(), obj1, obj2, obj3, obj4, obj5, obj6);
+        return Get(key, tagName, isCsv);
     }
 }
