@@ -215,10 +215,12 @@ public class AudioData
 
         if(_last != null && _last != _info)
         {
+            var _keyLast = _last.m_key;
             if (_last.isCanUnload())
             {
+                // Debug.LogErrorFormat("=== OnLoadAdoClip = [{0}]",_keyLast);
+                this.m_assets.Remove(_keyLast);
                 _last.Clear(true);
-                this.m_assets.Remove(this._key_loading);
             }
         }
 
