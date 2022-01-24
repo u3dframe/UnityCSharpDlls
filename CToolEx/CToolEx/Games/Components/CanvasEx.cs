@@ -51,13 +51,13 @@ public class CanvasEx : GobjLifeListener
 
     public bool m_isInited { get; private set; }
     public CanvasEx m_cvsRoot { get; private set; }
-    public Canvas m_cvs { get; private set; }
+    public Canvas m_cvs;// { get; private set; }
     public int m_orderBase { get; private set; }
     public int m_sortingLayerID { get; private set; }
     public string m_sortingLayerName { get; private set; }
 
     public int m_sortOrder { get; private set; }
-    public int m_curSortOrder { get; private set; }
+    public int m_curSortOrder;// { get; private set; }
 
     override protected void OnCall4Destroy()
     {
@@ -128,6 +128,9 @@ public class CanvasEx : GobjLifeListener
 
         this.m_cvs.sortingLayerID = _sid;
         this.m_cvs.sortingOrder = sortingOrder;
+
+        // string _key1 = string.Format(MsgConst.MSL_Cvs_ValChange, this.m_gobjID);
+        // Messenger.Brocast<int, int>(_key1, sortingOrder, sortingOrder);
         return this;
     }
 
