@@ -355,8 +355,11 @@ public class AudioData
             this.Play();
         }
         this.m_timeRemainder = this.m_timeDuration;
-        m_glife.StopCoroutine(_IEnAdoEnd());
-        m_glife.StartCoroutine(_IEnAdoEnd());
+        if(!this.m_isMusic)
+        {
+            m_glife.StopCoroutine(_IEnAdoEnd());
+            m_glife.StartCoroutine(_IEnAdoEnd());
+        }
     }
 
     IEnumerator _IEnAdoEnd()
