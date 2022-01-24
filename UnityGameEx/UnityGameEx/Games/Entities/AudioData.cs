@@ -42,7 +42,7 @@ public class AudioData
             AudioClip _clip = this.m_clip;
             this.m_clip = null;
             if (!_isAinfo && _clip != null)
-                UGameFile.UnLoadOne(_clip, true);
+                UGameFile.UnLoadOne(_clip);
 
             if (isUnload && _tmp != null)
                 _tmp.UnloadAsset();

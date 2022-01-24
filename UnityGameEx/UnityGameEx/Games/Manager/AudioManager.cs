@@ -158,6 +158,8 @@ public class AudioManager : GobjLifeListener
         {
             case 1:
                 return this.m_soundData;
+            case 2:
+                return this.m_uisoundData;
             default:
                 return this.m_musicData;
         }
