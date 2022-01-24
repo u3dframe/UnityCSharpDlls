@@ -49,14 +49,14 @@ public class CanvasEx : GobjLifeListener
 
     static public PrefabBasic m_uiroot { get;set; }
 
-    public bool m_isInited { get; private set; }
-    public CanvasEx m_cvsRoot { get; private set; }
+    public bool m_isInited;// { get; private set; }
+    public CanvasEx m_cvsRoot;// { get; private set; }
     public Canvas m_cvs;// { get; private set; }
-    public int m_orderBase { get; private set; }
-    public int m_sortingLayerID { get; private set; }
-    public string m_sortingLayerName { get; private set; }
+    public int m_orderBase;// { get; private set; }
+    public int m_sortingLayerID;// { get; private set; }
+    public string m_sortingLayerName;// { get; private set; }
 
-    public int m_sortOrder { get; private set; }
+    public int m_sortOrder;// { get; private set; }
     public int m_curSortOrder;// { get; private set; }
 
     override protected void OnCall4Destroy()
