@@ -20,7 +20,7 @@ public class AudioData
         private AudioClip m_clip = null;
         public AssetInfo m_ainfo { get; private set; }
         public string m_key { get; private set; }
-        public AudioInfo(string abName,string assetName,int tagType)
+        public AudioInfo(string abName, string assetName, int tagType)
         {
             this.m_abName = abName;
             this.m_assetName = assetName;
@@ -106,13 +106,15 @@ public class AudioData
     private int m_playState = 0;
     private int m_notiyState = 1;
     public bool m_isBreak = true;
+    public bool m_isAutoStop = false;
+    private string m_lastClipName = null;
 
     private string _key_loading = null;
     private AudioInfo m_curAsset = null;
     private int m_curTagType = 0;
 
     public float m_timeDuration { get; private set; }
-    private float m_timeRemainder = 0,m_speed = 1;
+    private float m_timeRemainder = 0, m_speed = 1;
     private GobjLifeListener m_glife = null;
     private DF_ToLoadAdoClip m_cfLoad = null;
     private ListDict<AudioInfo> m_assets = new ListDict<AudioInfo>(true);
@@ -145,7 +147,7 @@ public class AudioData
         return this;
     }
 
-    public AudioData SyncSetting(int notiyState, DF_ToLoadAdoClip cfLoad,bool isBreak = true)
+    public AudioData SyncSetting(int notiyState, DF_ToLoadAdoClip cfLoad, bool isBreak = true)
     {
         this.m_notiyState = notiyState;
         this.m_cfLoad = cfLoad;
@@ -158,7 +160,7 @@ public class AudioData
         return this.m_curTagType == 1 || this.m_curTagType == 3;
     }
 
-    public AudioData LoadAsset(string abName, string assetName,int tagType)
+    public AudioData LoadAsset(string abName, string assetName, int tagType)
     {
         if (this.m_audio)
         {
@@ -167,11 +169,11 @@ public class AudioData
             this.m_curTagType = tagType;
 
             AudioInfo _info = this.m_assets.Get(_key);
-            if(_info != null)
+            if (_info != null)
             {
-                if(_info.isHasObj())
+                if (_info.isHasObj())
                 {
-                    if(_info.m_ainfo != null)
+                    if (_info.m_ainfo != null)
                         this.OnLoadAsset(_info.m_ainfo);
                     else
                         this.OnLoadAdoClip(null);
@@ -213,7 +215,7 @@ public class AudioData
         AudioInfo _info = this.m_assets.Get(this._key_loading);
         this.m_curAsset = _info;
 
-        if(_last != null && _last != _info)
+        if (_last != null && _last != _info)
         {
             var _keyLast = _last.m_key;
             if (_last.isCanUnload())
@@ -224,18 +226,18 @@ public class AudioData
             }
         }
 
-        if(clip != null)
+        if (clip != null)
         {
-            string _key = string.Format("audios/{0}.ado@@{0}",clip.name);
+            string _key = string.Format("audios/{0}.ado@@{0}", clip.name);
             AudioInfo _cInfo = this.m_assets.Get(_key);
-            if(_cInfo != null)
+            if (_cInfo != null)
                 _cInfo.SetClip(clip);
         }
-        
+
         // Debug.LogErrorFormat("=== OnLoadAdoClip = [{0}] = [{1}] = [{2}] = [{3}] ", _last, _info, this._key_loading, clip);
         if (_info != null)
         {
-            if(_info.isAutoPlay() || isAutoPlay())
+            if (_info.isAutoPlay() || isAutoPlay())
                 this.PlayClip();
         }
     }
@@ -319,6 +321,7 @@ public class AudioData
             return;
         }
         this.m_audio.Stop();
+        this.m_audio.timeSamples = 0;
     }
 
     public void Pause()
@@ -344,6 +347,8 @@ public class AudioData
         {
             return;
         }
+        if (!this.m_isMusic && this.m_isAutoStop)
+            m_glife.StopCoroutine(_IEnAdoEnd());
 
         this.Stop();
 
@@ -355,11 +360,12 @@ public class AudioData
             this.Play();
         }
         this.m_timeRemainder = this.m_timeDuration;
-        if(!this.m_isMusic)
+        if (!this.m_isMusic && this.m_isAutoStop && clip != null)
         {
-            m_glife.StopCoroutine(_IEnAdoEnd());
+            this.m_lastClipName = clip.name;
             m_glife.StartCoroutine(_IEnAdoEnd());
         }
+        // Debug.LogErrorFormat("=== PlayClip === [{0}] = [{1}]", this.m_timeRemainder, this.m_timeDuration);
     }
 
     IEnumerator _IEnAdoEnd()
@@ -374,7 +380,9 @@ public class AudioData
             yield return new WaitForSecondsRealtime(_dt);
         else if (_dt > 0f)
             yield return null;
-        this.Stop();
+        string _v = this.m_audio.clip?.name;
+        if (string.Equals(this.m_lastClipName, _v))
+            this.Stop();
     }
 
     public void PlayClip(bool isBreak)
@@ -445,7 +453,7 @@ public class AudioData
         {
             float _pre = this.m_audio.pitch;
             this.m_audio.pitch = speed;
-            if(_pre != speed)
+            if (_pre != speed)
             {
                 this.m_speed = speed;
                 m_glife.StopCoroutine(_IEnAdoEnd());
