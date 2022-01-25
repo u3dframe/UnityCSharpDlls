@@ -21,6 +21,30 @@ using UPPrefs = UnityEngine.PlayerPrefs;
 /// </summary>
 public class BuildTools : BuildPatcher
 {
+	[MenuItem("Tools/ShaderName",false,50)]
+    static public void CMD_ShaderName(){
+        EditorUtility.DisplayProgressBar("ShaderName", "Checking", 0.1f);
+        string[] searchInFolders = {
+            "Assets"
+        };
+
+        string[] _tes = AssetDatabase.FindAssets("t:Material",searchInFolders);
+        string _assetPath,_sname;
+        Material _mat = null;
+        int _len = _tes.Length;
+        for (int i = 0; i < _len; i++)
+        {
+            _assetPath = AssetDatabase.GUIDToAssetPath(_tes[i]);
+            EditorUtility.DisplayProgressBar("ShaderName", _assetPath, i / (float)_len);
+            _mat = AssetDatabase.LoadAssetAtPath<Material>(_assetPath);
+            _sname = _mat.shader.name;
+            if(_sname.Contains("Standard")){
+                Debug.LogErrorFormat("=== Standard == [{0}] = [{1}]",_assetPath,_sname);
+            }
+        }
+        EditorUtility.ClearProgressBar();
+    }
+	
 	static bool CleanUpPlayableBind(UnityEngine.Playables.PlayableDirector playable) {
         Dictionary<UnityEngine.Object, UnityEngine.Object> bindings = new Dictionary<UnityEngine.Object, UnityEngine.Object>();
         foreach (var pb in playable.playableAsset.outputs){
