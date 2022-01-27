@@ -13,12 +13,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Games\Components\Entities\**" />
     <Compile Remove="Games\GboxExport\**" />
     <Compile Remove="Games\TimeLine\**" />
     <Compile Remove="Games\XLua\**" />
+    <EmbeddedResource Remove="Games\Components\Entities\**" />
     <EmbeddedResource Remove="Games\GboxExport\**" />
     <EmbeddedResource Remove="Games\TimeLine\**" />
     <EmbeddedResource Remove="Games\XLua\**" />
+    <None Remove="Games\Components\Entities\**" />
     <None Remove="Games\GboxExport\**" />
     <None Remove="Games\TimeLine\**" />
     <None Remove="Games\XLua\**" />
