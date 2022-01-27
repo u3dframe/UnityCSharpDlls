@@ -17,4 +17,16 @@ public class EUR_Particle : GobjLifeListener
     {
         return Get(uobj, true);
     }
+
+    public enum PType {
+        None = 0,
+        TLAtt,
+        TLBehit,
+        BAtt,
+        BBehit,
+        Att,
+        Behit
+    }
+
+    public PType m_cType = PType.None;
 }
