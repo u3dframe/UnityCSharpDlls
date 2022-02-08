@@ -187,12 +187,14 @@ public class AudioManager : GobjLifeListener
         }
 
         float _vol = this.m_volumeMusic;
-        if (this.m_musicTransition > 0.0f)
+        float _vvv = this.m_musicTransition;
+        if (_vvv > 0.0f)
         {
             this._mmCurrTrans = 0;
             this.m_isMus1 = !this.m_isMus1;
             _vol = 0.0f;
-            int frame = GameAppEx.fpsFrameRate;
+            _vvv = GameAppEx.fpsFrameRate * _vvv;
+            int frame = Mathf.CeilToInt(_vvv);
             _chgMusicVal = this.m_volumeMusic / frame;
         }
 
