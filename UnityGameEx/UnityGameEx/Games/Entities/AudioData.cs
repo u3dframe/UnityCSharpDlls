@@ -201,6 +201,22 @@ public class AudioData
         return LoadAsset(abName, assetName, tagType);
     }
 
+    public bool UnLoadAsset(string abName, string assetName)
+    {
+        string _key = string.Format("{0}@@{1}", abName, assetName);
+        AudioInfo _info = this.m_assets.Remove4Get(_key);
+        bool _isHas = _info != null;
+        if (_isHas)
+            _info.Clear(true);
+        return _isHas;
+    }
+
+    public bool UnLoadAsset(string abName)
+    {
+        string assetName = UGameFile.GetFileNameNoSuffix(abName);
+        return this.UnLoadAsset(abName, assetName);
+    }
+
     void OnLoadAsset(AssetBase asset)
     {
         if (asset == null)
