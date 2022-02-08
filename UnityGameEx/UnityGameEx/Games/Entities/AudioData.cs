@@ -16,7 +16,7 @@ public class AudioData
     {
         private string m_abName = null;
         private string m_assetName = null;
-        private int m_nTagType = 0;
+        private int m_nTagType = 0; // [0=预加载 , 1=加载完毕后自动播放 , 2=被下一个资源替换是，自身可销毁 , 3=自动播放，并且自身可销毁]
         private AudioClip m_clip = null;
         public AssetInfo m_ainfo { get; private set; }
         public string m_key { get; private set; }
