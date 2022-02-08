@@ -57,7 +57,7 @@ public class AudioManager : GobjLifeListener
     AudioData m_musicData;
     AudioData m_soundData;
     AudioData m_uisoundData;
-    AudioData m_musicPre, m_musicData2;
+    AudioData m_adoPre, m_musicData2;
 
     [Range(0f, 1f)] [SerializeField] float m_volumeMusic = 1f;
     [Range(0f, 1f)] [SerializeField] float m_volumeSound = 1f;
@@ -77,7 +77,7 @@ public class AudioManager : GobjLifeListener
         this.InitAudio(crcDataPath);
         this.m_cfLoad = cfLoad;
         int _st = this.m_isCloseMusic ? 2 : 1;
-        this.m_musicPre = AudioData.Builder(this.m_gobj, true, true, this.m_volumeMusic).SyncSetting(_st, cfLoad);
+        this.m_adoPre = AudioData.Builder(this.m_gobj, true, true, this.m_volumeMusic).SyncSetting(_st, cfLoad);
         this.m_musicData = AudioData.Builder(this.m_gobj, true, true, this.m_volumeMusic).SyncSetting(_st,cfLoad);
         this.m_musicData2 = AudioData.Builder(this.m_gobj, true, true, this.m_volumeMusic).SyncSetting(_st, cfLoad);
 
@@ -178,13 +178,21 @@ public class AudioManager : GobjLifeListener
         return _cur;
     }
 
+    private bool IsPre(string abName, int tagType)
+    {
+        if (tagType == 0)
+        {
+            this.m_adoPre.LoadAsset(abName, tagType);
+            return true;
+        }
+        return false;
+    }
+
     public void PlayMusic(string abName,int tagType)
     {
-        if(tagType == 0)
-        {
-            this.m_musicPre.LoadAsset(abName, tagType);
+        bool _isPre = this.IsPre(abName, tagType);
+        if (_isPre)
             return;
-        }
 
         float _vol = this.m_volumeMusic;
         float _vvv = this.m_musicTransition;
@@ -205,11 +213,17 @@ public class AudioManager : GobjLifeListener
 
     public void PlaySound(string abName, int tagType)
     {
+        bool _isPre = this.IsPre(abName, tagType);
+        if (_isPre)
+            return;
         this.m_soundData.LoadAsset(abName, tagType);
     }
 
     public void PlayUISound(string abName, int tagType)
     {
+        bool _isPre = this.IsPre(abName, tagType);
+        if (_isPre)
+            return;
         this.m_uisoundData.LoadAsset(abName, tagType);
     }
 
@@ -224,6 +238,11 @@ public class AudioManager : GobjLifeListener
             default:
                 return this.GetCurrMus();
         }
+    }
+
+    public AudioData GetPreData()
+    {
+        return this.m_adoPre;
     }
 
     public AudioData GetAudioData(UObject uobj)
