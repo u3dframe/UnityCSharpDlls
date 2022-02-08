@@ -134,7 +134,7 @@ public class AudioData
             this.m_audio = UtilityHelper.Get<AudioSource>(gobj, true);
 
         if (!this.m_audio)
-            this.m_audio = UtilityHelper.Add<AudioSource>(gobj);
+            this.m_audio = UtilityHelper.Add<AudioSource>(gobj,false);
 
         this.m_isMusic = isMusic;
         this.m_volume = volume;
@@ -285,6 +285,11 @@ public class AudioData
         this.SetVolume(volume);
     }
 
+    public float GetVolume()
+    {
+        return this.m_volume;
+    }
+
     public void SetVolume(float volume)
     {
         if (this.m_audio == null || this.m_volume == volume)
@@ -408,6 +413,11 @@ public class AudioData
     public bool IsPlayEnd()
     {
         return this.m_audio != null && this.m_timeDuration > 0.1f && this.m_playState == 0 && this.m_timeRemainder <= 0;
+    }
+
+    public bool IsStop()
+    {
+        return this.m_playState == 0 && this.m_timeRemainder <= 0;
     }
 
     void ClearAll()
