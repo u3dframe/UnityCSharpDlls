@@ -100,6 +100,8 @@ public class AudioData
         return Builder(gobj, isNew, false, volume);
     }
 
+    static long _nCursor = 0;
+
     private bool m_isMusic = false;
     private float m_volume = 1f;
     private AudioSource m_audio = null;
@@ -113,15 +115,16 @@ public class AudioData
     private AudioInfo m_curAsset = null;
     private int m_curTagType = 0;
 
+    public long m_currCursor { get; private set; }
     public float m_timeDuration { get; private set; }
     private float m_timeRemainder = 0, m_speed = 1;
     private GobjLifeListener m_glife = null;
     private DF_ToLoadAdoClip m_cfLoad = null;
     private ListDict<AudioInfo> m_assets = new ListDict<AudioInfo>(true);
 
-    private AudioData() { }
     private AudioData(GameObject gobj, bool isNew, bool isMusic, float volume, bool playOnAwake)
     {
+        this.m_currCursor = ++_nCursor;
         Init(gobj, isNew, isMusic, volume, playOnAwake);
     }
 
@@ -296,6 +299,13 @@ public class AudioData
         if (this.m_isMusic != isMusic)
             return;
         this.SetVolume(volume);
+    }
+
+    public int SetNotifyState(int state)
+    {
+        int pre = this.m_notiyState;
+        this.OnNotifyState(this.m_isMusic, state);
+        return pre;
     }
 
     public float GetVolume()

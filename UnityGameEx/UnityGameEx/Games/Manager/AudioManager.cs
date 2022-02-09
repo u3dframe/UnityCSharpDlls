@@ -170,6 +170,13 @@ public class AudioManager : GobjLifeListener
         this.SetSoundState(isClose);
     }
 
+    public void SetAudioState(bool isCloseSound,bool isCloseMusic,bool isPause)
+    {
+        this.m_isPause = isPause;
+        this.SetMusicState(isCloseMusic);
+        this.SetSoundState(isCloseSound);
+    }
+
     AudioData GetCurrMus()
     {
         AudioData _cur = this.m_musicData;
@@ -325,6 +332,5 @@ public class AudioManager : GobjLifeListener
             _other.SetVolume(_v1);
             _cur.SetVolume(_v2);
         }
-
     }
 }
