@@ -157,13 +157,34 @@ public class RendererMatData
         }
     }
 
+    private void CheckMat(List<Material> list)
+    {
+        if (list == null || list.Count <= 0)
+            return;
+        int lens = list.Count;
+        Material _mat;
+        for (int i = lens - 1; i >= 0; i--)
+        {
+            _mat = list[i];
+            if(_mat == null || !_mat)
+                list.RemoveAt(i);
+        }
+    }
+
     public void ChangeMat(Material newMat, int nType)
     {
         if (!this.m_isNewMat && nType != 1)
             return;
-        if (newMat == null)
+        int _mmats = this.m_mats.Count;
+        if (newMat == null || !newMat)
+        {
+            this.CheckMat(this.m_mats);
+            this.CheckMat(this.m_allMats);
+            int _last = this.m_mats.Count;
+            if(_last != _mmats)
+                this.m_currRer.materials = this.m_mats.ToArray();
             return;
-
+        }
         this.m_allMats.Remove(newMat);
         this.m_mats.Remove(newMat);
         switch (nType)
@@ -184,7 +205,7 @@ public class RendererMatData
                 this.m_mats.Add(newMat);
                 break;
         }
-        // Debug.LogFormat("==== [{0}] = [{1}]] = [{2}]", newMat, this.m_mats.Count, nType);
+        // Debug.LogFormat("==== [{0}] = [{1}]] = [{2}] = [{3}]", this.m_currRer, _mmats, this.m_mats.Count, nType);
         this.m_currRer.materials = this.m_mats.ToArray();
     }
 
