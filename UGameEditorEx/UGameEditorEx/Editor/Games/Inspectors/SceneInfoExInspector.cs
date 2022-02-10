@@ -221,7 +221,7 @@ public class SceneInfoExInspector : Editor
                 }
             }
         }
-        bool isHasRP_Environment = (RenderSettings.defaultReflectionMode == UnityEngine.Rendering.DefaultReflectionMode.Skybox) || (RenderSettings.customReflection != null);
+        bool isHasRP_Environment = (RenderSettings.defaultReflectionMode == UnityEngine.Rendering.DefaultReflectionMode.Skybox && RenderSettings.skybox != null) || (RenderSettings.customReflection != null);
         if (isHasRP_Environment)
         {
             _jdTemp = NewJObj();
