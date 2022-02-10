@@ -233,13 +233,15 @@ public class AudioData
         AudioInfo _last = this.m_curAsset;
         AudioInfo _info = this.m_assets.Get(this._key_loading);
         this.m_curAsset = _info;
-
+        string _keyLast = null;
+        bool _lastUnload = false;
+        string _clipName = null;
         if (_last != null && _last != _info)
         {
-            var _keyLast = _last.m_key;
-            if (_last.isCanUnload())
+            _keyLast = _last.m_key;
+            _lastUnload = _last.isCanUnload();
+            if (_lastUnload)
             {
-                // Debug.LogErrorFormat("=== OnLoadAdoClip = [{0}]",_keyLast);
                 this.m_assets.Remove(_keyLast);
                 _last.Clear(true);
             }
@@ -247,15 +249,22 @@ public class AudioData
 
         if (clip != null)
         {
-            string _key = string.Format("audios/{0}.ado@@{0}", clip.name);
+            _clipName = clip.name;
+            string _key = string.Format("audios/{0}.ado@@{0}", _clipName);
             AudioInfo _cInfo = this.m_assets.Get(_key);
+            if (_cInfo == null)
+            {
+                _key = string.Format("audios/atk/{0}.ado@@{0}", _clipName);
+                _cInfo = this.m_assets.Get(_key);
+            }
             if (_cInfo != null)
                 _cInfo.SetClip(clip);
         }
 
-        // Debug.LogErrorFormat("=== OnLoadAdoClip = [{0}] = [{1}] = [{2}] = [{3}] ", _last, _info, this._key_loading, clip);
+        // Debug.LogFormat("=== OnLoadAdoClip = [{0}] = [{1}] = [{2}] = [{3}] = [{4}] ", _keyLast, _lastUnload,this._key_loading,_info,_clipName);
         if (_info != null)
         {
+            // Debug.LogErrorFormat("=== OnLoadAdoClip = [{0}] = [{1}]", this.m_audio,_info.isAutoPlay(), isAutoPlay());
             if (_info.isAutoPlay() || isAutoPlay())
                 this.PlayClip();
         }
@@ -386,14 +395,15 @@ public class AudioData
         this.m_audio.clip = clip;
         this.m_timeDuration = 0.1f;
         this.m_timeRemainder = this.m_timeDuration;
-        if (clip != null)
+        bool _isHasClip = clip != null;
+        if (_isHasClip)
         {
             this.m_timeDuration += clip.length;
             this.m_timeRemainder = this.m_timeDuration;
             this.m_lastClipName = clip.name;
             this.Play();
         }
-        // Debug.LogErrorFormat("=== PlayClip === [{0}] = [{1}]", this.m_timeRemainder, this.m_timeDuration);
+        // Debug.LogFormat("=== PlayClip === [{0}] = [{1}] = [{2}]", this.m_timeRemainder, this.m_timeDuration, _isHasClip);
     }
 
     private void CorDelayEnd(bool isAgain = false)
