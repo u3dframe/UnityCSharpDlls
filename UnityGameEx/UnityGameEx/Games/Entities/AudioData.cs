@@ -83,26 +83,26 @@ public class AudioData
         }
     }
 
-    static public AudioData Builder(GameObject gobj, bool isNew, bool isMusic, float volume, bool playOnAwake)
+    static public AudioData Builder(GameObject gobj, bool isNew, int nType, float volume, bool playOnAwake)
     {
         if (!gobj)
             return null;
-        return new AudioData(gobj, isNew, isMusic, volume, playOnAwake);
+        return new AudioData(gobj, isNew, nType, volume, playOnAwake);
     }
 
-    static public AudioData Builder(GameObject gobj, bool isNew, bool isMusic, float volume)
+    static public AudioData Builder(GameObject gobj, bool isNew, int nType, float volume)
     {
-        return Builder(gobj, isNew, isMusic, volume, false);
+        return Builder(gobj, isNew, nType, volume, false);
     }
 
     static public AudioData BuilderSound(GameObject gobj, bool isNew, float volume)
     {
-        return Builder(gobj, isNew, false, volume);
+        return Builder(gobj, isNew,0, volume);
     }
 
     static long _nCursor = 0;
 
-    private bool m_isMusic = false;
+    private int m_nType = 0; // 0 = sound , 1 = music ,
     private float m_volume = 1f;
     private AudioSource m_audio = null;
     private int m_playState = 0;
@@ -122,13 +122,13 @@ public class AudioData
     private DF_ToLoadAdoClip m_cfLoad = null;
     private ListDict<AudioInfo> m_assets = new ListDict<AudioInfo>(true);
 
-    private AudioData(GameObject gobj, bool isNew, bool isMusic, float volume, bool playOnAwake)
+    private AudioData(GameObject gobj, bool isNew, int nType, float volume, bool playOnAwake)
     {
         this.m_currCursor = ++_nCursor;
-        Init(gobj, isNew, isMusic, volume, playOnAwake);
+        Init(gobj, isNew, nType, volume, playOnAwake);
     }
 
-    AudioData Init(GameObject gobj, bool isNew, bool isMusic, float volume, bool playOnAwake)
+    AudioData Init(GameObject gobj, bool isNew, int nType, float volume, bool playOnAwake)
     {
         m_glife = GobjLifeListener.Get(gobj);
         m_glife.OnlyOnceCallDetroy(this.OnNotifyDestry);
@@ -139,14 +139,14 @@ public class AudioData
         if (!this.m_audio)
             this.m_audio = UtilityHelper.Add<AudioSource>(gobj,false);
 
-        this.m_isMusic = isMusic;
+        this.m_nType = nType;
         this.m_volume = volume;
-        this.m_audio.loop = isMusic;
+        this.m_audio.loop = (nType == 1);
         this.m_audio.volume = volume;
         this.m_audio.playOnAwake = playOnAwake;
 
-        Messenger.AddListener<bool, int>(MsgConst.MSound_State, this.OnNotifyState);
-        Messenger.AddListener<bool, float>(MsgConst.MSound_Volume, this.OnNotifyVolume);
+        Messenger.AddListener<int, int>(MsgConst.MSound_State, this.OnNotifyState);
+        Messenger.AddListener<int, float>(MsgConst.MSound_Volume, this.OnNotifyVolume);
         return this;
     }
 
@@ -275,9 +275,9 @@ public class AudioData
         this.ClearAll();
     }
 
-    void OnNotifyState(bool isMusic, int state)
+    void OnNotifyState(int nType, int state)
     {
-        if (this.m_isMusic != isMusic)
+        if (this.m_nType != nType)
             return;
 
         this.m_notiyState = state;
@@ -302,10 +302,10 @@ public class AudioData
         }
     }
 
-    void OnNotifyVolume(bool isMusic, float volume)
+    void OnNotifyVolume(int nType, float volume)
     {
         // Debug.LogErrorFormat("=== OnNotifyVolume = [{0}] = [{1}] = [{2}] = [{3}] ", isMusic,this.m_isMusic,volume,this.m_volume);
-        if (this.m_isMusic != isMusic)
+        if (this.m_nType != nType)
             return;
         this.SetVolume(volume);
     }
@@ -313,7 +313,7 @@ public class AudioData
     public int SetNotifyState(int state)
     {
         int pre = this.m_notiyState;
-        this.OnNotifyState(this.m_isMusic, state);
+        this.OnNotifyState(this.m_nType, state);
         return pre;
     }
 
@@ -408,7 +408,7 @@ public class AudioData
 
     private void CorDelayEnd(bool isAgain = false)
     {
-        if (this.m_isMusic)
+        if (this.m_nType == 1)
             return;
         m_glife.StopCoroutine(_IEnAdoEnd());
         if(this.m_isAutoStop && isAgain)
@@ -468,8 +468,8 @@ public class AudioData
 
     void ClearAll()
     {
-        Messenger.RemoveListener<bool, int>(MsgConst.MSound_State, this.OnNotifyState);
-        Messenger.RemoveListener<bool, float>(MsgConst.MSound_Volume, this.OnNotifyVolume);
+        Messenger.RemoveListener<int, int>(MsgConst.MSound_State, this.OnNotifyState);
+        Messenger.RemoveListener<int, float>(MsgConst.MSound_Volume, this.OnNotifyVolume);
         this.m_glife = null;
         this.m_audio = null;
         this.m_playState = 0;

@@ -61,8 +61,10 @@ public class AudioManager : GobjLifeListener
 
     [Range(0f, 1f)] [SerializeField] float m_volumeMusic = 1f;
     [Range(0f, 1f)] [SerializeField] float m_volumeSound = 1f;
+    [Range(0f, 1f)] [SerializeField] float m_volumeSoundAtk = 1f;
     [SerializeField] bool m_isCloseMusic = false;
     [SerializeField] bool m_isCloseSound = false;
+    [SerializeField] bool m_isCloseSoundAtk = false;
 
     ListDict<AudioData> m_data = new ListDict<AudioData>(false);
 
@@ -77,9 +79,9 @@ public class AudioManager : GobjLifeListener
         this.InitAudio(crcDataPath);
         this.m_cfLoad = cfLoad;
         int _st = this.m_isCloseMusic ? 2 : 1;
-        this.m_adoPre = AudioData.Builder(this.m_gobj, true, true, this.m_volumeMusic).SyncSetting(_st, cfLoad);
-        this.m_musicData = AudioData.Builder(this.m_gobj, true, true, this.m_volumeMusic).SyncSetting(_st,cfLoad);
-        this.m_musicData2 = AudioData.Builder(this.m_gobj, true, true, this.m_volumeMusic).SyncSetting(_st, cfLoad);
+        this.m_adoPre = AudioData.Builder(this.m_gobj, true, 1, this.m_volumeMusic).SyncSetting(_st, cfLoad);
+        this.m_musicData = AudioData.Builder(this.m_gobj, true, 1, this.m_volumeMusic).SyncSetting(_st,cfLoad);
+        this.m_musicData2 = AudioData.Builder(this.m_gobj, true, 1, this.m_volumeMusic).SyncSetting(_st, cfLoad);
 
         GameObject _music = this.m_gobj;
         // _music = UtilityHelper.NewGobj("_sound", this.m_gobj);
@@ -100,8 +102,8 @@ public class AudioManager : GobjLifeListener
             return;
         string _v = CPPrefs.GetString(_key);
         var _arrs = _v.Split('_');
-        bool isMusic = true, isSound = true;
-        float music = 1, sound = 1;
+        bool isMusic = true, isSound = true, isSoundAtk = true;
+        float music = 1, sound = 1, soundAtk = 1;
         int lens = _arrs.Length;
         if(lens >= 4)
         {
@@ -109,17 +111,26 @@ public class AudioManager : GobjLifeListener
             float.TryParse(_arrs[1], out music);
             isSound = "1".Equals(_arrs[2]);
             float.TryParse(_arrs[3], out sound);
+            isSoundAtk = isSound;
+            soundAtk = sound;
+        }
+        if (lens >= 6)
+        {
+            isSoundAtk = "1".Equals(_arrs[4]);
+            float.TryParse(_arrs[5], out soundAtk);
         }
         // Debug.LogErrorFormat("=== InitAudio = [{0}] = [{1}] = [{2}] = [{3}] ", isMusic,music,isSound,sound);
-        this.InitAudio(isMusic, music, isSound, sound);
+        this.InitAudio(isMusic, music, isSound, sound, isSoundAtk, soundAtk);
     }
 
-    public void InitAudio(bool isMusic,float music,bool isSound,float sound)
+    public void InitAudio(bool isMusic,float music,bool isSound,float sound, bool isSoundAtk, float soundAtk)
     {
         this.SetMusicState(!isMusic);
         this.SetMusicVolume(music);
         this.SetSoundState(!isSound);
         this.SetSoundVolume(sound);
+        this.SetSoundAtkState(isSoundAtk);
+        this.SetSoundAtkVolume(soundAtk);
     }
 
     public void SetMusicVolume(float val)
@@ -128,7 +139,7 @@ public class AudioManager : GobjLifeListener
             return;
 
         this.m_volumeMusic = val;
-        Messenger.Brocast<bool, float>(MsgConst.MSound_Volume, true, this.m_volumeMusic);
+        Messenger.Brocast<int, float>(MsgConst.MSound_Volume, 1, val);
     }
 
     public void SetSoundVolume(float val)
@@ -137,13 +148,23 @@ public class AudioManager : GobjLifeListener
             return;
 
         this.m_volumeSound = val;
-        Messenger.Brocast<bool, float>(MsgConst.MSound_Volume, false, this.m_volumeSound);
+        Messenger.Brocast<int, float>(MsgConst.MSound_Volume, 0, val);
+    }
+
+    public void SetSoundAtkVolume(float val)
+    {
+        if (this.m_volumeSoundAtk == val)
+            return;
+
+        this.m_volumeSoundAtk = val;
+        Messenger.Brocast<int, float>(MsgConst.MSound_Volume, 2, val);
     }
 
     public void SetVolume(float val)
     {
         this.SetMusicVolume(val);
         this.SetSoundVolume(val);
+        this.SetSoundAtkVolume(val);
     }
 
     public void SetMusicState(bool isClose)
@@ -152,7 +173,7 @@ public class AudioManager : GobjLifeListener
             return;
 
         this.m_isCloseMusic = isClose;
-        Messenger.Brocast<bool, int>(MsgConst.MSound_State, true, isClose ? 2 : 1);
+        Messenger.Brocast<int, int>(MsgConst.MSound_State, 1, isClose ? 2 : 1);
     }
 
     public void SetSoundState(bool isClose)
@@ -161,20 +182,31 @@ public class AudioManager : GobjLifeListener
             return;
 
         this.m_isCloseSound = isClose;
-        Messenger.Brocast<bool, int>(MsgConst.MSound_State, false, isClose ? 2 : 1);
+        Messenger.Brocast<int, int>(MsgConst.MSound_State, 0, isClose ? 2 : 1);
+    }
+
+    public void SetSoundAtkState(bool isClose)
+    {
+        if (this.m_isCloseSoundAtk == isClose)
+            return;
+
+        this.m_isCloseSoundAtk = isClose;
+        Messenger.Brocast<int, int>(MsgConst.MSound_State, 2, isClose ? 2 : 1);
     }
 
     public void SetAudioState(bool isClose)
     {
         this.SetMusicState(isClose);
         this.SetSoundState(isClose);
+        this.SetSoundAtkState(isClose);
     }
 
-    public void SetAudioState(bool isCloseSound,bool isCloseMusic,bool isPause)
+    public void SetAudioState(bool isCloseMusic, bool isCloseSound, bool isCloseSoundAtk, bool isPause)
     {
         this.m_isPause = isPause;
         this.SetMusicState(isCloseMusic);
         this.SetSoundState(isCloseSound);
+        this.SetSoundAtkState(isCloseSoundAtk);
     }
 
     AudioData GetCurrMus()
@@ -252,7 +284,7 @@ public class AudioManager : GobjLifeListener
         return this.m_adoPre;
     }
 
-    public AudioData GetAudioData(UObject uobj)
+    public AudioData GetAudioData(UObject uobj, int adoType = 0)
     {
         if (UtilityHelper.IsNull(uobj))
             return null;
@@ -264,19 +296,35 @@ public class AudioManager : GobjLifeListener
         {
             GobjLifeListener glife = GobjLifeListener.Get(gobj);
             glife.OnlyOnceCallDetroy(this._OnNotifyDestry);
-
-            int _st = this.m_isCloseSound ? 2 : 1;
-            _dt_ = AudioData.BuilderSound(gobj, false, this.m_volumeSound).SyncSetting(_st, this.m_cfLoad);
+            int _st = 1;
+            float _volume = 1;
+            switch (adoType)
+            {
+                case 1:
+                    _st = this.m_isCloseMusic ? 2 : 1;
+                    _volume = this.m_volumeMusic;
+                    break;
+                case 2:
+                    _st = this.m_isCloseSoundAtk ? 2 : 1;
+                    _volume = this.m_volumeSoundAtk;
+                    break;
+                default:
+                    _st = this.m_isCloseSound ? 2 : 1;
+                    _volume = this.m_volumeSound;
+                    adoType = 0;
+                    break;
+            }
+            _dt_ = AudioData.Builder(gobj, false, adoType, _volume).SyncSetting(_st, this.m_cfLoad);
             this.m_data.Add(_id, _dt_);
         }
         return _dt_;
     }
 
-    public AudioData PlayAudio(UObject uobj, string abName,int nTagType)
+    public AudioData PlayAudio(UObject uobj, string abName,int nTagType,int adoType = 0)
     {
         if (UtilityHelper.IsNull(uobj))
             return null;
-        AudioData _dt_ = this.GetAudioData(uobj);
+        AudioData _dt_ = this.GetAudioData(uobj, adoType);
         if (_dt_ != null)
             _dt_.LoadAsset(abName, nTagType);
         return _dt_;
