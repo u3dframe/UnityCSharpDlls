@@ -11,6 +11,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using UPPrefs = UnityEngine.PlayerPrefs;
+using LitJson;
 
 /// <summary>
 /// 类名 : 资源导出工具脚本 
@@ -96,11 +97,14 @@ public class BuildTools : BuildPatcher
         }
     }
 	
-	static bool _CheckTimeline(){
+    static bool _CheckTimeline(){
         bool _isChg = false;
         string[] searchInFolders = {
             "Assets/_Develop/Characters/Builds/timeline"
         };
+
+        string _tlskill = "Assets/_Develop/Scene/Builds/prefabs/skill_test/skill_camera.prefab";
+        string _guidmcam = AssetDatabase.AssetPathToGUID(_tlskill);
         string[] _tes = AssetDatabase.FindAssets("t:TimelineAsset",searchInFolders);
         string _assetPath,_filePath,_fcont,_fcont2;
         for (int i = 0; i < _tes.Length; i++)
@@ -112,8 +116,24 @@ public class BuildTools : BuildPatcher
             if(!_fcont2.Equals(_fcont))
             {
                 WriteFile(_filePath,_fcont2);
-                Debug.LogErrorFormat("=== Timeline isChange == [{0}]",_assetPath);
+                Debug.LogFormat("=== Timeline isChange == [{0}]",_assetPath);
                 _isChg = true;
+            }
+            string _name = GetFileNameNoSuffix(_assetPath).Replace("tl_","");
+            int _ind = _name.IndexOf("_");
+            if(_ind > 0)
+                _name = _name.Substring(0,_ind);
+            string[] _arrs = AssetDatabase.GetDependencies(_assetPath);
+            foreach (var item in _arrs)
+            {
+                if(!item.Contains(_name) && item.EndsWith(".anim"))
+                {
+                    Debug.LogErrorFormat("=== Timeline == [{0}] Has Other Asset = [{1}]",_assetPath,item);
+                }
+            }
+
+            if(!string.IsNullOrEmpty(_guidmcam) && _fcont2.Contains(_guidmcam)){
+                Debug.LogErrorFormat("=== Timeline == [{0}] Has skill_camera",_assetPath);
             }
         }
         return _isChg;
@@ -128,29 +148,34 @@ public class BuildTools : BuildPatcher
         }
     }
 
-    [MenuItem("Tools/CheckPrefab",false,50)]
-    static public void CheckPrefab(){
-        EditorUtility.DisplayProgressBar("CheckPrefab", "CheckPrefab Start", 0.01f);
-        string _check = "sinfo_skill_test";
+    [MenuItem("Tools/CheckBigTexture",false,50)]
+    static public void CMD_CheckBigTexture(){
+        EditorUtility.DisplayProgressBar("CheckBigTexture", "Checking", 0.1f);
         string[] searchInFolders = {
-            "Assets"
+            "Assets/_Develop"
         };
-        string[] _tes = AssetDatabase.FindAssets("t:Prefab",searchInFolders);
-        int _lens = _tes.Length;
-        string _assetPath,_filePath,_fcont;
-        for (int i = 0; i < _lens; i++)
+        string[] _tes = AssetDatabase.FindAssets("t:Texture",searchInFolders);
+        string _assetPath;
+        System.Text.StringBuilder _sbd = new System.Text.StringBuilder();
+        _sbd.Append("Texture's Size  >  256x256").AppendLine();
+        int _len = _tes.Length;
+        for (int i = 0; i < _len; i++)
         {
             _assetPath = AssetDatabase.GUIDToAssetPath(_tes[i]);
-            _filePath =  m_dirDataNoAssets + _assetPath;
-            _fcont = GetText4File(_filePath);
-            EditorUtility.DisplayProgressBar(string.Format("CheckPrefab ({0}/{1})",(i + 1),_lens),_assetPath, i / (float)_lens);
-            if(_fcont.Contains(_check))
-            {
-                Debug.LogErrorFormat("=== Has [{0}] == [{1}]",_check,_assetPath);
+            var _size = GetTextureSize(_assetPath);
+            EditorUtility.DisplayProgressBar("CheckBigTexture", _assetPath, i / (float)_len);
+            if(_size.Item1 > 256 && _size.Item2 > 256){
+                _sbd.AppendFormat("{0}    {1}x{2}",_assetPath,_size.Item1,_size.Item2).AppendLine();
             }
         }
+        string _cont = _sbd.ToString();
+        _sbd.Clear();
+        _sbd.Length = 0;
         EditorUtility.ClearProgressBar();
-        EditorUtility.DisplayDialog("CheckPrefab","isOver","Okey","Yes");
+
+        string _fp = String.Format("{0}../{1}.txt",m_dirRes,DateTime.Now.ToString("MMddHHmmss"));
+        WriteText(_fp,_cont,true);
+        Debug.LogErrorFormat("===== write to {0}",_fp);
     }
 
     [MenuItem("Tools/FindAssetByGUIDs",false,50)]
@@ -248,6 +273,29 @@ public class BuildTools : BuildPatcher
         return args.TryGetValue(key, out o) ? o : def; 
     }
 
+    [MenuItem("Tools/CMD BuildPatcher")]
+    static public void BuildPatcher() {
+        Core.GameFile.CurrDirRes();
+        string CommandLine = Environment.CommandLine;
+        string[] CommandLineArgs = Environment.GetCommandLineArgs();
+        var args = new Dictionary<string,string>();
+        foreach(var c in CommandLineArgs) {
+            string[] vals=c.Split(new char[]{'='}, StringSplitOptions.RemoveEmptyEntries);
+            if(vals.Length==1) {
+                args.Add(vals[0].Trim(), "true");
+            }else{
+                args.Add(vals[0].Trim(), vals[1].Trim());
+            }
+        }
+        string choiceSvlist = getOption(args, "choiceSvlist","");
+        string choiceChannel = getOption(args, "choiceChannel","kp_and");
+        CopySVList(choiceSvlist, choiceChannel);
+        AssetDatabase.Refresh();
+        string directory = getOption(args, "targetDir","");
+        SetZipBackup(directory,choiceChannel);
+        Zip_Patch();
+    }
+
     [MenuItem("Tools/CMD BuildAndroid")]
     static public void BuildAndroid()
     {
@@ -264,10 +312,12 @@ public class BuildTools : BuildPatcher
             }
         }
         string choiceSvlist = getOption(args, "choiceSvlist","");
-        CopySVList(choiceSvlist);
+        string choiceChannel = getOption(args, "choiceChannel","kp_and");
+        CopySVList(choiceSvlist, choiceChannel);
         
         AssetDatabase.Refresh();
         string directory = getOption(args, "targetDir", Path.Combine(Application.dataPath.Replace("/Assets", ""),"../build/"));
+        SetZipBackup(directory,choiceChannel);
         directory = Path.Combine(directory, "android/");
         Directory.CreateDirectory(directory);
         //PlayerSettings.SetScriptingBackend(BuildTargetGroup.Android, ScriptingImplementation.IL2CPP);
@@ -291,7 +341,6 @@ public class BuildTools : BuildPatcher
         string targetDir = Path.Combine(directory, pName + ".apk");
         FileUtil.DeleteFileOrDirectory(targetDir);
 
-        
         BuildOptions option = BuildOptions.None;
         bool development = getOption(args, "development", "false") == "true";
         EditorUserBuildSettings.development = development;
@@ -331,23 +380,56 @@ public class BuildTools : BuildPatcher
         CfgVersion.instance.SaveDefault();
     }
 
-    [MenuItem("Tools/ZipMain")]
+    static void SetZipBackup(string dir,string fparent)
+    {
+        m_fdZipBackup = dir;
+        m_fparentZipBackup = fparent;
+    }
+
     static public void Zip_Main(){
         m_luacExe = "D:/lua-5.3.5_w64/luac.exe";
         SaveDefaultCfgVersion();
-        BuildPatcher.ZipMain();
-        // BuildPatcher2.ZipMain();
-        // BuildPatcher.CopyTest();
+        ZipMain();
     }
-	
-	 static public void CopySVList(string suff = ""){
-        string _fname = "severlist";
-        if((!string.IsNullOrEmpty(suff)) && (!"default".Equals(suff) && !"def".Equals(suff)))
-            _fname = string.Concat(_fname,suff);
-        string _fp = string.Format("{0}/../_svlists/{1}.lua", Application.dataPath,_fname);
+
+    static public void Zip_Patch(){
+        SaveDefaultCfgVersion();
+        ZipPatche();
+    }
+
+    static public void CopySVList(string fname = "", string ver="kp_and"){
+        if (string.IsNullOrEmpty(fname))
+            fname = "default";
+        string _fp = string.Format("{0}/../_svlists/{1}.json", Application.dataPath,fname);
+        var data = LJsonHelper.ToJData(File.ReadAllText(_fp));
+        string _fpTemp = string.Format("{0}/../_svlists/serverlist.lua", Application.dataPath);
         string _fpDest = string.Format("{0}/Lua/games/net/severlist.lua", Application.dataPath);
-        FileInfo fInfo = new FileInfo(_fp);
-        fInfo.CopyTo(_fpDest, true);
+        if (File.Exists(_fpTemp))
+        {
+            string text = File.ReadAllText(_fpTemp);
+            foreach (var key in data.Keys)
+                text = text.Replace(key, LJsonHelper.ToStr(data, key));
+            var dir = Path.GetDirectoryName(_fpDest);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            File.WriteAllText(_fpDest, text);
+        }
+        else
+            Debug.LogError("Cannot find file: " + _fpTemp);
+        string _fpTemp2 = string.Format("{0}/../_svlists/cfg_game_package.json", Application.dataPath);
+        string _fpDest2 = string.Format("{0}/Plugins/{1}/assets/cfg_game_package.json", Application.dataPath, Application.platform);
+        if (File.Exists(_fpTemp2))
+        {
+            string text = File.ReadAllText(_fpTemp2);
+            foreach (var key in data.Keys)
+                text = text.Replace(key, LJsonHelper.ToStr(data, key));
+            var dir = Path.GetDirectoryName(_fpDest2);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            File.WriteAllText(_fpDest2, text);
+        }
+        else
+            Debug.LogError("Cannot find file: " + _fpTemp2);
     }
 
     // change net 2 out(切为外网)
@@ -359,17 +441,17 @@ public class BuildTools : BuildPatcher
 
     [MenuItem("Tools/ChangeNet/切为外网(测试服)",false,50)]
     static void Net2Out(){
-        CopySVList("_sdk173");
+        CopySVList("sdk173");
     }
 
     [MenuItem("Tools/ChangeNet/切为内网QA",false,50)]
     static void Net2InQA(){
-        CopySVList("_qa");
+        CopySVList("qa");
     }
 
     [MenuItem("Tools/ChangeNet/切为外网(QA)",false,50)]
     static void Net2Out_QA(){
-        CopySVList("_sdk173_qa2");
+        CopySVList("sdk173_qa2");
     }
 
     [MenuItem("Tools/Clean(清除-本地缓存)",false,50)]
@@ -404,6 +486,44 @@ public class BuildTools : BuildPatcher
     {
         int platform = UPPrefs.GetInt(BattleChoicePrintDataKey, 0);
         UPPrefs.SetInt(BattleChoicePrintDataKey, platform == 0 ? 1 : 0);
+    }
+	
+	[MenuItem("Tools/CheckPrefab",false,50)]
+    static public void CheckPrefab(){
+        EditorUtility.DisplayProgressBar("CheckPrefab", "CheckPrefab Start", 0.01f);
+        string _check = "sinfo_skill_test";
+        string[] searchInFolders = {
+            "Assets"
+        };
+        string[] _tes = AssetDatabase.FindAssets("t:Prefab",searchInFolders);
+        int _lens = _tes.Length;
+        string _assetPath,_filePath,_fcont;
+        for (int i = 0; i < _lens; i++)
+        {
+            _assetPath = AssetDatabase.GUIDToAssetPath(_tes[i]);
+            _filePath =  m_dirDataNoAssets + _assetPath;
+            _fcont = GetText4File(_filePath);
+            EditorUtility.DisplayProgressBar(string.Format("CheckPrefab ({0}/{1})",(i + 1),_lens),_assetPath, i / (float)_lens);
+            if(_fcont.Contains(_check))
+            {
+                Debug.LogErrorFormat("=== Has [{0}] == [{1}]",_check,_assetPath);
+            }
+        }
+        EditorUtility.ClearProgressBar();
+        EditorUtility.DisplayDialog("CheckPrefab","isOver","Okey","Yes");
+    }
+	
+	[MenuItem("Tools/PatcheCompareFiles(更新测试)",false,50)]
+    static void PatcheCompareFiles()
+    {
+        
+        string fpOld = string.Format("{0}/../../_fls/filelist_old.txt", Application.dataPath);
+        string fpNew = string.Format("{0}/../../_fls/filelist.txt", Application.dataPath);
+        LogPatcheFiles(fpOld,fpNew);
+
+        Core.GameFile.CurrDirRes();
+        string _destFp = string.Concat(m_dirRes, "filelist.txt");
+        Debug.LogError(_destFp);
     }
 
     [MenuItem("Tools/ZipMainChild")]

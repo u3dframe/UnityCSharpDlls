@@ -37,6 +37,10 @@ public class PElementEditor : Editor
             {
                 uicom.TryProminentlyNexts(false);
             }
+            if (GUILayout.Button("清除UnrealObj以下的数据"))
+            {
+                uicom.ClearDatasss();
+            }
         }
     }
 }

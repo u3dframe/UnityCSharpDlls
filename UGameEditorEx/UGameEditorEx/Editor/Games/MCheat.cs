@@ -111,6 +111,10 @@ namespace Assets.Editor
 
         void SetRun(bool running)
         {
+            in_running = running;
+            if(!EditorApplication.isPlaying)
+                return;
+            
             lastError = "";
             string result;
             if (CsWithLua.CallLua("MgrNet.Hook", running ? "start" : "stop", out result))

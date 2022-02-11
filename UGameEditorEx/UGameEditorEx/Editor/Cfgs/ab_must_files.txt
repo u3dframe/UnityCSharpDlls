@@ -5,3 +5,5 @@ lightmaps/
 spines/
 audios/
 fbxs/
+fbxs_clip_fab/
+camera/

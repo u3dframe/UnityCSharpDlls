@@ -3,3 +3,5 @@ animations/ui/
 spines/_scenes/
 spines/uispines/
 fbxs/
+fbxs_clip_fab/
+camera/
