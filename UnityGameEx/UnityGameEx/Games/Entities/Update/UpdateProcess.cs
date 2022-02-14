@@ -518,7 +518,7 @@ namespace Core.Kernel
 
                 if (_verCurr.IsUpdate4Other(_verNet))
                 {
-                    CfgVersion.instance.CloneFromOther(_verNet);
+                    _verCurr.CloneFromOther(_verNet);
                     this._SetState(EM_Process.CheckFileList);
                 }
                 else

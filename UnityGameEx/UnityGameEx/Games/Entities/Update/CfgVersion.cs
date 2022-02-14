@@ -318,7 +318,7 @@ namespace Core.Kernel
 			this.m_pkgVersion = other.m_pkgVersion;
 			this.m_urlSv = other.m_urlSv;
             this.m_svnVerCode = other.m_svnVerCode;
-		}
+        }
 
 		public ApkIpaInfo GetApkIpa(string channel){
 			if (string.IsNullOrEmpty (channel))
@@ -351,7 +351,7 @@ namespace Core.Kernel
 			m_lApkIpa.Add (one);
 		}
 
-        public void SyncByCfgPkg()
+        public CfgVersion SyncByCfgPkg()
         {
             this.m_urlVersion = CfgPackage.instance.m_urlVersion; // 从包体里面获取
             this.m_pkgVersion = CfgPackage.instance.m_uprojVer; // 从包体里面获取
@@ -365,6 +365,7 @@ namespace Core.Kernel
                 string _dir = UGameFile.ReUrlEnd(this.m_pkgFilelist);
                 this.m_pkgFiles = string.Format("{0}files", _dir);
             }
+            return this;
         }
 	
         static public CfgVersion Builder()
