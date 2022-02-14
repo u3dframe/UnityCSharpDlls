@@ -23,8 +23,8 @@ namespace Core.Kernel
         UnZipClass unzip = null;
         bool m_isBegZip = false;
         int nZipCurr = 0;
-        public int nCurr { get; private set; }
-        public int m_nSize { get; private set; }
+        public long nCurr { get; private set; }
+        public long m_nSize { get; private set; }
         string m_obbPath = null;
         public CompareFiles m_compare { get; private set; }
         ResInfo _downVerOrFList = null;
@@ -601,6 +601,9 @@ namespace Core.Kernel
                 return;
             }
 
+            this.nCurr = this.m_compare.nCurr;
+            this.m_nSize = this.m_compare.nSize;
+            this._ExcuteProgress(this.nCurr, this.m_nSize);
             this.m_compare.OnUpdate();
 
             if (this.m_compare.isFinished)

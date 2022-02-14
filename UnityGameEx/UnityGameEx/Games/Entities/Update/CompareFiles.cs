@@ -38,6 +38,9 @@ namespace Core.Kernel
         public bool isError { get { return m_iState >= (int)EM_CompFiles.Error; } }
         public bool isFinished { get { return m_state == EM_CompFiles.Completed; } }
 
+        public long nCurr = 0;
+        public long nSize = 1;
+
         public CompareFiles()
         {
             m_code = (++_Code);
@@ -194,6 +197,12 @@ namespace Core.Kernel
             return max;
         }
 
+        void _ReSize(long size)
+        {
+            this.nCurr = 0;
+            this.nSize = size <= 0 ? 1 : size;
+        }
+
         public void OnUpdate()
         {
             switch (m_state)
@@ -259,6 +268,8 @@ namespace Core.Kernel
                 CfgFileList.instanceNeedDown.SaveByTContent();
 
             this.m_keys.Clear();
+            int _count = this.m_deletes.Count;
+            this._ReSize(_count);
             m_state = EM_CompFiles.DelFiles;
         }
 
@@ -267,6 +278,7 @@ namespace Core.Kernel
             if (m_deletes.Count <= 0)
             {
                 m_state = EM_CompFiles.CheckDownFiles;
+                this._ReSize(this.m_sumDownSize);
                 return;
             }
 
@@ -282,6 +294,7 @@ namespace Core.Kernel
                     _tmp = m_deletes[_key];
                     m_deletes.Remove(_key);
                     UGameFile.DeleteFile(_tmp.m_resName);
+                    ++this.nCurr;
                 }
             }
             this.m_keys.Clear();
@@ -346,6 +359,7 @@ namespace Core.Kernel
             {
                 bool _isMust = (dlFile != null) && (dlFile.m_isMustFile || CfgMustFiles.instance.IsMust(dlFile.m_curName));
                 CfgFileList.instanceDown.Save2Downed(dlFile, _isMust);
+                this.nCurr += dlFile.m_size;
             }
             else
             {
