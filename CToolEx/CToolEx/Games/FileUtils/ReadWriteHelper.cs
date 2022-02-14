@@ -29,7 +29,7 @@ namespace Core.Kernel
         static public ET_FPType m_emFpType = ET_FPType.UNITY_EDITOR;
         // 平台
         static public readonly string platformAndroid = "Android";
-        static public readonly string platformIOS = "IOS";
+        static public readonly string platformIOS = "iOS";
         static public readonly string platformWindows = "Windows";
 
         // 编辑器下面资源所在跟目录
