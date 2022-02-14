@@ -118,7 +118,8 @@ namespace Core.Kernel
 
         public CfgVersion Load(string fn){
 			this.m_filePath = UGameFile.curInstance.GetFilePath (fn);
-			Init (UGameFile.GetText (fn));
+            string _c_ = UGameFile.GetText(fn);
+            Init(_c_);
             return this;
 		}
 

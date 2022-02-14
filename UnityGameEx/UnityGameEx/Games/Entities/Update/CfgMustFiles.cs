@@ -82,7 +82,8 @@ namespace Core.Kernel
 		}
 
 		public void Load(string fn){
-			Init (UGameFile.GetText (fn));
+            string _c_ = UGameFile.GetText(fn);
+            Init(_c_);
 		}
 
 		/// <summary>
