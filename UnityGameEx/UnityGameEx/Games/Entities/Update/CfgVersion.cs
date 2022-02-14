@@ -362,7 +362,8 @@ namespace Core.Kernel
             if (_isSync || string.IsNullOrEmpty(this.m_pkgFilelist))
             {
                 this.m_pkgFilelist = this.m_pkgVersion;
-                this.m_pkgFiles = string.Format("{0}files", UGameFile.ReUrlEnd(this.m_pkgFilelist));
+                string _dir = UGameFile.ReUrlEnd(this.m_pkgFilelist);
+                this.m_pkgFiles = string.Format("{0}files", _dir);
             }
         }
 	
