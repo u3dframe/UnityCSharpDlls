@@ -102,7 +102,7 @@ public class AudioData
 
     static long _nCursor = 0;
 
-    private int m_nType = 0; // 0 = sound , 1 = music ,
+    public int m_nType = 0; // 0 = sound , 1 = music ,2 = fight sound
     private float m_volume = 1f;
     private AudioSource m_audio = null;
     private int m_playState = 0;
