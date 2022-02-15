@@ -357,8 +357,7 @@ namespace Core.Kernel
             bool isSuccess = state == (int)EM_SucOrFails.Success;
             if (isSuccess)
             {
-                bool _isMust = (dlFile != null) && (dlFile.m_isMustFile || CfgMustFiles.instance.IsMust(dlFile.m_curName));
-                CfgFileList.instanceDown.Save2Downed(dlFile, _isMust);
+                CfgFileList.instanceDowning.Save2Downed(dlFile);
                 this.nCurr += dlFile.m_size;
             }
             else

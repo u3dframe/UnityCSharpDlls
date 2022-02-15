@@ -59,11 +59,14 @@ namespace Core.Kernel
             }
 		}
 
-		public void Add(ResInfo info){
+		public bool Add(ResInfo info){
+            bool isOkey = false;
+            if (info == null)
+                return isOkey;
 			if (info.m_size == 0)
-				return;
+				return isOkey;
 
-            bool isOkey = this.m_data.Add(info.m_curName, info);
+            isOkey = this.m_data.Add(info.m_curName, info);
             if (isOkey)
             {
                 if (info.isManifest)
@@ -74,12 +77,14 @@ namespace Core.Kernel
             else if(info.m_size > 0 && !string.IsNullOrEmpty(info.m_compareCode))
             {
                 ResInfo _old = this.GetInfo(info.m_curName);
-                _old.CloneFromOther(info);             
+                _old.CloneFromOther(info);
+                isOkey = true;
             }
             else
             {
                 Debug.LogErrorFormat("========== Filelist Add error has [{0}],[{1}],[{2}]", info.m_curName, info.m_size, info.m_compareCode);
             }
+            return isOkey;
         }
 
         public ResInfo GetInfo(string key)
@@ -228,11 +233,11 @@ namespace Core.Kernel
 		/// <summary>
 		/// 保存到已下载文件夹里面
 		/// </summary>
-		public void Save2Downed(ResInfo info,bool isMust = false){
-			if (this.Remove (info) || isMust) {
-				instanceDowned.Add (info);
-				instanceDowned.SaveByTContent ();
-			}
+		public void Save2Downed(ResInfo info){
+            instanceDowning.Remove(info);
+			bool isBl = instanceDowned.Add (info);
+            if(isBl)
+			    instanceDowned.SaveByTContent ();
 		}
 
 		public void ReInitDowning(){
@@ -324,7 +329,7 @@ namespace Core.Kernel
 		}
 
 		static CfgFileList _downing;
-		static public CfgFileList instanceDown{
+		static public CfgFileList instanceDowning{
 			get{
 				if (_downing == null) {
 					_downing = Builder();

@@ -211,7 +211,7 @@ namespace Core.Kernel{
 
         public bool AddPreLoad(string resName,bool isRunning,DF_LDownFile callBack)
         {
-            ResInfo ret = CfgFileList.instanceDown.GetInfo(resName);
+            ResInfo ret = CfgFileList.instanceDowning.GetInfo(resName);
             if (ret == null)
             {
                 ret = CfgFileList.instance.GetInfo(resName);
@@ -247,12 +247,9 @@ namespace Core.Kernel{
 
         void _CFLDownState(bool isSuccess, ResInfo dlFile)
         {
-            if (!this.isCanCallDown)
-                return;
-
             if (isSuccess)
             {
-                var cflDown = CfgFileList.instanceDown;
+                var cflDown = CfgFileList.instanceDowning;
                 cflDown.Save2Downed(dlFile);
 
                 this.m_iDowned = this.m_iAllLens - cflDown.GetDataCount();
@@ -294,7 +291,7 @@ namespace Core.Kernel{
                 this.m_iDowned = 0;
                 this.m_nSumDownSize = 0;
 
-                var cflDown = CfgFileList.instanceDown;
+                var cflDown = CfgFileList.instanceDowning;
                 List<ResInfo> lists = cflDown.GetList(false);
                 this.m_iAllLens = lists.Count;
                 if (this.m_iAllLens <= 0)
