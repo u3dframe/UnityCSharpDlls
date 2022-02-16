@@ -198,7 +198,7 @@ public class PrefabBasic : GobjLifeListener {
     }
 
     [ContextMenu("Re Bind Nodes (重新绑定所需节点)")]
-    protected void ReNodes()
+    public void ReNodes()
     {
         this.ReBindNodes(true);
     }
@@ -246,7 +246,7 @@ public class PrefabBasic : GobjLifeListener {
     }
 
     [ContextMenu("Re-Rmv Empty")]
-    protected void ReSizeList()
+    protected void ReRmvEmpty()
     {
         GHelper.Is_App_Quit = false;
         List<GameObject> list = new List<GameObject>();
@@ -265,13 +265,13 @@ public class PrefabBasic : GobjLifeListener {
     }
 
     [ContextMenu("Re-Rmv Empty(This and Childs)")]
-    protected void ReSizeListAll()
+    protected void ReRmvEmptyAll()
     {
         GHelper.Is_App_Quit = false;
         PrefabBasic[] arrs = this.m_gobj.GetComponentsInChildren<PrefabBasic>(true);
         foreach (var item in arrs)
         {
-            item.ReSizeList();
+            item.ReRmvEmpty();
         }
     }
 
