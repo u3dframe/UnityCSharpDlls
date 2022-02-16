@@ -31,7 +31,7 @@ public class SceneInfoExInspector : Editor
     {
         base.DrawDefaultInspector();
 
-        this._isClearCmr = GUILayout.Toggle(this._isClearCmr, "Clear Curr Cmr Note", EG_Helper.ToOptionH(30));
+        this._isClearCmr = GUILayout.Toggle(this._isClearCmr, "Clear Curr Cmr Note - 清除【摄像机预制体】", EG_Helper.ToOptionH(30));
 
         if (GUILayout.Button("Save Infos - 保存【场景】信息",EG_Helper.ToOptionH(30))){
 			_SaveInfos();
@@ -148,6 +148,8 @@ public class SceneInfoExInspector : Editor
             _ClearChild(_trsf_, 0);
             _trsf_ = _pe.GetTrsfElement("victory_show");
             _ClearChild(_trsf_, 0);
+
+            _pe.ReNodes();
         }
         
         GameFile.CreateFab(_go_, fp,false);
