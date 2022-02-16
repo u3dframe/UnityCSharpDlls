@@ -375,9 +375,15 @@ public class BuildTools : BuildPatcher
         BuildAllResource();
     }
 
-    static public void SaveDefaultCfgVersion(){
-        CfgVersion.instance.LoadDefault4EDT();
-        CfgVersion.instance.SaveDefault();
+    static public void SaveDefaultCfgVersion(string chn="kp_and"){
+        if(string.IsNullOrEmpty(chn))
+            chn = "kp_and";
+        CfgVersion _cVer = CfgVersion.instance;
+        _cVer.LoadDefault4EDT();
+        _cVer.m_pkgVersion = chn;
+        _cVer.m_pkgFilelist = chn;
+        _cVer.m_pkgFiles = chn+"/files";
+        _cVer.SaveDefault();
     }
 
     static void SetZipBackup(string dir,string fparent)
@@ -388,12 +394,12 @@ public class BuildTools : BuildPatcher
 
     static public void Zip_Main(){
         m_luacExe = "D:/lua-5.3.5_w64/luac.exe";
-        SaveDefaultCfgVersion();
+        SaveDefaultCfgVersion(m_fparentZipBackup);
         ZipMain();
     }
 
     static public void Zip_Patch(){
-        SaveDefaultCfgVersion();
+        SaveDefaultCfgVersion(m_fparentZipBackup);
         ZipPatche();
     }
 
@@ -409,23 +415,20 @@ public class BuildTools : BuildPatcher
             string text = File.ReadAllText(_fpTemp);
             foreach (var key in data.Keys)
                 text = text.Replace(key, LJsonHelper.ToStr(data, key));
-            var dir = Path.GetDirectoryName(_fpDest);
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
+            CreateFolder(_fpDest);
             File.WriteAllText(_fpDest, text);
         }
         else
             Debug.LogError("Cannot find file: " + _fpTemp);
         string _fpTemp2 = string.Format("{0}/../_svlists/cfg_game_package.json", Application.dataPath);
-        string _fpDest2 = string.Format("{0}/Plugins/{1}/assets/cfg_game_package.json", Application.dataPath, Application.platform);
+        string _fpDest2 = string.Format("{0}/Plugins/{1}/assets/cfg_game_package.json", Application.dataPath,m_curPlatform);
         if (File.Exists(_fpTemp2))
         {
             string text = File.ReadAllText(_fpTemp2);
             foreach (var key in data.Keys)
                 text = text.Replace(key, LJsonHelper.ToStr(data, key));
-            var dir = Path.GetDirectoryName(_fpDest2);
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
+            text = text.Replace("__UPDATEVER__",ver);
+            CreateFolder(_fpDest2);
             File.WriteAllText(_fpDest2, text);
         }
         else

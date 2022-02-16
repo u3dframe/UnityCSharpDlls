@@ -20,6 +20,7 @@ public class SceneInfoExInspector : Editor
 	// string m_fabName = "";
 	string _fpInAsset4Gbox = "Assets/_Develop/Builds/groudbox/gbox.prefab";
     string _fpInAsset4Gbox2 = "Assets/_Develop/Builds/groudbox/Excludes/gbox.prefab";
+    bool _isClearCmr = false;
 
     void OnEnable()
     {
@@ -29,7 +30,10 @@ public class SceneInfoExInspector : Editor
     public override void OnInspectorGUI()
     {
         base.DrawDefaultInspector();
-		if (GUILayout.Button("Save Infos - 保存【场景】信息",EG_Helper.ToOptionH(30))){
+
+        this._isClearCmr = GUILayout.Toggle(this._isClearCmr, "Clear Curr Cmr Note", EG_Helper.ToOptionH(30));
+
+        if (GUILayout.Button("Save Infos - 保存【场景】信息",EG_Helper.ToOptionH(30))){
 			_SaveInfos();
 		}
     }
@@ -131,24 +135,36 @@ public class SceneInfoExInspector : Editor
             "MainCamera","gbox","Lights","Scene","Effects","Probes",
             "victory_hide","victory_show","victory_camera","victory_location"
         };
-        this._ReBindNode4PrefabElement(_go_, _nodes);
-
-        Transform _trsf_ = _go_.transform;
+        PrefabElement _pe = this._ReBindNode4PrefabElement(_go_, _nodes);
         var _qs_ = UtilityHelper.Get<Core.Kernel.EU_GQScene>(_go_, true);
         if (!_qs_.m_rootLight)
-            _qs_.m_rootLight = _trsf_.Find("Lights");
-        if (!_qs_.m_rootLight)
-            _qs_.m_rootLight = _trsf_.Find("Offset/Lights");
-        if (!_qs_.m_rootLight)
-            _qs_.m_rootLight = _trsf_.Find("Offset/Scene/Lights");
+            _qs_.m_rootLight = _pe.GetTrsfElement("Lights");
 
+        if(this._isClearCmr)
+        {
+            Transform _trsf_ = _go_.transform;
+            // 清除 camera
+            _trsf_ = _pe.GetTrsfElement("victory_hide");
+            _ClearChild(_trsf_, 0);
+            _trsf_ = _pe.GetTrsfElement("victory_show");
+            _ClearChild(_trsf_, 0);
+        }
+        
         GameFile.CreateFab(_go_, fp,false);
-
         UnityEditor.AssetDatabase.Refresh();
 		// m_obj.m_fabName = _fabName;
 	}
 
-    void _ReBindNode4PrefabElement(GameObject _go_, string[] _nodes)
+    void _ClearChild(Transform trsfRoot,int index)
+    {
+        if (!trsfRoot)
+            return;
+        Transform _trsf_ = trsfRoot.GetChild(index);
+        if (_trsf_)
+            GameObject.DestroyImmediate(_trsf_.gameObject);
+    }
+
+    PrefabElement _ReBindNode4PrefabElement(GameObject _go_, string[] _nodes)
     {
         PrefabElement csEle = UtilityHelper.Get<PrefabElement>(_go_, true);
         var list2 = new System.Collections.Generic.HashSet<GameObject>();
@@ -169,6 +185,7 @@ public class SceneInfoExInspector : Editor
         list.AddRange(list2);
         GameObject[] gobjs = list.ToArray();
         csEle.SetChildGobjs(gobjs);
+        return csEle;
     }
 
     void _SaveReflectionProbe(Scene scene, string rfp, JsonData jdLm)
