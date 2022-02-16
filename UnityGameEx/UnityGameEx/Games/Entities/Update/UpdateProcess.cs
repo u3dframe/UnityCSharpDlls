@@ -485,6 +485,7 @@ namespace Core.Kernel
             XXTEA.SetCustKey(cfg.m_keyLua);
 
             GameMgr.instance.InitAfterUpload();
+            MgrDownload.shareInstance.Init();
             AssetBundleManager.instance.Init();
             // 完成回调
             this._ExcCompleted();
