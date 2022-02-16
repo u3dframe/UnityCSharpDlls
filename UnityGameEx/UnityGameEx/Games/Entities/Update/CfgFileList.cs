@@ -230,16 +230,6 @@ namespace Core.Kernel
 			return IsHas(info.m_curName);
 		}
 
-		/// <summary>
-		/// 保存到已下载文件夹里面
-		/// </summary>
-		public void Save2Downed(ResInfo info){
-            instanceDowning.Remove(info);
-			bool isBl = instanceDowned.Add (info);
-            if(isBl)
-			    instanceDowned.SaveByTContent ();
-		}
-
 		public void ReInitDowning(){
 			if (_downing == null)
 				return;
@@ -345,5 +335,16 @@ namespace Core.Kernel
                 return false;
             return fn.EndsWith(m_defFileName) || fn.EndsWith(m_defFileName2) || fn.EndsWith(m_defFileName3);
         }
-	}
+
+        /// <summary>
+		/// 保存到已下载文件夹里面
+		/// </summary>
+		static public void Save2Downed(ResInfo info)
+        {
+            instanceDowning.Remove(info);
+            bool isBl = instanceDowned.Add(info);
+            if (isBl)
+                instanceDowned.SaveByTContent();
+        }
+    }
 }

@@ -357,7 +357,7 @@ namespace Core.Kernel
             bool isSuccess = state == (int)EM_SucOrFails.Success;
             if (isSuccess)
             {
-                CfgFileList.instanceDowning.Save2Downed(dlFile);
+                CfgFileList.Save2Downed(dlFile);
                 this.nCurr += dlFile.m_size;
             }
             else

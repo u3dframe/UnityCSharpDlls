@@ -25,6 +25,13 @@ namespace Core.Kernel{
 			}
 		}
 
+        static public MgrDownload InitDown(DF_CurrMax cfDowning, System.Action cfComplate, bool isCanDowND)
+        {
+            MgrDownload _ins = shareInstance;
+            _ins.Init(cfDowning, cfComplate, isCanDowND);
+            return _ins;
+        }
+
         /// <summary>
 		/// 0:Net Not,1:Net Phone,2:Net Wifi
 		/// </summary>
@@ -86,7 +93,8 @@ namespace Core.Kernel{
         {
             int _size_pre = this.m_preLoads.Count;
             int _size_nd = this.m_needLoads.Count;
-            if (_size_pre <= 0 && _size_nd <= 0)
+            bool _isNoNd = (!this.isCanDowningND) || (_size_nd <= 0);
+            if (_size_pre <= 0 && _isNoNd)
                 return false;
             return this._m_nCurr < this.m_nLimit;
         }
@@ -116,18 +124,21 @@ namespace Core.Kernel{
                 return;
             }
 
-            this._m_nCurr++;
-
             ResInfo _info = null;
             if (_size_pre > 0)
             {
                 _info = this.m_preLoads.Dequeue();
             }
-            else
+            else if(this.isCanDowningND)
             {
                 _info = this.m_needLoads[0];
                 this.m_needLoads.Remove(_info);
             }
+
+            if (_info == null)
+                return;
+
+            this._m_nCurr++;
 
             if (string.IsNullOrEmpty(_info.m_url))
             {
@@ -238,7 +249,7 @@ namespace Core.Kernel{
         }
 
         // 包体内下载
-        bool isCanCallDown = false;
+        bool isCanDowningND = false;
         public int m_iDowned { get; private set; } // 当前下载的个数
         public int m_iAllLens { get; private set; } // 需要下载的个数
         public int m_nSumDownSize { get; private set; } // 下载总大小[B]
@@ -250,7 +261,7 @@ namespace Core.Kernel{
             if (isSuccess)
             {
                 var cflDown = CfgFileList.instanceDowning;
-                cflDown.Save2Downed(dlFile);
+                CfgFileList.Save2Downed(dlFile);
 
                 this.m_iDowned = this.m_iAllLens - cflDown.GetDataCount();
                 this.m_nSumDownSize += dlFile.m_size;
@@ -273,21 +284,20 @@ namespace Core.Kernel{
 
         void _ExcCallCompleted()
         {
-            this.isCanCallDown = false;
+            this.isCanDowningND = false;
             System.Action _call = this.m_callComplate;
             this.m_callComplate = null;
             if (_call != null)
                 _call();
         }
 
-        public MgrDownload InitDown(DF_CurrMax cfDowning,System.Action cfComplate,bool isInitDown)
+        public MgrDownload Init(DF_CurrMax cfDowning,System.Action cfComplate,bool isCanDowND)
         {
             this.m_callDowning = cfDowning;
             this.m_callComplate = cfComplate;
 
-            if (isInitDown)
+            if (isCanDowND)
             {
-                this.isCanCallDown = true;
                 this.m_iDowned = 0;
                 this.m_nSumDownSize = 0;
 
@@ -305,7 +315,9 @@ namespace Core.Kernel{
                         this.AddNeedDown(lists[i]);
                     }
                 }
-            }            
+                this.isCanDowningND = isCanDowND;
+            }
+            
             return this;
         }
     }
