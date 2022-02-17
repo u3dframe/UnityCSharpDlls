@@ -491,6 +491,18 @@ public class BuildTools : BuildPatcher
         UPPrefs.SetInt(BattleChoicePrintDataKey, platform == 0 ? 1 : 0);
     }
 	
+	[MenuItem("Tools/GetCurrAssetType",false,50)]
+    static public void GetCurrAssetType(){
+        EditorUtility.DisplayProgressBar("GetCurrAssetType", "GetCurrAssetType Start", 0.01f);
+        string _assetPath = "Assets/_Develop/Characters/Builds/animators/a_c_aili.controller";
+        UnityEngine.Object obj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(_assetPath);
+        EditorUtility.ClearProgressBar();
+        var _type = obj.GetType();
+        string _str = string.Format("Get type is [{0}]",_type);
+        Debug.LogError(_str);
+        EditorUtility.DisplayDialog("GetCurrAssetType",_str,"Okey","Yes");
+    }
+	
 	[MenuItem("Tools/CheckPrefab",false,50)]
     static public void CheckPrefab(){
         EditorUtility.DisplayProgressBar("CheckPrefab", "CheckPrefab Start", 0.01f);
@@ -514,6 +526,46 @@ public class BuildTools : BuildPatcher
         }
         EditorUtility.ClearProgressBar();
         EditorUtility.DisplayDialog("CheckPrefab","isOver","Okey","Yes");
+    }
+	
+	[MenuItem("Tools/ReBindBehaviours4Ani",false,50)]
+    static public void ReBindBehaviours4Ani(){
+        EditorUtility.DisplayProgressBar("ReBindBehaviours4Ani", "ReBindBehaviours4Ani Start", 0.01f);
+        string _check = "lose";
+        string[] searchInFolders = {
+            "Assets/_Develop/Characters/Builds/animators"
+        };
+        string[] _tes = AssetDatabase.FindAssets("t:AnimatorController",searchInFolders);
+        int _lens = _tes.Length;
+        string _assetPath;
+        UnityEditor.Animations.AnimatorController _curAni = null;
+        UnityEditor.Animations.AnimatorControllerLayer _aLayer = null;
+        bool _isChgCur = false;
+        for (int i = 0; i < _lens; i++)
+        {
+            _assetPath = AssetDatabase.GUIDToAssetPath(_tes[i]);
+            EditorUtility.DisplayProgressBar(string.Format("ReBindBehaviours4Ani ({0}/{1})",(i + 1),_lens),_assetPath, i / (float)_lens);
+            _curAni = AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(_assetPath);
+            _aLayer =  _curAni.layers[0];
+            var _aStates = _aLayer.stateMachine.states;
+            _isChgCur = false;
+            foreach (var _childAniState in _aStates)
+            {
+                var _state = _childAniState.state;
+                // Debug.LogError(_state.name);
+                if(_check.Equals(_state.name,StringComparison.OrdinalIgnoreCase))
+                {
+                    _state.AddStateMachineBehaviour<ClipStateMachine>();
+                    // _curAni.AddEffectiveStateMachineBehaviour<ClipStateMachine>(_state,0);
+                    _isChgCur = true;
+                }
+            }
+            if(_isChgCur)
+                SaveAssets(_curAni);
+        }
+        AssetDatabase.Refresh();
+        EditorUtility.ClearProgressBar();
+        EditorUtility.DisplayDialog("ReBindBehaviours4Ani","isOver","Okey","Yes");
     }
 	
 	[MenuItem("Tools/PatcheCompareFiles(更新测试)",false,50)]
