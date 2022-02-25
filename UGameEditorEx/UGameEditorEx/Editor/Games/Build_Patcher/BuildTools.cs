@@ -528,6 +528,81 @@ public class BuildTools : BuildPatcher
         EditorUtility.DisplayDialog("CheckPrefab","isOver","Okey","Yes");
     }
 	
+	[MenuItem("Tools/CheckPrefabChinese",false,50)]
+    static public void CheckPrefabChinese(){
+        EditorUtility.DisplayProgressBar("CheckPrefabChinese", "CheckPrefabChinese Start", 0.01f);
+		string _p1 = @"[\r\n\s\t]*m_Text:[\r\n\s\t]*""[\\u\w+]*""[\r\n\s\t]*";
+		var regexTex = new System.Text.RegularExpressions.Regex(_p1);
+        string[] searchInFolders = {
+            "Assets/_Develop/Builds/prefabs"
+        };
+        string[] _tes = AssetDatabase.FindAssets("t:Prefab",searchInFolders);
+        int _lens = _tes.Length;
+        string _assetPath,_filePath;
+		string[] _lines;
+		string _line;
+        Dictionary<string,List<string>> _dic = new Dictionary<string, List<string>>();
+        List<string> _list = null;
+        for (int i = 0; i < _lens; i++)
+        {
+            _assetPath = AssetDatabase.GUIDToAssetPath(_tes[i]);
+            _filePath =  m_dirDataNoAssets + _assetPath;
+            EditorUtility.DisplayProgressBar(string.Format("CheckPrefabChinese ({0}/{1})",(i + 1),_lens),_assetPath, i / (float)_lens);
+			
+			_lines = File.ReadAllLines(@_filePath);
+            for (int j = 0; j < _lines.Length; j++)
+            {
+				_line = _lines[j];
+				if (_line.Contains("m_Text:"))
+				{
+					var matches = regexTex.Matches(_line);
+					if(matches.Count > 0)
+					{
+                        if(!_dic.TryGetValue(_assetPath,out _list)){
+                            _list = new List<string>();
+                            _dic.Add(_assetPath,_list);
+                        }
+                        
+                        string _line2 = _line;
+                        try
+                        {
+                            string _line1 = _line.Substring(_line.IndexOf('\"') + 1).Trim();
+                            _line1 = _line1.Substring(0,_line1.Length - 1);
+                            _line1 = System.Text.RegularExpressions.Regex.Unescape(_line1);
+                            _line2 = _line + " = " + _line1;
+                        }
+                        catch
+                        {
+                        }
+
+                        _list.Add(_line2);
+					}
+				}
+
+			}
+        }
+
+        var _sb = new System.Text.StringBuilder();
+        foreach (var item in _dic.Keys)
+        {
+            _sb.Append("===== has Chinese uiPrefab = ").AppendLine(item);
+            _list = _dic[item];
+            foreach (var c in _list)
+            {
+                _sb.AppendLine(c);
+            }
+            _sb.AppendLine();
+            _sb.AppendLine();
+        }
+
+        string _pIt = string.Format("{0}/../../ui_chines{1}.txt", Application.dataPath,System.DateTime.Now.ToString("MMddHHmmss"));
+        File.WriteAllText(_pIt, _sb.ToString());
+
+        Debug.LogErrorFormat("===== write file = [{0}]",_pIt);
+        EditorUtility.ClearProgressBar();
+        EditorUtility.DisplayDialog("CheckPrefabChinese","isOver","Okey","Yes");
+    }
+	
 	[MenuItem("Tools/ReBindBehaviours4Ani",false,50)]
     static public void ReBindBehaviours4Ani(){
         EditorUtility.DisplayProgressBar("ReBindBehaviours4Ani", "ReBindBehaviours4Ani Start", 0.01f);
