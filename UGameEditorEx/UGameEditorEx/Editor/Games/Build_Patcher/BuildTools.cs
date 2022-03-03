@@ -22,8 +22,8 @@ using LitJson;
 /// </summary>
 public class BuildTools : BuildPatcher
 {
-	[MenuItem("Tools/ShaderName",false,50)]
-    static public void CMD_ShaderName(){
+	[MenuItem("Tools/StandardShaderName",false,50)]
+    static public void CMD_StandardShaderName(){
         EditorUtility.DisplayProgressBar("ShaderName", "Checking", 0.1f);
         string[] searchInFolders = {
             "Assets"
@@ -177,19 +177,15 @@ public class BuildTools : BuildPatcher
         WriteText(_fp,_cont,true);
         Debug.LogErrorFormat("===== write to {0}",_fp);
     }
-
-    [MenuItem("Tools/FindAssetByGUIDs",false,50)]
-    static void FindAssetByGUIDs()
+	
+	static void _FindAssetByGUIDs(params string[] arrs)
     {
         try
         {
-            string _edGUIDS = "Assets/Editor/Games/Build_Patcher/guids.txt";
-            string _fp = m_dirDataNoAssets + _edGUIDS;
-            string[] _lines = File.ReadAllLines(_fp);
             string _guid,_assetPath;
-             for (int i = 0; i < _lines.Length; i++)
+             for (int i = 0; i < arrs.Length; i++)
             {
-                _guid = _lines[i];
+                _guid = arrs[i];
                 _assetPath = AssetDatabase.GUIDToAssetPath(_guid);
                 Debug.LogFormat("===== GUID = [{0}]  ,  [{1}]",_guid,_assetPath);
             }
@@ -198,6 +194,24 @@ public class BuildTools : BuildPatcher
         {
             Debug.LogError(ex);
         }
+    }
+
+    [MenuItem("Tools/FindAssetByGUIDs",false,50)]
+    static void FindAssetByGUIDs()
+    {
+        string _edGUIDS = "Assets/Editor/Games/Build_Patcher/guids.txt";
+		string _fp = m_dirDataNoAssets + _edGUIDS;
+		string[] _lines = File.ReadAllLines(_fp);
+		_FindAssetByGUIDs(_lines);
+    }
+	
+	[MenuItem("Tools/FindAssetByGUIDs2",false,50)]
+    static void FindAssetByGUIDs2()
+    {
+        string[] _lines = {
+			"0a3adef48b308984280dbcc2be7273dc"
+		};
+		_FindAssetByGUIDs(_lines);
     }
 	
     static string[] GenBuildScene()
