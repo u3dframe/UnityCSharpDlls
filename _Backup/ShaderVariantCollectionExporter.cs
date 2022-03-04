@@ -226,7 +226,7 @@ public static class ShaderVariantCollectionExporter
 
     static private object _InvokeInternalStaticMethod(System.Type type, string method, params object[] parameters)
     {
-        var methodInfo = type.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Static);
+        var methodInfo = type.GetMethod(method, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
         if (methodInfo == null)
         {
             Debug.LogErrorFormat("=== {0} method didn't exist", method);
@@ -276,19 +276,25 @@ public static class ShaderVariantCollectionExporter
 
         Dictionary<Shader, List<SShaderVariant>> uiDic = null,ftDic = null;
         var _svs = GetSShaderVariant(svcAlls,out uiDic,out ftDic);
-        System.Threading.Thread.Sleep(20);
         Debug.LogFormat("=== _ReSplitSVC 1 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
+        System.Threading.Thread.Sleep(20);
         string _uiSvc = "Assets/_Develop/Builds/all_svc.shadervariants";
         string _fightSvc = "Assets/_Develop/Builds/all_svc_ft.shadervariants";
         CreateSVC(_uiSvc,uiDic);
+        Debug.LogFormat("=== _ReSplitSVC 2 = [{0}] = [{0}]",uiDic.Count, System.DateTime.Now.ToString("HH:mm:ss"));
         System.Threading.Thread.Sleep(200);
         CreateSVC(_fightSvc,ftDic);
-        Debug.LogFormat("=== _ReSplitSVC 2 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
+        Debug.LogFormat("=== _ReSplitSVC nn = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
     }
 
     static bool _IsInScene(string assetPath){
         string _ap = assetPath.Replace("\\","/");
-        return _ap.Contains("/Scene/Builds/");
+        return _ap.Contains("/Scene/Builds/") || _ap.Contains("PostProcessing");
+    }
+
+    static bool _IsInSceneBy(string shaderName){
+        string _ap = shaderName.ToLower();
+        return _ap.Contains("postprocessing");
     }
 
     static Dictionary<Shader, List<SShaderVariant>> GetSShaderVariant(ShaderVariantCollection svc,out Dictionary<Shader, List<SShaderVariant>> uiDic,out Dictionary<Shader, List<SShaderVariant>> ftDic)
@@ -328,18 +334,21 @@ public static class ShaderVariantCollectionExporter
                             if (prop_keywords != null && prop_passType != null && prop_keywords.propertyType == SerializedPropertyType.String)
                             {
                                 var srcKeywords = prop_keywords.stringValue;
-                                if(string.IsNullOrWhiteSpace(srcKeywords))
-                                    continue;
                                 var keywords = srcKeywords.Split(' ');
-                                if(keywords == null || keywords.Length <= 0)
-                                    continue;
-                                
                                 var pathType = (UnityEngine.Rendering.PassType)prop_passType.intValue;
-                                variants.Add(new SShaderVariant(shader, pathType, keywords));
+                                try
+                                {
+                                    var ssv = new SShaderVariant(shader, pathType, keywords);
+                                    variants.Add(ssv);
+                                }
+                                catch (System.Exception ex)
+                                {
+                                    Debug.LogErrorFormat( "Add ShaderVariant is invalid: {0} = [{1}] = [{2}]\n{3}",shader.ToString(),srcKeywords,pathType,ex );
+                                }
                             }
                         }
 
-                        if(_IsInScene(shaderAssetPath)){
+                        if(_IsInScene(shaderAssetPath) || _IsInSceneBy(shader.name) ){
                             if(!ftDic.ContainsKey(shader))
                             {
                                 ftDic.Add(shader,variants);
@@ -387,6 +396,6 @@ public static class ShaderVariantCollectionExporter
     static private readonly Stopwatch _elapsedTime = new Stopwatch();
     private const int WaitTimeBeforeSave = 20000;
     static private string _SVCPath = "Assets/ShaderVariantCollection.shadervariants";
-    static private readonly bool isReSplitShaderVariants = false;
+    static private readonly bool isReSplitShaderVariants = true;
     static private readonly bool keepTempShaderVariants = true;
 }
