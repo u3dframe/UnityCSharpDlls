@@ -325,14 +325,15 @@ namespace Core.Kernel
             }
         }
 
-        public List<ABDataDependence> ReABBySVC4Shader()
+        public void ReABBySVC4Shader(ref List<ABDataDependence> ret)
         {
             if (!this.m_isShaderSVC)
-                return null;
+                return;
             int _lens = this.GetNDeps();
             if (_lens <= 0)
-                return null;
-            List<ABDataDependence> ret = new List<ABDataDependence>();
+                return;
+            if(ret == null)
+                ret = new List<ABDataDependence>();
             ABDataDependence _it_ = null;
             OrgAsset _oaObj = null;
             long _oaID = -1;
@@ -346,7 +347,6 @@ namespace Core.Kernel
                 _it_.ReAB(this.m_abName, this.m_abSuffix);
                 ret.Add(_it_);
             }
-            return ret;
         }
 
         public void ReAB(string abName = "", string abSuffix = "")
@@ -460,8 +460,20 @@ namespace Core.Kernel
         {
             this.GetList(true);
             int lens = this.m_dicList.m_list.Count;
-            ABDataDependence _f = lens > 0 ? this.m_dicList.m_list[0] : null;
-            return (_f != null) ? _f.ReABBySVC4Shader() : null;
+            if (lens <= 0)
+                return null;
+            List<ABDataDependence> _ret = new List<ABDataDependence>();
+            ABDataDependence _f = null;
+            int _clen = (lens <= 10) ? lens : 10;
+            for (int i = 0; i < _clen; i++)
+            {
+                _f = this.m_dicList.m_list[i];
+                if (_f != null)
+                {
+                    _f.ReABBySVC4Shader(ref _ret);
+                }
+            }
+            return _ret;
         }
 
         public void InitIgnoreAndMust(bool isForce = false)
