@@ -343,6 +343,8 @@ public static class ShaderVariantCollectionExporter
                                 }
                                 catch (System.Exception ex)
                                 {
+									// 好像不支持 Category 模式
+									// shader_feature_local 的变体模式好像只能在 "LightMode"="ForwardBase" 下才有效
                                     Debug.LogErrorFormat( "Add ShaderVariant is invalid: {0} = [{1}] = [{2}]\n{3}",shader.ToString(),srcKeywords,pathType,ex );
                                 }
                             }
