@@ -27,7 +27,13 @@ public static class ShaderVariantCollectionExporter
     [MenuItem("Tools/Shader/Export GameSVC")]
     static void Export2()
     {
-        ExportSVC("Assets/_Develop/Builds/all_svcs.shadervariants", "_Develop/");
+        string _name = isReSplitShaderVariants ? "Assets/_Develop/Builds/all_svcs.shadervariants" : "Assets/_Develop/Builds/all_svc.shadervariants";
+        ExportSVC(_name, "_Develop/");
+    }
+
+    static void SleepMs(int ms)
+    {
+        System.Threading.Thread.Sleep(ms);
     }
 
     /// <summary>
@@ -37,7 +43,7 @@ public static class ShaderVariantCollectionExporter
     static public void ExportSVC(string fpSave = null, string rootDir = null, string fpDir = null)
     {
         EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
-        System.Threading.Thread.Sleep(20);
+        SleepMs(20);
         Debug.LogFormat("=== ExportSVC T0 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
         if (!string.IsNullOrEmpty(fpSave))
             _SVCPath = fpSave;
@@ -48,7 +54,7 @@ public static class ShaderVariantCollectionExporter
         //         .Where(s => s.ToLower().EndsWith(".mat")).ToArray();
 
         EditorUtility.UnloadUnusedAssetsImmediate(true);
-        System.Threading.Thread.Sleep(20);
+        SleepMs(20);
         Debug.LogFormat("=== ExportSVC T1 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
 
         var _arrs2 = AssetDatabase.FindAssets("t:Material"); // t:Material t:Shader        
@@ -120,7 +126,7 @@ public static class ShaderVariantCollectionExporter
         {
             EditorApplication.update -= EditorUpdate;
             EditorApplication.isPlaying = true;
-            System.Threading.Thread.Sleep(20000);
+            SleepMs(3000);
             object _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionVariantCount");
             Debug.LogFormat("=== Update CurrSVC_VariantCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
             InvokeInternalStaticMethod(TP_CSU, "SaveCurrentShaderVariantCollection", _SVCPath);
@@ -130,12 +136,9 @@ public static class ShaderVariantCollectionExporter
             _elapsedTime.Reset();
             EditorApplication.isPlaying = false;
 
-            if(isReSplitShaderVariants)
-            {
-                _elapsedTime.Start();
-                EditorApplication.update -= _Update4ReSplitSVC;
-                EditorApplication.update += _Update4ReSplitSVC;
-            }
+            _elapsedTime.Start();
+			EditorApplication.update -= _Update4Clear;
+			EditorApplication.update += _Update4Clear;
         }
     }
 
@@ -190,7 +193,7 @@ public static class ShaderVariantCollectionExporter
             }
             if (i > 0 && i % 5 == 0)
             {
-                System.Threading.Thread.Sleep(20);
+                SleepMs(20);
             }
         }
 
@@ -236,6 +239,28 @@ public static class ShaderVariantCollectionExporter
         return methodInfo.Invoke(null, parameters);
     }
 	
+	static private void _Update4Clear()
+	{
+		if (_elapsedTime.ElapsedMilliseconds >= 1000)
+        {
+            EditorApplication.update -= _Update4Clear;
+            _elapsedTime.Stop();
+            _elapsedTime.Reset();
+			
+			EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
+			SleepMs(200);
+			EditorUtility.UnloadUnusedAssetsImmediate(true);
+			SleepMs(200);
+			Debug.LogFormat("=== Clear End = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
+			if(isReSplitShaderVariants)
+            {
+                _elapsedTime.Start();
+                EditorApplication.update -= _Update4ReSplitSVC;
+                EditorApplication.update += _Update4ReSplitSVC;
+            }
+        }
+	}
+	
 	
 	static private void _Update4ReSplitSVC()
     {
@@ -245,10 +270,6 @@ public static class ShaderVariantCollectionExporter
             _elapsedTime.Stop();
             _elapsedTime.Reset();
 			
-			EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
-			System.Threading.Thread.Sleep(200);
-			EditorUtility.UnloadUnusedAssetsImmediate(true);
-			System.Threading.Thread.Sleep(200);
             try
             {
                 _ReSplitSVC();
@@ -277,12 +298,12 @@ public static class ShaderVariantCollectionExporter
         Dictionary<Shader, List<SShaderVariant>> uiDic = null,ftDic = null;
         var _svs = GetSShaderVariant(svcAlls,out uiDic,out ftDic);
         Debug.LogFormat("=== _ReSplitSVC 1 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
-        System.Threading.Thread.Sleep(20);
+        SleepMs(20);
         string _uiSvc = "Assets/_Develop/Builds/all_svc.shadervariants";
         string _fightSvc = "Assets/_Develop/Builds/all_svc_ft.shadervariants";
         CreateSVC(_uiSvc,uiDic);
         Debug.LogFormat("=== _ReSplitSVC 2 = [{0}] = [{0}]",uiDic.Count, System.DateTime.Now.ToString("HH:mm:ss"));
-        System.Threading.Thread.Sleep(200);
+        SleepMs(200);
         CreateSVC(_fightSvc,ftDic);
         Debug.LogFormat("=== _ReSplitSVC nn = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
     }
@@ -396,8 +417,8 @@ public static class ShaderVariantCollectionExporter
 
     static private System.Type TP_CSU = typeof(ShaderUtil);
     static private readonly Stopwatch _elapsedTime = new Stopwatch();
-    private const int WaitTimeBeforeSave = 20000;
+    private const int WaitTimeBeforeSave = 25000;
     static private string _SVCPath = "Assets/ShaderVariantCollection.shadervariants";
-    static private readonly bool isReSplitShaderVariants = true;
+    static private readonly bool isReSplitShaderVariants = false;
     static private readonly bool keepTempShaderVariants = true;
 }
