@@ -110,10 +110,10 @@
             if (string.IsNullOrEmpty(src))
                 return "";
 
-            if (!string.IsNullOrEmpty(beg) && !src.Contains(beg))
+            if (!string.IsNullOrEmpty(beg) && !src.StartsWith(beg))
                 src = string.Concat(beg, src);
 
-            if (!string.IsNullOrEmpty(end) && !src.Contains(end))
+            if (!string.IsNullOrEmpty(end) && !src.EndsWith(end))
                 src = string.Concat(src, end);
 
             return src;
