@@ -18,6 +18,7 @@ static public class Localization
     static EN_KVal mCurr = null;
     static public System.Action onLocalize; // 语言改变时候的通知
     static public bool mIsLogErr = true;
+    static public string mHeader = "lanuage/";
 
     /// <summary>
     /// Name of the currently active language.
@@ -55,7 +56,7 @@ static public class Localization
             temp = new EN_KVal();
             mDicLgs.Add(language, temp);
         }
-        return temp.ReLoad(language, isCsv);
+        return temp.ReLoad(language, isCsv, mHeader);
     }
 
     static bool Load(string val, bool isCsv)
