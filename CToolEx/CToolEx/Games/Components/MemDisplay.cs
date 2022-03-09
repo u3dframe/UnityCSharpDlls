@@ -20,47 +20,54 @@ public class MemDisplay : MonoBehaviour
     public long m_luaUseMem = 0;
     public MemBType m_eBType = MemBType.MB;
     public double m_def_kb = 1024;
-    private double m_kb = 1d;
+    private double m_s = 1d;
     private string m_key_byte = "b";
 
     void OnGUI()
 	{
 		int w = Screen.width, h = Screen.height;
         int _h = (int)(h * hsRate) + 1;
-        Rect rect = new Rect(0,30, w, _h);
 		style.alignment = TextAnchor.UpperLeft;
 		style.fontSize = _h;
 		style.normal.textColor = tCol;
+        Rect rect = new Rect(0,30, w, _h * 5);
 
-        long monoAll = Profiler.GetMonoHeapSizeLong();
+        long monoHeap = Profiler.GetMonoHeapSizeLong();
         long monoUsed = Profiler.GetMonoUsedSizeLong();
         long usedHeap = Profiler.usedHeapSizeLong;
-        long totalMem = System.GC.GetTotalMemory(false);
+        long tAlloc = Profiler.GetTotalAllocatedMemoryLong();
+        long tResed = Profiler.GetTotalReservedMemoryLong();
+        long tUnusedResed = Profiler.GetTotalUnusedReservedMemoryLong();
+        ulong tCurr = Texture.currentTextureMemory;
+        ulong tTotal = Texture.totalTextureMemory;
+        long gcTotal = System.GC.GetTotalMemory(false);
 
         switch (m_eBType)
         {
             case MemBType.KB:
-                m_kb = m_def_kb;
+                m_s = m_def_kb;
                 m_key_byte = "kb";
                 break;
             case MemBType.MB:
-                m_kb = m_def_kb * m_def_kb;
+                m_s = m_def_kb * m_def_kb;
                 m_key_byte = "mb";
                 break;
             case MemBType.GB:
-                m_kb = m_def_kb * m_def_kb * m_def_kb;
+                m_s = m_def_kb * m_def_kb * m_def_kb;
                 m_key_byte = "gb";
                 break;
             default:
-                m_kb = 1d;
+                m_s = 1d;
                 m_key_byte = "b";
                 break;
         }
 
-        string text = string.Format("M_All {1:0.0} {0} ,M_Used {2:0.0} {0} ,usedHeap {3:0.0} {0} ,GC_Total {4:0.0} {0} ,O_T {5:0.0} {0} ,O_Free {6:0.0} {0} ,LuaMem {7:0.0} {0}"
+        string text = string.Format("monoHeap={1:0.0}{0},monoUsed={2:0.0}{0},usedHeap={3:0.0}{0}\ntotalAllocated={4:0.0}{0},totalReserved={5:0.0}{0},totalUnused={6:0.0}{0}\ncurrTexture={7:0.0}{0},totalTexture={8:0.0}{0},GC_Total={9:0.0}{0}\nO_T={10:0.0}{0},O_Free={11:0.0}{0},LuaMem={12:0.0}{0}"
             , m_key_byte
-            , (monoAll / m_kb), (monoUsed / m_kb), (usedHeap / m_kb), (totalMem / m_kb)
-            , (m_outMemAll / m_kb), (m_outMemFree / m_kb), (m_luaUseMem / m_kb));
+            , (monoHeap / m_s), (monoUsed / m_s), (usedHeap / m_s)
+            , (tAlloc / m_s), (tResed / m_s), (tUnusedResed / m_s)
+            , (tCurr / m_s), (tTotal / m_s), (gcTotal / m_s)
+            , (m_outMemAll / m_s), (m_outMemFree / m_s), (m_luaUseMem / m_s));
 		GUI.Label(rect, text, style);
 	}
 }
