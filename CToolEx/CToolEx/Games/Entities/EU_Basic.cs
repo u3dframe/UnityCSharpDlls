@@ -17,19 +17,29 @@ namespace Core.Kernel.Beans
         public bool IsOnUpdate() { return this.m_isOnUpdate; }
         virtual public void OnUpdate(float dt, float unscaledDt) { }
 
+        protected bool m_isInUp = false, m_isInLateUp = false;
+
         protected void RegUpdate(bool isUp)
         {
             this.m_isOnUpdate = false;
-            GameMgr.DiscardUpdate(this);
-            if (isUp)
+            if (m_isInUp)
+            {
+                m_isInUp = false;
+                GameMgr.DiscardUpdate(this);
+            }
+            if (isUp && !m_isInUp)
+            {
                 GameMgr.RegisterUpdate(this);
+                m_isInUp = true;
+            }
             this.m_isOnUpdate = isUp;
         }
 
         public EU_Basic StartUpdate()
         {
-            if (!this.m_isOnUpdate || !GameMgr.IsInUpdate(this))
+            if (!this.m_isInUp)
                 this.RegUpdate(true);
+            this.m_isOnUpdate = true;
             return this;
         }
 
@@ -45,16 +55,24 @@ namespace Core.Kernel.Beans
         protected void RegLateUpdate(bool isUp)
         {
             this.m_isOnLateUpdate = false;
-            GameMgr.DiscardLateUpdate(this);
-            if (isUp)
+            if (m_isInLateUp)
+            {
+                m_isInLateUp = false;
+                GameMgr.DiscardLateUpdate(this);
+            }
+            if (isUp && !m_isInLateUp)
+            {
                 GameMgr.RegisterLateUpdate(this);
+                m_isInLateUp = true;
+            }
             this.m_isOnLateUpdate = isUp;
         }
 
         public EU_Basic StartLateUpdate()
         {
-            if (!this.m_isOnLateUpdate || !GameMgr.IsInLateUpdate(this))
+            if(!this.m_isInLateUp)
                 this.RegLateUpdate(true);
+            this.m_isOnLateUpdate = true;
             return this;
         }
 
