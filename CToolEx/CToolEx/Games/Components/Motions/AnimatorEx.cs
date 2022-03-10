@@ -48,13 +48,22 @@ public class AnimatorEx : PrefabBasic
     private int _lastLoop = 0;
 
     override protected void OnCall4Awake(){
-		this.csAlias = "ANI_Ex";
+        base.OnCall4Awake();
+
+        this.csAlias = "ANI_Ex";
 		if(this.m_animator == null)
 			this.m_animator = this.m_gobj.GetComponentInChildren<Animator>(true);
         this._ReAniEvents();
 	}
 
-	override protected void OnCall4Hide(){
+    override protected void OnCall4Start()
+    {
+        base.OnCall4Start();
+
+        this.StartUpdate();
+    }
+
+    override protected void OnCall4Hide(){
 		SetActionState(0);
 		SetSpeedState(1);
 		base.OnCall4Hide();
@@ -75,7 +84,10 @@ public class AnimatorEx : PrefabBasic
 		this.m_evt_subExit = null;
 	}
 
-	virtual protected void Update (){
+    override public void OnUpdate(float dt, float unscaledDt)
+    {
+        base.OnUpdate(dt, unscaledDt);
+
 		if(this.m_animator){
 			if(this.m_isUseGID4MsgKey != this._pre_IsUseGID){
 				_ReAniEvents(true);
