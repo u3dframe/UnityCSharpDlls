@@ -138,6 +138,7 @@ public class GobjLifeListener : Core.Kernel.Beans.EU_Basic
         {
             this.StopAllCoroutines();
             this.CancelInvoke();
+            this.StopAllUpdate();
             OnCall4Destroy();
             _ExcDestoryCall();
         }
