@@ -36,8 +36,7 @@ namespace TNet
         {
             InitSocket();
             this.csAlias = "NetMgr";
-            m_isOnUpdate = true;
-            GameMgr.RegisterUpdate(this);
+            this.StartUpdate();
         }
 
         /// <summary>
@@ -56,7 +55,6 @@ namespace TNet
         /// </summary>
         override protected void OnCall4Destroy()
         {
-            GameMgr.DiscardUpdate(this);
             socket.OnRemove();
         }
 

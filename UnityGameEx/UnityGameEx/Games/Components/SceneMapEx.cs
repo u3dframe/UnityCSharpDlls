@@ -360,8 +360,7 @@ public class SceneMapEx : GobjLifeListener
         this.m_u_state = MSM_UpState.None;
         m_caches.Remove(this.m_map_key);
         this.m_map_key = null;
-		
-        this.StopUpdate();
+
         this._ClearLMap();
         this._ClearJson();
 		

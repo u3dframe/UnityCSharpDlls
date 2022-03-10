@@ -13,7 +13,7 @@ using LitJson;
 /// 功能 : lua 错误日志记录是放到 LuaState 的 PCall 里面的
 /// 修订 : 2020-11-26 19:35
 /// </summary>
-public class LogToNetHelper:MonoBehaviour
+public class LogToNetHelper:GobjLifeListener
 {
     class LogNetData
     {
@@ -109,7 +109,9 @@ public class LogToNetHelper:MonoBehaviour
 				GameObject.DontDestroyOnLoad (_gobj);
 
 				_shareInstance = _gobj.AddComponent<LogToNetHelper> ();
-			}
+                _shareInstance.StartUpdate();
+
+            }
 			return _shareInstance;
 		}
 	}
@@ -143,8 +145,10 @@ public class LogToNetHelper:MonoBehaviour
         return _cur_url;
     }
 
-    void Update()
+    override public void OnUpdate(float dt, float unscaledDt)
     {
+        base.OnUpdate(dt, unscaledDt);
+
         if (!this.m_isRunning)
             return;
 

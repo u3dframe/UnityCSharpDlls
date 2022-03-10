@@ -36,8 +36,9 @@ public class CharacterControllerEx : AnimatorEx
     public RendererMatData[] m_skinDatas { get; private set; }
     public AudioData m_audioData { get; private set; }
 
-    override protected void Update (){
-		base.Update();
+    override public void OnUpdate(float dt, float unscaledDt)
+    {
+        base.OnUpdate(dt, unscaledDt);
 
 		if(this.m_cf_OnUpdate != null){
 			this.m_cf_OnUpdate(Time.deltaTime,Time.unscaledDeltaTime);

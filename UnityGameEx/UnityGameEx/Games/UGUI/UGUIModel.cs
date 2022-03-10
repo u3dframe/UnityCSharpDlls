@@ -86,7 +86,6 @@ public class UGUIModel : PrefabBasic
 
     protected override void OnCall4Destroy()
     {
-        this.StopUpdate();
         base.OnCall4Destroy();
         this._DestroyRt();
     }

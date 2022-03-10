@@ -66,8 +66,15 @@ public class RendererSortOrder : GobjLifeListener
         this.m_dicAllMats.Clear();
     }
 
-    void Update()
+    override protected void OnCall4Start()
     {
+        base.OnCall4Start();
+        this.StartUpdate();
+    }
+
+    override public void OnUpdate(float dt, float unscaledDt)
+    {
+        base.OnUpdate(dt, unscaledDt);
         _UpDelayInit();
         _UpDelayReRS();
     }
