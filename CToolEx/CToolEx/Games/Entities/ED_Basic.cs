@@ -13,6 +13,7 @@ namespace Core.Kernel.Beans
     [Serializable]
     public class ED_Basic : CustomYieldInstruction, IUpdate, ILateUpdate
     {
+        static protected int maxCache = 4000;
         static Dictionary<Type, Queue<ED_Basic>> m_caches = new Dictionary<Type, Queue<ED_Basic>>();
         static protected T GetCache<T>() where T : ED_Basic
         {
@@ -40,7 +41,9 @@ namespace Core.Kernel.Beans
                 _que = new Queue<ED_Basic>();
                 m_caches.Add(_tp, _que);
             }
-
+            int _size = _que.Count;
+            if (_size >= maxCache)
+                return;
             if (!_que.Contains(entity))
                 _que.Enqueue(entity);
         }
