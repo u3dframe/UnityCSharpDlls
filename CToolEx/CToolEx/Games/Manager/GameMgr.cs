@@ -178,7 +178,8 @@ public class GameMgr : GobjLifeListener {
 	}
 
 	static public void DiscardUpdate(IUpdate up) {
-		mListUps.Remove(up);
+        if (IsInUpdate(up))
+            mListUps.Remove(up);
 	}
 
 	static public void DisposeUpEvent(DF_OnUpdate call,bool isReBind) {
@@ -204,7 +205,8 @@ public class GameMgr : GobjLifeListener {
 	}
 
 	static public void DiscardLateUpdate(ILateUpdate up) {
-		mListLateUps.Remove(up);
+        if (IsInLateUpdate(up))
+            mListLateUps.Remove(up);
 	}
 
 	static public void DisposeLateUpEvent(Action call,bool isReBind) {
