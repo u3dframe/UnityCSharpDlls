@@ -13,7 +13,7 @@ namespace Core.Kernel.Beans
     [Serializable]
     public class ED_Basic : CustomYieldInstruction, IUpdate, ILateUpdate
     {
-        static protected int maxCache = 4000;
+        static protected int maxCache = 3000;
         static Dictionary<Type, Queue<ED_Basic>> m_caches = new Dictionary<Type, Queue<ED_Basic>>();
         static protected T GetCache<T>() where T : ED_Basic
         {
@@ -33,6 +33,8 @@ namespace Core.Kernel.Beans
         {
             if (entity == null || GHelper.Is_App_Quit)
                 return;
+
+            entity.StopAllUpdate();
 
             Type _tp = entity.GetType();
             Queue<ED_Basic> _que = null;
@@ -57,6 +59,8 @@ namespace Core.Kernel.Beans
         }
         */
 
+        protected bool m_isInUp = false, m_isInLateUp = false;
+
         public override bool keepWaiting
         {
             get
@@ -72,16 +76,24 @@ namespace Core.Kernel.Beans
         protected void RegUpdate(bool isUp)
         {
             this.m_isOnUpdate = false;
-            GameMgr.DiscardUpdate(this);
-            if (isUp)
+            if (m_isInUp)
+            {
+                m_isInUp = false;
+                GameMgr.DiscardUpdate(this);
+            }
+            if (isUp && !m_isInUp)
+            {
                 GameMgr.RegisterUpdate(this);
+                m_isInUp = true;
+            }
             this.m_isOnUpdate = isUp;
         }
 
         public ED_Basic StartUpdate()
         {
-            if (!this.m_isOnUpdate)
+            if (!this.m_isInUp)
                 this.RegUpdate(true);
+            this.m_isOnUpdate = true;
             return this;
         }
 
@@ -97,16 +109,24 @@ namespace Core.Kernel.Beans
         protected void RegLateUpdate(bool isUp)
         {
             this.m_isOnLateUpdate = false;
-            GameMgr.DiscardLateUpdate(this);
-            if (isUp)
+            if (m_isInLateUp)
+            {
+                m_isInLateUp = false;
+                GameMgr.DiscardLateUpdate(this);
+            }
+            if (isUp && !m_isInLateUp)
+            {
                 GameMgr.RegisterLateUpdate(this);
+                m_isInLateUp = true;
+            }
             this.m_isOnLateUpdate = isUp;
         }
 
         public ED_Basic StartLateUpdate()
         {
-            if (!this.m_isOnLateUpdate)
+            if (!this.m_isInLateUp)
                 this.RegLateUpdate(true);
+            this.m_isOnLateUpdate = true;
             return this;
         }
 
