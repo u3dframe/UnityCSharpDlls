@@ -13,7 +13,7 @@ namespace Core.Kernel.Beans
     [Serializable]
     public class ED_Basic : CustomYieldInstruction, IUpdate, ILateUpdate
     {
-        static protected int maxCache = 3000;
+        static public int maxCache = 500;
         static Dictionary<Type, Queue<ED_Basic>> m_caches = new Dictionary<Type, Queue<ED_Basic>>();
         static protected T GetCache<T>() where T : ED_Basic
         {
