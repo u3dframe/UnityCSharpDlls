@@ -204,8 +204,8 @@ namespace Core.Kernel
                 this.m_zipIndexs.Dequeue();
                 return;
             }
-
-            if (_UnZipOne(_ind))
+            bool _isZip = _UnZipOne(_ind);
+            if (_isZip)
                 m_zipIndexs.Dequeue();
         }
 
@@ -261,15 +261,13 @@ namespace Core.Kernel
             if (this.unzip.m_bFinished)
             {
                 this.unzip.Close();
-
-                _OnGC(true);
-
                 if (this.unzip.error != null)
                 {
                     this.unzip = null;
                     throw this.unzip.error;
                 }
                 this.unzip = null;
+                _OnGC(true);
             }
         }
 
