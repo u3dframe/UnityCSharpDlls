@@ -18,9 +18,19 @@ public class ListDict<T> {
     }
 
     public T Get(object key){
-        if(this.ContainsKey(key)){
-            return m_dic[key];
+        if(null != key)
+        {
+            T rt;
+            if (this.m_dic.TryGetValue(key, out rt))
+                return rt;
         }
+        return default(T);
+    }
+
+    public T GetInList(int index)
+    {
+        if (this.m_list != null)
+            return this.m_list[index];
         return default(T);
     }
 
@@ -30,14 +40,16 @@ public class ListDict<T> {
     }
 
     public T Remove4Get(object key){
-        if(this.ContainsKey(key)){
-            T it = m_dic[key];
-            m_dic.Remove(key);
-
-            if(m_list != null)
-                m_list.Remove(it);
-            
-             return it;
+        if (null != key)
+        {
+            T it;
+            if (this.m_dic.TryGetValue(key, out it))
+            {
+                m_dic.Remove(key);
+                if(m_list != null)
+                    m_list.Remove(it);
+                return it;
+            }
         }
         return default(T);
     }
