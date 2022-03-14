@@ -490,7 +490,6 @@ public class AudioData
 
     public void ClearAssets()
     {
-        this.ClearCurrAssets(false);
         var infos = new System.Collections.Generic.List<AudioInfo>(this.m_assets.m_list);
         this.m_assets.Clear();
         int lens = infos.Count;
@@ -501,6 +500,7 @@ public class AudioData
             if (_tmp != null)
                 _tmp.Clear(true);
         }
+        this.ClearCurrAssets(true);
     }
 
     public void SetSpeed(float speed)
