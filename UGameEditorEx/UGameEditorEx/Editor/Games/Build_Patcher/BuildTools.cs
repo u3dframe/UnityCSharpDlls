@@ -22,8 +22,8 @@ using LitJson;
 /// </summary>
 public class BuildTools : BuildPatcher
 {
-	[MenuItem("Tools/StandardShaderName",false,50)]
-    static public void CMD_StandardShaderName(){
+	[MenuItem("Tools/ShaderName",false,50)]
+    static public void CMD_ShaderName(){
         EditorUtility.DisplayProgressBar("ShaderName", "Checking", 0.1f);
         string[] searchInFolders = {
             "Assets"
@@ -33,17 +33,22 @@ public class BuildTools : BuildPatcher
         string _assetPath,_sname;
         Material _mat = null;
         int _len = _tes.Length;
+        string _shaderName = "Standard"; // Standard  S_E
+		string _pIt = string.Format("{0}/../../{1}_{2}.txt", Application.dataPath,_shaderName,System.DateTime.Now.ToString("MMddHHmmss"));
+		var _sb = new System.Text.StringBuilder();
         for (int i = 0; i < _len; i++)
         {
             _assetPath = AssetDatabase.GUIDToAssetPath(_tes[i]);
             EditorUtility.DisplayProgressBar("ShaderName", _assetPath, i / (float)_len);
             _mat = AssetDatabase.LoadAssetAtPath<Material>(_assetPath);
             _sname = _mat.shader.name;
-            if(_sname.Contains("Standard")){
-                Debug.LogErrorFormat("=== Standard == [{0}] = [{1}]",_assetPath,_sname);
+            if(_sname.StartsWith(_shaderName) || _sname.Contains(_shaderName)){
+				_sb.AppendFormat("=== {0} == [{1}] = [{2}]",_shaderName,_assetPath,_sname).AppendLine();
             }
         }
+		File.WriteAllText(_pIt, _sb.ToString());
         EditorUtility.ClearProgressBar();
+        Debug.LogError(_pIt);
     }
 	
 	static bool CleanUpPlayableBind(UnityEngine.Playables.PlayableDirector playable) {
@@ -686,5 +691,12 @@ public class BuildTools : BuildPatcher
     static public void Zip_Patche(){
         SaveDefaultCfgVersion();
         BuildPatcher.ZipPatche();
+    }
+	
+	[MenuItem("Tools/CalcObjTime")]
+    static public void CalcObjTime(){
+        Core.GameFile.CurrDirRes();
+        string _name = "objProgress_0315113742";
+        ED_RecordTime.SyDiffMS(_name);
     }
 }
