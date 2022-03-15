@@ -136,5 +136,6 @@ public class ED_RecordTime : ED_Basic
         _fp = string.Format("{0}../_diff_ms_{1}.txt",UGameFile.m_dirRes,dt8.ToString("MMddHHmmss"));
         _json = jNew.ToJson();
         UGameFile.WriteText(_fp,_json,true);
+		Debug.LogError(_fp);
     }
 }
