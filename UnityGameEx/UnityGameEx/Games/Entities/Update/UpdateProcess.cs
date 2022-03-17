@@ -168,20 +168,20 @@ namespace Core.Kernel
         {
             if (isSuccess)
             {
-                string[] arrs = UGameFile.SplitComma(uwr.downloadHandler.text);
-                for (int i = 0; i < arrs.Length; i++)
+                var _data = uwr.downloadHandler.text;
+                string[] arrs = UGameFile.SplitComma(_data);
+                int _lens = arrs.Length - 1;
+                if(_lens > 0)
                 {
-                    if (i == arrs.Length - 1)
-                    {
-                        this.m_nSize = UtilityHelper.Str2Int(arrs[i]);
-                    }
-                    else
-                    {
+                    this.m_nSize = UtilityHelper.Str2Int(arrs[_lens]);
+                    for (int i = 0; i < _lens; ++i)
                         m_zipIndexs.Enqueue(arrs[i]);
-                    }
+                    this._SetState(EM_Process.UnZipRes);
                 }
-
-                this._SetState(EM_Process.UnZipRes);
+                else
+                {
+                    this._SetState(EM_Process.UnGpOBB);
+                }
             }
             else
             {
@@ -202,11 +202,15 @@ namespace Core.Kernel
             {
                 this.unzip = null;
                 this.m_zipIndexs.Dequeue();
+                this._ST_UnZipRes();
                 return;
             }
             bool _isZip = _UnZipOne(_ind);
             if (_isZip)
+            {
                 m_zipIndexs.Dequeue();
+                this._ST_UnZipRes();
+            }
         }
 
         bool _UnZipOne(string nmZipIndex)
@@ -275,7 +279,8 @@ namespace Core.Kernel
         {
             if (isSuccess)
             {
-                this.unzip = new UnZipClass(uwr.downloadHandler.data, UGameFile.m_dirRes);
+                var _data = uwr.downloadHandler.data;
+                this.unzip = new UnZipClass(_data, UGameFile.m_dirRes);
                 this.m_isBegZip = false;
                 this.nZipCurr = 0;
                 this._SetState(EM_Process.UnZipRes);
@@ -352,7 +357,8 @@ namespace Core.Kernel
         {
             if (isSuccess)
             {
-                CfgVersion _verStream = CfgVersion.BuilderBy(uwr.downloadHandler.text);
+                var _data = uwr.downloadHandler.text;
+                CfgVersion _verStream = CfgVersion.BuilderBy(_data);
                 CfgVersion _verCurr = CfgVersion.instance.LoadDefault();
                 if (_verCurr.IsUpdate4Other(_verStream))
                 {
