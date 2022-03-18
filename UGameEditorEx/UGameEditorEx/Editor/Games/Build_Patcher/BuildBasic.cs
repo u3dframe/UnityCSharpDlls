@@ -143,7 +143,6 @@ namespace Core
             foreach (var item in EL_Path.files)
             {
                 _tmp = Path2AssetsStart(item);
-                //AnalyseFile4Deps(Load4Develop(_tmp));
                 AnalyseFile4Deps(_tmp);
                 curr++;
                 EditorUtility.DisplayProgressBar(string.Format("{0} - ({1}/{2})", strObjPath, curr, count), _tmp, (curr / count));
@@ -324,9 +323,8 @@ namespace Core
             _abEn.ReAB(_abName, _abSuffix);
         }
 
-        public static void BuildNow(bool isBuildAB = true, bool isTip = true)
+        static protected void ReBindABNameByMgr()
         {
-            EditorUtility.DisplayProgressBar("BuildNow", "Start BuildNow ...", 0.05f);
             float count = MgrABDataDependence.GetCount();
             int curr = 0;
             List<ABDataDependence> _list = MgrABDataDependence.GetCurrList();
@@ -343,7 +341,7 @@ namespace Core
             }
 
             _list = MgrABDataDependence.ReAB4Shader();
-            if(_list != null)
+            if (_list != null)
             {
                 foreach (var item in _list)
                 {
@@ -352,6 +350,13 @@ namespace Core
                 }
             }
             AssetDatabase.RemoveUnusedAssetBundleNames();
+        }
+
+        public static void BuildNow(bool isBuildAB = true, bool isTip = true)
+        {
+            EditorUtility.DisplayProgressBar("BuildNow", "Start BuildNow ...", 0.05f);
+
+            // ReBindABNameByMgr();
 
             if (isBuildAB)
                 DoBuild(true, isTip);
@@ -641,27 +646,27 @@ namespace Core
         }
 
         static public void BuildAllResource(bool isBuildAB = true, bool isTip = false)
-        { // async
-            ClearAllABNames(true);
-            AssetDatabase.Refresh();
-            List<UObject> list = null;
-            ReLoadFolders(ref list, false);
-            if (list == null || list.Count <= 0)
-            {
-                throw new System.Exception("没有资源");
-            }
-            System.Type typeFolder = typeof(UnityEditor.DefaultAsset);
-            System.Type typeOrg = null;
-            UObject one = null;
-            for (int i = 0; i < list.Count; i++)
-            {
-                one = list[i];
-                typeOrg = one.GetType();
-                if (typeOrg == typeFolder)
-                {
-                    AnalyseDir4Deps(one);
-                }
-            }
+        {// async
+            //ClearAllABNames(true);
+            //AssetDatabase.Refresh();
+            //List<UObject> list = null;
+            //ReLoadFolders(ref list, false);
+            //if (list == null || list.Count <= 0)
+            //{
+            //    throw new System.Exception("没有资源");
+            //}
+            //System.Type typeFolder = typeof(UnityEditor.DefaultAsset);
+            //System.Type typeOrg = null;
+            //UObject one = null;
+            //for (int i = 0; i < list.Count; i++)
+            //{
+            //    one = list[i];
+            //    typeOrg = one.GetType();
+            //    if (typeOrg == typeFolder)
+            //    {
+            //        AnalyseDir4Deps(one);
+            //    }
+            //}
             BuildNow(isBuildAB, isTip);
         }
 
@@ -819,6 +824,35 @@ namespace Core
                 }
             }
         }
-        
+
+
+        static public void ReAllResourceABNames()
+        { 
+            List<UObject> list = null;
+            ReLoadFolders(ref list, false);
+            if (list == null || list.Count <= 0)
+            {
+                throw new System.Exception("没有资源");
+            }
+            System.Type typeFolder = typeof(UnityEditor.DefaultAsset);
+            System.Type typeOrg = null;
+            UObject one = null;
+            for (int i = 0; i < list.Count; i++)
+            {
+                one = list[i];
+                typeOrg = one.GetType();
+                if (typeOrg == typeFolder)
+                {
+                    AnalyseDir4Deps(one);
+                }
+            }
+
+            ReBindABNameByMgr();
+
+            _CheckABName();
+
+            AssetDatabase.Refresh();
+        }
+
     }
 }
