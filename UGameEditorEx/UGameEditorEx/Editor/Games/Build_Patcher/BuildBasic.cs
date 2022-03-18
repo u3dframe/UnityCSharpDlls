@@ -356,7 +356,7 @@ namespace Core
         {
             EditorUtility.DisplayProgressBar("BuildNow", "Start BuildNow ...", 0.05f);
 
-            // ReBindABNameByMgr();
+            ReBindABNameByMgr();
 
             if (isBuildAB)
                 DoBuild(true, isTip);
