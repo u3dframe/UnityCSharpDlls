@@ -126,7 +126,7 @@ public static class ShaderVariantCollectionExporter
         {
             EditorApplication.update -= EditorUpdate;
             EditorApplication.isPlaying = true;
-            SleepMs(3000);
+            SleepMs(15000);
             object _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionVariantCount");
             Debug.LogFormat("=== Update CurrSVC_VariantCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
             InvokeInternalStaticMethod(TP_CSU, "SaveCurrentShaderVariantCollection", _SVCPath);
