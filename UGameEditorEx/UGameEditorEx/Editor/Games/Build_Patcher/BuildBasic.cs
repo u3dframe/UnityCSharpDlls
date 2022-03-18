@@ -826,7 +826,7 @@ namespace Core
         }
 
 
-        static public void ReAllResourceABNames()
+        static public void ReBindAllResourceABNames()
         { 
             List<UObject> list = null;
             ReLoadFolders(ref list, false);
