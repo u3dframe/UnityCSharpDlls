@@ -43,6 +43,7 @@ public static class ShaderVariantCollectionExporter
     static public void ExportSVC(string fpSave = null, string rootDir = null, string fpDir = null)
     {
         EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
+		ReFog(true);
         SleepMs(20);
         Debug.LogFormat("=== ExportSVC T0 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
         if (!string.IsNullOrEmpty(fpSave))
@@ -414,6 +415,17 @@ public static class ShaderVariantCollectionExporter
         }
         EditorUtility.SetDirty( va );
     }
+	
+	static void ReFog(bool fog){
+		RenderSettings.fog = fog;
+		if(fog){
+			RenderSettings.fogMode = FogMode.Linear;
+			RenderSettings.fogColor = new Color(34/255f,107/255f,149/255f,1);
+			RenderSettings.fogDensity = 0;
+			RenderSettings.fogStartDistance = 0.01f;
+			RenderSettings.fogEndDistance = 1000f;
+		}
+	}
 
     static private System.Type TP_CSU = typeof(ShaderUtil);
     static private readonly Stopwatch _elapsedTime = new Stopwatch();
