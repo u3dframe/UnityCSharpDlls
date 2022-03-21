@@ -325,6 +325,7 @@ namespace Core
 
         static protected void ReBindABNameByMgr()
         {
+            UnloadUnusedAssets();
             float count = MgrABDataDependence.GetCount();
             int curr = 0;
             List<ABDataDependence> _list = MgrABDataDependence.GetCurrList();
@@ -350,6 +351,7 @@ namespace Core
                 }
             }
             AssetDatabase.RemoveUnusedAssetBundleNames();
+            UnloadUnusedAssets();
         }
 
         public static void BuildNow(bool isBuildAB = true, bool isTip = true)
@@ -449,6 +451,7 @@ namespace Core
             {
                 SetABInfo(_arrs[i]);
             }
+            UnloadUnusedAssets();
             EditorUtility.DisplayDialog("提示", "已清除选中的所有文件(files)及文件夹(folders)的abname!!!", "确定");
         }
 
