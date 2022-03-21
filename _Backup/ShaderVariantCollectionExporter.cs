@@ -36,6 +36,12 @@ public static class ShaderVariantCollectionExporter
         System.Threading.Thread.Sleep(ms);
     }
 
+    [MenuItem("Tools/Shader/Refog")]
+    static void _Refog()
+    {
+        ReFog(true);
+    }
+
     /// <summary>
     /// fpSave 以 Assets 开头的要保存的SVC文件的地址
     /// fpDir 是 Assets 资源查找路径地址
@@ -127,7 +133,9 @@ public static class ShaderVariantCollectionExporter
         {
             EditorApplication.update -= EditorUpdate;
             EditorApplication.isPlaying = true;
-            SleepMs(15000);
+            SleepMs(8000);
+			// ReFog(false);
+			SleepMs(8000);
             object _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionVariantCount");
             Debug.LogFormat("=== Update CurrSVC_VariantCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
             InvokeInternalStaticMethod(TP_CSU, "SaveCurrentShaderVariantCollection", _SVCPath);
