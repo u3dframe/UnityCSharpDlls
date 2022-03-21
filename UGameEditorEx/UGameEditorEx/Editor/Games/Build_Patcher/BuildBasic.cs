@@ -848,9 +848,8 @@ namespace Core
             }
 
             ReBindABNameByMgr();
-
             _CheckABName();
-
+            EditorUtility.ClearProgressBar();
             AssetDatabase.Refresh();
         }
 
