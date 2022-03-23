@@ -15,7 +15,9 @@ namespace Core.Kernel
     /// </summary>
     public class UGameRes : ReadWriteHelper
     {
+        static public readonly System.Type tpUObj = typeof(UObject);
         static public readonly System.Type tpGobj = typeof(GameObject);
+        static public readonly System.Type tpTex = typeof(Texture);
         static public readonly System.Type tpTex2D = typeof(Texture2D);
         static public readonly System.Type tpSprite = typeof(Sprite);
         static public readonly System.Type tpCube = typeof(Cubemap);
