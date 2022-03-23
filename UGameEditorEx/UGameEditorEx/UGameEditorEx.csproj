@@ -10,12 +10,15 @@
 
   <ItemGroup>
     <Compile Remove="Editor\Cfgs\**" />
+    <Compile Remove="Editor\Games\Commands\**" />
     <Compile Remove="Editor\Games\GboxChild\**" />
     <Compile Remove="Editor\PropertyDraw\**" />
     <EmbeddedResource Remove="Editor\Cfgs\**" />
+    <EmbeddedResource Remove="Editor\Games\Commands\**" />
     <EmbeddedResource Remove="Editor\Games\GboxChild\**" />
     <EmbeddedResource Remove="Editor\PropertyDraw\**" />
     <None Remove="Editor\Cfgs\**" />
+    <None Remove="Editor\Games\Commands\**" />
     <None Remove="Editor\Games\GboxChild\**" />
     <None Remove="Editor\PropertyDraw\**" />
   </ItemGroup>
@@ -24,7 +27,6 @@
     <Compile Remove="Editor\Games\AssetPostprocessors\CheckAssetName.cs" />
     <Compile Remove="Editor\Games\AssetPostprocessors\ImportTexture.cs" />
     <Compile Remove="Editor\Games\Build_Patcher\BuildTools.cs" />
-    <Compile Remove="Editor\Games\Commands\CMDMenu.cs" />
     <Compile Remove="Editor\Games\LoopListView3Editor.cs" />
     <Compile Remove="Editor\Games\MCheat.cs" />
     <Compile Remove="Editor\Games\PrefabElementInspector.cs" />

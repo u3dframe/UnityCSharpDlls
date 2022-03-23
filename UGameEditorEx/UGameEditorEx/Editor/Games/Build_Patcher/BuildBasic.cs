@@ -178,27 +178,30 @@ namespace Core
             }
         }
 
-        static int _CheckABName()
+        static int _CheckABName(bool isCheck = true)
         {
             EditorUtility.DisplayProgressBar("DoBuild", "CheckABName ...", 0.0f);
             AssetDatabase.RemoveUnusedAssetBundleNames();
             string[] strABNames = AssetDatabase.GetAllAssetBundleNames();
+            if(!isCheck)
+                return strABNames.Length;
+
             float count = strABNames.Length;
-            int curr = 0;
-            foreach (string abName in strABNames)
+            string abName;
+            for (int curr = 0; curr < count; curr++)
             {
-                curr++;
+                abName = strABNames[curr];
                 EditorUtility.DisplayProgressBar(string.Format("CheckABName - ({0}/{1})", curr, count), abName, (curr / count));
                 if (abName.EndsWith("error"))
                 {
                     ClearObjABName(abName);
                     AssetDatabase.RemoveAssetBundleName(abName, true);
-                    Debug.LogFormat("=Error ABName = [{0}]", abName);
+                    Debug.LogErrorFormat("===  _CheckABName Error ABName = [{0}]", abName);
                 }
             }
             AssetDatabase.RemoveUnusedAssetBundleNames();
-            EditorUtility.DisplayProgressBar("DoBuild", "RemoveUnusedAssetBundleNames ...", 0.1f);
             strABNames = AssetDatabase.GetAllAssetBundleNames();
+            EditorUtility.DisplayProgressBar("DoBuild", "RemoveUnusedAssetBundleNames ...", 0.1f);
             return strABNames.Length;
         }
 
@@ -293,7 +296,7 @@ namespace Core
                     }
                 }
 
-                CMDAssets.CleanupMissingScripts(gobj);
+                // CMDAssets.CleanupMissingScripts(gobj); // 通过命令可以清除(有可能会清除掉有的)，打开unity怎么都不会清除
 
                 // 加上这句，才会保存修改后的prefab
                 if (IsPrefabInstance(gobj, false))
@@ -311,6 +314,12 @@ namespace Core
             bool _isError = _abName.EndsWith("error");
             if (_isError)
             {
+                if (obj != null)
+                {
+                    var _ap = GetPath(obj);
+                    Debug.LogErrorFormat("=== _ReBindABName = [{0}] , [{1}] , [{2}]", obj.GetType(), _abName, _ap);
+                }
+
                 _abName = null;
                 _abSuffix = null;
                 SetABInfo(obj);
@@ -327,17 +336,17 @@ namespace Core
         static protected void ReBindABNameByMgr()
         {
             UnloadUnusedAssets();
-            float count = MgrABDataDependence.GetCount();
-            int curr = 0;
             List<ABDataDependence> _list = MgrABDataDependence.GetCurrList();
             string _strRes = null;
-            foreach (var item in _list)
+            float count = _list.Count;
+            ABDataDependence item;
+            for (int i = 0; i < count; i++)
             {
-                curr++;
+                item = _list[i];
                 if (item.GetBeUsedCount() > 1)
                 {
                     _strRes = item.GetCurrRes();
-                    EditorUtility.DisplayProgressBar(string.Format("ReBindABName m_dic - ({0}/{1})", curr, count), _strRes, (curr / count));
+                    EditorUtility.DisplayProgressBar(string.Format("ReBindABName m_dic - ({0}/{1})", i, count), _strRes, (i / count));
                     _ReBindABName(_strRes);
                 }
             }
@@ -345,8 +354,10 @@ namespace Core
             _list = MgrABDataDependence.ReAB4Shader();
             if (_list != null)
             {
-                foreach (var item in _list)
+                count = _list.Count;
+                for (int i = 0; i < count; i++)
                 {
+                    item = _list[i];
                     _strRes = item.GetCurrRes();
                     SetABInfo(_strRes, item.m_abName, item.m_abSuffix);
                 }
@@ -852,8 +863,9 @@ namespace Core
             }
 
             ReBindABNameByMgr();
-            _CheckABName();
+            _CheckABName(false);
             EditorUtility.ClearProgressBar();
+            AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
 
