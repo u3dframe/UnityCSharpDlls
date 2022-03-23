@@ -233,6 +233,7 @@ namespace Core
             if (obj == null)
                 return;
             _ReBindABName(obj);
+            _UnloadOne(obj);
         }
 
         static string m_strNotRmvEmptyComp = "Editor/Cfgs/not_rmv_empty_comp_fab.txt";
