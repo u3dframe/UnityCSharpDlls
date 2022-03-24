@@ -46,7 +46,17 @@ public static class ShaderVariantCollectionExporter
     static void _LoadScene()
     {
         LoadScenes(2000,true);
+		_EmptyScene();
     }
+	
+	static void _EmptyScene()
+	{
+		EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
+        SleepMs(100);
+        EditorUtility.UnloadUnusedAssetsImmediate(true);
+		SleepMs(100);
+		EditorUtility.UnloadUnusedAssetsImmediate(true);
+	}
 
     /// <summary>
     /// fpSave 以 Assets 开头的要保存的SVC文件的地址
@@ -54,9 +64,6 @@ public static class ShaderVariantCollectionExporter
     /// </summary>
     static public void ExportSVC(string fpSave = null, string rootDir = null, string fpDir = null)
     {
-        EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
-		ReFog(true);
-        SleepMs(20);
         Debug.LogFormat("=== ExportSVC T0 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
         if (!string.IsNullOrEmpty(fpSave))
             _SVCPath = fpSave;
@@ -65,9 +72,8 @@ public static class ShaderVariantCollectionExporter
         //    fpDir = Application.dataPath;
         // var _arrs2 = Directory.GetFiles(fpDir, "*.*", SearchOption.AllDirectories)
         //         .Where(s => s.ToLower().EndsWith(".mat")).ToArray();
-
-        EditorUtility.UnloadUnusedAssetsImmediate(true);
-        SleepMs(20);
+		_EmptyScene();
+		ReFog(true);
         Debug.LogFormat("=== ExportSVC T1 = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
 
         var _arrs2 = AssetDatabase.FindAssets("t:Material"); // t:Material t:Shader        
@@ -264,9 +270,7 @@ public static class ShaderVariantCollectionExporter
             _elapsedTime.Stop();
             _elapsedTime.Reset();
 			
-			EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
-			SleepMs(200);
-			EditorUtility.UnloadUnusedAssetsImmediate(true);
+			_EmptyScene();
 			SleepMs(200);
 			Debug.LogFormat("=== Clear End = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
 			if(isReSplitShaderVariants)
