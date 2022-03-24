@@ -25,7 +25,7 @@ public static class ShaderVariantCollectionExporter
     }
 
     [MenuItem("Tools/Shader/Export GameSVC")]
-    static void Export2()
+    static public void Export2()
     {
         string _name = isReSplitShaderVariants ? "Assets/_Develop/Builds/all_svcs.shadervariants" : "Assets/_Develop/Builds/all_svc.shadervariants";
         ExportSVC(_name, "_Develop/");
@@ -40,6 +40,12 @@ public static class ShaderVariantCollectionExporter
     static void _Refog()
     {
         ReFog(true);
+    }
+
+    [MenuItem("Tools/Shader/_LoadScene")]
+    static void _LoadScene()
+    {
+        LoadScenes(2000,true);
     }
 
     /// <summary>
@@ -133,11 +139,13 @@ public static class ShaderVariantCollectionExporter
         {
             EditorApplication.update -= EditorUpdate;
             EditorApplication.isPlaying = true;
-            SleepMs(8000);
+            SleepMs(1500);
 			ReFog(false);
-			SleepMs(8000);
+			SleepMs(1500);
+            LoadScenes();
             object _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionVariantCount");
             Debug.LogFormat("=== Update CurrSVC_VariantCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
+            SleepMs(200);
             InvokeInternalStaticMethod(TP_CSU, "SaveCurrentShaderVariantCollection", _SVCPath);
             _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionShaderCount");
             Debug.LogFormat("=== Update CurrSVC_ShaderCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
@@ -433,6 +441,37 @@ public static class ShaderVariantCollectionExporter
 			RenderSettings.fogStartDistance = 0.01f;
 			RenderSettings.fogEndDistance = 1000f;
 		}
+	}
+	
+	static void LoadScenes(int msSleep = 1000,bool isTip = false){
+        // SceneManagement
+        string _sceneDir = string.Format("{0}/_Develop/Scene/_maps/",Application.dataPath);
+        string[] files = Directory.GetFiles(_sceneDir, "*.unity", SearchOption.AllDirectories);
+        HashSet<string> _hset = new HashSet<string>(files);
+        _sceneDir = string.Format("{0}/_Develop/Scene/maps_explore_r/",Application.dataPath);
+        files = Directory.GetFiles(_sceneDir, "*.unity", SearchOption.AllDirectories);
+        float count = files.Length;
+        for (int i = 0; i < count; i++)
+            _hset.Add(files[i]);
+
+        var list = _hset.ToList();
+        count = list.Count;
+        for (int i = 0; i < count; i++){
+            _sceneDir = list[i];
+            var _scene = EditorSceneManager.OpenScene(_sceneDir);
+            if (!_scene.isLoaded)
+                EditorSceneManager.OpenScene(_scene.path);
+            if(isTip)
+            {
+                var _tit = string.Format("LoadScenes - [{0}] , ({1} / {2})",_scene.name, i + 1 ,count);
+                EditorUtility.DisplayProgressBar (_tit, _scene.path, i / count);
+            }
+            // var _scene = EditorSceneManager.GetActiveScene();
+            // GameObject[] rootObject = _scene.GetRootGameObjects();
+            SleepMs(msSleep);
+        }
+         if(isTip)
+            EditorUtility.ClearProgressBar();
 	}
 
     static private System.Type TP_CSU = typeof(ShaderUtil);
