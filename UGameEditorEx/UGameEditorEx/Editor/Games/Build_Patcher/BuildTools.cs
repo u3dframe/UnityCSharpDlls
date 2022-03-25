@@ -178,7 +178,7 @@ public class BuildTools : BuildPatcher
         _sbd.Length = 0;
         EditorUtility.ClearProgressBar();
 
-        string _fp = String.Format("{0}../{1}.txt",m_dirRes,DateTime.Now.ToString("MMddHHmmss"));
+        string _fp = string.Format("{0}../{1}.txt",m_dirRes,DateTime.Now.ToString("MMddHHmmss"));
         WriteText(_fp,_cont,true);
         Debug.LogErrorFormat("===== write to {0}",_fp);
     }
