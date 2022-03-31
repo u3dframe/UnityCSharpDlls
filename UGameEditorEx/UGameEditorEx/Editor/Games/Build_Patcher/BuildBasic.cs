@@ -314,12 +314,13 @@ namespace Core
             bool _isError = _abName.EndsWith("error");
             if (_isError)
             {
+                /*
                 if (obj != null)
                 {
                     var _ap = GetPath(obj);
                     Debug.LogErrorFormat("=== _ReBindABName = [{0}] , [{1}] , [{2}]", obj.GetType(), _abName, _ap);
                 }
-
+                */
                 _abName = null;
                 _abSuffix = null;
                 SetABInfo(obj);
@@ -662,6 +663,7 @@ namespace Core
 
         static public void BuildAllResource(bool isBuildAB = true, bool isTip = false)
         {// async
+            DelABFolders();
             //ClearAllABNames(true);
             //AssetDatabase.Refresh();
             //List<UObject> list = null;
