@@ -369,6 +369,8 @@ namespace Core
 
         public static void BuildNow(bool isBuildAB = true, bool isTip = true)
         {
+            DelABFolders();
+
             EditorUtility.DisplayProgressBar("BuildNow", "Start BuildNow ...", 0.05f);
 
             ReBindABNameByMgr();
@@ -663,7 +665,6 @@ namespace Core
 
         static public void BuildAllResource(bool isBuildAB = true, bool isTip = false)
         {// async
-            DelABFolders();
             //ClearAllABNames(true);
             //AssetDatabase.Refresh();
             //List<UObject> list = null;
