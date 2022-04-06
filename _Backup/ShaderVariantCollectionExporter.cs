@@ -437,6 +437,9 @@ public static class ShaderVariantCollectionExporter
     }
 	
 	static void ReFog(bool fog){
+		if(!isCanReFog)
+			return;
+		
 		RenderSettings.fog = fog;
 		if(fog){
 			RenderSettings.fogMode = FogMode.Linear;
@@ -460,22 +463,39 @@ public static class ShaderVariantCollectionExporter
 
         var list = _hset.ToList();
         count = list.Count;
+		bool _isFirstLoadRole = false;
         for (int i = 0; i < count; i++){
             _sceneDir = list[i];
             var _scene = EditorSceneManager.OpenScene(_sceneDir);
-            if (!_scene.isLoaded)
+			SleepMs(20);
+            if (!_scene.isLoaded){
                 EditorSceneManager.OpenScene(_scene.path);
+				SleepMs(20);
+			}
+			
             if(isTip)
             {
                 var _tit = string.Format("LoadScenes - [{0}] , ({1} / {2})",_scene.name, i + 1 ,count);
                 EditorUtility.DisplayProgressBar (_tit, _scene.path, i / count);
             }
+			if(!_isFirstLoadRole){
+				_isFirstLoadRole = true;
+				LoadRole();
+				SleepMs(20);
+			}
             // var _scene = EditorSceneManager.GetActiveScene();
             // GameObject[] rootObject = _scene.GetRootGameObjects();
             SleepMs(msSleep);
         }
          if(isTip)
             EditorUtility.ClearProgressBar();
+	}
+	
+	static void LoadRole(){
+		string _fn = "c_aili.prefab";
+		string _assetPath = string.Format("Assets/_Develop/Characters/Builds/prefabs/{0}",_fn);
+		var _obj = AssetDatabase.LoadAssetAtPath<GameObject>(_assetPath);
+		var _cloneObj = GameObject.Instantiate<GameObject>(_obj,Vector3.zero,Quaternion.identity);
 	}
 
     static private System.Type TP_CSU = typeof(ShaderUtil);
@@ -484,4 +504,5 @@ public static class ShaderVariantCollectionExporter
     static private string _SVCPath = "Assets/ShaderVariantCollection.shadervariants";
     static private readonly bool isReSplitShaderVariants = false;
     static private readonly bool keepTempShaderVariants = true;
+	static private readonly bool isCanReFog = false;
 }
