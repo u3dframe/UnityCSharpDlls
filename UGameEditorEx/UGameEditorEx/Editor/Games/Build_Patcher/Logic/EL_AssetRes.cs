@@ -65,7 +65,7 @@ public class EL_AssetRes
         BuildPatcher.m_buildTarget = (BuildTarget)EditorGUILayout.EnumPopup("平台 : ", BuildPatcher.m_buildTarget);
         EG_Helper.FG_Space(10);
 
-        BuildPatcher.m_buildABOptions = (BuildAssetBundleOptions)EditorGUILayout.EnumPopup("BundleOptions : ", BuildPatcher.m_buildABOptions);
+        BuildPatcher.m_buildABOptions = (BuildAssetBundleOptions)EditorGUILayout.EnumFlagsField("BundleOptions : ", BuildPatcher.m_buildABOptions);
         EG_Helper.FG_Space(10);
 
         EG_Helper.FEG_BeginH();
