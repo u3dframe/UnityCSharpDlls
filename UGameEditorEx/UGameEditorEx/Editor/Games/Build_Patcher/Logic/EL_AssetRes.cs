@@ -109,7 +109,7 @@ public class EL_AssetRes
         }
         EG_Helper.FEG_EndScroll();
 
-        _ret = EG_Helper.h24 * 8f + _calcListY + 10;
+        _ret = EG_Helper.h24 * 8f + _calcListY + 10 + 30;
 
         EG_Helper.FEG_BeginVArea();
         EG_Helper.FEG_Toggle("资源文件夹",ref m_fd1,styleGreen);
