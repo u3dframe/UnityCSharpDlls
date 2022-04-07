@@ -398,7 +398,7 @@ namespace Core
             EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.4f);
             Caching.ClearCache();
             EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.6f);
-            BuildAssetBundleOptions _opt = BuildAssetBundleOptions.ChunkBasedCompression;
+            BuildAssetBundleOptions _opt = GetBuildABOptions();
             BuildTarget _bt = GetBuildTarget();
             BuildPipeline.BuildAssetBundles(_dirRes_, _opt, _bt);
             EditorUtility.DisplayProgressBar("DoBuild", "ClearBuild ...", 0.8f);
@@ -437,6 +437,23 @@ namespace Core
                 if (isTip)
                     EditorUtility.DisplayDialog("提示", "没有[原始资源]设置了AssetBundleName , 即资源的abname都为None!!!", "确定");
             }
+        }
+
+        // AssetBundleStripUnityVersion 在生成过程中删除归档文件和序列化文件头中的Unity版本号
+        static public BuildAssetBundleOptions m_buildABOptions = BuildAssetBundleOptions.AssetBundleStripUnityVersion;
+        static public BuildAssetBundleOptions GetBuildABOptions()
+        {
+            // DeterministicAssetBundle 默认都是开启的？？？
+            // https://docs.unity3d.com/ScriptReference/BuildAssetBundleOptions.DeterministicAssetBundle.html
+            // https://blog.csdn.net/NRatel/article/details/103404741
+            if (m_buildABOptions == BuildAssetBundleOptions.AssetBundleStripUnityVersion)
+            {
+                // DisableWriteTypeTree 建议不开启：除非你能保证你的游戏绝不会在开发和运营过程中不更新Unity版本。
+                // IgnoreTypeTreeChanges 增量打包时忽略Type信息变化
+                // ChunkBasedCompression 使用块压缩，即LZ4压缩
+                m_buildABOptions = BuildAssetBundleOptions.IgnoreTypeTreeChanges | BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.AssetBundleStripUnityVersion;
+            }
+            return m_buildABOptions;
         }
 
         static public BuildTarget m_buildTarget = BuildTarget.NoTarget;

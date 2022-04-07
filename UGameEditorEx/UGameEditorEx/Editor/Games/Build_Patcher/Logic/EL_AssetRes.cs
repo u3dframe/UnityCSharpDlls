@@ -30,7 +30,7 @@ public class EL_AssetRes
     int _nLensList = 0;
     float _calcListY = 0;
     
-    bool m_fd1 = false,m_fd2 = false,m_fd3 = true,m_fd4 = false,m_fd5 = false;
+    bool m_fd1 = false,m_fd2 = false,m_fd3 = false, m_fd4 = false,m_fd5 = false;
 
     private void Init()
     {
@@ -63,6 +63,9 @@ public class EL_AssetRes
         EG_Helper.FEG_HeadTitMid("Build Resources", Color.magenta);
 
         BuildPatcher.m_buildTarget = (BuildTarget)EditorGUILayout.EnumPopup("平台 : ", BuildPatcher.m_buildTarget);
+        EG_Helper.FG_Space(10);
+
+        BuildPatcher.m_buildABOptions = (BuildAssetBundleOptions)EditorGUILayout.EnumPopup("BundleOptions : ", BuildPatcher.m_buildABOptions);
         EG_Helper.FG_Space(10);
 
         EG_Helper.FEG_BeginH();
