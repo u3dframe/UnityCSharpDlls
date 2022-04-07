@@ -369,8 +369,6 @@ namespace Core
 
         public static void BuildNow(bool isBuildAB = true, bool isTip = true)
         {
-            DelABFolders();
-
             EditorUtility.DisplayProgressBar("BuildNow", "Start BuildNow ...", 0.05f);
 
             ReBindABNameByMgr();
@@ -390,15 +388,25 @@ namespace Core
             DoBuild(true);
         }
 
+        static public bool m_isSaveDeps = false;
         static void BuildAssetBundles()
         {
+            DelABFolders();
             string _dirRes_ = CurrDirRes();
             EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.2f);
             CreateFolder(_dirRes_);
-            BuildPipeline.BuildAssetBundles(_dirRes_, BuildAssetBundleOptions.ChunkBasedCompression, GetBuildTarget());
-            EditorUtility.DisplayProgressBar("DoBuild", "ClearBuild ...", 0.3f);
+            EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.4f);
+            Caching.ClearCache();
+            EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.6f);
+            BuildAssetBundleOptions _opt = BuildAssetBundleOptions.ChunkBasedCompression;
+            BuildTarget _bt = GetBuildTarget();
+            BuildPipeline.BuildAssetBundles(_dirRes_, _opt, _bt);
+            EditorUtility.DisplayProgressBar("DoBuild", "ClearBuild ...", 0.8f);
             EditorUtility.ClearProgressBar();
-            MgrABDataDependence.SaveDeps();
+            if (m_isSaveDeps)
+                MgrABDataDependence.SaveDeps();
+            else
+                MgrABDataDependence.ClearDeps();
         }
 
         static public void DoBuild(bool isCheckABSpace, bool isTip = true)
