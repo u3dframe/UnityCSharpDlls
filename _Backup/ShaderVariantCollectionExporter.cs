@@ -31,16 +31,6 @@ public static class ShaderVariantCollectionExporter
         ExportSVC(_name, "_Develop/");
     }
 
-    static void SleepMs(int ms,bool isSleep = true)
-    {
-		if(isSleep)
-			System.Threading.Thread.Sleep(ms);
-    }
-	static void SleepMsFalse(int ms)
-	{
-		SleepMs(ms,false);
-	}
-
     [MenuItem("Tools/Shader/Refog")]
     static void _Refog()
     {
@@ -53,7 +43,35 @@ public static class ShaderVariantCollectionExporter
         LoadScenes(2000,true);
 		_EmptyScene();
     }
-	
+
+    static void SleepMs(int ms,bool isSleep = true)
+    {
+		if(isSleep)
+			System.Threading.Thread.Sleep(ms);
+    }
+
+	static void SleepMsFalse(int ms)
+	{
+		SleepMs(ms,false);
+	}
+
+    static void EditorUpEvent(EditorApplication.CallbackFunction call,bool isAdd = true)
+    {
+        if(call == null){
+            EditorApplication.update = null;
+            return;
+        }
+
+        EditorApplication.update -= call;
+        if(isAdd)
+            EditorApplication.update += call;
+    }
+
+    static void EditorUpEventFalse(EditorApplication.CallbackFunction call)
+    {
+        EditorUpEvent(call,false);
+    }
+
 	static void _EmptyScene()
 	{
 		EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects);
@@ -148,7 +166,10 @@ public static class ShaderVariantCollectionExporter
     {
         if (_elapsedTime.ElapsedMilliseconds >= WaitTimeBeforeSave)
         {
-            EditorApplication.update -= EditorUpdate;
+            EditorUpEventFalse(EditorUpdate);
+            _elapsedTime.Stop();
+            _elapsedTime.Reset();
+
             EditorApplication.isPlaying = true;
             SleepMsFalse(1500);
 			ReFog(false);
@@ -160,13 +181,10 @@ public static class ShaderVariantCollectionExporter
             InvokeInternalStaticMethod(TP_CSU, "SaveCurrentShaderVariantCollection", _SVCPath);
             _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionShaderCount");
             Debug.LogFormat("=== Update CurrSVC_ShaderCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
-            _elapsedTime.Stop();
-            _elapsedTime.Reset();
             EditorApplication.isPlaying = false;
 
             _elapsedTime.Start();
-			EditorApplication.update -= _Update4Clear;
-			EditorApplication.update += _Update4Clear;
+			EditorUpEvent(_Update4Clear);
         }
     }
 
@@ -230,8 +248,7 @@ public static class ShaderVariantCollectionExporter
         _elapsedTime.Reset();
         _elapsedTime.Start();
         EditorApplication.isPlaying = false;
-        EditorApplication.update -= EditorUpdate;
-        EditorApplication.update += EditorUpdate;
+        EditorUpEvent(EditorUpdate);
     }
 
     static private void CreateSphere(Material material, Vector3 position, int x, int y, int index)
@@ -271,7 +288,7 @@ public static class ShaderVariantCollectionExporter
 	{
 		if (_elapsedTime.ElapsedMilliseconds >= 1000)
         {
-            EditorApplication.update -= _Update4Clear;
+            EditorUpEventFalse(_Update4Clear);
             _elapsedTime.Stop();
             _elapsedTime.Reset();
 			
@@ -281,8 +298,7 @@ public static class ShaderVariantCollectionExporter
 			if(isReSplitShaderVariants)
             {
                 _elapsedTime.Start();
-                EditorApplication.update -= _Update4ReSplitSVC;
-                EditorApplication.update += _Update4ReSplitSVC;
+                EditorUpEvent(_Update4ReSplitSVC);
             }
         }
 	}
@@ -292,7 +308,7 @@ public static class ShaderVariantCollectionExporter
     {
         if (_elapsedTime.ElapsedMilliseconds >= 1000)
         {
-            EditorApplication.update -= _Update4ReSplitSVC;
+            EditorUpEventFalse(_Update4ReSplitSVC);
             _elapsedTime.Stop();
             _elapsedTime.Reset();
 			
