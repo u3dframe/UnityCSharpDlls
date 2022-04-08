@@ -116,7 +116,7 @@ namespace Core
 
         const string _fnSharder = "shaders.ab_shader";
 
-        public static void ClearBuild()
+        public static void ClearDeps()
         {
             MgrABDataDependence.ClearDeps();
         }
@@ -226,7 +226,7 @@ namespace Core
             if (isClearBuild)
             {
                 DelABFolders();
-                ClearBuild();
+                ClearDeps();
             }
         }
 
@@ -406,7 +406,7 @@ namespace Core
             if (m_isSaveDeps)
                 MgrABDataDependence.SaveDeps();
             else
-                MgrABDataDependence.ClearDeps();
+                ClearDeps();
         }
 
         static public void DoBuild(bool isCheckABSpace, bool isTip = true)
@@ -692,6 +692,7 @@ namespace Core
 
         static void ReABFolder()
         {
+            ClearDeps();
             List<UObject> list = null;
             ReLoadFolders(ref list, false);
             if (list == null || list.Count <= 0)
@@ -718,7 +719,6 @@ namespace Core
             //AssetDatabase.Refresh();
             if(isReFolder)
             {
-                ClearBuild();
                 ReABFolder();
             }
             BuildNow(isBuildAB, isTip);
