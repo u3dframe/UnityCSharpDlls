@@ -31,10 +31,15 @@ public static class ShaderVariantCollectionExporter
         ExportSVC(_name, "_Develop/");
     }
 
-    static void SleepMs(int ms)
+    static void SleepMs(int ms,bool isSleep = true)
     {
-        System.Threading.Thread.Sleep(ms);
+		if(isSleep)
+			System.Threading.Thread.Sleep(ms);
     }
+	static void SleepMsFalse(int ms)
+	{
+		SleepMs(ms,false);
+	}
 
     [MenuItem("Tools/Shader/Refog")]
     static void _Refog()
@@ -145,9 +150,9 @@ public static class ShaderVariantCollectionExporter
         {
             EditorApplication.update -= EditorUpdate;
             EditorApplication.isPlaying = true;
-            SleepMs(1500);
+            SleepMsFalse(1500);
 			ReFog(false);
-			SleepMs(1500);
+			SleepMsFalse(1500);
             LoadScenes();
             object _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionVariantCount");
             Debug.LogFormat("=== Update CurrSVC_VariantCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
@@ -463,14 +468,13 @@ public static class ShaderVariantCollectionExporter
 
         var list = _hset.ToList();
         count = list.Count;
-		bool _isFirstLoadRole = false;
         for (int i = 0; i < count; i++){
             _sceneDir = list[i];
             var _scene = EditorSceneManager.OpenScene(_sceneDir);
-			SleepMs(20);
+			SleepMsFalse(20);
             if (!_scene.isLoaded){
                 EditorSceneManager.OpenScene(_scene.path);
-				SleepMs(20);
+				SleepMsFalse(20);
 			}
 			
             if(isTip)
@@ -478,14 +482,12 @@ public static class ShaderVariantCollectionExporter
                 var _tit = string.Format("LoadScenes - [{0}] , ({1} / {2})",_scene.name, i + 1 ,count);
                 EditorUtility.DisplayProgressBar (_tit, _scene.path, i / count);
             }
-			if(!_isFirstLoadRole){
-				_isFirstLoadRole = true;
-				LoadRole();
-				SleepMs(20);
-			}
+			
+			LoadRole();
+			SleepMsFalse(20);
             // var _scene = EditorSceneManager.GetActiveScene();
             // GameObject[] rootObject = _scene.GetRootGameObjects();
-            SleepMs(msSleep);
+            SleepMsFalse(msSleep);
         }
          if(isTip)
             EditorUtility.ClearProgressBar();
