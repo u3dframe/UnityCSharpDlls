@@ -452,7 +452,7 @@ namespace Core
                 // IgnoreTypeTreeChanges 增量打包时忽略Type信息变化
                 // ChunkBasedCompression 使用块压缩，即LZ4压缩
                 // DeterministicAssetBundle 使用存储在AssetBundle中的对象id的hash值来打包。
-                // 用于增量更新，可以避免文件重命名、位置改动等操作导致的重新打包。 注意: 此功能总是启用的。(但是主动开启，会有脚本序列化的问题)
+                // 用于增量更新，可以避免文件重命名、位置改动等操作导致的重新打包。 注意: 此功能总是启用的。(不主动开启会有资源序列化的问题？？？)
                 return BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.IgnoreTypeTreeChanges | BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.StrictMode | BuildAssetBundleOptions.AssetBundleStripUnityVersion;
             }
             return m_buildABOptions;
