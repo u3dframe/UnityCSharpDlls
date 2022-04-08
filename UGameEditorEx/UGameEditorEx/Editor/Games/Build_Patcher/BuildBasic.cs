@@ -690,28 +690,37 @@ namespace Core
             EditorUtility.ClearProgressBar();
         }
 
-        static public void BuildAllResource(bool isBuildAB = true, bool isTip = false)
+        static void ReABFolder()
+        {
+            List<UObject> list = null;
+            ReLoadFolders(ref list, false);
+            if (list == null || list.Count <= 0)
+            {
+                throw new System.Exception("没有资源");
+            }
+            System.Type typeFolder = typeof(UnityEditor.DefaultAsset);
+            System.Type typeOrg = null;
+            UObject one = null;
+            for (int i = 0; i < list.Count; i++)
+            {
+                one = list[i];
+                typeOrg = one.GetType();
+                if (typeOrg == typeFolder)
+                {
+                    AnalyseDir4Deps(one);
+                }
+            }
+        }
+
+        static public void BuildAllResource(bool isReFolder = true,bool isBuildAB = true, bool isTip = false)
         {// async
             //ClearAllABNames(true);
             //AssetDatabase.Refresh();
-            //List<UObject> list = null;
-            //ReLoadFolders(ref list, false);
-            //if (list == null || list.Count <= 0)
-            //{
-            //    throw new System.Exception("没有资源");
-            //}
-            //System.Type typeFolder = typeof(UnityEditor.DefaultAsset);
-            //System.Type typeOrg = null;
-            //UObject one = null;
-            //for (int i = 0; i < list.Count; i++)
-            //{
-            //    one = list[i];
-            //    typeOrg = one.GetType();
-            //    if (typeOrg == typeFolder)
-            //    {
-            //        AnalyseDir4Deps(one);
-            //    }
-            //}
+            if(isReFolder)
+            {
+                ClearBuild();
+                ReABFolder();
+            }
             BuildNow(isBuildAB, isTip);
         }
 
@@ -872,26 +881,8 @@ namespace Core
 
 
         static public void ReBindAllResourceABNames()
-        { 
-            List<UObject> list = null;
-            ReLoadFolders(ref list, false);
-            if (list == null || list.Count <= 0)
-            {
-                throw new System.Exception("没有资源");
-            }
-            System.Type typeFolder = typeof(UnityEditor.DefaultAsset);
-            System.Type typeOrg = null;
-            UObject one = null;
-            for (int i = 0; i < list.Count; i++)
-            {
-                one = list[i];
-                typeOrg = one.GetType();
-                if (typeOrg == typeFolder)
-                {
-                    AnalyseDir4Deps(one);
-                }
-            }
-
+        {
+            ReABFolder();
             ReBindABNameByMgr();
             _CheckABName(false);
             EditorUtility.ClearProgressBar();
