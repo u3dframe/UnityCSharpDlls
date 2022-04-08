@@ -389,7 +389,7 @@ namespace Core
         }
 
         static public bool m_isSaveDeps = false;
-        static void BuildAssetBundles()
+        static public void BuildAssetBundles()
         {
             DelABFolders();
             string _dirRes_ = CurrDirRes();
