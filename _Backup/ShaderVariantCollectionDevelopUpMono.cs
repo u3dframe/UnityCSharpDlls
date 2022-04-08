@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEngine.SceneManagement;
 using Debug = UnityEngine.Debug;
 using SShaderVariant = UnityEngine.ShaderVariantCollection.ShaderVariant;
 
@@ -70,6 +71,18 @@ public static class ShaderVariantCollectionExporter
     static void EditorUpEventFalse(EditorApplication.CallbackFunction call)
     {
         EditorUpEvent(call,false);
+    }
+
+    [MenuItem("Tools/Shader/_Clears")]
+    static void _Clears(){
+        EditorApplication.playModeStateChanged -= _PlayModeStaeChanged;
+        EditorApplication.update = null;
+        EditorApplication.delayCall = null;
+        // EditorApplication.pauseStateChanged -= _pauseStateChanged;
+        // EditorApplication.hierarchyChanged -= hierarchyChanged;
+        SceneManager.sceneLoaded -= _OnPlaySceneLoaded;
+        if(isUsePlaying)
+            ReBackScenes();
     }
 
 	static void _EmptyScene()
@@ -162,6 +175,30 @@ public static class ShaderVariantCollectionExporter
         Debug.LogFormat("=== WriteError = [{0}] = [{1}]", _fp, dt8.ToString("HH:mm:ss"));
     }
 
+    static private void _PlayModeStaeChanged(PlayModeStateChange curState){
+        // Debug.LogErrorFormat("=== _PlayModeStaeChanged [{0}] = [{1}] = [{2}] = [{3}]",curState,EditorApplication.isPlayingOrWillChangePlaymode,EditorApplication.isUpdating,EditorApplication.isPlaying);
+        EditorApplication.playModeStateChanged -= _PlayModeStaeChanged;
+        switch(curState)
+        {
+            case PlayModeStateChange.ExitingEditMode:
+                if(EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isPlaying)
+                {
+                    var gobj = new GameObject("newGobj");
+                    ShaderVariantCollectionDevelopUpMono.Get(gobj);
+                }
+            break;
+            case PlayModeStateChange.ExitingPlayMode:
+                _elapsedTime.Start();
+			    EditorUpEvent(_Update4Clear);
+            break;
+        }
+    }
+
+    static public void ReBindStateChg(){
+        EditorApplication.playModeStateChanged -= _PlayModeStaeChanged;
+        EditorApplication.playModeStateChanged += _PlayModeStaeChanged;
+    }
+
     static private void EditorUpdate()
     {
         if (_elapsedTime.ElapsedMilliseconds >= WaitTimeBeforeSave)
@@ -169,23 +206,39 @@ public static class ShaderVariantCollectionExporter
             EditorUpEventFalse(EditorUpdate);
             _elapsedTime.Stop();
             _elapsedTime.Reset();
-
+            if(isUsePlaying)
+            {
+                BindAllScenes();
+                ReBindStateChg();
+            }
             EditorApplication.isPlaying = true;
+
+            if(isUsePlaying)
+                return;
             SleepMsFalse(1500);
 			ReFog(false);
 			SleepMsFalse(1500);
             LoadScenes();
-            object _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionVariantCount");
-            Debug.LogFormat("=== Update CurrSVC_VariantCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
-            SleepMs(200);
-            InvokeInternalStaticMethod(TP_CSU, "SaveCurrentShaderVariantCollection", _SVCPath);
-            _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionShaderCount");
-            Debug.LogFormat("=== Update CurrSVC_ShaderCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
+            SaveSvc();
+
             EditorApplication.isPlaying = false;
 
             _elapsedTime.Start();
 			EditorUpEvent(_Update4Clear);
         }
+    }
+
+    static public void SaveSvc(){
+        string _svcPath = _SVCPath;
+        if(isUsePlaying)
+            _svcPath = isReSplitShaderVariants ? "Assets/_Develop/Builds/all_svcs.shadervariants" : "Assets/_Develop/Builds/all_svc.shadervariants";
+
+        object _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionVariantCount");
+        Debug.LogFormat("=== SaveSvc CurrSVC_VariantCount = [{0}] = [{1}]", _obj, System.DateTime.Now.ToString("HH:mm:ss"));
+        SleepMs(200);
+        InvokeInternalStaticMethod(TP_CSU, "SaveCurrentShaderVariantCollection", _svcPath);
+        _obj = InvokeInternalStaticMethod(TP_CSU, "GetCurrentShaderVariantCollectionShaderCount");
+        Debug.LogFormat("=== SaveSvc CurrSVC_ShaderCount = [{0}] = [{1}] = [{2}]", _obj,_svcPath,System.DateTime.Now.ToString("HH:mm:ss"));
     }
 
     static private void ProcessMaterials(List<Material> materials)
@@ -292,6 +345,7 @@ public static class ShaderVariantCollectionExporter
             _elapsedTime.Stop();
             _elapsedTime.Reset();
 			
+            _Clears();
 			_EmptyScene();
 			SleepMs(200);
 			Debug.LogFormat("=== Clear End = [{0}]", System.DateTime.Now.ToString("HH:mm:ss"));
@@ -470,7 +524,63 @@ public static class ShaderVariantCollectionExporter
 			RenderSettings.fogEndDistance = 1000f;
 		}
 	}
+
+    static public void PreSceneInfos(){
+        mAssetsScenes.Clear();
+        string _sceneDir = string.Format("{0}/_Develop/Scene/_maps/",Application.dataPath);
+        string[] files = Directory.GetFiles(_sceneDir, "*.unity", SearchOption.AllDirectories);
+        HashSet<string> _hset = new HashSet<string>(files);
+        _sceneDir = string.Format("{0}/_Develop/Scene/maps_explore_r/",Application.dataPath);
+        files = Directory.GetFiles(_sceneDir, "*.unity", SearchOption.AllDirectories);
+        float count = files.Length;
+        for (int i = 0; i < count; i++)
+            _hset.Add(files[i]);
+        
+        mAssetsScenes.AddRange(_hset);
+        if(isUsePlaying)
+        {
+            int lens = mAssetsScenes.Count;
+            for (int i = 0; i < lens; i++)
+            {
+                string scenePath = mAssetsScenes[i];
+                int index = scenePath.IndexOf("Assets");
+                scenePath = scenePath.Remove(0,index);
+                mAssetsScenes[i] = scenePath;
+            }
+        }
+    }
 	
+    static void BindAllScenes(){
+        PreSceneInfos();
+        int lens = mAssetsScenes.Count;
+        EditorBuildSettingsScene[] scenes = new EditorBuildSettingsScene[lens];
+        for (int i = 0; i < lens; i++)
+        {
+            string scenePath = mAssetsScenes[i];
+            int index = scenePath.IndexOf("Assets");
+            scenePath = scenePath.Remove(0,index);
+            scenes[i] = new EditorBuildSettingsScene(scenePath,true);
+        }
+        EditorBuildSettings.scenes = scenes;
+    }
+
+    static void ReBackScenes(){
+        string[] buildList = {
+            "Assets/_Develop/Scene/Launcher.unity",
+            "Assets/_Develop/Scene/Loading01.unity",
+            "Assets/_Develop/Scene/Loading02.unity"
+        };
+        int lens = buildList.Length;
+        EditorBuildSettingsScene[] scenes = new EditorBuildSettingsScene[lens];
+        for (int i = 0; i < lens; i++)
+        {
+            string scenePath = buildList[i];
+            scenes[i] = new EditorBuildSettingsScene(scenePath,true);
+        }
+        EditorBuildSettings.scenes = scenes;
+        AssetDatabase.Refresh();
+    }
+
 	static void LoadScenes(int msSleep = 1000,bool isTip = false){
         // SceneManagement
         string _sceneDir = string.Format("{0}/_Develop/Scene/_maps/",Application.dataPath);
@@ -518,10 +628,102 @@ public static class ShaderVariantCollectionExporter
 
     static private System.Type TP_CSU = typeof(ShaderUtil);
     static private readonly Stopwatch _elapsedTime = new Stopwatch();
-    private const int WaitTimeBeforeSave = 25000;
+    private const int WaitTimeBeforeSave = 15000;
     private const int WaitTime4Clear = 3000;
     static private string _SVCPath = "Assets/ShaderVariantCollection.shadervariants";
     static private readonly bool isReSplitShaderVariants = false;
     static private readonly bool keepTempShaderVariants = true;
 	static private readonly bool isCanReFog = false;
+    static private readonly bool isUsePlaying = true;
+
+    // 场景
+    static private List<string> mAssetsScenes = new List<string>();
+
+    static public int UpMonoLoadScene(){
+        if(mAssetsScenes.Count <= 0)
+            return 0;
+        var item = mAssetsScenes[0];
+        mAssetsScenes.Remove(item);
+        SceneManager.LoadScene(item);
+        // EditorSceneManager.OpenScene(item);
+        SceneManager.sceneLoaded -= _OnPlaySceneLoaded;
+        SceneManager.sceneLoaded += _OnPlaySceneLoaded;
+        return mAssetsScenes.Count;
+    }
+
+    static private void _OnPlaySceneLoaded(Scene scene, LoadSceneMode mode){
+        LoadRole();
+    }
+}
+
+
+public class ShaderVariantCollectionDevelopUpMono : MonoBehaviour{
+    public enum UpType{
+        None,
+        Init,
+        Fog,
+        Scene,
+        SaveSvc,
+        Finish,
+        End
+    }
+
+    public UpType mEType = UpType.None;
+    public float mSecDurationScene = 3;
+    public float mSecCurrScene = 3;
+    bool mIsChgScene = false;
+    public int mNumScene = 0;
+
+    void Start(){
+        DontDestroyOnLoad(this);
+        ShaderVariantCollectionExporter.PreSceneInfos();
+        mSecCurrScene = mSecDurationScene;
+        mEType = UpType.Init;
+    }
+
+    void Update()
+    {
+        switch(mEType)
+        {
+            case UpType.Init:
+                mEType = UpType.Fog;
+                break;
+            case UpType.Fog:
+                ShaderVariantCollectionExporter.ReFog(false);
+                mEType = UpType.Scene;
+                break;
+            case UpType.Scene:
+                mIsChgScene = mSecCurrScene <= 0;
+                mSecCurrScene -= Time.deltaTime;
+                if(mIsChgScene){
+                   mNumScene = ShaderVariantCollectionExporter.UpMonoLoadScene();
+                   if(mNumScene <= 0)
+                   {
+                       mEType = UpType.SaveSvc;
+                   }else if(mSecCurrScene <= 0) {
+                       mSecCurrScene += mSecDurationScene;
+                   }
+                }
+                break;
+            case UpType.SaveSvc:
+                ShaderVariantCollectionExporter.SaveSvc();
+                mEType = UpType.Finish;
+                break;
+            case UpType.Finish:
+                ShaderVariantCollectionExporter.ReBindStateChg();
+                mEType = UpType.End;
+                EditorApplication.isPlaying = false;
+                break;
+        }
+    }
+
+    static public ShaderVariantCollectionDevelopUpMono Get(GameObject gobj){
+        ShaderVariantCollectionDevelopUpMono _ret = null;
+        if(gobj){
+            _ret = gobj.GetComponent<ShaderVariantCollectionDevelopUpMono>();
+            if(!_ret)
+                _ret = gobj.AddComponent<ShaderVariantCollectionDevelopUpMono>();
+        }
+        return _ret;
+    }
 }
