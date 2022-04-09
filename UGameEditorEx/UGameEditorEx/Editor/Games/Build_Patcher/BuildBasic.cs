@@ -390,6 +390,7 @@ namespace Core
 
         static public bool m_isSaveDeps = false;
         static public bool m_isDeleteABFolder = true;
+        static public bool m_isClearCache = true;
         static public void BuildAssetBundles()
         {
             if(m_isDeleteABFolder)
@@ -397,8 +398,11 @@ namespace Core
             string _dirRes_ = CurrDirRes();
             EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.2f);
             CreateFolder(_dirRes_);
-            EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.4f);
-            Caching.ClearCache();
+            if (m_isClearCache)
+            {
+                EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.4f);
+                Caching.ClearCache();
+            }
             EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.6f);
             BuildAssetBundleOptions _opt = GetBuildABOptions();
             BuildTarget _bt = GetBuildTarget();
