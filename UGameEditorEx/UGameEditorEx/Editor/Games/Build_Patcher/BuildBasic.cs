@@ -389,9 +389,11 @@ namespace Core
         }
 
         static public bool m_isSaveDeps = false;
+        static public bool m_isDeleteABFolder = true;
         static public void BuildAssetBundles()
         {
-            DelABFolders();
+            if(m_isDeleteABFolder)
+                DelABFolders();
             string _dirRes_ = CurrDirRes();
             EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.2f);
             CreateFolder(_dirRes_);
