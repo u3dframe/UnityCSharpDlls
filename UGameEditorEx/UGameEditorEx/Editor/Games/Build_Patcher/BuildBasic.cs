@@ -456,12 +456,24 @@ namespace Core
         // 加载AssetBundle中的asset，默认有三种方式：“完整的asset路径”、“asset文件名” 和 “带有扩展名的asset文件名”
         // AssetBundleStripUnityVersion 在生成过程中删除归档文件和序列化文件头中的Unity版本号
         static private readonly BuildAssetBundleOptions m_abOptions = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.IgnoreTypeTreeChanges | BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.StrictMode | 
-          BuildAssetBundleOptions.DisableLoadAssetByFileName | BuildAssetBundleOptions.AssetBundleStripUnityVersion;
+          BuildAssetBundleOptions.DisableLoadAssetByFileName;
         static private readonly BuildAssetBundleOptions m_abOptions4NoUpU3DVer = BuildAssetBundleOptions.DisableWriteTypeTree | m_abOptions;
-        static public bool m_isDefaultABOptionsUseNoUpU3DVer = true;
+        static private readonly BuildAssetBundleOptions m_abOptionsReleaser = m_abOptions | BuildAssetBundleOptions.AssetBundleStripUnityVersion;
+        static private readonly BuildAssetBundleOptions m_abOptionsReleaser4NoUpU3DVer = BuildAssetBundleOptions.DisableWriteTypeTree | m_abOptionsReleaser;
+        static public int m_isDefaultABOptions = 0;
         static public BuildAssetBundleOptions GetDefaultBuildABOptions()
         {
-            return m_isDefaultABOptionsUseNoUpU3DVer ? m_abOptions4NoUpU3DVer : m_abOptions;
+            switch (m_isDefaultABOptions)
+            {
+                case 1:
+                    return m_abOptionsReleaser4NoUpU3DVer;
+                case 2:
+                    return m_abOptions;
+                case 3:
+                    return m_abOptions4NoUpU3DVer;
+                default:
+                    return m_abOptionsReleaser;
+            }
         }
 
         static public BuildAssetBundleOptions m_buildABOptions = BuildAssetBundleOptions.AssetBundleStripUnityVersion;
