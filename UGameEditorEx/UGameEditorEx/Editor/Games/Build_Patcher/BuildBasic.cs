@@ -447,6 +447,7 @@ namespace Core
 
         // DisableWriteTypeTree Assetbundle中不包含Type信息。建议不开启：除非你能保证你的游戏绝不会在开发和运营过程中不更新Unity版本
         // IgnoreTypeTreeChanges 增量打包时忽略Type信息变化(不能与 DisableWriteTypeTree 同时开启)
+        // AssetBundleStripUnityVersion 在生成过程中删除归档文件和序列化文件头中的Unity版本号(不能与 DisableWriteTypeTree 同时开启)
         // ChunkBasedCompression 使用块压缩，即LZ4压缩
         // DeterministicAssetBundle 使用存储在AssetBundle中的对象id的hash值来打包
         // 用于增量更新，可以避免文件重命名、位置改动等操作导致的重新打包。 注意: 此功能总是启用的。(不主动开启会有资源序列化的问题？？？)
@@ -454,26 +455,13 @@ namespace Core
         // https://blog.csdn.net/NRatel/article/details/103404741
         // DisableLoadAssetByFileName 禁用按 “asset文件名” 加载asset的方式
         // 加载AssetBundle中的asset，默认有三种方式：“完整的asset路径”、“asset文件名” 和 “带有扩展名的asset文件名”
-        // AssetBundleStripUnityVersion 在生成过程中删除归档文件和序列化文件头中的Unity版本号
         static private readonly BuildAssetBundleOptions m_abOptionsBasic = BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.ChunkBasedCompression | BuildAssetBundleOptions.StrictMode | BuildAssetBundleOptions.DisableLoadAssetByFileName;
-        static private readonly BuildAssetBundleOptions m_abOptions = m_abOptionsBasic | BuildAssetBundleOptions.IgnoreTypeTreeChanges;
-        static private readonly BuildAssetBundleOptions m_abOptions4NoUpU3DVer = m_abOptionsBasic | BuildAssetBundleOptions.DisableWriteTypeTree;
-        static private readonly BuildAssetBundleOptions m_abOptionsReleaser = m_abOptions | BuildAssetBundleOptions.AssetBundleStripUnityVersion;
-        static private readonly BuildAssetBundleOptions m_abOptionsReleaser4NoUpU3DVer = m_abOptionsBasic | BuildAssetBundleOptions.DisableWriteTypeTree | BuildAssetBundleOptions.AssetBundleStripUnityVersion;
-        static public int m_isDefaultABOptions = 0;
+        static private readonly BuildAssetBundleOptions m_abOptions = m_abOptionsBasic | BuildAssetBundleOptions.IgnoreTypeTreeChanges | BuildAssetBundleOptions.AssetBundleStripUnityVersion;
+        static private readonly BuildAssetBundleOptions m_abOptions4NoTypeTree = m_abOptionsBasic | BuildAssetBundleOptions.DisableWriteTypeTree;
+        static public bool m_isDefaultABOptionsNoTypeTree = false;
         static public BuildAssetBundleOptions GetDefaultBuildABOptions()
         {
-            switch (m_isDefaultABOptions)
-            {
-                case 1:
-                    return m_abOptionsReleaser4NoUpU3DVer;
-                case 2:
-                    return m_abOptions;
-                case 3:
-                    return m_abOptions4NoUpU3DVer;
-                default:
-                    return m_abOptionsReleaser;
-            }
+            return m_isDefaultABOptionsNoTypeTree ? m_abOptions4NoTypeTree : m_abOptions;
         }
 
         static public BuildAssetBundleOptions m_buildABOptions = BuildAssetBundleOptions.AssetBundleStripUnityVersion;
