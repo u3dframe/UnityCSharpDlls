@@ -389,7 +389,7 @@ namespace Core
         }
 
         static public bool m_isSaveDeps = false;
-        static public bool m_isDeleteABFolder = true;
+        static public bool m_isDeleteABFolder = false;
         static public bool m_isClearCache = true;
         static public void BuildAssetBundles()
         {
