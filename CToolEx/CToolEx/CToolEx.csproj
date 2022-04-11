@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;UNITY_2017_1_OR_NEWER;UNITY_ANDROID</DefineConstants>
+    <DefineConstants>TRACE;UNITY_2017_1_OR_NEWER;UNITY_ANDROID;UNITY_IOS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
