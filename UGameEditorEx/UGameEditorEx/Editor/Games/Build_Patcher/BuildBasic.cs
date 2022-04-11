@@ -18,7 +18,6 @@ namespace Core
     public class BuildBasic : EditorGameFile
     {
         static public T[] GetSelectObject<T>()
-        static public T[] GetSelectObject<T>()
         {
             return Selection.GetFiltered<T>(SelectionMode.Assets | SelectionMode.DeepAssets);
         }
