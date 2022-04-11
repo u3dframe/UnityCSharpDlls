@@ -18,6 +18,7 @@ namespace Core
     public class BuildBasic : EditorGameFile
     {
         static public T[] GetSelectObject<T>()
+        static public T[] GetSelectObject<T>()
         {
             return Selection.GetFiltered<T>(SelectionMode.Assets | SelectionMode.DeepAssets);
         }
@@ -393,8 +394,10 @@ namespace Core
         static public bool m_isClearCache = true;
         static public void BuildAssetBundles()
         {
-            if(m_isDeleteABFolder)
+            if (m_isDeleteABFolder)
                 DelABFolders();
+            else
+                DelNotUseABReses();
             string _dirRes_ = CurrDirRes();
             EditorUtility.DisplayProgressBar("DoBuild", "BuildAssetBundles ...", 0.2f);
             CreateFolder(_dirRes_);
@@ -571,6 +574,26 @@ namespace Core
             EditorUtility.ClearProgressBar();
             if (isTip)
                 EditorUtility.DisplayDialog("提示", "已删除指定文件夹ABFolders!", "确定");
+        }
+
+        static public void DelNotUseABReses()
+        {
+            string _dirRes_ = CurrDirRes();
+            AssetDatabase.RemoveUnusedAssetBundleNames();
+            EditorUtility.DisplayProgressBar("DeleteABReses", " rm files where is ab_resources inside ...", 0.0f);
+            string[] arrs = AssetDatabase.GetAllAssetBundleNames();
+            EL_Path _ep = EL_Path.builder.DoInit(_dirRes_, true);
+            int curr = 0;
+            float count = _ep.m_files.Count;
+            foreach (string _fn in _ep.m_files)
+            {
+                curr++;
+                EditorUtility.DisplayProgressBar(string.Format("Delete ABRes rm - ({0}/{1})", curr, count),_fn, (curr / count));
+                if (_fn.EndsWith(m_assetRelativePath) || _IsContains(arrs, _fn))
+                    continue;
+                DelFile(_fn);
+            }
+            EditorUtility.ClearProgressBar();
         }
 
         // [MenuItem("Tools/Delete Same Material")]
@@ -903,6 +926,5 @@ namespace Core
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
-
     }
 }
