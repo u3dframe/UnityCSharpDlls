@@ -94,7 +94,7 @@ public class EUP_JavaBridge : MonoSingleton<EUP_JavaBridge> {
 	}
 #endif
 
-    public void Init(string className,DF_CBBridge onResult) {
+    public virtual void Init(string className,DF_CBBridge onResult) {
 		this._callBack = onResult;
 #if UNITY_ANDROID
 		InitBridge();
@@ -117,11 +117,11 @@ public class EUP_JavaBridge : MonoSingleton<EUP_JavaBridge> {
 #endif
 	}
 	
-	public void Init(DF_CBBridge onResult) {
+	public virtual void Init(DF_CBBridge onResult) {
 		Init("",onResult);
 	}
 	
-	public void SendToJava( string param ){
+	public virtual void SendToJava( string param ){
 #if UNITY_ANDROID
 		if(jcBridge != null){
 			jcBridge.CallStatic(NM_JAVA_METHOD_NOTIFY, param);
@@ -159,7 +159,7 @@ public class EUP_JavaBridge : MonoSingleton<EUP_JavaBridge> {
 #endif
 	}
 
-	void OnResult4Java(string data){
+    protected void OnResult4Java(string data){
 		if(_callBack != null){
 			_callBack(data);
 		} else {
@@ -171,11 +171,11 @@ public class EUP_JavaBridge : MonoSingleton<EUP_JavaBridge> {
 	{
 		Clear ();
 		if (_isMustNewWhenDestroy) {
-			shareInstance.Init (this._clsListener,this._callBack);
+            curInstance.Init (this._clsListener,this._callBack);
 		}
 	}
 
-	void Clear(){
+    protected virtual void Clear(){
 #if UNITY_ANDROID
 		if(jcBridge != null){
 			jcBridge.Dispose();

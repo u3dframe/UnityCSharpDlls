@@ -41,15 +41,31 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 			}
 		}
 	}
-	
-	static protected bool _initInstace = false;
+
+    static private T _curInstance = null;
+    static public T curInstance
+    {
+        get
+        {
+            if (_curInstance == null)
+                _curInstance = shareInstance;
+            return _curInstance;
+        }
+        set
+        {
+            if (value != null)
+                _curInstance = value;
+        }
+    }
+
+    static protected bool _initInstace = false;
 	static public T InitInstance(string gobjName)
     {
 		bool _isEmt = string.IsNullOrEmpty(gobjName);
 		if(!_isEmt)
 			NM_Gobj = gobjName;
 		
-		T _ret = shareInstance;
+		T _ret = curInstance;
 		if(!_isEmt){
 			GameObject gobj = _ret.gameObject;
 			if(!gobj.name.Equals(gobjName))

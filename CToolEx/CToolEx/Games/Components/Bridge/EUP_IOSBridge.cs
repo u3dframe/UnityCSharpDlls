@@ -17,8 +17,8 @@ public class EUP_IOSBridge : MonoSingleton<EUP_IOSBridge> {
 	private static extern void c_send2bridge(string param);
 #endif
 
-	// 回调方法名
-	const string NM_ON_RESULT_FUNC = "OnResult4IOS";
+    // 回调方法名
+    public const string NM_ON_RESULT_FUNC = "OnResult4IOS";
 	bool _isInited = false;
     DF_CBBridge _callBack;
 
@@ -32,11 +32,11 @@ public class EUP_IOSBridge : MonoSingleton<EUP_IOSBridge> {
 	{
 		_isInited = false;
 		if (_isMustNewWhenDestroy) {
-			shareInstance.Init (this._callBack);
+            curInstance.Init (this._callBack);
 		}
 	}
 
-	public void Init(DF_CBBridge onResult) {
+	public virtual void Init(DF_CBBridge onResult) {
 		this._callBack = onResult;
 		if(_isInited)
 			return;
@@ -46,13 +46,13 @@ public class EUP_IOSBridge : MonoSingleton<EUP_IOSBridge> {
 #endif
 	}
 
-	public void SendToIOS( string param ){
+	public virtual void SendToIOS( string param ){
 #if UNITY_IOS
 		c_send2bridge(param);
 #endif
 	}
 
-	void OnResult4IOS(string data){
+    protected void OnResult4IOS(string data){
 		if(_callBack != null){
 			_callBack(data);
 		} else {

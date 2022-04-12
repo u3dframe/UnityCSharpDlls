@@ -22,9 +22,9 @@ public static class EU_Bridge {
             return;
 
         if (UGameFile.m_isIOS)
-		    EUP_IOSBridge.shareInstance.Init(onResult);
+		    EUP_IOSBridge.curInstance.Init(onResult);
         else if (UGameFile.m_isAndroid)
-            EUP_JavaBridge.shareInstance.Init(jclassListener,onResult);
+            EUP_JavaBridge.curInstance.Init(jclassListener,onResult);
     }
 
     static public void Init(DF_CBBridge onResult) {
@@ -36,9 +36,9 @@ public static class EU_Bridge {
             return;
 
         if (UGameFile.m_isIOS)
-            EUP_IOSBridge.shareInstance.SendToIOS(param);
+            EUP_IOSBridge.curInstance.SendToIOS(param);
         else if (UGameFile.m_isAndroid)
-            EUP_JavaBridge.shareInstance.SendToJava(param);
+            EUP_JavaBridge.curInstance.SendToJava(param);
     }
 	
 	static public void SendAndCall(string param, DF_CBBridge onResult,string jclassListener){
