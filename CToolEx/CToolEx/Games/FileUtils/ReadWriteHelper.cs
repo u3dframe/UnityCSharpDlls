@@ -75,31 +75,30 @@ namespace Core.Kernel
 
         // 流文件夹路径
         static public readonly string m_dirStreaming = Application.streamingAssetsPath + "/";
-
-        // 自己封装的
-        static public readonly string m_dirStreaming2 =
-#if UNITY_EDITOR
-				"file://"+Application.dataPath +"/StreamingAssets/";
-#else
-#if UNITY_ANDROID
-				"jar:file://" + Application.dataPath + "!/assets/";
-#elif UNITY_IOS
-				"file://"+Application.dataPath +"/Raw/";
-#else
-                "file://" + Application.dataPath + "/StreamingAssets/";
-#endif
-#endif
-
-        // 打包平台名
         /*
-#if UNITY_ANDROID
-		static public readonly string m_curPlatform = platformAndroid;
-#elif UNITY_IOS
-		static public readonly string m_curPlatform = platformIOS;
+       // 自己封装的
+       static public readonly string m_dirStreaming2 =
+#if UNITY_EDITOR
+               "file://"+Application.dataPath +"/StreamingAssets/";
 #else
-        static public readonly string m_curPlatform = platformAndroid; // platformWindows
+#if UNITY_ANDROID
+               "jar:file://" + Application.dataPath + "!/assets/";
+#elif UNITY_IOS
+               "file://"+Application.dataPath +"/Raw/";
+#else
+               "file://" + Application.dataPath + "/StreamingAssets/";
 #endif
-        */
+#endif
+
+       // 打包平台名
+#if UNITY_ANDROID
+       static public readonly string m_curPlatform = platformAndroid;
+#elif UNITY_IOS
+       static public readonly string m_curPlatform = platformIOS;
+#else
+       static public readonly string m_curPlatform = platformAndroid; // platformWindows
+#endif
+       */
 
         static public bool m_isEditor
         {
