@@ -62,14 +62,14 @@ public class EUP_BasicBridge<T> : MonoSingleton<T> where T : EUP_BasicBridge<T>
         return default(E);
     }
 
-    static public void InitBase(DF_CBBridge onResult, string jclassListener)
+    static public void InitBridge(DF_CBBridge onResult, string jclassListener)
     {
         if (UGameFile.m_isEditor)
             return;
         curInstance.Init(onResult, jclassListener);
     }
 
-    static public void Send(string param)
+    static public void SendBridge(string param)
     {
         if (UGameFile.m_isEditor)
             return;
@@ -77,9 +77,9 @@ public class EUP_BasicBridge<T> : MonoSingleton<T> where T : EUP_BasicBridge<T>
         curInstance.Send4Bridge(param);
     }
 
-    static public void SendAndCall(string param, DF_CBBridge onResult, string jclassListener = "")
+    static public void SendBridgeAndCall(string param, DF_CBBridge onResult, string jclassListener = "")
     {
-        InitBase(onResult,jclassListener);
-        Send(param);
+        InitBridge(onResult,jclassListener);
+        SendBridge(param);
     }
 }
