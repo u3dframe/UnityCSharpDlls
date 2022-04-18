@@ -22,7 +22,7 @@ public class EUP_BasicBridge<T> : MonoSingleton<T> where T : EUP_BasicBridge<T>
 {
     protected DF_CBBridge _callBack = null;
     protected string _className = null;
-    const string NM_ON_RESULT_FUNC = "OnCB4RetBridge";
+    protected const string NM_ON_RESULT_FUNC = "OnCB4RetBridge";
 
     protected override void OnCall4Destroy()
     {
