@@ -168,7 +168,7 @@ namespace Core.Kernel
             else
             {
                 EUP_BasicBridge<T>.curInstance = (T)eupBridge;
-                EUP_BasicBridge<T>.SendAndCall("{\"cmd\":\"getPackageInfo\",\"filename\":\"" + m_defFn + "\"}",(strData)=> {
+                EUP_BasicBridge<T>.SendBridgeAndCall("{\"cmd\":\"getPackageInfo\",\"filename\":\"" + m_defFn + "\"}",(strData)=> {
                     instance.Init(strData);
                     if (callBack != null)
                         callBack();
