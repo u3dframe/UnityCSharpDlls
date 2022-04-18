@@ -75,7 +75,7 @@ namespace Core.Kernel
             return LJsonHelper.ToLong(this.m_json, key);
         }
 
-        public string GetObbPath(string key)
+        public string GetObbPath<T>(string key) where T : EUP_BasicBridge<T>
         {
             if (UGameFile.m_isEditor || !UGameFile.m_isAndroid)
                 return null;
@@ -92,9 +92,7 @@ namespace Core.Kernel
             bool _isStatic = false;
             if (_lens >= 3)
                 bool.TryParse(arrs[2], out _isStatic);
-            if(_isStatic)
-                return EUP_JavaBridge.shareInstance.CallStatic<string>(arrs[0], arrs[1]);
-            return EUP_JavaBridge.shareInstance.Call<string>(arrs[0], arrs[1]);
+            return EUP_BasicBridge<T>.curInstance.CallBridge<string>(_isStatic,arrs[0], arrs[1]);
         }
 
         public string ToJson()
@@ -157,7 +155,7 @@ namespace Core.Kernel
             return string.Format("{0}/Plugins/Android/assets/{1}", Application.dataPath, m_defFn);
         }
 
-        static public CfgPackage InitPackage(System.Action callBack)
+        static public CfgPackage InitPackage<T>(System.Action callBack, EUP_BasicBridge<T> eupBridge) where T : EUP_BasicBridge<T>
         {
             if (UGameFile.m_isEditor)
             {
@@ -169,7 +167,8 @@ namespace Core.Kernel
             }
             else
             {
-                EU_Bridge.SendAndCall("{\"cmd\":\"getPackageInfo\",\"filename\":\"" + m_defFn + "\"}",(strData)=> {
+                EUP_BasicBridge<T>.curInstance = (T)eupBridge;
+                EUP_BasicBridge<T>.SendAndCall("{\"cmd\":\"getPackageInfo\",\"filename\":\"" + m_defFn + "\"}",(strData)=> {
                     instance.Init(strData);
                     if (callBack != null)
                         callBack();
