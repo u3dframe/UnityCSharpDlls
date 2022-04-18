@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 /// <summary>
 /// 类名 : mono 单例对象

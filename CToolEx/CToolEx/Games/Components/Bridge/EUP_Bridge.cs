@@ -57,6 +57,11 @@ public class EUP_BasicBridge<T> : MonoSingleton<T> where T : EUP_BasicBridge<T>
     {
     }
 
+    public virtual E CallBridge<E>(bool Static,string className, string methodName,params object[] args)
+    {
+        return default(E);
+    }
+
     static public void InitBase(DF_CBBridge onResult, string jclassListener)
     {
         if (UGameFile.m_isEditor)
