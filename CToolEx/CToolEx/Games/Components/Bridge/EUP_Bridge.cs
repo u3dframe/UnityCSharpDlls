@@ -53,13 +53,19 @@ public class EUP_BasicBridge<T> : MonoSingleton<T> where T : EUP_BasicBridge<T>
             Debug.LogWarning("OnCB4RetBridge: _callBack is null");
     }
 
-    public virtual void Send4Bridge(string param)
+    protected virtual void Send4Bridge(string param)
     {
     }
 
     public virtual E CallBridge<E>(bool Static,string className, string methodName,params object[] args)
     {
         return default(E);
+    }
+
+    public void AppendCall(DF_CBBridge onCall)
+    {
+        this._callBack -= onCall;
+        this._callBack += onCall;
     }
 
     static public void InitBridge(DF_CBBridge onResult, string jclassListener)
