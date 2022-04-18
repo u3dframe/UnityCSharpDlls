@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;UNITY_2017_1_OR_NEWER;UNITY_ANDROID;</DefineConstants>
+    <DefineConstants>TRACE;UNITY_2017_1_OR_NEWER;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Games\Components\Bridge\EUP_IOSBridge.cs" />
+    <Compile Remove="Games\Components\Bridge\EUP_JavaBridge.cs" />
+    <Compile Remove="Games\Components\Bridge\EU_Bridge.cs" />
     <Compile Remove="Games\Components\CurveEx.cs" />
     <Compile Remove="Games\Components\Motions\StateMachines\ClipStateMachineAlpha.cs" />
     <Compile Remove="Games\Components\PrefabElement.cs" />

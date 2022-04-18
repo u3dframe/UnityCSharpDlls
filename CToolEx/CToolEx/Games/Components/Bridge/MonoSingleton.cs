@@ -109,7 +109,7 @@ public class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
 	protected void Log(object msg){
 			if(!isDebug || msg == null)
 				return;
-			Debug.LogFormat("==== ABMgr = [{0}]",msg);
+			Debug.LogFormat("==== single = [{0}]",msg);
 			// Debug.LogFormat("== [{0}] == [{1}] == [{2}]",this.GetType(),this.GetInstanceID(),msg);
 		}
 		
