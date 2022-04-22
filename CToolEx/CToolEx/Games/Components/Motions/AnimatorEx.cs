@@ -312,4 +312,11 @@ public class AnimatorEx : PrefabBasic
 		this.m_animator.Update(0);
 		this.m_animator.Play(stateName,layer,normalizedTime);
 	}
+
+    public void ResetCurrAnimator()
+    {
+        if (!this.m_animator) return;
+        this.m_animator.Rebind();
+        this.m_animator.Update(0);
+    }
 }
