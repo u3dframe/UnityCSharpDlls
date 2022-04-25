@@ -295,7 +295,9 @@ public class ParticleSystemEx : GobjLifeListener {
 		ParticleSystem ps;
 		for (int i = 0; i < _lens; i++) {
 			ps = listAll[i];
-			if(_isPause){
+            if (ps == null || !ps)
+                continue;
+            if (_isPause){
 				ps.Pause();
 			}else{
 				ps.Play(false);
