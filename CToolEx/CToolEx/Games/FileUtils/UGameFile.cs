@@ -4,6 +4,7 @@ using Core.Kernel.Cipher;
 
 namespace Core.Kernel
 {
+    using UResources = UnityEngine.Resources;
     /// <summary>
     /// 类名 : 文件路径对象父类
     /// 作者 : Canyon / 龚阳辉
@@ -128,12 +129,12 @@ namespace Core.Kernel
             string _suffix = Path.GetExtension(fn);
             int _ind_ = fn.LastIndexOf(_suffix);
             string _fnNoSuffix = fn.Substring(0, _ind_);
-            TextAsset txtAsset = Resources.Load<TextAsset>(_fnNoSuffix); // 可以不用考虑释放txtAsset
+            TextAsset txtAsset = UResources.Load<TextAsset>(_fnNoSuffix); // 可以不用考虑释放txtAsset
             string _ret = "";
             if (txtAsset)
             {
                 _ret = txtAsset.text;
-                UnLoadOne(txtAsset); // Resources.UnloadAsset
+                UnLoadOne(txtAsset); // UResources.UnloadAsset
             }
             return _ret;
         }
@@ -150,7 +151,7 @@ namespace Core.Kernel
             string _suffix = Path.GetExtension(fn);
             int _ind_ = fn.LastIndexOf(_suffix);
             string _fnNoSuffix = fn.Substring(0, _ind_);
-            TextAsset txtAsset = Resources.Load<TextAsset>(_fnNoSuffix); // 可以不用考虑释放txtAsset
+            TextAsset txtAsset = UResources.Load<TextAsset>(_fnNoSuffix); // 可以不用考虑释放txtAsset
             byte[] _bts = null;
             if (txtAsset)
             {
