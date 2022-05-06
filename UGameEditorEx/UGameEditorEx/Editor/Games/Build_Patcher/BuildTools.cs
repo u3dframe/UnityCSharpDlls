@@ -625,13 +625,30 @@ public class BuildTools : BuildPatcher
 	[MenuItem("Tools/ReBindBehaviours4Ani",false,50)]
     static public void ReBindBehaviours4Ani(){
         EditorUtility.DisplayProgressBar("ReBindBehaviours4Ani", "ReBindBehaviours4Ani Start", 0.01f);
-        string _check = "lose";
+        string[] _check = { "lose","win","show_1" };
         string[] searchInFolders = {
             "Assets/_Develop/Characters/Builds/animators"
         };
         string[] _tes = AssetDatabase.FindAssets("t:AnimatorController",searchInFolders);
         int _lens = _tes.Length;
         string _assetPath;
+        
+        string _fp;
+        string[] _arrs;
+        for (int i = 0; i < _lens; i++)
+        {
+            _assetPath = AssetDatabase.GUIDToAssetPath(_tes[i]);
+            EditorUtility.DisplayProgressBar(string.Format("ReBindBehaviours4Ani - Clear ({0}/{1})",(i + 1),_lens),_assetPath, i / (float)_lens);
+
+            _fp = m_dirDataNoAssets + _assetPath;
+            _arrs = File.ReadAllLines(_fp);
+            _arrs = _ReLines(_arrs);
+            File.WriteAllLines(_fp,_arrs);
+        }
+        AssetDatabase.Refresh();
+        EditorUtility.ClearProgressBar();
+
+
         UnityEditor.Animations.AnimatorController _curAni = null;
         UnityEditor.Animations.AnimatorControllerLayer _aLayer = null;
         bool _isChgCur = false;
@@ -647,8 +664,8 @@ public class BuildTools : BuildPatcher
             {
                 var _state = _childAniState.state;
                 // Debug.LogError(_state.name);
-                if(_check.Equals(_state.name,StringComparison.OrdinalIgnoreCase))
-                {
+                if(IsInParams(_state.name.ToLower(),_check)){
+                    _childAniState.state.behaviours = new StateMachineBehaviour[0];
                     _state.AddStateMachineBehaviour<ClipStateMachine>();
                     // _curAni.AddEffectiveStateMachineBehaviour<ClipStateMachine>(_state,0);
                     _isChgCur = true;
@@ -659,7 +676,40 @@ public class BuildTools : BuildPatcher
         }
         AssetDatabase.Refresh();
         EditorUtility.ClearProgressBar();
+
         EditorUtility.DisplayDialog("ReBindBehaviours4Ani","isOver","Okey","Yes");
+    }
+
+    static string[] _ReLines(params string[] lines)
+    {
+        List<string> _list = new List<string>();
+        string _line;
+        bool _isMono = false;
+        bool _isStateMachineBehaviours = false;
+        for (int i = 0; i < lines.Length; i++)
+        {
+            _line = lines[i];
+            if(_line.Contains("--- !u!")){
+                _isMono = false;
+            }
+            if(_line.Contains("MonoBehaviour:")){
+                _isMono = true;
+                _list.RemoveAt(_list.Count -1);
+            }
+            // 会导致 m_Motion 丢失 - clip 丢失
+            // if(_line.Contains("m_StateMachineBehaviours")){
+            //     _line = "m_StateMachineBehaviours: []";
+            //     _list.Add(_line);
+            //     _isStateMachineBehaviours = true;
+            // }else if(_line.Contains("m_")){
+            //     _isStateMachineBehaviours = false;
+            // }
+            if(!_isMono && !_isStateMachineBehaviours){
+                _list.Add(_line);
+            }
+        }
+
+        return _list.ToArray();
     }
 	
 	[MenuItem("Tools/PatcheCompareFiles(更新测试)",false,50)]
