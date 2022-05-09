@@ -259,4 +259,20 @@ public class RendererMatData
         GameObject gobj = this.m_currRer.gameObject;
         gobj.SetActive(isBl);
     }
+
+    public bool EnabledShaderPass(string key,bool enabled)
+    {
+        int _lens = this.m_allMats.Count;
+        Material _mat = null;
+        bool isChg = false;
+        for (int j = 0; j < _lens; j++)
+        {
+            _mat = this.m_allMats[j];
+            if (_mat == null)
+                continue;
+            _mat.SetShaderPassEnabled(key, enabled); // SetShaderPassEnabled(string passName, bool enabled) passName = LightModel
+            isChg = true;
+        }
+        return isChg;
+    }
 }

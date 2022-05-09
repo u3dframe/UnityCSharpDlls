@@ -172,39 +172,40 @@ public class CharacterControllerEx : AnimatorEx
             _itData = _arrs[i];
             if (_itData == null)
                 continue;
-
-            if (nType == 99)
-                _itData.ClearAll();
-            else if (nType == 98)
+            switch(nType)
             {
-                if (_isEmptyName || oneName.Contains(_itData.m_rerName))
-                {
-                    _itData.SetEnabled(true);
-                }
+                case 99:
+                    _itData.ClearAll();
+                    break;
+                case 98:
+                    if (_isEmptyName || oneName.Contains(_itData.m_rerName))
+                    {
+                        _itData.SetEnabled(true);
+                    }
+                    break;
+                case 97:
+                    if (_isEmptyName || oneName.Contains(_itData.m_rerName))
+                    {
+                        _itData.SetEnabled(false);
+                    }
+                    break;
+                case 96:
+                    if (_isEmptyName || oneName.Contains(_itData.m_rerName))
+                    {
+                        _itData.SetActive(true);
+                    }
+                    break;
+                case 95:
+                    if (_isEmptyName || oneName.Contains(_itData.m_rerName))
+                    {
+                        _itData.SetActive(false);
+                    }
+                    break;
+                default:
+                    if (_isEmptyName || oneName.Contains(_itData.m_rerName))
+                        _itData.ChangeMat(newMat, nType);
+                    break;
             }
-            else if (nType == 97)
-            {
-                if (_isEmptyName || oneName.Contains(_itData.m_rerName))
-                {
-                    _itData.SetEnabled(false);
-                }
-            }
-            else if (nType == 96)
-            {
-                if (_isEmptyName || oneName.Contains(_itData.m_rerName))
-                {
-                    _itData.SetActive(true);
-                }
-            }
-            else if (nType == 95)
-            {
-                if (_isEmptyName || oneName.Contains(_itData.m_rerName))
-                {
-                    _itData.SetActive(false);
-                }
-            }
-            else if(_isEmptyName || oneName.Contains(_itData.m_rerName))
-                _itData.ChangeMat(newMat, nType);
         }
 
         if (nType != 99)
@@ -230,6 +231,25 @@ public class CharacterControllerEx : AnimatorEx
                 _itData.EnableKeyword(key);
             else
                 _itData.DisableKeyword(key);
+        }
+    }
+
+    public void EnabledShaderPass(string key, bool isEnabled = true)
+    {
+        if (string.IsNullOrEmpty(key))
+            return;
+
+        var _arrs = this.m_skinDatas;
+        if (_arrs == null || _arrs.Length <= 0)
+            return;
+
+        RendererMatData _itData;
+        for (int i = 0; i < _arrs.Length; i++)
+        {
+            _itData = _arrs[i];
+            if (_itData == null)
+                continue;
+            _itData.EnabledShaderPass(key,isEnabled);
         }
     }
 
