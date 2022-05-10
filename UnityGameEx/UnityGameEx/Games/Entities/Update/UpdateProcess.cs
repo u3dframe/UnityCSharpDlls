@@ -31,6 +31,7 @@ namespace Core.Kernel
         int n_appfull_down = 0;
         List<ResInfo> m_lNdDown4AppFull = new List<ResInfo>();
         List<ResInfo> m_lDownError4AppFull = new List<ResInfo>();
+        List<ResInfo> m_lTemp = new List<ResInfo>();
 
         override public void OnUpdate(float dt, float unscaledDt) {
             switch (this.m_state)
@@ -87,6 +88,10 @@ namespace Core.Kernel
 
         void _ExcCompleted()
         {
+            this.m_lTemp.Clear();
+            this.m_lNdDown4AppFull.Clear();
+            this.m_lDownError4AppFull.Clear();
+
             var _fun = this.m_cfFinish;
             this.m_cfFinish = null;
             this.m_cfChgState = null;
@@ -412,13 +417,13 @@ namespace Core.Kernel
 
             string url = _cfgVer.m_urlFilelist;
             string proj = _cfgVer.m_pkgFiles;
-            List<ResInfo> _list = new List<ResInfo>(_cfgFlDef.m_data.m_list);
-            int lens = _list.Count;
+            m_lTemp.AddRange(_cfgFlDef.m_data.m_list);
+            int lens = m_lTemp.Count;
             ResInfo _info;
             bool _isNdDown = false;
             for (int i = 0; i < lens; i++) {
-                _info = _list[i];
-                if (!_info.m_isMustFile)
+                _info = m_lTemp[i];
+                if (_info == null || !_info.m_isMustFile)
                     continue;
 
                 _isNdDown = CfgFileList.instanceDowned.IsHas(_info) && !UGameFile.IsExistsFile(_info.m_curName, false);
@@ -429,6 +434,7 @@ namespace Core.Kernel
                 this.m_lNdDown4AppFull.Add(_info);
                 ++this.n_appfull_down;
             }
+            m_lTemp.Clear();
 
             int _lens = this.n_appfull_down;
             if (_lens <= 0)
@@ -444,6 +450,10 @@ namespace Core.Kernel
                 {
                     _info = _subList[i];
                     this.m_lNdDown4AppFull.Remove(_info);
+                }
+                for (int i = 0; i < _min; i++)
+                {
+                    _info = _subList[i];
                     _info.DownStartCheckCode();
                 }
             }
@@ -459,7 +469,7 @@ namespace Core.Kernel
                 {
                     this._SetState(EM_Process.Completed);
                 }
-                else
+                else if(this.m_lNdDown4AppFull.Count > 0)
                 {
                     ResInfo dlFile2 = this.m_lNdDown4AppFull[0];
                     this.m_lNdDown4AppFull.Remove(dlFile2);
@@ -703,13 +713,14 @@ namespace Core.Kernel
                         this.m_state = EM_Process.WaitCommand;
                         this.m_preState = EM_Process.CheckAppFull;
 
-                        var _list = new List<ResInfo>(this.m_lDownError4AppFull);
+                        m_lTemp.AddRange(this.m_lDownError4AppFull);
                         this.m_lDownError4AppFull.Clear();
-                        int _lens = _list.Count;
+                        int _lens = m_lTemp.Count;
                         for (int i = 0; i < _lens; i++)
                         {
-                            _list[i].DownStartCheckCode();
+                            m_lTemp[i].DownStartCheckCode();
                         }
+                        m_lTemp.Clear();
                     }
                     break;
                 case EM_Process.Error_NeedDownApkIpa:
