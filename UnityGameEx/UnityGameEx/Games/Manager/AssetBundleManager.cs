@@ -26,8 +26,8 @@ namespace Core
                 return _instance;
             }
         }
-        static long weightMax = long.MaxValue - 1000000;
-        static long weightCurr = weightMax;
+        // static long weightMax = long.MaxValue - 1000000;
+        static long weightCurr = long.MaxValue - 1000000;
 
         public int m_nMaxLoad = 106; // 限定加载
         public float m_secLmtUp = 0.022f;
@@ -141,7 +141,7 @@ namespace Core
                 return;
             }
 
-            AssetBundleManifest mainfest = ab.LoadAsset<AssetBundleManifest>("AssetBundleManifest"); ;
+            AssetBundleManifest mainfest = ab.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
             if (mainfest == null)
             {
                 LogErr("LoadMainfest ab.mainfest is NULL , fp = [{0}]!", path);
