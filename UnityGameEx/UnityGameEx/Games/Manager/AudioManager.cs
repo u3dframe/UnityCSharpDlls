@@ -350,6 +350,8 @@ public class AudioManager : GobjLifeListener
             return;
         AudioData _cur = this.GetCurrMus();
         AudioData _other = (_cur == this.m_musicData) ? this.m_musicData2 : this.m_musicData;
+        if (_cur == null || _other == null)
+            return;
         if (_other.IsStop())
         {
             float _v = _cur.GetVolume();
