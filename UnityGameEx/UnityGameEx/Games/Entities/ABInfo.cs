@@ -15,12 +15,32 @@ namespace Core
     /// </summary>
     public class AssetBase : Kernel.Beans.ED_Basic
     {
+        public class SortABase : Comparer<string>
+        {
+            public override int Compare(string x, string y)
+            {
+                AssetBase vA = abMgr.GetABInfo(x, false);
+                AssetBase vB = abMgr.GetABInfo(y, false);
+                if (vA == null && vB != null)
+                    return 1;
+                else if (vA != null && vB == null)
+                    return -1;
+                else if (vA == null && vB == null)
+                    return 0;
+                if (vA.m_weight > vB.m_weight)
+                    return -1;
+                if (vA.m_weight < vB.m_weight)
+                    return 1;
+                return 0;
+            }
+        }
         static public AssetBundleManager abMgr { get { return AssetBundleManager.instance; } }
 
         public string m_abName; // assetbundle名
         public bool m_isASync = false; // sync 同步 ,async 异步
         public uint m_abCRC32 = 0;
         public ulong m_abOffset = 0;
+        public long m_weight = 0;
 
         public ABInfo GetAssetBundleInfo()
         {
@@ -129,7 +149,7 @@ namespace Core
             }
         }
 
-        private ABInfo _Init(string abName, float secOut, DF_LoadedAsset cfunc)
+        private ABInfo _Init(string abName, float secOut, DF_LoadedAsset cfunc,long weightParent)
         {
             this.m_abName = abName;
             this.m_isShader = UGameFile.IsShaderAB(abName);
@@ -141,6 +161,7 @@ namespace Core
 
             this._ReOutSceMinMax(secOut);
             this.m_onLoadedAB = cfunc;
+            this.m_weight += weightParent;
             return this;
         }
 
@@ -588,6 +609,7 @@ namespace Core
             this.m_isDoned = false;
             this.m_depNeedCount = 0;
             this.m_depNeedLoaded = 0;
+            this.m_weight = 0;
 
             var _list_ = this.m_assets.m_list;
             int lens = _list_.Count;
@@ -656,7 +678,7 @@ namespace Core
 
                 this.m_depNeeds.Remove(_abName_);
 
-                _dep_ = abMgr.LoadAB(_abName_, null);
+                _dep_ = abMgr.LoadAB(_abName_, null, this.m_weight);
                 this.AddNeedDeps(_dep_);
             }
 
@@ -685,12 +707,12 @@ namespace Core
             }
         }
 
-        static public ABInfo Builder(string name, float secOut, DF_LoadedAsset cfunc)
+        static public ABInfo Builder(string name, float secOut, DF_LoadedAsset cfunc, long weightParent)
         {
             ABInfo info = GetCache<ABInfo>();
             if (info == null)
                 info = new ABInfo();
-            info._Init(name, secOut, cfunc);
+            info._Init(name, secOut, cfunc, weightParent);
             return info;
         }
     }
