@@ -651,8 +651,10 @@ namespace Core.Art
             float _temp;
             string _p1 = @"[\r\n\s\t]*\w+:[\r\n\s\t]*{[\r\n\s\t]*(x:[\r\n\s\t]*-?[\d\.]+),[\r\n\s\t]*(y:[\r\n\s\t]*-?[\d\.]+),[\r\n\s\t]*(z:[\r\n\s\t]*-?[\d\.]+),?[\r\n\s\t]*?(w:[\r\n\s\t]*-?[\d\.]+)?[\r\n\s\t]*?}";
 
-            // _p1 = @"[\r\n\s\t]*\w+:[\r\n\s\t]*{[\r\n\s\t]*x:[\r\n\s\t]*(-?[\d\.]+),[\r\n\s\t]*y:[\r\n\s\t]*(-?[\d\.]+),[\r\n\s\t]*z:[\r\n\s\t]*(-?[\d\.]+),[\r\n\s\t]*w:[\r\n\s\t]*(-?[\d\.]+)[\r\n\s\t]*}";
             // _p1 = @"[\r\n\s\t]*\w+:[\r\n\s\t]*{[\r\n\s\t]*x:[\r\n\s\t]*(-?\d+\.?\d+?),[\r\n\s\t]*y:[\r\n\s\t]*(-?\d+\.?\d+?),[\r\n\s\t]*z:[\r\n\s\t]*(-?\d+\.?\d+?),?[\r\n\s\t]*?w?:?[\r\n\s\t]*(-?\d+\.?\d+?)?[\r\n\s\t]*?}";
+
+            // _p1 = @"[\r\n\s\t]*\w+:[\r\n\s\t]*{[\r\n\s\t]*x:[\r\n\s\t]*(-?[\d\.]+),[\r\n\s\t]*y:[\r\n\s\t]*(-?[\d\.]+),[\r\n\s\t]*z:[\r\n\s\t]*(-?[\d\.]+),[\r\n\s\t]*w:[\r\n\s\t]*(-?[\d\.]+)[\r\n\s\t]*}";
+            // _p1 = @"[\r\n\s\t]*\w+:[\r\n\s\t]*{[\r\n\s\t]*x:[\r\n\s\t]*(-?\d+\.?\d+?),[\r\n\s\t]*y:[\r\n\s\t]*(-?\d+\.?\d+?),[\r\n\s\t]*z:[\r\n\s\t]*(-?\d+\.?\d+?),[\r\n\s\t]*w:[\r\n\s\t]*(-?\d+\.?\d+?)[\r\n\s\t]*}";
 
             Regex regexTex = new Regex(_p1);
             for (int i = 0; i < _lens; i++)
