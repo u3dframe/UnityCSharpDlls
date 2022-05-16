@@ -11,9 +11,9 @@ public class ListDict<T> {
     public List<T> m_list = null; // 列表
 
     public ListDict(bool isList){
-        m_dic = new Dictionary<object, T>();
+        m_dic = new Dictionary<object, T>(8);
         if(isList){
-            m_list = new List<T>();
+            m_list = new List<T>(8);
         }
     }
 
