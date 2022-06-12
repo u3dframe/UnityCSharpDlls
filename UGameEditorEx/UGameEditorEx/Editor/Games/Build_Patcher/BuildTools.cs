@@ -170,7 +170,7 @@ public class BuildTools : BuildPatcher
             var _size = GetTextureSize(_assetPath);
             EditorUtility.DisplayProgressBar("CheckBigTexture", _assetPath, i / (float)_len);
             if(_size.Item1 > 256 && _size.Item2 > 256){
-                _sbd.AppendFormat("{0}    {1}x{2}",_assetPath,_size.Item1,_size.Item2).AppendLine();
+                _sbd.AppendFormat("{0}    size = {1}x{2}  , maxSize = {3}",_assetPath,_size.Item1,_size.Item2, _size.Item3).AppendLine();
             }
         }
         string _cont = _sbd.ToString();
