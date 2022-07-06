@@ -121,7 +121,7 @@ public static class CMDMenu
 		return _list.ToArray();
 	}
 		
-    [MenuItem("Tools_Art/ExportCSV4ShaderVariantCount", false, 5)]
+    [MenuItem("Tools_Art/_Opts/ExportCSV4ShaderVariantCount", false, 5)]
     public static void GetAllShaderVariantCount()
     {
         string _fpDll = string.Concat(EditorApplication.applicationContentsPath, @"\Managed\UnityEditor.dll");
@@ -155,7 +155,7 @@ public static class CMDMenu
         }
     }
 
-	[MenuItem("Tools_Art/Check_BigTexture",false,5)]
+	[MenuItem("Tools_Art/_Opts/Check_BigTexture",false,5)]
     static public void CMD_CheckBigTexture(){
         EditorUtility.DisplayProgressBar("CheckBigTexture", "Checking", 0.1f);
         string[] searchInFolders = {
@@ -217,7 +217,7 @@ public static class CMDMenu
 		}
 	}
 
-	[MenuItem("Assets/Tools_Art/Rmv Select Mat's OverdueProperties", false, 5)]
+	[MenuItem("Assets/Tools_Art/_Opts/Rmv Select Mat's OverdueProperties", false, 5)]
 	static void HandlerOverdueMatProperties4Select()
 	{
 		EditorUtility.DisplayProgressBar("Rmv Mat Properties", "Start ...", 0.0f);
@@ -316,7 +316,7 @@ public static class CMDMenu
 		return _isChg;
 	}
 	
-	[MenuItem("Assets/Tools_Art/Rmv Select Mat's Mono Or NoDependency", false, 5)]
+	[MenuItem("Assets/Tools_Art/_Opts/Rmv Select Mat's Mono Or NoDependency", false, 5)]
 	static void RmvSelectMatsMonoOrNoDependency()
 	{
 		EditorUtility.DisplayProgressBar("Rmv Mat's MonoBehaviour", "Start ...", 0.0f);
@@ -349,7 +349,7 @@ public static class CMDMenu
 		EditorUtility.DisplayDialog("Rmv Mat's MonoBehaviour Finished", "this is over", "Okey");
 	}
 	
-	[MenuItem("Tools_Art/Check_SpriteAtlas",false,5)]
+	[MenuItem("Tools_Art/_Opts/Check_SpriteAtlas",false,5)]
     static public void CMD_CheckSpriteAtlas(){
         EditorUtility.DisplayProgressBar("CheckSpriteAtlas", "Checking", 0.1f);
 		string[] searchInFolders = {
@@ -618,7 +618,7 @@ public static class CMDMenu
             return _listObjs.ToArray();
         }
 
-        [MenuItem("Assets/Tools_Art/Rmv Select Prefab's UnUsed Comp")]
+        [MenuItem("Assets/Tools_Art/_Opts/Rmv Select Prefab's UnUsed Comp")]
         static void RemoveUnusedComp4Prefab()
         {
             EditorUtility.DisplayProgressBar("Rmv Select Fab's UnUsed Comp", "Start ...", 0.0f);
@@ -691,7 +691,7 @@ public static class CMDMenu
             return _isChg;
         }
 
-        [MenuItem("Assets/Tools_Art/Rmv Select Prefab's NoDependency")]
+        [MenuItem("Assets/Tools_Art/_Opts/Rmv Select Prefab's NoDependency")]
         static void RmvSelectFabNoDependency()
         {
             EditorUtility.DisplayProgressBar("Rmv Select Fab's NoDependency", "Start ...", 0.0f);
