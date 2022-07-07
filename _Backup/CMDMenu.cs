@@ -417,310 +417,335 @@ public static class CMDMenu
     }
 
 	static void CleanupShapeModuleMesh(ref ParticleSystem.ShapeModule shape, ref bool isChg, int ntype = 3)
+    {
+        bool isMesh = ntype != 0 || ntype == 3;
+        if (isMesh)
         {
-            bool isMesh = ntype != 0 || ntype == 3;
-            if (isMesh)
+            isChg = isChg || shape.mesh != null;
+            shape.mesh = null;
+        }
+        bool isMeshRenderer = ntype != 1 || ntype == 3;
+        if (isMeshRenderer)
+        {
+            isChg = isChg || shape.meshRenderer != null;
+            shape.meshRenderer = null;
+        }
+        bool isSkinMeshRenderer = ntype != 2 || ntype == 3;
+        if (isSkinMeshRenderer)
+        {
+            isChg = isChg || shape.skinnedMeshRenderer != null;
+            shape.skinnedMeshRenderer = null;
+        }
+    }
+
+    static void CleanupShapeModuleSprite(ref ParticleSystem.ShapeModule shape, ref bool isChg, int ntype = 3)
+    {
+        bool isSprite = ntype != 0 || ntype == 3;
+        if (isSprite)
+        {
+            isChg = isChg || shape.sprite != null;
+            shape.sprite = null;
+        }
+        bool isSpriteRenderer = ntype != 1 || ntype == 3;
+        if (isSpriteRenderer)
+        {
+            isChg = isChg || shape.spriteRenderer != null;
+            shape.spriteRenderer = null;
+        }
+    }
+
+    static bool CleanupEmptyComp(GameObject gobj)
+    {
+        string _newPath = AssetDatabase.GetAssetPath(gobj);
+        GameObject gobjClone = PrefabUtility.InstantiatePrefab(gobj) as GameObject;
+        bool _isChg = false;
+        var _arrs1 = gobjClone.GetComponentsInChildren<Animator>(true);
+        foreach (var item in _arrs1)
+        {
+            if (item != null && item.runtimeAnimatorController == null)
             {
-                isChg = isChg || shape.mesh != null;
-                shape.mesh = null;
-            }
-            bool isMeshRenderer = ntype != 1 || ntype == 3;
-            if (isMeshRenderer)
-            {
-                isChg = isChg || shape.meshRenderer != null;
-                shape.meshRenderer = null;
-            }
-            bool isSkinMeshRenderer = ntype != 2 || ntype == 3;
-            if (isSkinMeshRenderer)
-            {
-                isChg = isChg || shape.skinnedMeshRenderer != null;
-                shape.skinnedMeshRenderer = null;
+                GameObject.DestroyImmediate(item);
+                _isChg = true;
             }
         }
 
-        static void CleanupShapeModuleSprite(ref ParticleSystem.ShapeModule shape, ref bool isChg, int ntype = 3)
+        var _arrs2 = gobjClone.GetComponentsInChildren<Animation>(true);
+        foreach (var item in _arrs2)
         {
-            bool isSprite = ntype != 0 || ntype == 3;
-            if (isSprite)
+            if (item != null && item.GetClipCount() <= 0)
             {
-                isChg = isChg || shape.sprite != null;
-                shape.sprite = null;
-            }
-            bool isSpriteRenderer = ntype != 1 || ntype == 3;
-            if (isSpriteRenderer)
-            {
-                isChg = isChg || shape.spriteRenderer != null;
-                shape.spriteRenderer = null;
+                GameObject.DestroyImmediate(item);
+                _isChg = true;
             }
         }
 
-        static bool CleanupEmptyComp(GameObject gobj)
+        var _arrs3 = gobjClone.GetComponentsInChildren<UnityEngine.Playables.PlayableDirector>(true);
+        foreach (var item in _arrs3)
         {
-            string _newPath = AssetDatabase.GetAssetPath(gobj);
-            GameObject gobjClone = PrefabUtility.InstantiatePrefab(gobj) as GameObject;
-            bool _isChg = false;
-            var _arrs1 = gobjClone.GetComponentsInChildren<Animator>(true);
-            foreach (var item in _arrs1)
+            if (item != null && item.playableAsset == null)
             {
-                if (item != null && item.runtimeAnimatorController == null)
-                {
-                    GameObject.DestroyImmediate(item);
-                    _isChg = true;
-                }
+                GameObject.DestroyImmediate(item);
+                _isChg = true;
             }
+        }
 
-            var _arrs2 = gobjClone.GetComponentsInChildren<Animation>(true);
-            foreach (var item in _arrs2)
+        var _arrs4 = gobjClone.GetComponentsInChildren<ParticleSystem>(true);
+        ParticleSystemRenderer _rer_ = null;
+        bool _isTrail;
+        foreach (var item in _arrs4)
+        {
+            _isTrail = false;
+            if (item != null)
             {
-                if (item != null && item.GetClipCount() <= 0)
+                var _shapeModule = item.shape;
+                switch (_shapeModule.shapeType)
                 {
-                    GameObject.DestroyImmediate(item);
-                    _isChg = true;
+                    case ParticleSystemShapeType.Mesh:
+                        CleanupShapeModuleMesh(ref _shapeModule, ref _isChg, 0);
+                        break;
+                    case ParticleSystemShapeType.MeshRenderer:
+                        CleanupShapeModuleMesh(ref _shapeModule, ref _isChg, 1);
+                        break;
+                    case ParticleSystemShapeType.SkinnedMeshRenderer:
+                        CleanupShapeModuleMesh(ref _shapeModule, ref _isChg, 2);
+                        break;
+                    case ParticleSystemShapeType.Sprite:
+                        CleanupShapeModuleSprite(ref _shapeModule, ref _isChg, 0);
+                        break;
+                    case ParticleSystemShapeType.SpriteRenderer:
+                        CleanupShapeModuleSprite(ref _shapeModule, ref _isChg, 1);
+                        break;
+                    default:
+                        CleanupShapeModuleMesh(ref _shapeModule, ref _isChg);
+                        CleanupShapeModuleSprite(ref _shapeModule, ref _isChg);
+                        break;
                 }
-            }
 
-            var _arrs3 = gobjClone.GetComponentsInChildren<UnityEngine.Playables.PlayableDirector>(true);
-            foreach (var item in _arrs3)
-            {
-                if (item != null && item.playableAsset == null)
+                _rer_ = item.GetComponent<ParticleSystemRenderer>();
+                if (_rer_ != null)
                 {
-                    GameObject.DestroyImmediate(item);
-                    _isChg = true;
-                }
-            }
+                    _isTrail = (item.trails.enabled && _rer_.trailMaterial != null);
 
-            var _arrs4 = gobjClone.GetComponentsInChildren<ParticleSystem>(true);
-            ParticleSystemRenderer _rer_ = null;
-            bool _isTrail;
-            foreach (var item in _arrs4)
-            {
-                _isTrail = false;
-                if (item != null)
-                {
-                    var _shapeModule = item.shape;
-                    switch (_shapeModule.shapeType)
+                    switch (_rer_.renderMode)
                     {
-                        case ParticleSystemShapeType.Mesh:
-                            CleanupShapeModuleMesh(ref _shapeModule, ref _isChg, 0);
-                            break;
-                        case ParticleSystemShapeType.MeshRenderer:
-                            CleanupShapeModuleMesh(ref _shapeModule, ref _isChg, 1);
-                            break;
-                        case ParticleSystemShapeType.SkinnedMeshRenderer:
-                            CleanupShapeModuleMesh(ref _shapeModule, ref _isChg, 2);
-                            break;
-                        case ParticleSystemShapeType.Sprite:
-                            CleanupShapeModuleSprite(ref _shapeModule, ref _isChg, 0);
-                            break;
-                        case ParticleSystemShapeType.SpriteRenderer:
-                            CleanupShapeModuleSprite(ref _shapeModule, ref _isChg, 1);
+                        case ParticleSystemRenderMode.Mesh:
                             break;
                         default:
-                            CleanupShapeModuleMesh(ref _shapeModule, ref _isChg);
-                            CleanupShapeModuleSprite(ref _shapeModule, ref _isChg);
+                            if (!_isTrail && _rer_.renderMode == ParticleSystemRenderMode.None && _rer_.sharedMaterial != null)
+                            {
+                                // 清除过 sharedMaterials 最终还是会记录两个 空数据
+                                _rer_.sharedMaterial = null;
+                                _isChg = _isChg || true;
+                            }
+                            _isChg = _isChg || _rer_.mesh != null;
+                            _rer_.mesh = null;
                             break;
                     }
+                }
 
-                    _rer_ = item.GetComponent<ParticleSystemRenderer>();
+                if ((_rer_ == null) || (!_rer_.enabled) || ((_rer_.sharedMaterial == null) && !_isTrail))
+                {
                     if (_rer_ != null)
                     {
-                        _isTrail = (item.trails.enabled && _rer_.trailMaterial != null);
-
-                        switch (_rer_.renderMode)
-                        {
-                            case ParticleSystemRenderMode.Mesh:
-                                break;
-                            default:
-                                if (!_isTrail && _rer_.renderMode == ParticleSystemRenderMode.None && _rer_.sharedMaterial != null)
-                                {
-                                    // 清除过 sharedMaterials 最终还是会记录两个 空数据
-                                    _rer_.sharedMaterial = null;
-                                    _isChg = _isChg || true;
-                                }
-                                _isChg = _isChg || _rer_.mesh != null;
-                                _rer_.mesh = null;
-                                break;
-                        }
+                        _rer_.sharedMaterial = null;
+                        _rer_.sharedMaterials = new Material[0];
                     }
-
-                    if ((_rer_ == null) || (!_rer_.enabled) || ((_rer_.sharedMaterial == null) && !_isTrail))
-                    {
-                        if (_rer_ != null)
-                        {
-                            _rer_.sharedMaterial = null;
-                            _rer_.sharedMaterials = new Material[0];
-                        }
-                        GameObject.DestroyImmediate(item);
-                        _isChg = _isChg || true;
-                    }
+                    GameObject.DestroyImmediate(item);
+                    _isChg = _isChg || true;
                 }
             }
-
-            bool _isBl = gobj.isStatic;
-            if (_isBl)
-            {
-                gobjClone.isStatic = false;
-                _isChg = true;
-            }
-
-            _isBl = gobj.activeSelf;
-            if (!_isBl)
-            {
-                gobjClone.SetActive(true);
-                _isChg = true;
-            }
-
-            if (_isChg)
-            {
-                PrefabUtility.SaveAsPrefabAsset(gobjClone, _newPath);
-                gobjClone.hideFlags = HideFlags.HideAndDontSave;
-            }
-
-            GameObject.DestroyImmediate(gobjClone); // 删除掉实例化的对象
-            return _isChg;
         }
 
-		static public List<GameObject> GetGobjs(params string[] fpdir)
+        bool _isBl = gobj.isStatic;
+        if (_isBl)
         {
-            string[] arrs = GetRelativeAssetPaths("t:Prefab", fpdir);
-            if (arrs == null || arrs.Length <= 0)
-                return null;
-            string _prefabPath = "";
-            GameObject _prefab = null;
-            List<GameObject> _list = new List<GameObject>();
-            for (int i = 0; i < arrs.Length; i++)
-            {
-                _prefabPath = arrs[i];
-                _prefab = AssetDatabase.LoadAssetAtPath<GameObject>(_prefabPath);
-                if (_prefab != null)
-                    _list.Add(_prefab);
-				System.Threading.Thread.Sleep(0);
-            }
-            return _list;
+            gobjClone.isStatic = false;
+            _isChg = true;
         }
 
-		static public GameObject[] GetSelectGobjs()
+        _isBl = gobj.activeSelf;
+        if (!_isBl)
         {
-            List<GameObject> _listObjs = new List<GameObject>();
-            List<string> _listFolders = GetSelectFolders();
-            string[] searchInFolders = _listFolders.ToArray();
-            var _arrGobjs = GetGobjs(searchInFolders);
-            if(_arrGobjs != null)
-            {
-                GameObject _gobj = null;
-                for (int i = 0; i < _arrGobjs.Count; i++)
-                {
-                    _gobj = _arrGobjs[i];
-                    if (!_listObjs.Contains(_gobj))
-                        _listObjs.Add(_gobj);
-                }
-            }
-            return _listObjs.ToArray();
+            gobjClone.SetActive(true);
+            _isChg = true;
         }
 
-        [MenuItem("Assets/Tools_Art/_Opts/Rmv Select Prefab's UnUsed Comp")]
-        static void RemoveUnusedComp4Prefab()
+        if (_isChg)
         {
-            EditorUtility.DisplayProgressBar("Rmv Select Fab's UnUsed Comp", "Start ...", 0.0f);
-            var arrs = GetSelectGobjs();
-            if (arrs == null || arrs.Length <= 0)
+            PrefabUtility.SaveAsPrefabAsset(gobjClone, _newPath);
+            gobjClone.hideFlags = HideFlags.HideAndDontSave;
+        }
+
+        GameObject.DestroyImmediate(gobjClone); // 删除掉实例化的对象
+        return _isChg;
+    }
+
+    static public List<GameObject> GetGobjs(params string[] fpdir)
+    {
+        string[] arrs = GetRelativeAssetPaths("t:Prefab", fpdir);
+        if (arrs == null || arrs.Length <= 0)
+            return null;
+        string _prefabPath = "";
+        GameObject _prefab = null;
+        List<GameObject> _list = new List<GameObject>();
+        for (int i = 0; i < arrs.Length; i++)
+        {
+            _prefabPath = arrs[i];
+            _prefab = AssetDatabase.LoadAssetAtPath<GameObject>(_prefabPath);
+            if (_prefab != null)
+                _list.Add(_prefab);
+            System.Threading.Thread.Sleep(0);
+        }
+        return _list;
+    }
+
+    static public GameObject[] GetSelectGobjs()
+    {
+        List<GameObject> _listObjs = new List<GameObject>();
+        List<string> _listFolders = GetSelectFolders();
+        string[] searchInFolders = _listFolders.ToArray();
+        var _arrGobjs = GetGobjs(searchInFolders);
+        if(_arrGobjs != null)
+        {
+            GameObject _gobj = null;
+            for (int i = 0; i < _arrGobjs.Count; i++)
             {
-                EditorUtility.ClearProgressBar();
-                Debug.LogError("=== Rmv Select Fab's UnUsed Comp = is not select Prefabs");
-                return;
+                _gobj = _arrGobjs[i];
+                if (!_listObjs.Contains(_gobj))
+                    _listObjs.Add(_gobj);
             }
-            EditorUtility.DisplayProgressBar("Rmv Select Fab's UnUsed Comp", "begin ...", 0);
-            int _lens = arrs.Length;
-            GameObject _it = null;
-            for (int i = 0; i < _lens; i++)
-            {
-                _it = arrs[i];
-                EditorUtility.DisplayProgressBar("Rmv Select Fab's UnUsed Comp ("+i+"/"+_lens+")", _it.name, (i + 1) / (float)_lens);
-                CleanupEmptyComp(_it);
-				System.Threading.Thread.Sleep(0);
-            }
+        }
+        return _listObjs.ToArray();
+    }
+
+    [MenuItem("Assets/Tools_Art/_Opts/Rmv Select Prefab's UnUsed Comp")]
+    static void RemoveUnusedComp4Prefab()
+    {
+        EditorUtility.DisplayProgressBar("Rmv Select Fab's UnUsed Comp", "Start ...", 0.0f);
+        var arrs = GetSelectGobjs();
+        if (arrs == null || arrs.Length <= 0)
+        {
             EditorUtility.ClearProgressBar();
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-			EditorUtility.UnloadUnusedAssetsImmediate();
-            EditorUtility.DisplayDialog("Rmv Select Fab's UnUsed Comp Finished", "this is over", "Okey");
+            Debug.LogError("=== Rmv Select Fab's UnUsed Comp = is not select Prefabs");
+            return;
         }
-
-		static private bool RemoveFabNoDependency(string fp)
+        EditorUtility.DisplayProgressBar("Rmv Select Fab's UnUsed Comp", "begin ...", 0);
+        int _lens = arrs.Length;
+        GameObject _it = null;
+        for (int i = 0; i < _lens; i++)
         {
-            if (!fp.EndsWith(".prefab"))
-                return false;
-            bool _isChg = false, _isDelNext = false;
-            string[] _lines = File.ReadAllLines(fp);
-            List<string> _list = new List<string>();
-            string _cur;
-            int _lens = _lines.Length;
-            string RegexStr = @"guid: \w+", _guid, _assetPath4GUID;
-            Match _match = null; // 单行匹配
-            for (int i = 0; i < _lens; i++)
-            {
-                _cur = _lines[i];
-                if (_isDelNext)
-                {
-                    _isDelNext = false;
-                    continue;
-                }
-                if (Regex.IsMatch(_cur, RegexStr))
-                {
-                    _match = Regex.Match(_cur, RegexStr);
-                    _guid = _match.Value;
-                    _guid = _guid.Replace("guid: ", "").Trim();
-                    _assetPath4GUID = AssetDatabase.GUIDToAssetPath(_guid);
-                    if (string.IsNullOrEmpty(_assetPath4GUID))
-                    {
-                        int _index = _cur.IndexOf("{");
-                        int _index2 = _cur.LastIndexOf("}");
-                        _cur = _cur.Substring(0, _index);
-                        _cur = string.Concat(_cur, "{fileID: 0}");
-                        _isChg = true;
-                        _isDelNext = _index2 <= 0;
-                    }
-                }
-                _list.Add(_cur);
-            }
-            if (_isChg)
-            {
-                string[] _line2 = _list.ToArray();
-                File.WriteAllLines(fp, _line2);
-            }
-            return _isChg;
+            _it = arrs[i];
+            EditorUtility.DisplayProgressBar("Rmv Select Fab's UnUsed Comp ("+i+"/"+_lens+")", _it.name, (i + 1) / (float)_lens);
+            CleanupEmptyComp(_it);
+            System.Threading.Thread.Sleep(0);
         }
+        EditorUtility.ClearProgressBar();
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        EditorUtility.UnloadUnusedAssetsImmediate();
+        EditorUtility.DisplayDialog("Rmv Select Fab's UnUsed Comp Finished", "this is over", "Okey");
+    }
 
-        [MenuItem("Assets/Tools_Art/_Opts/Rmv Select Prefab's NoDependency")]
-        static void RmvSelectFabNoDependency()
+    static private bool RemoveFabNoDependency(string fp)
+    {
+        if (!fp.EndsWith(".prefab"))
+            return false;
+        bool _isChg = false, _isDelNext = false;
+        string[] _lines = File.ReadAllLines(fp);
+        List<string> _list = new List<string>();
+        string _cur;
+        int _lens = _lines.Length;
+        string RegexStr = @"guid: \w+", _guid, _assetPath4GUID;
+        Match _match = null; // 单行匹配
+        for (int i = 0; i < _lens; i++)
         {
-            EditorUtility.DisplayProgressBar("Rmv Select Fab's NoDependency", "Start ...", 0.0f);
-            var arrs = GetSelectAssetPaths("t:Prefab");
-            if (arrs == null || arrs.Length <= 0)
+            _cur = _lines[i];
+            if (_isDelNext)
             {
-                EditorUtility.ClearProgressBar();
-                Debug.LogError("=== Rmv Select Fab's NoDependency = is not select folders");
-                return;
+                _isDelNext = false;
+                continue;
             }
-            EditorUtility.DisplayProgressBar("Rmv Select Fab's NoDependency", "begin ...", 0);
-            int _lens = arrs.Length;
-            string dirDataNoAssets = Application.dataPath.Replace("Assets", "");
-            dirDataNoAssets = dirDataNoAssets.Replace('\\', '/');
-            string _assetPath, _filePath;
-            bool _isChg = false, _isCurChg = false;
-            for (int i = 0; i < _lens; i++)
+            if (Regex.IsMatch(_cur, RegexStr))
             {
-                _assetPath = arrs[i];
-                EditorUtility.DisplayProgressBar("Rmv Select Fab's NoDependency ("+i+"/"+_lens+")", _assetPath, (i + 1) / (float)_lens);
-                _filePath = dirDataNoAssets + _assetPath;
-                _isCurChg = RemoveFabNoDependency(_filePath);
-                _isChg = _isChg || _isCurChg;
-                System.Threading.Thread.Sleep(0);
+                _match = Regex.Match(_cur, RegexStr);
+                _guid = _match.Value;
+                _guid = _guid.Replace("guid: ", "").Trim();
+                _assetPath4GUID = AssetDatabase.GUIDToAssetPath(_guid);
+                if (string.IsNullOrEmpty(_assetPath4GUID))
+                {
+                    int _index = _cur.IndexOf("{");
+                    int _index2 = _cur.LastIndexOf("}");
+                    _cur = _cur.Substring(0, _index);
+                    _cur = string.Concat(_cur, "{fileID: 0}");
+                    _isChg = true;
+                    _isDelNext = _index2 <= 0;
+                }
             }
+            _list.Add(_cur);
+        }
+        if (_isChg)
+        {
+            string[] _line2 = _list.ToArray();
+            File.WriteAllLines(fp, _line2);
+        }
+        return _isChg;
+    }
+
+    [MenuItem("Assets/Tools_Art/_Opts/Rmv Select Prefab's NoDependency")]
+    static void RmvSelectFabNoDependency()
+    {
+        EditorUtility.DisplayProgressBar("Rmv Select Fab's NoDependency", "Start ...", 0.0f);
+        var arrs = GetSelectAssetPaths("t:Prefab");
+        if (arrs == null || arrs.Length <= 0)
+        {
             EditorUtility.ClearProgressBar();
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-			EditorUtility.UnloadUnusedAssetsImmediate();
-            EditorUtility.DisplayDialog("Rmv Select Fab's NoDependency", "this is over", "Okey");
+            Debug.LogError("=== Rmv Select Fab's NoDependency = is not select folders");
+            return;
         }
+        EditorUtility.DisplayProgressBar("Rmv Select Fab's NoDependency", "begin ...", 0);
+        int _lens = arrs.Length;
+        string dirDataNoAssets = Application.dataPath.Replace("Assets", "");
+        dirDataNoAssets = dirDataNoAssets.Replace('\\', '/');
+        string _assetPath, _filePath;
+        bool _isChg = false, _isCurChg = false;
+        for (int i = 0; i < _lens; i++)
+        {
+            _assetPath = arrs[i];
+            EditorUtility.DisplayProgressBar("Rmv Select Fab's NoDependency ("+i+"/"+_lens+")", _assetPath, (i + 1) / (float)_lens);
+            _filePath = dirDataNoAssets + _assetPath;
+            _isCurChg = RemoveFabNoDependency(_filePath);
+            _isChg = _isChg || _isCurChg;
+            System.Threading.Thread.Sleep(0);
+        }
+        EditorUtility.ClearProgressBar();
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        EditorUtility.UnloadUnusedAssetsImmediate();
+        EditorUtility.DisplayDialog("Rmv Select Fab's NoDependency", "this is over", "Okey");
+    }
+
+    [MenuItem("Tools_Art/_Opts/Guid 2 Local Identfier In File")]
+    static void GUID2LocalFileID()
+    {
+        EditorUtility.DisplayProgressBar("Guid 2 Local Identfier In File", "Start ...", 0.0f);
+        string[] _guids = {
+            "8248cd13cd61e554996dfe76e483f5af"
+        };
+        string _assetPath;
+        string _guid;
+        long _localid;
+        foreach (var item in _guids)
+        {
+            _assetPath = AssetDatabase.GUIDToAssetPath(item);
+            UObject _obj = AssetDatabase.LoadAssetAtPath<UObject>(_assetPath);
+            if(AssetDatabase.TryGetGUIDAndLocalFileIdentifier(_obj,out _guid,out _localid))
+            {
+                Debug.LogErrorFormat("============== guid = [{0}] , guid2 = [{1}] , localid = [{2}]",item,_guid,_localid);
+            }
+        }
+        EditorUtility.ClearProgressBar();
+        AssetDatabase.Refresh();
+        EditorUtility.UnloadUnusedAssetsImmediate();
+        EditorUtility.DisplayDialog("Guid 2 Local Identfier In File", "this is over", "Okey");
+    }
 }
