@@ -492,9 +492,13 @@ public static class CMDMenu
         var _arrs4 = gobjClone.GetComponentsInChildren<ParticleSystem>(true);
         ParticleSystemRenderer _rer_ = null;
         bool _isTrail;
+		bool _isSubEmitters;
+        bool _isCNot;
         foreach (var item in _arrs4)
         {
             _isTrail = false;
+            _isSubEmitters = false;
+            _isCNot = true;
             if (item != null)
             {
                 var _shapeModule = item.shape;
@@ -525,13 +529,14 @@ public static class CMDMenu
                 if (_rer_ != null)
                 {
                     _isTrail = (item.trails.enabled && _rer_.trailMaterial != null);
-
+					_isSubEmitters = item.subEmitters.enabled;
+                    _isCNot = !_isSubEmitters && !_isTrail;
                     switch (_rer_.renderMode)
                     {
                         case ParticleSystemRenderMode.Mesh:
                             break;
                         default:
-                            if (!_isTrail && _rer_.renderMode == ParticleSystemRenderMode.None && _rer_.sharedMaterial != null)
+                            if (_isCNot && _rer_.renderMode == ParticleSystemRenderMode.None && _rer_.sharedMaterial != null)
                             {
                                 // 清除过 sharedMaterials 最终还是会记录两个 空数据
                                 _rer_.sharedMaterial = null;
@@ -543,7 +548,7 @@ public static class CMDMenu
                     }
                 }
 
-                if ((_rer_ == null) || (!_rer_.enabled) || ((_rer_.sharedMaterial == null) && !_isTrail))
+                if ((_rer_ == null) || (!_isSubEmitters && !_rer_.enabled) || ((_rer_.sharedMaterial == null) && _isCNot))
                 {
                     if (_rer_ != null)
                     {
