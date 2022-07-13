@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+// using System.Linq;
 
 using System.Reflection;
 using System.IO;
@@ -752,5 +753,48 @@ public static class CMDMenu
         AssetDatabase.Refresh();
         EditorUtility.UnloadUnusedAssetsImmediate();
         EditorUtility.DisplayDialog("Guid 2 Local Identfier In File", "this is over", "Okey");
+    }
+	
+	[MenuItem("Tools_Art/_Opts/Check Spine Json file")]
+    static void CheckSpineJson()
+    {
+        EditorUtility.DisplayProgressBar("Check Spine Json file", "Start ...", 0.0f);
+		string _fd = Application.dataPath;
+        string[] files = null;
+        
+        files = Directory.GetFiles(_fd, "*.json", SearchOption.AllDirectories);
+        // files = Directory.GetFiles(_fd, "*.*", SearchOption.AllDirectories)
+            // .Where(s => s.ToLower().EndsWith(".json")).ToArray();
+        
+        string _hasStr = "Spines";
+        bool _isEmpty = string.IsNullOrEmpty(_hasStr);
+		
+		string fpAsset = "";
+		int _lens = files.Length;
+        System.Text.StringBuilder _sbd = new System.Text.StringBuilder();
+        _sbd.Append("Check Spine Json file").AppendLine();
+        for (int i = 0; i < files.Length; i++)
+        {
+            fpAsset = files[i];
+			EditorUtility.DisplayProgressBar("Check Spine Json file ("+i+"/"+_lens+")", fpAsset, (i + 1) / (float)_lens);
+            if(_isEmpty || fpAsset.Contains(_hasStr))
+            {
+                _sbd.Append(fpAsset).AppendLine();
+                System.Threading.Thread.Sleep(0);
+            }
+        }
+        string _cont = _sbd.ToString();
+        _sbd.Clear();
+        _sbd.Length = 0;
+
+        EditorUtility.ClearProgressBar();
+        AssetDatabase.Refresh();
+        EditorUtility.UnloadUnusedAssetsImmediate();
+        EditorUtility.DisplayDialog("Check Spine Json file", "this is over", "Okey");
+
+        string _fdir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + "/";;
+        string _fp = string.Format("{0}json_files_{1}.txt",_fdir,SDTime.UtcNow.ToString("MMddHHmmss"));
+		File.WriteAllText(_fp,_cont);
+        Debug.LogErrorFormat("===== write to {0}",_fp);
     }
 }
