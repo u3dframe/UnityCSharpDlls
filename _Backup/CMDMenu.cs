@@ -165,7 +165,9 @@ public static class CMDMenu
         string[] _tes = AssetDatabase.FindAssets("t:Texture",searchInFolders);
         string _assetPath;
         System.Text.StringBuilder _sbd = new System.Text.StringBuilder();
+        System.Text.StringBuilder _sbd2 = new System.Text.StringBuilder();
         _sbd.Append("Texture's Size  >  256x256").AppendLine();
+        _sbd2.Append("Texture's Has more Space").AppendLine();
         int _len = _tes.Length;
 		TextureImporterPlatformSettings _tseting;
         for (int i = 0; i < _len; i++)
@@ -192,12 +194,48 @@ public static class CMDMenu
         EditorUtility.ClearProgressBar();
 
 		// string _fdir = Application.dataPath + "/../"; // m_dirRes
-		string _fdir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + "/";;
+		string _fdir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + "/";
         string _fp = string.Format("{0}big_texture_{1}.txt",_fdir,SDTime.UtcNow.ToString("MMddHHmmss"));
 		File.WriteAllText(_fp,_cont);
         Debug.LogErrorFormat("===== write to {0}",_fp);
     }
-	
+
+    [MenuItem("Tools_Art/_Opts/CopyTexture",false,5)]
+    static public void CMD_CopyTexture(){
+        EditorUtility.DisplayProgressBar("CopyTexture", "Checking", 0.1f);
+        string[] searchInFolders = {
+            "Assets"
+        };
+        string[] _tes = AssetDatabase.FindAssets("t:Texture",searchInFolders);
+        string _assetPath;
+        int _len = _tes.Length;
+        string _fp,_fpOut;
+        string _fdNoAsset = Application.dataPath.Replace("Assets","");
+        string _fdDesk = System.Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + "/";
+        string _fdOutRoot = string.Format("{0}CpTextrue_{1}/",_fdDesk,SDTime.UtcNow.ToString("MMddHHmmss"));
+        try
+        {
+            for (int i = 0; i < _len; i++)
+            {
+                _assetPath = AssetDatabase.GUIDToAssetPath(_tes[i]);
+                _fp = _fdNoAsset + _assetPath;
+                _fpOut = _fdOutRoot + _assetPath;
+                EditorUtility.DisplayProgressBar("CopyTexture ("+i+"/"+_len+")", _fp, i / (float)_len);
+                var o = Directory.GetParent(_fpOut);
+                o.Create();
+                FileInfo fi = new FileInfo(_fp);
+                fi.CopyTo(_fpOut);
+            }
+        }
+        catch
+        {
+        }
+        EditorUtility.ClearProgressBar();
+        string _tt = "Cp To Folder = " + _fdOutRoot;
+        EditorUtility.DisplayDialog("CopyTexture Finished", _tt, "Okey");
+        Debug.LogErrorFormat("=====  {0}",_tt);
+    }
+
 	static private void RemoveElement(Material mat, string spName, SerializedProperty saveProperty)
 	{
 		SerializedProperty property = saveProperty.FindPropertyRelative(spName);
@@ -411,7 +449,7 @@ public static class CMDMenu
         _sbd.Length = 0;
         EditorUtility.ClearProgressBar();
 		EditorUtility.UnloadUnusedAssetsImmediate();
-		string _fdir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + "/";;
+		string _fdir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + "/";
         string _fp = string.Format("{0}more_spriteAtlas_{1}.txt",_fdir,SDTime.UtcNow.ToString("MMddHHmmss"));
 		File.WriteAllText(_fp,_cont);
         Debug.LogErrorFormat("===== write to {0}",_fp);
@@ -792,7 +830,7 @@ public static class CMDMenu
         EditorUtility.UnloadUnusedAssetsImmediate();
         EditorUtility.DisplayDialog("Check Spine Json file", "this is over", "Okey");
 
-        string _fdir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + "/";;
+        string _fdir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.DesktopDirectory) + "/";
         string _fp = string.Format("{0}json_files_{1}.txt",_fdir,SDTime.UtcNow.ToString("MMddHHmmss"));
 		File.WriteAllText(_fp,_cont);
         Debug.LogErrorFormat("===== write to {0}",_fp);
