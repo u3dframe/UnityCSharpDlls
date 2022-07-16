@@ -1,13 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 
-using System.Reflection;
 using System.IO;
-using System.Text;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using SDTime = System.DateTime;
-using UObject = UnityEngine.Object;
+// using UObject = UnityEngine.Object;
 
 /// <summary>
 /// 类名 : Menu 菜单Tools里面的命名
@@ -17,7 +13,6 @@ using UObject = UnityEngine.Object;
 /// </summary>
 public static class CMDMenuCopy
 {
-	static public SelectionMode m_smAssets = SelectionMode.Assets | SelectionMode.DeepAssets;
 	[MenuItem("Tools_Art/_Opts/CopyTexture",false,5)]
     static public void CMD_CopyTexture(){
         EditorUtility.DisplayProgressBar("CopyTexture", "Checking", 0.1f);
