@@ -649,6 +649,9 @@ namespace Core.Art
             string[] _lines;
             string _line, _line1;
             float _temp;
+            // 数字匹配 [\r\n\s\t]*-?[\d\.]+ 没匹配到 科学计数 e-
+            // [\r\n\s\t]*-?[\d\.]+[Ee]?-?[0-9]*  正确匹配科学计数 e-
+            // [\r\n\s\t]*-?[\d\.]+[Ee-]?[0-9]*  不正确
             string _p1 = @"[\r\n\s\t]*\w+:[\r\n\s\t]*{[\r\n\s\t]*(x:[\r\n\s\t]*-?[\d\.]+),[\r\n\s\t]*(y:[\r\n\s\t]*-?[\d\.]+),[\r\n\s\t]*(z:[\r\n\s\t]*-?[\d\.]+),?[\r\n\s\t]*?(w:[\r\n\s\t]*-?[\d\.]+)?[\r\n\s\t]*?}";
 
             // _p1 = @"[\r\n\s\t]*\w+:[\r\n\s\t]*{[\r\n\s\t]*x:[\r\n\s\t]*(-?\d+\.?\d+?),[\r\n\s\t]*y:[\r\n\s\t]*(-?\d+\.?\d+?),[\r\n\s\t]*z:[\r\n\s\t]*(-?\d+\.?\d+?),?[\r\n\s\t]*?w?:?[\r\n\s\t]*(-?\d+\.?\d+?)?[\r\n\s\t]*?}";
